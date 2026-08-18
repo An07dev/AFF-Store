@@ -1,0 +1,77 @@
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-card, #13161f) 0%,
+    var(--bg-card-hover, #1a1e2b) 50%,
+    var(--bg-card, #13161f) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: var(--radius-sm, 6px);
+  display: block;
+}
+
+.text {
+  height: 16px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.rect {
+  width: 100%;
+  height: 120px;
+}
+
+.circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+/* Product Card Skeleton */
+.productCard {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: var(--radius-md, 12px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.productCardImg {
+  width: 100%;
+  padding-top: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--bg-main, #090a0f) 0%,
+    var(--bg-card-hover, #1a1e2b) 50%,
+    var(--bg-main, #090a0f) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.productCardBody {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Table Row Skeleton */
+.tableRow {
+  display: flex;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-color, #232838);
+  align-items: center;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

@@ -1,0 +1,653 @@
+/* ===== TIKTOK SHOP MOBILE CHECKOUT PAGE (Theme Tokens) ===== */
+.page {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-main, #090a0f);
+  color: var(--text-main, #f8fafc);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== FIXED TOP NAVIGATION ===== */
+.topNav {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--navbar-bg, #090a0f);
+  border-bottom: 1px solid var(--border-color, #232838);
+  z-index: 40;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--text-main, #f8fafc);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color 0.15s;
+}
+
+.backBtn:hover {
+  color: var(--primary, #3b82f6);
+}
+
+.navTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+}
+
+.secureBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent, #10b981);
+}
+
+/* ===== SCROLLABLE CHECKOUT FORM BODY ===== */
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+  padding: 12px 14px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scrollArea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollArea::-webkit-scrollbar-thumb {
+  background: var(--border-color, #232838);
+  border-radius: 4px;
+}
+
+/* ===== ADDRESS CARD (TIKTOK SHOP STYLE) ===== */
+.addressCard {
+  background: var(--bg-card, #13161f);
+  border-radius: var(--radius-md, 14px);
+  border: 1px solid var(--border-color, #232838);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+/* Signature Decorative Envelope Stripe */
+.envelopeStripe {
+  height: 3.5px;
+  width: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    #ef4444 0px,
+    #ef4444 14px,
+    #ffffff 14px,
+    #ffffff 18px,
+    #3b82f6 18px,
+    #3b82f6 32px,
+    #ffffff 32px,
+    #ffffff 36px
+  );
+}
+
+.addressCardBody {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.addressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.addressHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pinIconWrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addressTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  letter-spacing: 0.2px;
+}
+
+.editAddressBtn {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #60a5fa;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.editAddressBtn:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+/* Address Preview */
+.addressPreview {
+  background: #090a10;
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.addressPreview:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.customerName {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+}
+
+.dotSeparator {
+  color: var(--text-muted, #64748b);
+  font-size: 10px;
+}
+
+.customerPhone {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  font-family: monospace;
+}
+
+.defaultBadge {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.fullAddressText {
+  font-size: 12px;
+  color: var(--text-muted, #cbd5e1);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Edit Address Inputs */
+.addressForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  animation: fadeIn 0.2s ease;
+  width: 100%;
+  min-width: 0;
+}
+
+.gridTwo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+.inputGroup label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: #090a10;
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 12px;
+  color: var(--text-main, #ffffff);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: var(--primary, #3b82f6);
+}
+
+.selectInput {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 13px;
+  padding-right: 28px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.confirmAddressBtn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  transition: transform 0.15s;
+}
+
+.confirmAddressBtn:active {
+  transform: scale(0.98);
+}
+
+/* ===== PRODUCT SUMMARY CARD ===== */
+.productCard {
+  background: var(--bg-card, #13161f);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-color, #232838);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.cardHeader {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.orderItemRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color, #232838);
+}
+
+.orderItemRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.orderItemImg {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-sm, 6px);
+  object-fit: cover;
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  flex-shrink: 0;
+}
+
+.orderItemDetails {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.orderItemName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main, #f8fafc);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orderItemVariant {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.orderItemPriceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.orderItemPrice {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent, #10b981);
+}
+
+.orderItemQty {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* ===== SHIPPING CARRIERS SELECTOR (API 8.1) ===== */
+.shippingCard {
+  background: var(--bg-card, #13161f);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-color, #232838);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.carrierList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.carrierItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: var(--radius-sm, 8px);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.carrierActive {
+  border-color: var(--primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.carrierLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.carrierRadio {
+  accent-color: var(--primary, #3b82f6);
+  width: 16px;
+  height: 16px;
+}
+
+.carrierInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.carrierName {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.carrierEstimated {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.carrierFee {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+}
+
+/* ===== PAYMENT METHODS CARD ===== */
+.paymentCard {
+  background: var(--bg-card, #13161f);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-color, #232838);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.paymentList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: var(--radius-sm, 8px);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.paymentActive {
+  border-color: var(--primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.paymentOptionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.paymentOptionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.paymentOptionDesc {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* ===== BILL SUMMARY CARD ===== */
+.billCard {
+  background: var(--bg-card, #13161f);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-color, #232838);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.billRow {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted, #94a3b8);
+}
+
+.billVal {
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+/* ===== FIXED BOTTOM CHECKOUT BAR ===== */
+.bottomBar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--navbar-bg, #090a0f);
+  border-top: 1px solid var(--border-color, #232838);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 50;
+  gap: 10px;
+}
+
+.totalGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.totalLabel {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.totalAmount {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--primary, #3b82f6);
+}
+
+.savedBadge {
+  font-size: 9px;
+  color: var(--accent, #10b981);
+  font-weight: 700;
+}
+
+.orderSubmitBtn {
+  padding: 12px 24px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 13px;
+  font-weight: 800;
+  background: var(--primary, #3b82f6);
+  color: var(--primary-text, #ffffff);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: transform 0.1s;
+}
+
+.orderSubmitBtn:active {
+  transform: scale(0.98);
+}
+
+.orderSubmitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Empty State */
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 14px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  color: var(--text-muted, #94a3b8);
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  margin: 0;
+}
+
+.emptyDesc {
+  font-size: 13px;
+  color: var(--text-muted, #94a3b8);
+  max-width: 260px;
+  margin: 0;
+}
+
+.emptyBtn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: var(--primary, #3b82f6);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

@@ -1,0 +1,135 @@
+.card {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: var(--radius-md, 12px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary, #3b82f6);
+  box-shadow: var(--shadow-md);
+  background: var(--bg-card-hover, #1a1e2b);
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  background: var(--bg-main, #090a0f);
+  overflow: hidden;
+}
+
+.productImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .productImg {
+  transform: scale(1.05);
+}
+
+.saleBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--danger, #ef4444);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm, 6px);
+  z-index: 2;
+}
+
+.info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.categoryName {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-main, #f8fafc);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 2.8em;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.currentPrice {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  color: var(--primary, #3b82f6);
+}
+
+.oldPrice {
+  font-size: 0.8125rem;
+  color: var(--text-dim, #64748b);
+  text-decoration: line-through;
+}
+
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color, #1e2433);
+}
+
+.soldCount {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.addBtn {
+  background: var(--primary, #3b82f6);
+  color: var(--primary-text, #fff);
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.addBtn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+
+.addBtn:active {
+  transform: scale(0.92);
+}

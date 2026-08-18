@@ -1,0 +1,92 @@
+.container {
+  padding: 24px;
+  max-width: 1000px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--admin-text, #f3f4f6);
+}
+
+.saveBtn {
+  background: var(--primary, #3b82f6);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.saveBtn:hover {
+  opacity: 0.9;
+}
+
+.card {
+  background: var(--admin-card, #1a1d27);
+  border: 1px solid var(--admin-border, #2d3343);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--admin-text, #f3f4f6);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.inputGroup label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--admin-text-muted, #9ca3af);
+}
+
+.input {
+  background: var(--admin-bg, #0f1117);
+  border: 1px solid var(--admin-border, #2d3343);
+  color: var(--admin-text, #fff);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--primary, #3b82f6);
+}
+
+.gridTwo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .gridTwo {
+    grid-template-columns: 1fr;
+  }
+}

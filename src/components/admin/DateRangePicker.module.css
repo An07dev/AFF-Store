@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1a1d27;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #2d3343;
+}
+
+.dateInput {
+  background: #0f1117;
+  border: 1px solid #2d3343;
+  color: #f3f4f6;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  outline: none;
+}
+
+.dateInput:focus {
+  border-color: #3b82f6;
+}
+
+.separator {
+  color: #9ca3af;
+  font-size: 0.8125rem;
+}

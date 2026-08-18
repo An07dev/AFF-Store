@@ -1,0 +1,792 @@
+{
+  "info": {
+    "_postman_id": "9b12a843-shop-landing-webbanhang-api-v2",
+    "name": "ShopTik - WebBanHang Full API Collection",
+    "description": "Bộ sưu tập Postman Collection hoàn chỉnh 100% cho dự án ShopTik (Next.js Fullstack E-Commerce). Bao gồm tất cả các module: Auth, Products, Categories, Orders, Customers CRM, Reports, Shipping, SePay Webhook, Theme Settings, Upload.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "product_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "category_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customer_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Xác thực & Tài khoản (Auth)",
+      "item": [
+        {
+          "name": "1.1. Đăng nhập Admin (Lấy Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.token) {",
+                  "        pm.collectionVariables.set('auth_token', jsonData.data.token);",
+                  "        console.log('✅ Đã lưu token vào biến auth_token:', jsonData.data.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@shoptik.vn\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Đăng nhập tài khoản quản trị và tự động lưu Bearer token vào biến collection `auth_token`."
+          }
+        },
+        {
+          "name": "1.2. Đổi mật khẩu Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"admin123\",\n  \"newPassword\": \"admin123new\",\n  \"confirmPassword\": \"admin123new\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "change-password"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Quản lý Sản phẩm (Products)",
+      "item": [
+        {
+          "name": "2.1. Lấy danh sách sản phẩm (Phân trang & Lọc)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/products?page=1&limit=10&search=&status=all&sort=newest",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "" },
+                { "key": "status", "value": "all" },
+                { "key": "sort", "value": "newest" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.2. Thêm mới sản phẩm",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.collectionVariables.set('product_id', jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Áo Thun Nam Cotton 100% Co Giãn\",\n  \"price\": 220000,\n  \"salePrice\": 179000,\n  \"category\": \"{{category_id}}\",\n  \"images\": [\"https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600\"],\n  \"stock\": 150,\n  \"description\": \"Áo thun cotton cao cấp thoáng mát thấm hút mồ hôi\",\n  \"status\": \"active\",\n  \"isFeatured\": true,\n  \"tags\": [\"aothun\", \"cotton\", \"hot\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"]
+            }
+          }
+        },
+        {
+          "name": "2.3. Xem chi tiết sản phẩm",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "2.4. Cập nhật sản phẩm",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Áo Thun Nam Cotton 100% Co Giãn (Updated)\",\n  \"price\": 230000,\n  \"salePrice\": 189000,\n  \"stock\": 120,\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "2.5. Xóa sản phẩm",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{product_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Quản lý Danh mục (Categories)",
+      "item": [
+        {
+          "name": "3.1. Danh sách danh mục (Có productCount)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            }
+          }
+        },
+        {
+          "name": "3.2. Thêm mới danh mục",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.collectionVariables.set('category_id', jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Thời Trang Thể Thao\",\n  \"description\": \"Quần áo và phụ kiện thể thao nam nữ\",\n  \"order\": 4,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            }
+          }
+        },
+        {
+          "name": "3.3. Xem chi tiết danh mục",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "{{category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "3.4. Cập nhật danh mục",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Thời Trang Thể Thao Cao Cấp\",\n  \"description\": \"Cập nhật mô tả\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "{{category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "3.5. Xóa danh mục",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "{{category_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Quản lý Đơn hàng (Orders)",
+      "item": [
+        {
+          "name": "4.1. Lấy danh sách đơn hàng (Filter & Date)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders?page=1&limit=10&status=all&search=&startDate=&endDate=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "all" },
+                { "key": "search", "value": "" },
+                { "key": "startDate", "value": "" },
+                { "key": "endDate", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.2. Tạo đơn hàng mới (Checkout)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.collectionVariables.set('order_id', jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": {\n    \"name\": \"Lê Hoàng Nam\",\n    \"phone\": \"0988112233\",\n    \"email\": \"nam.le@gmail.com\",\n    \"address\": \"Số 25 Cầu Giấy\",\n    \"province\": \"Hà Nội\",\n    \"district\": \"Quận Cầu Giấy\"\n  },\n  \"items\": [\n    {\n      \"name\": \"Áo Thun Nam Cotton\",\n      \"price\": 199000,\n      \"quantity\": 2\n    }\n  ],\n  \"shippingFee\": 22000,\n  \"totalAmount\": 420000,\n  \"paymentMethod\": \"bank_transfer\",\n  \"paymentStatus\": \"unpaid\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            }
+          }
+        },
+        {
+          "name": "4.3. Xem chi tiết đơn hàng",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{order_id}}"]
+            }
+          }
+        },
+        {
+          "name": "4.4. Cập nhật trạng thái đơn hàng",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\",\n  \"paymentStatus\": \"paid\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{order_id}}"]
+            }
+          }
+        },
+        {
+          "name": "4.5. Xóa đơn hàng",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{order_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Quản lý Khách hàng (Customers CRM)",
+      "item": [
+        {
+          "name": "5.1. Danh sách khách hàng (Sync stats)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customers?page=1&limit=10&search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customers"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5.2. Thêm mới khách hàng",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.collectionVariables.set('customer_id', jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Phạm Minh Tuấn\",\n  \"phone\": \"0977665544\",\n  \"email\": \"tuan.pham@gmail.com\",\n  \"address\": \"Số 50 Nguyễn Huệ, TP. HCM\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customers"]
+            }
+          }
+        },
+        {
+          "name": "5.3. Xem chi tiết khách hàng & Lịch sử đơn",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customers/{{customer_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customers", "{{customer_id}}"]
+            }
+          }
+        },
+        {
+          "name": "5.4. Sửa thông tin khách hàng",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Phạm Minh Tuấn (VIP)\",\n  \"phone\": \"0977665544\",\n  \"address\": \"Số 50 Nguyễn Huệ, Quận 1, TP. HCM\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customers/{{customer_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customers", "{{customer_id}}"]
+            }
+          }
+        },
+        {
+          "name": "5.5. Xóa khách hàng",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customers/{{customer_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customers", "{{customer_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Báo cáo & Thống kê (Reports)",
+      "item": [
+        {
+          "name": "6.1. Báo cáo tổng hợp (Period: 30 ngày)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports?period=30days",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports"],
+              "query": [
+                { "key": "period", "value": "30days" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "6.2. Báo cáo theo khoảng ngày tùy chọn (Custom Date Range)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports?period=custom&startDate=2026-08-01&endDate=2026-08-17",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports"],
+              "query": [
+                { "key": "period", "value": "custom" },
+                { "key": "startDate", "value": "2026-08-01" },
+                { "key": "endDate", "value": "2026-08-17" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Vận chuyển & Giao hàng (Shipping)",
+      "item": [
+        {
+          "name": "7.1. Tra & So sánh cước 3 hãng (GHN, GHTK, ViettelPost)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"province\": \"Hà Nội\",\n  \"district\": \"Quận Cầu Giấy\",\n  \"weight\": 500,\n  \"orderValue\": 420000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/shipping/calculate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "shipping", "calculate"]
+            }
+          }
+        },
+        {
+          "name": "7.2. Tạo mã vận đơn giao hàng (Create Order)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{order_id}}\",\n  \"provider\": \"ghn\",\n  \"orderData\": {\n    \"to_name\": \"Lê Hoàng Nam\",\n    \"to_phone\": \"0988112233\",\n    \"to_address\": \"Số 25 Cầu Giấy, Hà Nội\",\n    \"cod_amount\": 420000,\n    \"weight\": 500\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/shipping/create-order",
+              "host": ["{{base_url}}"],
+              "path": ["api", "shipping", "create-order"]
+            }
+          }
+        },
+        {
+          "name": "7.3. Lấy cấu hình Token Hãng vận chuyển",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/shipping/config",
+              "host": ["{{base_url}}"],
+              "path": ["api", "shipping", "config"]
+            }
+          }
+        },
+        {
+          "name": "7.4. Lưu cấu hình Token & Biểu phí vận chuyển",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ghnEnabled\": true,\n  \"ghnToken\": \"ghn_live_token_abc123\",\n  \"ghnShopId\": \"190234\",\n  \"ghtkEnabled\": true,\n  \"ghtkToken\": \"ghtk_token_xyz\",\n  \"vtpEnabled\": true,\n  \"vtpToken\": \"vtp_token_123\",\n  \"defaultInnerFee\": 22000,\n  \"defaultOuterFee\": 32000,\n  \"freeShippingThreshold\": 500000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/shipping/config",
+              "host": ["{{base_url}}"],
+              "path": ["api", "shipping", "config"]
+            }
+          }
+        },
+        {
+          "name": "7.5. Test kết nối Token hãng vận chuyển",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/shipping/test",
+              "host": ["{{base_url}}"],
+              "path": ["api", "shipping", "test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Thanh toán & Webhook SePay",
+      "item": [
+        {
+          "name": "8.1. Kiểm tra trạng thái thanh toán Realtime (By OrderId)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payment/status?orderId={{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "status"],
+              "query": [
+                { "key": "orderId", "value": "{{order_id}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "8.2. Kiểm tra trạng thái thanh toán Realtime (By Code)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payment/status?code=ST466451",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "status"],
+              "query": [
+                { "key": "code", "value": "ST466451" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "8.3. Gửi Webhook SePay Giả lập (Xác nhận tiền vào)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 998822,\n  \"gateway\": \"Vietcombank\",\n  \"transactionDate\": \"2026-08-17 15:30:00\",\n  \"accountNumber\": \"VQRQALASG6118\",\n  \"subAccount\": null,\n  \"transferType\": \"in\",\n  \"transferAmount\": 200000,\n  \"accumulated\": 15000000,\n  \"code\": null,\n  \"content\": \"Thanh toan don ST466451\",\n  \"referenceCode\": \"VCB.MB.9823412\",\n  \"description\": \"Chuyen tien mua hang\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/webhooks/sepay",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks", "sepay"]
+            }
+          }
+        },
+        {
+          "name": "8.4. Kiểm tra Endpoint Webhook SePay (Health Check)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/webhooks/sepay",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks", "sepay"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Cài đặt & Theme Hệ thống (Settings)",
+      "item": [
+        {
+          "name": "9.1. Lấy cấu hình Theme & Cửa hàng",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/settings/theme",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings", "theme"]
+            }
+          }
+        },
+        {
+          "name": "9.2. Lưu cấu hình Theme & Giao diện toàn trang",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"themeMode\": \"dark\",\n  \"primaryColor\": \"#3b82f6\",\n  \"accentColor\": \"#10b981\",\n  \"siteTitle\": \"ShopTik - Cửa Hàng Thời Trang Cao Cấp\",\n  \"logoText\": \"ShopTik\",\n  \"bannerNotice\": \"🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ\",\n  \"showBannerNotice\": true,\n  \"contactHotline\": \"1900 6868\",\n  \"contactEmail\": \"support@shoptik.vn\",\n  \"contactAddress\": \"Số 18, Ngõ 45 Đường Cầu Giấy, Hà Nội\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/settings/theme",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings", "theme"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Tiện ích & Seed Dữ liệu (Utilities)",
+      "item": [
+        {
+          "name": "10.1. Upload Hình ảnh",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "upload"]
+            }
+          }
+        },
+        {
+          "name": "10.2. Seed Dữ liệu ban đầu",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/seed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "seed"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

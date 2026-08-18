@@ -1,0 +1,208 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main, #ffffff);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.layoutGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.card {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-main, #ffffff);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  color: var(--text-main, #ffffff);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.input,
+.select {
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  color: var(--text-main, #ffffff);
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.input:focus,
+.select:focus {
+  border-color: var(--primary, #3b82f6);
+}
+
+.copyBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  padding: 8px 12px;
+  border-radius: var(--radius-md, 8px);
+}
+
+.copyText {
+  flex: 1;
+  font-family: monospace;
+  font-size: 0.8125rem;
+  color: var(--primary, #3b82f6);
+  word-break: break-all;
+}
+
+.copyBtn {
+  background-color: var(--secondary-btn-bg, #1a1e2b);
+  border: 1px solid var(--border-color, #232838);
+  color: var(--secondary-btn-text, #94a3b8);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.copyBtn:hover {
+  color: var(--text-main, #ffffff);
+  border-color: var(--primary, #3b82f6);
+}
+
+.saveBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--primary, #3b82f6);
+  color: var(--primary-text, #ffffff);
+  padding: 11px 20px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* QR Code Preview Box */
+.qrBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: var(--radius-md, 10px);
+  padding: 20px;
+  gap: 12px;
+}
+
+.qrImage {
+  max-width: 220px;
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: contain;
+  border-radius: var(--radius-sm, 6px);
+  background-color: #ffffff;
+  padding: 8px;
+}
+
+.qrInfo {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.5;
+}
+
+/* Simulator Output Box */
+.consoleOutput {
+  background-color: #050608;
+  border: 1px solid var(--border-color, #232838);
+  border-radius: var(--radius-md, 8px);
+  padding: 12px;
+  font-family: monospace;
+  font-size: 0.8125rem;
+  color: #10b981;
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 900px) {
+  .layoutGrid {
+    grid-template-columns: 1fr;
+  }
+}

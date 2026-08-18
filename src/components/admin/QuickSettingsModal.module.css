@@ -1,0 +1,73 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal {
+  background: #1a1d27;
+  border: 1px solid #2d3343;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  padding: 24px;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h3 {
+  font-size: 1.125rem;
+  color: #f3f4f6;
+}
+
+.closeBtn {
+  color: #9ca3af;
+  font-size: 1.25rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputGroup label {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+}
+
+.input {
+  background: #0f1117;
+  border: 1px solid #2d3343;
+  color: #f3f4f6;
+  padding: 10px 12px;
+  border-radius: 6px;
+  outline: none;
+}
+
+.saveBtn {
+  background: #3b82f6;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-top: 8px;
+}

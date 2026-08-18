@@ -1,0 +1,1039 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg-page, #0b0c10);
+  color: var(--text-main, #f8fafc);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 72px; /* clearance for bottomNav */
+}
+
+/* Top Nav */
+.topNav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 52px;
+  background: var(--bg-card, #13161f);
+  border-bottom: 1px solid var(--border-color, #232838);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.backBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-main, #f8fafc);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.navTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+/* Content Container */
+.content {
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Search Card */
+.searchCard {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 16px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.searchHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  margin: 0;
+}
+
+.searchDesc {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.searchForm {
+  display: flex;
+  gap: 8px;
+}
+
+.inputWrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted, #94a3b8);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 44px;
+  background: #0b0d13;
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 10px;
+  padding: 0 34px 0 36px;
+  color: var(--text-main, #f8fafc);
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: var(--primary, #3b82f6);
+}
+
+.clearInputBtn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.searchBtn {
+  background: var(--primary, #3b82f6);
+  color: #fff;
+  border: none;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.searchBtn:active {
+  opacity: 0.85;
+}
+
+/* Recent Section */
+.recentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.recentLabel {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.chipsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color, #232838);
+  color: var(--text-main, #f8fafc);
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chip:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--primary, #3b82f6);
+  color: #60a5fa;
+}
+
+.activeChip {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: var(--primary, #3b82f6);
+  color: #60a5fa;
+  font-weight: 700;
+}
+
+/* Loading Box */
+.loadingBox {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 14px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted, #94a3b8);
+  font-size: 13px;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary, #3b82f6);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+/* Error Box */
+.errorBox {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 14px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.errorText {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f87171;
+  margin: 0;
+}
+
+.errorSubtext {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+  margin: 0;
+}
+
+/* Result Container */
+.resultContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Order Header Card */
+.orderHeaderCard {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.orderTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.codeGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.orderCodeTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+}
+
+.copyBtn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color, #232838);
+  color: #60a5fa;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statusBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.statusPending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.statusConfirmed {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.statusShipping {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.statusDelivered {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.statusCancelled {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.dateRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* Timeline Card */
+.timelineCard {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color, #232838);
+}
+
+.stepperWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 6px;
+}
+
+.stepBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+}
+
+.stepCircle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1a1e2b;
+  border: 2px solid var(--border-color, #232838);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.stepDone .stepCircle {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.stepTexts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 14px;
+}
+
+.stepTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.liveTag {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.waybillInline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.08);
+  padding: 3px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.copyWaybillInlineBtn {
+  background: transparent;
+  border: none;
+  color: #60a5fa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  padding: 0;
+  font-weight: 600;
+}
+
+.stepDesc {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.stepBar {
+  width: 2px;
+  height: 16px;
+  background: var(--border-color, #232838);
+  margin-left: 10px;
+  margin-top: -12px;
+  margin-bottom: 4px;
+  z-index: 1;
+}
+
+.barDone {
+  background: #10b981;
+}
+
+/* ===================================================
+   DEDICATED CARRIER LIVE TRACKING HUB
+   =================================================== */
+.carrierTrackingCard {
+  background: linear-gradient(145deg, #131622, #0d0f18);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 16px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.carrierHubHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.carrierHubLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.carrierIconBox {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.carrierHubTitleBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.carrierHubTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  margin: 0;
+}
+
+.carrierHubSubtitle {
+  font-size: 11px;
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.pulseActive {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+/* Waybill Box */
+.waybillBox {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.waybillLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.waybillLabel {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.waybillCode {
+  font-size: 14px;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+  font-family: monospace;
+}
+
+.copyWaybillBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copyWaybillBtn:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+/* Carrier Logs Section */
+.carrierLogsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #090a10;
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.logsSectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.logsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.logItem {
+  display: flex;
+  gap: 10px;
+  position: relative;
+}
+
+.logLeftCol {
+  width: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.logTime {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.logDate {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.logTimelineCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 16px;
+}
+
+.logDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #232838;
+  border: 2px solid #334155;
+  z-index: 2;
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logCurrent .logDot {
+  background: #10b981;
+  border-color: #059669;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.activeInnerDot {
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.logLine {
+  width: 2px;
+  flex: 1;
+  background: #232838;
+  margin: 2px 0;
+}
+
+.logCurrent .logLine {
+  background: linear-gradient(to bottom, #10b981, #232838);
+}
+
+.logRightCol {
+  flex: 1;
+  padding-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.logStatusRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.logStatus {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.logCurrent .logStatus {
+  color: #10b981;
+}
+
+.newestBadge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.logDesc {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.logLocation {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Carrier Action Row */
+.carrierActionRow {
+  display: flex;
+  gap: 8px;
+}
+
+.carrierLinkBtn {
+  flex: 1;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.carrierLinkBtn:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.carrierHotlineBtn {
+  flex: 1;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.carrierHotlineBtn:hover {
+  background: rgba(16, 185, 129, 0.2);
+}
+
+/* Generic Card */
+.card {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Address Section */
+.addressSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.customerLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.customerName {
+  font-size: 13px;
+  color: var(--text-main, #f8fafc);
+}
+
+.customerPhone {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.addressDetail {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.orderNotes {
+  font-size: 11px;
+  color: #f59e0b;
+  margin: 4px 0 0 0;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-color, #232838);
+}
+
+/* Items List */
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.itemRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.itemImg {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #1a1e2b;
+  flex-shrink: 0;
+}
+
+.itemDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.itemName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main, #f8fafc);
+  line-height: 1.3;
+}
+
+.itemVariant {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.itemPriceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itemPrice {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary, #3b82f6);
+}
+
+.itemQty {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* Payment Row */
+.paymentRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.paymentName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main, #f8fafc);
+}
+
+.paymentStatusBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.paidBadge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.unpaidBadge {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.payNowBtn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+/* Bill Rows */
+.billRows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.billRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.totalRow {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  padding-top: 4px;
+  border-top: 1px dashed var(--border-color, #232838);
+}
+
+.totalVal {
+  color: #10b981;
+  font-size: 15px;
+}
+
+/* Action Group */
+.actionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.homeBtn {
+  background: var(--primary, #3b82f6);
+  color: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Guide Card */
+.guideCard {
+  background: var(--bg-card, #13161f);
+  border: 1px dashed var(--border-color, #232838);
+  border-radius: 16px;
+  padding: 36px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.guideIcon {
+  color: var(--primary, #3b82f6);
+  opacity: 0.8;
+}
+
+.guideTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin: 0;
+}
+
+.guideText {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+  max-width: 320px;
+  margin: 0;
+  line-height: 1.5;
+}

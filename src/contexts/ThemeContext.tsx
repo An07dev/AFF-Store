@@ -1,0 +1,279 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { apiFetch } from '@/lib/api';
+
+export interface ThemeConfig {
+  themeName: string;
+  mode: 'dark' | 'light';
+  pageTitles: {
+    siteTitle: string;
+    homeTitle: string;
+    adminTitle: string;
+    logoText: string;
+    logoUrl: string;
+    faviconUrl: string;
+    metaDescription: string;
+    bannerNotice: string;
+    showBannerNotice: boolean;
+  };
+  buttonColors: {
+    primaryBg: string;
+    primaryText: string;
+    primaryHover: string;
+    secondaryBg: string;
+    secondaryText: string;
+    borderRadius: string;
+  };
+  textColors: {
+    textPrimary: string;
+    textSecondary: string;
+    textMuted: string;
+    textAccent: string;
+  };
+  componentColors: {
+    background: string;
+    cardBackground: string;
+    cardHoverBg: string;
+    navbarBg: string;
+    sidebarBg: string;
+    borderColor: string;
+    accentColor: string;
+  };
+}
+
+export const defaultTheme: ThemeConfig = {
+  themeName: 'modern-blue',
+  mode: 'dark',
+  pageTitles: {
+    siteTitle: 'ShopTik - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp',
+    homeTitle: 'Trang Chủ | ShopTik',
+    adminTitle: 'ShopTik Quản Trị Hệ Thống',
+    logoText: 'ShopTik',
+    logoUrl: '',
+    faviconUrl: '/favicon.ico',
+    metaDescription: 'Trải nghiệm mua sắm thời trang trực tuyến thời thượng, giao hàng nhanh chóng toàn quốc.',
+    bannerNotice: '🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ',
+    showBannerNotice: true,
+  },
+  buttonColors: {
+    primaryBg: '#3b82f6',
+    primaryText: '#ffffff',
+    primaryHover: '#2563eb',
+    secondaryBg: '#1a1e2b',
+    secondaryText: '#94a3b8',
+    borderRadius: '10px',
+  },
+  textColors: {
+    textPrimary: '#f8fafc',
+    textSecondary: '#94a3b8',
+    textMuted: '#64748b',
+    textAccent: '#3b82f6',
+  },
+  componentColors: {
+    background: '#090a0f',
+    cardBackground: '#13161f',
+    cardHoverBg: '#1a1e2b',
+    navbarBg: '#090a0f',
+    sidebarBg: '#131826',
+    borderColor: '#232838',
+    accentColor: '#10b981',
+  },
+};
+
+interface ThemeContextType {
+  theme: ThemeConfig;
+  setTheme: React.Dispatch<React.SetStateAction<ThemeConfig>>;
+  saveTheme: (newConfig?: ThemeConfig) => Promise<boolean>;
+  resetToDefault: () => Promise<void>;
+  toggleThemeMode: (mode: 'dark' | 'light') => void;
+  isLoading: boolean;
+  applyCSSVariables: (config: ThemeConfig) => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<ThemeConfig>(defaultTheme);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Apply CSS variables to :root and html element
+  const applyCSSVariables = (config: ThemeConfig) => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+
+    // Set data-theme attribute on <html>
+    root.setAttribute('data-theme', config.mode);
+
+    // Buttons
+    root.style.setProperty('--primary', config.buttonColors.primaryBg);
+    root.style.setProperty('--primary-hover', config.buttonColors.primaryHover);
+    root.style.setProperty('--primary-text', config.buttonColors.primaryText);
+    root.style.setProperty('--secondary-btn-bg', config.buttonColors.secondaryBg);
+    root.style.setProperty('--secondary-btn-text', config.buttonColors.secondaryText);
+    root.style.setProperty('--radius-md', config.buttonColors.borderRadius || '10px');
+
+    // Texts
+    root.style.setProperty('--text-main', config.textColors.textPrimary);
+    root.style.setProperty('--text-muted', config.textColors.textSecondary);
+    root.style.setProperty('--text-dim', config.textColors.textMuted);
+    root.style.setProperty('--text-accent', config.textColors.textAccent);
+
+    // Components & Backgrounds
+    root.style.setProperty('--bg-main', config.componentColors.background);
+    root.style.setProperty('--bg-card', config.componentColors.cardBackground);
+    root.style.setProperty('--bg-card-hover', config.componentColors.cardHoverBg);
+    root.style.setProperty('--navbar-bg', config.componentColors.navbarBg);
+    root.style.setProperty('--admin-sidebar-bg', config.componentColors.sidebarBg);
+    root.style.setProperty('--border-color', config.componentColors.borderColor);
+    root.style.setProperty('--accent', config.componentColors.accentColor);
+
+    // Admin Theme specific variables
+    root.style.setProperty('--admin-bg', config.componentColors.background);
+    root.style.setProperty('--admin-card', config.componentColors.cardBackground);
+    root.style.setProperty('--admin-border', config.componentColors.borderColor);
+    root.style.setProperty('--admin-text', config.textColors.textPrimary);
+    root.style.setProperty('--admin-text-muted', config.textColors.textSecondary);
+    root.style.setProperty('--admin-accent', config.buttonColors.primaryBg);
+
+    // Page Title
+    if (config.pageTitles?.siteTitle) {
+      document.title = config.pageTitles.siteTitle;
+    }
+  };
+
+  // Toggle Theme Mode between Dark and Light
+  const toggleThemeMode = (mode: 'dark' | 'light') => {
+    let updated: ThemeConfig;
+    if (mode === 'dark') {
+      updated = {
+        ...theme,
+        mode: 'dark',
+        componentColors: {
+          ...theme.componentColors,
+          background: '#090a0f',
+          cardBackground: '#13161f',
+          cardHoverBg: '#1a1e2b',
+          navbarBg: '#090a0f',
+          sidebarBg: '#131826',
+          borderColor: '#232838',
+        },
+        textColors: {
+          ...theme.textColors,
+          textPrimary: '#f8fafc',
+          textSecondary: '#94a3b8',
+          textMuted: '#64748b',
+        },
+        buttonColors: {
+          ...theme.buttonColors,
+          secondaryBg: '#1a1e2b',
+          secondaryText: '#94a3b8',
+        },
+      };
+    } else {
+      updated = {
+        ...theme,
+        mode: 'light',
+        componentColors: {
+          ...theme.componentColors,
+          background: '#f8fafc',
+          cardBackground: '#ffffff',
+          cardHoverBg: '#f1f5f9',
+          navbarBg: '#ffffff',
+          sidebarBg: '#ffffff',
+          borderColor: '#e2e8f0',
+        },
+        textColors: {
+          ...theme.textColors,
+          textPrimary: '#0f172a',
+          textSecondary: '#475569',
+          textMuted: '#94a3b8',
+        },
+        buttonColors: {
+          ...theme.buttonColors,
+          secondaryBg: '#f1f5f9',
+          secondaryText: '#475569',
+        },
+      };
+    }
+    setTheme(updated);
+    applyCSSVariables(updated);
+  };
+
+  // Fetch initial theme from API
+  useEffect(() => {
+    async function loadTheme() {
+      try {
+        const res = await apiFetch('/api/settings/theme');
+        const data = await res.json();
+        if (data.success && data.data) {
+          setTheme(data.data);
+          applyCSSVariables(data.data);
+        }
+      } catch (e) {
+        console.error('Failed to load theme from API', e);
+        applyCSSVariables(defaultTheme);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadTheme();
+  }, []);
+
+  // Save theme to MongoDB Atlas via API
+  const saveTheme = async (newConfig?: ThemeConfig): Promise<boolean> => {
+    const configToSave = newConfig || theme;
+    try {
+      applyCSSVariables(configToSave);
+      const res = await apiFetch('/api/settings/theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(configToSave),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTheme(data.data);
+        toast.success('Đã lưu cấu hình giao diện thành công!');
+        return true;
+      } else {
+        toast.error(data.message || 'Lỗi lưu cấu hình');
+        return false;
+      }
+    } catch (e) {
+      toast.error('Lỗi kết nối máy chủ');
+      return false;
+    }
+  };
+
+  const resetToDefault = async () => {
+    setTheme(defaultTheme);
+    applyCSSVariables(defaultTheme);
+    await saveTheme(defaultTheme);
+    toast.success('Đã khôi phục giao diện mặc định');
+  };
+
+  return (
+    <ThemeContext.Provider
+      value={{
+        theme,
+        setTheme,
+        saveTheme,
+        resetToDefault,
+        toggleThemeMode,
+        isLoading,
+        applyCSSVariables,
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}

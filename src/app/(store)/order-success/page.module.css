@@ -1,0 +1,469 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg-page, #0b0c10);
+  color: var(--text-main, #f8fafc);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top Nav */
+.topNav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 52px;
+  background: var(--bg-card, #13161f);
+  border-bottom: 1px solid var(--border-color, #232838);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.backBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-main, #f8fafc);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.navTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+/* Scroll Area */
+.scrollArea {
+  flex: 1;
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 40px;
+}
+
+/* Hero Card */
+.heroCard {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 20px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.iconRing {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.12);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.successIcon {
+  font-size: 36px;
+  color: #10b981;
+}
+
+.heroTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  margin: 0;
+}
+
+.heroDesc {
+  font-size: 13px;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.codeContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.codeLabel {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.codeBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.codeBox:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.codeText {
+  font-size: 14px;
+  font-weight: 800;
+  color: #60a5fa;
+  letter-spacing: 0.5px;
+}
+
+.copyBtn {
+  background: transparent;
+  border: none;
+  color: #60a5fa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* Tracker Card */
+.trackerCard {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.trackerTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.stepperContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+.stepDot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1e2230;
+  border: 1.5px solid var(--border-color, #232838);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+}
+
+.stepCompleted .stepDot {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+
+.stepActive .stepDot {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+.stepName {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+}
+
+.stepCompleted .stepName,
+.stepActive .stepName {
+  color: var(--text-main, #f8fafc);
+  font-weight: 700;
+}
+
+.stepLine {
+  flex: 1;
+  height: 2px;
+  background: var(--border-color, #232838);
+  margin: 0 -4px 18px -4px;
+  z-index: 1;
+}
+
+.lineCompleted {
+  background: #10b981;
+}
+
+/* General Card */
+.card {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color, #232838);
+}
+
+/* Item List */
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.itemRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.itemImg {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #1a1e2b;
+  flex-shrink: 0;
+}
+
+.itemDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.itemName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main, #f8fafc);
+  line-height: 1.3;
+}
+
+.itemVariant {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.itemPriceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.itemPrice {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary, #3b82f6);
+}
+
+.itemQty {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* Address Box */
+.addressBox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.customerRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.customerName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.customerPhone {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.fullAddress {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-color, #232838);
+}
+
+/* Carrier Row */
+.carrierRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.carrierLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.carrierInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.carrierName {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.carrierEstimated {
+  font-size: 10px;
+  color: #10b981;
+}
+
+.carrierFee {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+/* Payment Method Row */
+.paymentMethodRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.paymentTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main, #f8fafc);
+}
+
+.statusBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.statusPaid {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.statusUnpaid {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Bill Rows */
+.billRows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.billRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.totalRow {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  padding-top: 4px;
+  border-top: 1px dashed var(--border-color, #232838);
+}
+
+.totalVal {
+  color: #10b981;
+  font-size: 16px;
+}
+
+/* Action Group */
+.actionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.primaryBtn {
+  background: var(--primary, #3b82f6);
+  color: #fff;
+  padding: 13px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+  transition: transform 0.15s;
+}
+
+.primaryBtn:active {
+  transform: scale(0.98);
+}

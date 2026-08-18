@@ -1,0 +1,24 @@
+.page { display: flex; flex-direction: column; gap: 24px; }
+.header { display: flex; justify-content: space-between; align-items: center; }
+.titleGroup { display: flex; align-items: center; gap: 16px; }
+.backBtn { color: var(--admin-text-muted); font-size: 1.5rem; text-decoration: none; display: flex; align-items: center; }
+.backBtn:hover { color: var(--admin-text); }
+.title { margin: 0; font-size: 1.5rem; }
+.actions { display: flex; gap: 12px; }
+.btnSecondary { background: var(--admin-card); border: 1px solid var(--admin-border); color: var(--admin-text); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+.btnSecondary:hover { background: rgba(255,255,255,0.05); }
+.btnPrimary { background: var(--admin-accent); border: 1px solid var(--admin-accent); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+.grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+.mainCol { display: flex; flex-direction: column; gap: 24px; }
+.sideCol { display: flex; flex-direction: column; gap: 24px; }
+.card { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 8px; padding: 24px; }
+.card h3 { margin: 0 0 16px; font-size: 1.125rem; }
+.formGroup { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+.formGroup label { font-size: 0.875rem; font-weight: 500; color: var(--admin-text-muted); }
+.input, .textarea, .select { width: 100%; background: var(--admin-bg); border: 1px solid var(--admin-border); color: var(--admin-text); padding: 10px 12px; border-radius: 6px; outline: none; font-family: inherit; }
+.input:focus, .textarea:focus, .select:focus { border-color: var(--admin-accent); }
+.uploadArea { border: 2px dashed var(--admin-border); border-radius: 8px; padding: 40px; text-align: center; color: var(--admin-text-muted); cursor: pointer; transition: all 0.2s; }
+.uploadArea:hover { border-color: var(--admin-accent); color: var(--admin-text); background: rgba(59,130,246,0.05); }
+.uploadIcon { font-size: 3rem; margin-bottom: 12px; }
+.checkboxLabel { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--admin-text); }
+@media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
