@@ -98,6 +98,8 @@ const OrderSchema = new Schema<IOrder>(
     trackingCode: { type: String },
     carrierOrderId: { type: String },
     shippingStatus: { type: String },
+    paidAt: { type: Date },
+    transactionId: { type: String },
     shippingLogs: [
       {
         time: { type: String },
