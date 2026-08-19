@@ -33,13 +33,33 @@ export default function PaymentPage() {
   const [isChecking, setIsChecking] = useState(false);
   const [simulating, setSimulating] = useState(false);
 
-  // Bank transfer configuration (Connected MBBank account)
-  const bankConfig = {
+  const [bankConfig, setBankConfig] = useState({
     bankCode: process.env.NEXT_PUBLIC_VIETQR_BANK || 'MBBank',
     bankName: 'MBBank (Ngân hàng TMCP Quân Đội)',
     accountNumber: process.env.NEXT_PUBLIC_VIETQR_ACCOUNT_NO || '0528438642',
     accountName: process.env.NEXT_PUBLIC_VIETQR_ACCOUNT_NAME || 'LE VAN AN',
-  };
+  });
+
+  // Load real bank settings from DB
+  useEffect(() => {
+    const loadBankConfig = async () => {
+      try {
+        const res = await apiFetch('/api/settings/payment');
+        const data = await res.json();
+        if (data.success && data.data) {
+          setBankConfig({
+            bankCode: data.data.bankName || 'MBBank',
+            bankName: data.data.bankName || 'MBBank',
+            accountNumber: data.data.accountNumber || '0528438642',
+            accountName: data.data.accountName || 'LE VAN AN',
+          });
+        }
+      } catch (e) {
+        console.error('Error loading bank config:', e);
+      }
+    };
+    loadBankConfig();
+  }, []);
 
   // 1. Fetch & Poll payment status
   const checkStatus = async (showManualToast = false) => {
@@ -149,7 +169,8 @@ export default function PaymentPage() {
     bankConfig.accountNumber,
     bankConfig.bankCode,
     amount,
-    transferContent
+    transferContent,
+    bankConfig.accountName
   );
 
   return (
@@ -178,7 +199,7 @@ export default function PaymentPage() {
         <div className={styles.qrCard}>
           <div className={styles.bankHeader}>
             <div className={styles.bankLogoWrap}>
-              <span className={styles.bankBadge}>MBBANK</span>
+              <span className={styles.bankBadge}>{(bankConfig.bankCode || 'MBBANK').toUpperCase()}</span>
             </div>
             <div className={styles.bankTitleBox}>
               <h3 className={styles.bankName}>{bankConfig.bankName}</h3>

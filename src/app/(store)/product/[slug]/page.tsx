@@ -23,6 +23,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import StoreLoading from '@/components/store/StoreLoading';
+import BannerNotice from '@/components/common/BannerNotice';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -201,12 +202,8 @@ export default function ProductDetailPage() {
 
       {/* ===== SCROLLABLE CONTENT AREA ===== */}
       <div className={styles.scrollArea}>
-        {/* Top Banner Notice from Theme Setting */}
-        {theme?.pageTitles?.showBannerNotice !== false && (
-          <div className={styles.bannerNotice}>
-            <span>{theme?.pageTitles?.bannerNotice || '🔥 Ưu đãi hot khi giảm giá sâu cho các đơn hàng 🔥'}</span>
-          </div>
-        )}
+        {/* Top Scrolling Banner Notice */}
+        <BannerNotice />
 
         {/* 1. PRODUCT GALLERY */}
         <div className={styles.gallery}>

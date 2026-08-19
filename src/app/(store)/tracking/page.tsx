@@ -26,6 +26,7 @@ import {
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
 import { useTheme } from '@/contexts/ThemeContext';
+import BannerNotice from '@/components/common/BannerNotice';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -60,8 +61,7 @@ function TrackingContent() {
       if (stored) {
         setRecentCodes(JSON.parse(stored));
       } else {
-        // Default demo order codes
-        setRecentCodes(['ST832025', 'ST341653']);
+        setRecentCodes([]);
       }
     } catch (e) {
       console.error('Error loading stored order codes:', e);
@@ -187,26 +187,26 @@ function TrackingContent() {
   };
 
   // Carrier info & dynamic logs generator
-  const getCarrierDetails = (carrierName: string = '', orderCodeStr: string = 'ST832025') => {
+  const getCarrierDetails = (carrierName: string = '', orderCodeStr: string = '') => {
     const rawCarrier = (carrierName || order?.shippingProvider || '').toLowerCase();
     const isGHN = rawCarrier.includes('ghn') || rawCarrier.includes('nhanh');
     const isViettel = rawCarrier.includes('viettel') || rawCarrier.includes('vtp');
 
     let brandName = order?.shippingCarrier || 'Giao Hàng Tiết Kiệm (GHTK)';
-    let trackingCode = order?.trackingCode || `GHTK.${orderCodeStr.replace(/\D/g, '') || '83920194'}`;
+    let trackingCode = order?.trackingCode || '';
     let hotline = '1900 6092';
     let trackUrl = `https://i.ghtk.vn`;
     let color = '#059669';
 
     if (isGHN) {
       brandName = order?.shippingCarrier || 'Giao Hàng Nhanh (GHN)';
-      trackingCode = order?.trackingCode || `GHN-${orderCodeStr.replace(/\D/g, '') || '92837102'}`;
+      trackingCode = order?.trackingCode || '';
       hotline = '1900 636677';
       trackUrl = `https://donhang.ghn.vn`;
       color = '#ea580c';
     } else if (isViettel) {
       brandName = order?.shippingCarrier || 'Viettel Post';
-      trackingCode = order?.trackingCode || `VTP${orderCodeStr.replace(/\D/g, '') || '74829103'}`;
+      trackingCode = order?.trackingCode || '';
       hotline = '1900 8095';
       trackUrl = `https://viettelpost.com.vn/tra-cuu-hanh-trinh-don`;
       color = '#dc2626';
@@ -218,7 +218,7 @@ function TrackingContent() {
   const carrierInfo = order ? getCarrierDetails(order.shippingCarrier, order.orderCode) : null;
 
   // Generate realistic carrier logs or use real shippingLogs from order
-  const getCarrierLogs = (): TrackingLog[] => {
+  const getCarrierLogs = (stepIndex: number): TrackingLog[] => {
     if (order?.shippingLogs && order.shippingLogs.length > 0) {
       return [...order.shippingLogs].reverse().map((log: any, idx: number) => ({
         time: log.time || new Date(log.createdAt || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
@@ -230,51 +230,92 @@ function TrackingContent() {
       }));
     }
 
-    const carrier = carrierInfo?.brandName || 'GHTK';
-    const destination = order?.customer?.district ? `${order.customer.district}, ${order.customer.province}` : 'Quận Cầu Giấy, Hà Nội';
+    const orderCreatedDate = new Date(order?.createdAt || Date.now());
+    const timeStr = orderCreatedDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    const dateStr = orderCreatedDate.toLocaleDateString('vi-VN');
 
-    return [
+    if (order?.status === 'cancelled') {
+      const cancelDate = new Date(order?.updatedAt || Date.now());
+      return [
+        {
+          time: cancelDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          date: cancelDate.toLocaleDateString('vi-VN'),
+          status: 'Đơn Hàng Đã Hủy',
+          location: 'Hệ thống Quản Trị',
+          description: 'Đơn hàng này đã được hủy và ngưng xử lý.',
+          isCurrent: true,
+        },
+        {
+          time: timeStr,
+          date: dateStr,
+          status: 'Đã Đặt Hàng Thành Công',
+          location: 'Hệ thống ShopTik Store',
+          description: `Đơn hàng #${order?.orderCode} đã được ghi nhận vào hệ thống.`,
+          isCurrent: false,
+        }
+      ];
+    }
+
+    const logs: TrackingLog[] = [
       {
-        time: '15:30',
-        date: 'Hôm nay',
-        status: 'Đang Giao Hàng',
-        location: `Bưu cục phát ${destination}`,
-        description: `Tài xế shipper đang liên hệ giao hàng đến bạn (Hotline: 0981.823.945)`,
-        isCurrent: true,
-      },
-      {
-        time: '08:15',
-        date: 'Hôm nay',
-        status: 'Đến Bưu Cục Phát',
-        location: `Bưu cục phát ${destination}`,
-        description: `Kiện hàng đã nhập kho phát ${destination} và được phân tuyến cho shipper`,
-      },
-      {
-        time: '22:40',
-        date: 'Hôm qua',
-        status: 'Đang Trung Chuyển',
-        location: 'Kho tổng phân loại Miền Bắc (SOC Hub)',
-        description: 'Kiện hàng đã xuất kho trung chuyển và đang di chuyển đến bưu cục phát',
-      },
-      {
-        time: '16:20',
-        date: 'Hôm qua',
-        status: 'Đã Lấy Hàng Thành Công',
-        location: 'Kho ShopTik Store - Hà Nội',
-        description: `Nhân viên lấy hàng của ${carrier} đã nhận kiện hàng từ Shop`,
-      },
-      {
-        time: '14:10',
-        date: 'Hôm qua',
-        status: 'Đã Tạo Vận Đơn Điện Tử',
-        location: 'Hệ thống điều vận trung tâm',
-        description: `Đã sinh mã vận đơn ${carrierInfo?.trackingCode} và đồng bộ dữ liệu giao hàng`,
-      },
+        time: timeStr,
+        date: dateStr,
+        status: 'Đã Đặt Hàng Thành Công',
+        location: 'Hệ thống ShopTik Store',
+        description: `Đơn hàng #${order?.orderCode} đã được ghi nhận vào hệ thống.`,
+        isCurrent: stepIndex === 1,
+      }
     ];
+
+    if (stepIndex >= 2) {
+      logs.unshift({
+        time: timeStr,
+        date: dateStr,
+        status: 'Đang Chuẩn Bị & Đóng Gói',
+        location: 'Kho tổng đóng gói',
+        description: 'Shop đã duyệt đơn hàng, nhân viên đang đóng gói sản phẩm.',
+        isCurrent: stepIndex === 2,
+      });
+    }
+
+    if (stepIndex >= 3) {
+      logs.unshift({
+        time: timeStr,
+        date: dateStr,
+        status: 'Bàn Giao Vận Chuyển',
+        location: carrierInfo?.brandName || 'Đơn vị vận chuyển',
+        description: carrierInfo?.trackingCode ? `Hãng đã tiếp nhận kiện hàng (Mã vận đơn: ${carrierInfo.trackingCode})` : 'Đã bàn giao kiện hàng cho đơn vị vận chuyển.',
+        isCurrent: stepIndex === 3,
+      });
+    }
+
+    if (stepIndex >= 4) {
+      logs.unshift({
+        time: timeStr,
+        date: dateStr,
+        status: 'Đang Giao Hàng',
+        location: `Bưu cục phát ${order?.customer?.district || 'khu vực giao hàng'}`,
+        description: 'Shipper đang trên đường giao hàng đến địa chỉ của bạn.',
+        isCurrent: stepIndex === 4,
+      });
+    }
+
+    if (stepIndex >= 5) {
+      logs.unshift({
+        time: timeStr,
+        date: dateStr,
+        status: 'Giao Hàng Thành Công',
+        location: order?.customer?.address || 'Địa chỉ người nhận',
+        description: 'Kiện hàng đã được giao thành công tới người nhận.',
+        isCurrent: true,
+      });
+    }
+
+    return logs;
   };
 
-  const carrierLogs = order ? getCarrierLogs() : [];
   const currentStep = order ? getStepIndex(order.status) : 1;
+  const carrierLogs = order ? getCarrierLogs(currentStep) : [];
   const statusInfo = order ? getStatusBadge(order.status) : null;
   const subtotal = order?.subtotal || order?.items?.reduce((acc: number, i: any) => acc + (i.price * i.quantity), 0) || 0;
   const shippingFee = order?.shippingFee || 0;
@@ -291,6 +332,9 @@ function TrackingContent() {
         <div className={styles.navTitle}>Theo Dõi Đơn Hàng</div>
         <div style={{ width: 32 }} />
       </nav>
+
+      {/* Scrolling Banner Notice */}
+      <BannerNotice />
 
       <div className={styles.content}>
         {/* Search Header Card */}
@@ -375,14 +419,14 @@ function TrackingContent() {
             <div className={styles.orderHeaderCard}>
               <div className={styles.orderTopRow}>
                 <div className={styles.codeGroup}>
-                  <span className={styles.orderCodeTitle}>Mã Đơn: #{order.orderCode}</span>
+                  <span className={styles.orderCodeTitle}>#{order.orderCode}</span>
                   <button
                     type="button"
                     className={styles.copyBtn}
                     onClick={() => handleCopyCode(order.orderCode)}
                     title="Sao chép mã"
                   >
-                    {copiedCode ? <FiCheck size={13} color="#10b981" /> : <FiCopy size={13} />}
+                    {copiedCode ? <FiCheck size={11} color="#10b981" /> : <FiCopy size={11} />}
                     <span>{copiedCode ? 'Đã chép' : 'Sao chép'}</span>
                   </button>
                 </div>
@@ -395,7 +439,7 @@ function TrackingContent() {
               </div>
 
               <div className={styles.dateRow}>
-                <FiClock size={13} color="var(--text-muted, #94a3b8)" />
+                <FiClock size={11} color="var(--text-muted, #94a3b8)" />
                 <span>
                   Thời gian đặt: {new Date(order.createdAt || Date.now()).toLocaleString('vi-VN')}
                 </span>
@@ -709,23 +753,25 @@ function TrackingContent() {
 
             {/* Payment & Bill Breakdown Card */}
             <div className={styles.card}>
-              <h3 className={styles.cardTitle}>
-                <FiCreditCard size={16} color="var(--primary, #3b82f6)" />
-                <span>Thanh Toán & Hóa Đơn</span>
-              </h3>
-
-              <div className={styles.paymentRow}>
-                <span className={styles.paymentName}>
-                  {order.paymentMethod === 'bank_transfer'
-                    ? '⚡ Chuyển khoản VietQR (SePay Tự Động)'
-                    : '💵 Thanh toán khi nhận hàng (COD)'}
-                </span>
+              <div className={styles.paymentHeaderRow}>
+                <h3 className={styles.cardTitle} style={{ border: 'none', padding: 0, margin: 0 }}>
+                  <FiCreditCard size={16} color="var(--primary, #3b82f6)" />
+                  <span>Thanh Toán & Hóa Đơn</span>
+                </h3>
                 <span
                   className={`${styles.paymentStatusBadge} ${
                     isPaid ? styles.paidBadge : styles.unpaidBadge
                   }`}
                 >
                   {isPaid ? 'Đã Thanh Toán' : 'Chưa Thanh Toán'}
+                </span>
+              </div>
+
+              <div className={styles.paymentMethodRow}>
+                <span className={styles.paymentName}>
+                  {order.paymentMethod === 'bank_transfer'
+                    ? '⚡ Chuyển khoản VietQR (SePay Tự Động)'
+                    : '💵 Thanh toán khi nhận hàng (COD)'}
                 </span>
               </div>
 
@@ -775,7 +821,7 @@ function TrackingContent() {
             <FiPackage size={44} className={styles.guideIcon} />
             <h3 className={styles.guideTitle}>Bạn muốn kiểm tra đơn hàng nào?</h3>
             <p className={styles.guideText}>
-              Nhập mã đơn hàng hoặc bấm vào các mã đơn mẫu phía trên để trải nghiệm theo dõi đơn hàng trực tiếp.
+              Nhập mã đơn hàng của bạn vào ô tìm kiếm phía trên để theo dõi hành trình vận chuyển chi tiết.
             </p>
           </div>
         )}

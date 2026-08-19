@@ -21,52 +21,10 @@ export async function GET(
     }
 
     if (!order) {
-      // Graceful fallback for mock/demo order codes
-      const fallbackOrder = {
-        _id: 'mock_order_id',
-        orderCode: id.toUpperCase(),
-        customer: {
-          name: 'Nguyễn Văn Khách',
-          phone: '0988832025',
-          email: 'khachhang@shoptik.vn',
-          address: 'Số 10 Phạm Hùng, Tòa nhà Keangnam, Phường Mai Dịch, Quận Cầu Giấy, Hà Nội',
-          province: 'Hà Nội',
-          district: 'Quận Cầu Giấy',
-          ward: 'Phường Mai Dịch',
-        },
-        items: [
-          {
-            productId: '66a1b2c3d4e5f67890123456',
-            name: 'Áo Thun Nam Cotton Thấm Hút Cao Cấp',
-            price: 199000,
-            quantity: 2,
-            image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400',
-            variant: { name: 'Đen - L' },
-          },
-          {
-            productId: '66a1b2c3d4e5f67890123457',
-            name: 'Quần Short Thể Thao Nam Co Giãn 4 Chiều',
-            price: 150000,
-            quantity: 1,
-            image: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400',
-            variant: { name: 'Xám - XL' },
-          },
-        ],
-        subtotal: 548000,
-        shippingFee: 20000,
-        discountAmount: 0,
-        totalAmount: 568000,
-        paymentMethod: 'bank_transfer',
-        paymentStatus: 'paid',
-        status: 'confirmed',
-        shippingCarrier: 'Giao Hàng Tiết Kiệm (GHTK)',
-        createdAt: new Date().toISOString(),
-      };
-
-      return NextResponse.json({
-        success: true,
-        data: fallbackOrder,
-      });
+      return NextResponse.json(
+        { success: false, message: `Không tìm thấy đơn hàng #${id.toUpperCase()}` },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
@@ -107,8 +65,8 @@ export async function PUT(
     const previousStatus = order.status;
     const newStatus = body.status || previousStatus;
 
-    // TỰ ĐỘNG ĐẨY ĐƠN SANG HÃNG VẬN CHUYỂN BÊN THỨ 3 KHI ADMIN DUYỆT ĐƠN (CONFIRMED)
-    if (newStatus === 'confirmed' && (!order.trackingCode || order.trackingCode.startsWith('TEMP-'))) {
+    // TỰ ĐỘNG ĐẨY ĐƠN SANG HÃNG VẬN CHUYỂN BÊN THỨ 3 KHI ADMIN CHUYỂN SANG "ĐANG GIAO HÀNG" (SHIPPING / DELIVERING)
+    if ((newStatus === 'shipping' || newStatus === 'delivering') && (!order.trackingCode || order.trackingCode.startsWith('TEMP-'))) {
       const rawProvider = (body.shippingProvider || order.shippingProvider || order.shippingCarrier || 'ghn').toLowerCase();
       let provider = 'ghn';
       if (rawProvider.includes('ghtk') || rawProvider.includes('tiết kiệm') || rawProvider.includes('tiet kiem')) {
@@ -158,9 +116,9 @@ export async function PUT(
 
           const newLog = {
             time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-            status: 'Đã xác nhận đơn',
+            status: 'Bàn giao vận chuyển',
             location: 'Kho tổng ShopTik Store',
-            description: `Admin đã duyệt đơn. Hệ thống tự động đẩy đơn sang ${order.shippingCarrier} (Mã vận đơn: ${result.trackingCode}) để Shipper đến lấy hàng.`,
+            description: `Admin đã chuyển đơn sang Đang Giao Hàng. Hệ thống đã đẩy đơn sang ${order.shippingCarrier} (Mã vận đơn: ${result.trackingCode}) để Shipper đến lấy hàng.`,
             carrier: order.shippingCarrier,
             createdAt: new Date(),
           };
@@ -174,15 +132,18 @@ export async function PUT(
     }
 
     // TỰ ĐỘNG HỦY VẬN ĐƠN PHÍA HÃNG KHI ADMIN HỦY ĐƠN (CANCELLED)
-    if (newStatus === 'cancelled' && order.trackingCode) {
-      try {
-        if ((order.shippingProvider || '').includes('ghtk') || (order.shippingCarrier || '').includes('GHTK')) {
-          await cancelGHTKOrder(order.trackingCode);
-        } else if ((order.shippingProvider || '').includes('ghn') || (order.shippingCarrier || '').includes('GHN')) {
-          await cancelGHNOrder(order.trackingCode);
+    if (newStatus === 'cancelled') {
+      order.shippingStatus = 'cancelled';
+      if (order.trackingCode) {
+        try {
+          if ((order.shippingProvider || '').includes('ghtk') || (order.shippingCarrier || '').includes('GHTK')) {
+            await cancelGHTKOrder(order.trackingCode);
+          } else if ((order.shippingProvider || '').includes('ghn') || (order.shippingCarrier || '').includes('GHN')) {
+            await cancelGHNOrder(order.trackingCode);
+          }
+        } catch (err: any) {
+          console.error('Lỗi khi gửi yêu cầu hủy vận đơn sang hãng:', err.message);
         }
-      } catch (err: any) {
-        console.error('Lỗi khi gửi yêu cầu hủy vận đơn sang hãng:', err.message);
       }
     }
 
@@ -193,10 +154,12 @@ export async function PUT(
     let responseMessage = 'Cập nhật trạng thái đơn hàng thành công';
     if (newStatus === 'cancelled') {
       responseMessage = `Đã hủy đơn hàng #${order.orderCode} thành công${order.trackingCode ? ` và gửi lệnh hủy sang ${order.shippingCarrier}` : ''}!`;
-    } else if (newStatus === 'confirmed') {
+    } else if (newStatus === 'shipping' || newStatus === 'delivering') {
       responseMessage = order.trackingCode
-        ? `Đã duyệt đơn và tự động đẩy sang ${order.shippingCarrier || 'hãng vận chuyển'} (Mã vận đơn: ${order.trackingCode})!`
-        : 'Đã duyệt đơn hàng thành công';
+        ? `Đã chuyển sang Đang Giao Hàng và đẩy vận đơn sang ${order.shippingCarrier || 'hãng vận chuyển'} (Mã vận đơn: ${order.trackingCode})!`
+        : 'Đã chuyển trạng thái sang Đang Giao Hàng';
+    } else if (newStatus === 'confirmed') {
+      responseMessage = `Đã duyệt xác nhận đơn hàng #${order.orderCode} thành công!`;
     }
 
     return NextResponse.json({
@@ -220,17 +183,38 @@ export async function DELETE(
     await connectToDatabase();
     const { id } = await params;
 
-    const deleted = await Order.findByIdAndDelete(id);
-    if (!deleted) {
+    let orderToDelete;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      orderToDelete = await Order.findById(id);
+    } else {
+      orderToDelete = await Order.findOne({ orderCode: id.toUpperCase() });
+    }
+
+    if (!orderToDelete) {
       return NextResponse.json(
         { success: false, message: 'Không tìm thấy đơn hàng' },
         { status: 404 }
       );
     }
 
+    // Tự động hủy vận đơn bên phía hãng nếu đơn này có mã vận đơn
+    if (orderToDelete.trackingCode) {
+      try {
+        if ((orderToDelete.shippingProvider || '').includes('ghtk') || (orderToDelete.shippingCarrier || '').includes('GHTK')) {
+          await cancelGHTKOrder(orderToDelete.trackingCode);
+        } else if ((orderToDelete.shippingProvider || '').includes('ghn') || (orderToDelete.shippingCarrier || '').includes('GHN')) {
+          await cancelGHNOrder(orderToDelete.trackingCode);
+        }
+      } catch (err: any) {
+        console.error('Lỗi khi gửi lệnh hủy vận đơn khi xóa đơn:', err.message);
+      }
+    }
+
+    await Order.findByIdAndDelete(orderToDelete._id);
+
     return NextResponse.json({
       success: true,
-      message: 'Xóa đơn hàng thành công',
+      message: `Đã xóa đơn hàng #${orderToDelete.orderCode} thành công${orderToDelete.trackingCode ? ` và gửi lệnh hủy sang ${orderToDelete.shippingCarrier}` : ''}!`,
     });
   } catch (error: any) {
     return NextResponse.json(

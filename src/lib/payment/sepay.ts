@@ -18,13 +18,15 @@ export function extractOrderCode(content?: string): string | null {
 }
 
 export function generateQrUrl(
-  bankAccount: string = '0988123456',
+  bankAccount: string = '0528438642',
   bankCode: string = 'MBBank',
   amount: number = 0,
-  content: string = ''
+  content: string = '',
+  accountName: string = 'LE VAN AN'
 ): string {
   const cleanBank = encodeURIComponent(bankCode || 'MBBank');
-  const cleanAcc = encodeURIComponent(bankAccount || '0988123456');
+  const cleanAcc = encodeURIComponent(bankAccount || '0528438642');
   const cleanContent = encodeURIComponent(content || 'Thanh toan don hang');
-  return `https://img.vietqr.io/image/${cleanBank}-${cleanAcc}-compact2.png?amount=${amount}&addInfo=${cleanContent}&accountName=SHOPTIK%20STORE`;
+  const cleanName = encodeURIComponent(accountName || 'LE VAN AN');
+  return `https://img.vietqr.io/image/${cleanBank}-${cleanAcc}-compact2.png?amount=${amount}&addInfo=${cleanContent}&accountName=${cleanName}`;
 }

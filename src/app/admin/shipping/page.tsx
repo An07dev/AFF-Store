@@ -37,26 +37,40 @@ export default function ShippingAdminPage() {
     viettelpost: false,
   });
 
+  // Helper to format number with thousand dots separator (VD: 100.000)
+  const formatWithDots = (val: string | number) => {
+    if (val === '' || val === undefined || val === null) return '';
+    const digits = val.toString().replace(/\D/g, '');
+    if (!digits) return '';
+    return Number(digits).toLocaleString('vi-VN');
+  };
+
+  const parseFromDots = (val: string | number) => {
+    if (typeof val === 'number') return val;
+    const digits = (val || '').toString().replace(/\D/g, '');
+    return digits ? Number(digits) : 0;
+  };
+
   // Full Shipping Config State (API 8.3)
   const [config, setConfig] = useState({
     carriers: {
       ghn: {
         enabled: true,
-        token: 'f49c1538-9a10-11f1-98fd-3649f7abce24',
-        shopId: '6611723',
+        token: '',
+        shopId: '',
         environment: 'production',
       },
       ghtk: {
         enabled: true,
-        token: '4NH4Qx1qc4M1FRbYh1o2aRJgwWZH3Hc0xRVdMoG',
-        partnerId: 'PARTNER_SHOPTIK_01',
+        token: '',
+        partnerId: '',
         environment: 'production',
       },
       viettelpost: {
         enabled: true,
         token: '',
-        username: 'account.dev.vtp.1786954307276@viettelpost.com',
-        password: 'Vtp@1234',
+        username: '',
+        password: '',
         environment: 'production',
       },
     },
@@ -64,7 +78,7 @@ export default function ShippingAdminPage() {
       defaultInnerFee: 22000,
       defaultOuterFee: 32000,
       freeShippingThreshold: 500000,
-      autoPushOrder: false,
+      autoPushOrder: true,
     },
   });
 
@@ -811,15 +825,17 @@ export default function ShippingAdminPage() {
               <div className={styles.inputGroup}>
                 <label>Cước phí vận chuyển Nội thành mặc định (₫)</label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   className={styles.input}
-                  value={config.rates.defaultInnerFee}
+                  placeholder="VD: 22.000"
+                  value={formatWithDots(config.rates.defaultInnerFee)}
                   onChange={(e) =>
                     setConfig({
                       ...config,
                       rates: {
                         ...config.rates,
-                        defaultInnerFee: parseInt(e.target.value) || 0,
+                        defaultInnerFee: parseFromDots(e.target.value),
                       },
                     })
                   }
@@ -830,15 +846,17 @@ export default function ShippingAdminPage() {
               <div className={styles.inputGroup}>
                 <label>Cước phí vận chuyển Ngoại thành / Liên tỉnh (₫)</label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   className={styles.input}
-                  value={config.rates.defaultOuterFee}
+                  placeholder="VD: 32.000"
+                  value={formatWithDots(config.rates.defaultOuterFee)}
                   onChange={(e) =>
                     setConfig({
                       ...config,
                       rates: {
                         ...config.rates,
-                        defaultOuterFee: parseInt(e.target.value) || 0,
+                        defaultOuterFee: parseFromDots(e.target.value),
                       },
                     })
                   }
@@ -850,15 +868,17 @@ export default function ShippingAdminPage() {
             <div className={styles.inputGroup} style={{ marginTop: 12 }}>
               <label>Ngưỡng giá trị đơn hàng Miễn Phí Vận Chuyển (Freeship Toàn Quốc) (₫)</label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 className={styles.input}
-                value={config.rates.freeShippingThreshold}
+                placeholder="VD: 500.000"
+                value={formatWithDots(config.rates.freeShippingThreshold)}
                 onChange={(e) =>
                   setConfig({
                     ...config,
                     rates: {
                       ...config.rates,
-                      freeShippingThreshold: parseInt(e.target.value) || 0,
+                      freeShippingThreshold: parseFromDots(e.target.value),
                     },
                   })
                 }
@@ -866,6 +886,32 @@ export default function ShippingAdminPage() {
               <span className={styles.helperText}>
                 Đơn hàng đạt từ {formatPrice(config.rates.freeShippingThreshold)} trở lên sẽ được miễn phí vận chuyển tự động lúc thanh toán.
               </span>
+            </div>
+
+            {/* Auto Push Orders Toggle */}
+            <div style={{ marginTop: 16, padding: '12px 16px', background: 'var(--bg-main, #090a0f)', borderRadius: 8, border: '1px solid var(--border-color, #232838)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong style={{ color: '#fff', fontSize: 14 }}>Tự Động Đẩy Đơn Sang Hãng Khi Khách Thanh Toán Xong</strong>
+                <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
+                  Khi khách hàng quét mã VietQR hoặc chuyển khoản thành công, hệ thống tự động tạo mã vận đơn GHN / GHTK ngay lập tức.
+                </p>
+              </div>
+              <label className={styles.switch}>
+                <input
+                  type="checkbox"
+                  checked={!!config.rates.autoPushOrder}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      rates: {
+                        ...config.rates,
+                        autoPushOrder: e.target.checked,
+                      },
+                    })
+                  }
+                />
+                <span className={styles.slider} />
+              </label>
             </div>
           </div>
 

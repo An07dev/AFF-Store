@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 import { useCart } from '@/contexts/CartContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { formatPrice } from '@/lib/utils';
+import BannerNotice from '@/components/common/BannerNotice';
 import styles from './page.module.css';
 
 export default function CartPage() {
@@ -31,6 +32,7 @@ export default function CartPage() {
   const { theme } = useTheme();
 
   const [selectedItemIds, setSelectedItemIds] = useState<Record<string, boolean>>({});
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
   // By default, select all items if empty map
   const isAllSelected =
@@ -65,8 +67,8 @@ export default function CartPage() {
     return acc + itemPrice * item.quantity;
   }, 0);
 
-  const selectedShippingFee = selectedSubtotal >= 500000 || selectedSubtotal === 0 ? 0 : 30000;
-  const selectedTotalAmount = selectedSubtotal + selectedShippingFee;
+  // Cart total is purely the subtotal of selected products (shipping is calculated at checkout)
+  const selectedTotalAmount = selectedSubtotal;
 
   const handleProceedCheckout = () => {
     if (items.length === 0) {
@@ -82,10 +84,10 @@ export default function CartPage() {
     router.push('/checkout');
   };
 
-  const handleClearCart = () => {
-    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng không?')) {
-      clearCart();
-    }
+  const handleConfirmClearCart = () => {
+    clearCart();
+    setIsClearModalOpen(false);
+    toast.success('Đã xóa tất cả sản phẩm khỏi giỏ hàng');
   };
 
   const shopName = theme?.pageTitles?.logoText || 'ShopTik Store';
@@ -105,7 +107,7 @@ export default function CartPage() {
         <div className={styles.navTitle}>Giỏ hàng ({cartCount})</div>
 
         {items.length > 0 ? (
-          <button className={styles.clearBtn} onClick={handleClearCart}>
+          <button className={styles.clearBtn} onClick={() => setIsClearModalOpen(true)}>
             Xóa hết
           </button>
         ) : (
@@ -128,15 +130,8 @@ export default function CartPage() {
       ) : (
         /* ===== SCROLLABLE CART CONTENT ===== */
         <div className={styles.scrollArea}>
-          {/* Freeship Alert Banner */}
-          <div className={styles.freeshipBanner}>
-            <FiTruck size={15} />
-            <span>
-              {selectedSubtotal >= 500000
-                ? '🎉 Đơn hàng đã đủ điều kiện Miễn Phí Vận Chuyển!'
-                : `Thêm ${formatPrice(500000 - selectedSubtotal)} để được Freeship toàn quốc!`}
-            </span>
-          </div>
+          {/* Top Scrolling Banner Notice */}
+          <BannerNotice />
 
           {/* Shop Section Card */}
           <div className={styles.shopSection}>
@@ -244,6 +239,37 @@ export default function CartPage() {
           <button className={styles.checkoutBtn} onClick={handleProceedCheckout}>
             Mua Hàng ({selectedCount})
           </button>
+        </div>
+      )}
+
+      {/* ===== CLEAR CART CONFIRMATION MODAL ===== */}
+      {isClearModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setIsClearModalOpen(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalIconWrap}>
+              <FiTrash2 />
+            </div>
+            <h3 className={styles.modalTitle}>Xóa tất cả sản phẩm?</h3>
+            <p className={styles.modalDesc}>
+              Bạn có chắc chắn muốn xóa toàn bộ sản phẩm khỏi giỏ hàng không?
+            </p>
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.modalCancelBtn}
+                onClick={() => setIsClearModalOpen(false)}
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                className={styles.modalConfirmBtn}
+                onClick={handleConfirmClearCart}
+              >
+                Đồng ý xóa
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

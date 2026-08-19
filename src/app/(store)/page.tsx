@@ -21,6 +21,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import StoreLoading from '@/components/store/StoreLoading';
 import ProductDetailModal from '@/components/store/ProductDetailModal';
+import BannerNotice from '@/components/common/BannerNotice';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -285,25 +286,8 @@ function HomePageContent() {
 
       {/* ===== SCROLLABLE CONTENT AREA ===== */}
       <div className={styles.scrollContent}>
-        {/* Top Banner Notice from Theme Setting */}
-        {theme?.pageTitles?.showBannerNotice && (
-          <div
-            style={{
-              background: 'linear-gradient(135deg, var(--primary, #00BFA5) 0%, #26C6DA 100%)',
-              color: 'var(--primary-text, #ffffff)',
-              fontSize: '11px',
-              fontWeight: 700,
-              padding: '6px 12px',
-              textAlign: 'center',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-            }}
-          >
-            <span>{theme.pageTitles.bannerNotice || '🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ'}</span>
-          </div>
-        )}
+        {/* Top Scrolling Banner Notice */}
+        <BannerNotice />
 
         {/* ===== SHOP INFO CARD ===== */}
         <div className={styles.shopCard}>

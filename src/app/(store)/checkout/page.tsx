@@ -75,13 +75,13 @@ export default function CheckoutPage() {
 
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [customer, setCustomer] = useState({
-    name: 'Lê Văn An',
-    phone: '0336625074',
-    email: 'khachhang@shoptik.vn',
+    name: '',
+    phone: '',
+    email: '',
     province: 'Hà Nội',
     district: 'Quận Cầu Giấy',
-    ward: 'Phường Mai Dịch',
-    streetAddress: 'Số 10 Phạm Hùng',
+    ward: 'Phường Dịch Vọng Hậu',
+    streetAddress: '',
     notes: '',
   });
 

@@ -59,6 +59,7 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
+
     const receivedAmount = Number(transferAmount || amount || 0);
 
     // Update order payment status
@@ -66,72 +67,21 @@ export async function POST(request: Request) {
     if (order.status === 'pending') {
       order.status = 'confirmed';
     }
-
-    // TỰ ĐỘNG ĐẨY ĐƠN SANG HÃNG VẬN CHUYỂN BÊN THỨ 3 (GHN / GHTK / VTP)
-    if (!order.trackingCode || order.trackingCode.startsWith('TEMP-')) {
-      const rawProvider = (order.shippingProvider || order.shippingCarrier || 'ghn').toLowerCase();
-      let provider = 'ghn';
-      if (rawProvider.includes('ghtk') || rawProvider.includes('tiết kiệm') || rawProvider.includes('tiet kiem')) {
-        provider = 'ghtk';
-      } else if (rawProvider.includes('viettel') || rawProvider.includes('vtp')) {
-        provider = 'viettelpost';
-      } else {
-        provider = 'ghn';
-      }
-
-      try {
-        const orderData = {
-          orderCode: order.orderCode,
-          paymentMethod: order.paymentMethod,
-          totalAmount: order.totalAmount,
-          to_name: order.customer?.name,
-          to_phone: order.customer?.phone,
-          to_address: order.customer?.address,
-          province: order.customer?.province,
-          district: order.customer?.district,
-          ward: order.customer?.ward,
-          customer: order.customer,
-          items: order.items,
-          cod_amount: 0, // Đã thanh toán chuyển khoản thì COD = 0
-          weight: 500,
-        };
-
-        let result: { trackingCode: string; fee: number };
-        if (provider === 'ghtk') {
-          result = await createGHTKOrder(orderData);
-        } else if (provider === 'viettelpost') {
-          result = await createViettelPostOrder(orderData);
-        } else {
-          result = await createGHNOrder(orderData);
-        }
-
-        if (result && result.trackingCode) {
-          order.trackingCode = result.trackingCode;
-          order.shippingProvider = provider;
-          order.shippingCarrier =
-            provider === 'ghtk'
-              ? 'Giao Hàng Tiết Kiệm (GHTK)'
-              : provider === 'viettelpost'
-              ? 'Viettel Post'
-              : 'Giao Hàng Nhanh (GHN)';
-          order.shippingStatus = 'ready_to_pick';
-
-          const newLog = {
-            time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-            status: 'Đã xác nhận đơn',
-            location: 'Kho tổng ShopTik Store',
-            description: `Khách hàng đã chuyển khoản thành công. Hệ thống tự động duyệt đơn và đẩy sang ${order.shippingCarrier} (Mã vận đơn: ${result.trackingCode}) để Shipper đến lấy hàng.`,
-            carrier: order.shippingCarrier,
-            createdAt: new Date(),
-          };
-
-          if (!order.shippingLogs) order.shippingLogs = [];
-          order.shippingLogs.push(newLog);
-        }
-      } catch (shippingErr: any) {
-        console.error('Tự động đẩy đơn sang hãng vận chuyển gặp sự cố:', shippingErr.message);
-      }
+    order.paidAt = new Date();
+    if (body.referenceCode || body.transactionId || body.id) {
+      order.transactionId = String(body.referenceCode || body.transactionId || body.id);
     }
+
+    const newLog = {
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      status: 'Đã thanh toán',
+      location: 'Cổng thanh toán VietQR (SePay)',
+      description: `Khách hàng đã thanh toán thành công ${receivedAmount ? receivedAmount.toLocaleString('vi-VN') + '₫' : ''} qua mã VietQR. Đơn hàng đã được xác nhận.`,
+      createdAt: new Date(),
+    };
+
+    if (!order.shippingLogs) order.shippingLogs = [];
+    order.shippingLogs.push(newLog);
 
     await order.save();
 
@@ -144,8 +94,6 @@ export async function POST(request: Request) {
         receivedAmount: receivedAmount || order.totalAmount,
         paymentStatus: order.paymentStatus,
         status: order.status,
-        trackingCode: order.trackingCode,
-        shippingCarrier: order.shippingCarrier,
       },
     });
   } catch (error: any) {

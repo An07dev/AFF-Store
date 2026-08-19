@@ -17,18 +17,78 @@ import { formatPrice } from '@/lib/utils';
 import { apiFetch, API_BASE_URL } from '@/lib/api';
 import styles from './page.module.css';
 
-const BANK_LIST = [
-  { code: 'MBBank', name: 'MB Bank (Ngân hàng Quân Đội)' },
-  { code: 'VCB', name: 'Vietcombank (Ngân hàng Ngoại Thương)' },
-  { code: 'TCB', name: 'Techcombank (Ngân hàng Kỹ Thương)' },
-  { code: 'ACB', name: 'ACB (Ngân hàng Á Châu)' },
-  { code: 'VPB', name: 'VPBank (Ngân hàng Việt Nam Thịnh Vượng)' },
-  { code: 'TPB', name: 'TPBank (Ngân hàng Tiên Phong)' },
-  { code: 'BIDV', name: 'BIDV (Ngân hàng Đầu tư & Phát triển)' },
-  { code: 'CTG', name: 'VietinBank (Ngân hàng Công Thương)' },
-  { code: 'VBA', name: 'Agribank (Ngân hàng Nông Nghiệp)' },
-  { code: 'STB', name: 'Sacombank (Ngân hàng Sài Gòn Thương Tín)' },
+export const BANK_GROUPS = [
+  {
+    group: '⭐ Ngân Hàng Phổ Biến & Big 4 (Khuyên Dùng)',
+    banks: [
+      { code: 'MBBank', name: 'MB Bank (Ngân hàng TMCP Quân Đội)' },
+      { code: 'VCB', name: 'Vietcombank (Ngân hàng Ngoại Thương Việt Nam)' },
+      { code: 'TCB', name: 'Techcombank (Ngân hàng Kỹ Thương Việt Nam)' },
+      { code: 'BIDV', name: 'BIDV (Ngân hàng Đầu tư & Phát triển Việt Nam)' },
+      { code: 'CTG', name: 'VietinBank (Ngân hàng Công Thương Việt Nam)' },
+      { code: 'ACB', name: 'ACB (Ngân hàng Á Châu)' },
+      { code: 'VPB', name: 'VPBank (Ngân hàng Việt Nam Thịnh Vượng)' },
+      { code: 'TPB', name: 'TPBank (Ngân hàng Tiên Phong)' },
+      { code: 'STB', name: 'Sacombank (Ngân hàng Sài Gòn Thương Tín)' },
+      { code: 'VBA', name: 'Agribank (Ngân hàng Nông Nghiệp & PTNT)' },
+    ],
+  },
+  {
+    group: '🏛️ Ngân Hàng Thương Mại Cổ Phần',
+    banks: [
+      { code: 'HDB', name: 'HDBank (Ngân hàng Phát triển TP.HCM)' },
+      { code: 'VIB', name: 'VIB (Ngân hàng Quốc Tế Việt Nam)' },
+      { code: 'SHB', name: 'SHB (Ngân hàng Sài Gòn - Hà Nội)' },
+      { code: 'MSB', name: 'MSB (Ngân hàng Hàng Hải Việt Nam)' },
+      { code: 'OCB', name: 'OCB (Ngân hàng Phương Đông)' },
+      { code: 'LPB', name: 'LPBank (Ngân hàng Bưu Điện Liên Việt)' },
+      { code: 'SSB', name: 'SeABank (Ngân hàng Đông Nam Á)' },
+      { code: 'EIB', name: 'Eximbank (Ngân hàng Xuất Nhập Khẩu Việt Nam)' },
+      { code: 'NAB', name: 'Nam A Bank (Ngân hàng Nam Á)' },
+      { code: 'PVCB', name: 'PVcomBank (Ngân hàng Đại Chúng Việt Nam)' },
+      { code: 'BVB', name: 'BaoVietBank (Ngân hàng Bảo Việt)' },
+      { code: 'BAB', name: 'BacABank (Ngân hàng Bắc Á)' },
+      { code: 'VAB', name: 'VietABank (Ngân hàng Việt Á)' },
+      { code: 'KLB', name: 'KienlongBank (Ngân hàng Kiên Long)' },
+      { code: 'NCB', name: 'NCB (Ngân hàng Quốc Dân)' },
+      { code: 'SGB', name: 'SaigonBank (Ngân hàng Sài Gòn Công Thương)' },
+      { code: 'VIETBANK', name: 'Vietbank (Ngân hàng Việt Nam Thương Tín)' },
+      { code: 'BVBANK', name: 'BVBank (Ngân hàng Bản Việt)' },
+      { code: 'PGB', name: 'PGBank (Ngân hàng Thịnh Vượng và Phát Triển)' },
+      { code: 'GPB', name: 'GPBank (Ngân hàng Dầu Khí Toàn Cầu)' },
+      { code: 'OceanBank', name: 'OceanBank (Ngân hàng Đại Dương)' },
+      { code: 'CB', name: 'CBBank (Ngân hàng Xây Dựng)' },
+    ],
+  },
+  {
+    group: '📱 Ngân Hàng Số & Ví Điện Tử',
+    banks: [
+      { code: 'TIMO', name: 'Timo (Ngân hàng số Timo by BVBank)' },
+      { code: 'CAKE', name: 'Cake (Ngân hàng số Cake by VPBank)' },
+      { code: 'TNEX', name: 'TNEX (Ngân hàng số TNEX by MSB)' },
+      { code: 'VTLMONEY', name: 'Viettel Money (Ví điện tử Viettel)' },
+      { code: 'VNPTMONEY', name: 'VNPT Money (Ví điện tử VNPT)' },
+    ],
+  },
+  {
+    group: '🌐 Ngân Hàng Quốc Tế & Liên Doanh',
+    banks: [
+      { code: 'SHBVN', name: 'Shinhan Bank (Ngân hàng Shinhan Việt Nam)' },
+      { code: 'WOO', name: 'Woori Bank (Ngân hàng Woori Việt Nam)' },
+      { code: 'HSBC', name: 'HSBC (Ngân hàng TNHH MTV HSBC Việt Nam)' },
+      { code: 'SCBVL', name: 'Standard Chartered (Ngân hàng Standard Chartered VN)' },
+      { code: 'PBVN', name: 'Public Bank (Ngân hàng Public Bank Việt Nam)' },
+      { code: 'HLBVN', name: 'Hong Leong Bank (Ngân hàng Hong Leong Việt Nam)' },
+      { code: 'CIMB', name: 'CIMB (Ngân hàng CIMB Việt Nam)' },
+      { code: 'UOB', name: 'UOB (Ngân hàng United Overseas Bank Việt Nam)' },
+      { code: 'IVB', name: 'IndovinaBank (Ngân hàng TNHH Indovina)' },
+      { code: 'VRB', name: 'VRB (Ngân hàng Liên doanh Việt - Nga)' },
+      { code: 'COOPBANK', name: 'Co-opBank (Ngân hàng Hợp tác xã Việt Nam)' },
+    ],
+  },
 ];
+
+const BANK_LIST = BANK_GROUPS.flatMap((g) => g.banks);
 
 export default function PaymentAdminPage() {
   const [bankName, setBankName] = useState('MBBank');
@@ -51,27 +111,45 @@ export default function PaymentAdminPage() {
   const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('payment_settings');
-    if (saved) {
+    const fetchConfig = async () => {
       try {
-        const parsed = JSON.parse(saved);
-        if (parsed.bankName) setBankName(parsed.bankName);
-        if (parsed.accountNumber) setAccountNumber(parsed.accountNumber);
-        if (parsed.accountName) setAccountName(parsed.accountName);
-        if (parsed.sepayToken) setSepayToken(parsed.sepayToken);
-      } catch (e) {}
-    }
+        const res = await apiFetch('/api/settings/payment');
+        const data = await res.json();
+        if (data.success && data.data) {
+          if (data.data.bankName) setBankName(data.data.bankName);
+          if (data.data.accountNumber) setAccountNumber(data.data.accountNumber);
+          if (data.data.accountName) setAccountName(data.data.accountName);
+          if (data.data.sepayToken) setSepayToken(data.data.sepayToken);
+        }
+      } catch (e) {
+        console.error('Error fetching payment config:', e);
+      }
+    };
+    fetchConfig();
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     const data = { bankName, accountNumber, accountName, sepayToken };
-    localStorage.setItem('payment_settings', JSON.stringify(data));
-    setTimeout(() => {
+    try {
+      const res = await apiFetch('/api/settings/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const resData = await res.json();
+      if (resData.success) {
+        localStorage.setItem('payment_settings', JSON.stringify(data));
+        toast.success('Đã lưu cấu hình tài khoản vào Database MongoDB thành công!');
+      } else {
+        toast.error(resData.message || 'Lỗi khi lưu cấu hình');
+      }
+    } catch (e) {
+      toast.error('Lỗi kết nối máy chủ');
+    } finally {
       setSaving(false);
-      toast.success('Đã lưu cấu hình tài khoản SePay & VietQR thành công!');
-    }, 400);
+    }
   };
 
   const copyWebhookUrl = () => {
@@ -176,10 +254,14 @@ export default function PaymentAdminPage() {
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
                 >
-                  {BANK_LIST.map((b) => (
-                    <option key={b.code} value={b.code}>
-                      {b.code} - {b.name}
-                    </option>
+                  {BANK_GROUPS.map((grp) => (
+                    <optgroup key={grp.group} label={grp.group}>
+                      {grp.banks.map((b) => (
+                        <option key={b.code} value={b.code}>
+                          {b.code} - {b.name}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </div>
@@ -353,6 +435,25 @@ export default function PaymentAdminPage() {
                   value={simAmount}
                   onChange={(e) => setSimAmount(Number(e.target.value) || 0)}
                 />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Ngân hàng thanh toán (Gateway)</label>
+                <select
+                  className={styles.select}
+                  value={simGateway}
+                  onChange={(e) => setSimGateway(e.target.value)}
+                >
+                  {BANK_GROUPS.map((grp) => (
+                    <optgroup key={grp.group} label={grp.group}>
+                      {grp.banks.map((b) => (
+                        <option key={b.code} value={b.code}>
+                          {b.code} - {b.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
               </div>
 
               <button
