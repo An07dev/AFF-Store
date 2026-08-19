@@ -77,8 +77,8 @@ export default function ProductDetailPage() {
             style={{
               marginTop: 16,
               padding: '10px 20px',
-              background: '#00BFA5',
-              color: '#fff',
+              background: 'var(--primary, #3b82f6)',
+              color: 'var(--primary-text, #ffffff)',
               border: 'none',
               borderRadius: 8,
               fontWeight: 700,
@@ -189,7 +189,7 @@ export default function ProductDetailPage() {
             className={styles.mainImage}
           />
           {discountPercent && (
-            <span className={styles.saleTagOverlay}>🔥 8.8 Siêu Sale</span>
+            <span className={styles.saleTagOverlay}>🔥 Siêu Ưu Đãi</span>
           )}
           {images.length > 1 && (
             <span className={styles.imageCounter}>
@@ -197,6 +197,21 @@ export default function ProductDetailPage() {
             </span>
           )}
         </div>
+
+        {/* Thumbnail Selector */}
+        {images.length > 1 && (
+          <div className={styles.thumbRow}>
+            {images.map((img: string, idx: number) => (
+              <div
+                key={idx}
+                className={`${styles.thumbWrap} ${activeImageIndex === idx ? styles.activeThumb : ''}`}
+                onClick={() => setActiveImageIndex(idx)}
+              >
+                <img src={img} alt="" className={styles.thumbImg} />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* 2. FLASH SALE STRIP */}
         <div className={styles.flashSaleStrip}>
@@ -251,7 +266,7 @@ export default function ProductDetailPage() {
             <div className={styles.variantSection}>
               <div className={styles.variantTitle}>
                 <span>Màu sắc</span>
-                {selectedColor && <span style={{ color: '#00BFA5' }}>{selectedColor}</span>}
+                {selectedColor && <span style={{ color: 'var(--primary, #3b82f6)' }}>{selectedColor}</span>}
               </div>
               <div className={styles.variantChips}>
                 {colors.map((color) => (
@@ -272,7 +287,7 @@ export default function ProductDetailPage() {
             <div className={styles.variantSection}>
               <div className={styles.variantTitle}>
                 <span>Kích cỡ</span>
-                {selectedSize && <span style={{ color: '#00BFA5' }}>{selectedSize}</span>}
+                {selectedSize && <span style={{ color: 'var(--primary, #3b82f6)' }}>{selectedSize}</span>}
               </div>
               <div className={styles.variantChips}>
                 {sizes.map((size) => (

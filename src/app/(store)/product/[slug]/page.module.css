@@ -136,6 +136,53 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
+.thumbRow {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--bg-card, #13161f);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-color, #232838);
+}
+
+.thumbRow::-webkit-scrollbar {
+  height: 3px;
+}
+
+.thumbRow::-webkit-scrollbar-thumb {
+  background: var(--border-color, #232838);
+  border-radius: 3px;
+}
+
+.thumbWrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: all 0.2s;
+  background: var(--bg-main, #090a0f);
+}
+
+.thumbWrap:hover {
+  opacity: 0.9;
+}
+
+.activeThumb {
+  border-color: var(--primary, #3b82f6);
+  opacity: 1;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* Flash Sale Strip */
 .flashSaleStrip {
   background: var(--primary, #3b82f6);
