@@ -228,27 +228,23 @@ export default function ProductDetailPage() {
                 <FiChevronRight size={20} />
               </button>
 
+              {/* Dots indicator */}
+              <div className={styles.dotsContainer}>
+                {images.map((_: any, idx: number) => (
+                  <span
+                    key={idx}
+                    className={`${styles.dot} ${activeImageIndex === idx ? styles.activeDot : ''}`}
+                    onClick={() => setActiveImageIndex(idx)}
+                  />
+                ))}
+              </div>
+
               <span className={styles.imageCounter}>
                 {activeImageIndex + 1}/{images.length}
               </span>
             </>
           )}
         </div>
-
-        {/* Thumbnail Selector */}
-        {images.length > 1 && (
-          <div className={styles.thumbRow}>
-            {images.map((img: string, idx: number) => (
-              <div
-                key={idx}
-                className={`${styles.thumbWrap} ${activeImageIndex === idx ? styles.activeThumb : ''}`}
-                onClick={() => setActiveImageIndex(idx)}
-              >
-                <img src={img} alt="" className={styles.thumbImg} />
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* 2. MAIN INFO CARD */}
         <div className={styles.mainCard}>
