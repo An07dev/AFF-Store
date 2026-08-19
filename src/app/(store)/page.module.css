@@ -912,14 +912,16 @@
 
 /* ===== CATEGORY CONTAINER & INDEPENDENT SCROLL ===== */
 .categoryContainer {
-  padding: 14px 16px 24px;
+  padding: 14px 16px 16px;
   background: var(--bg-card, #13161f);
-  height: calc(100vh - 290px);
-  max-height: calc(100dvh - 290px);
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  margin-bottom: 70px;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .categoryContainer::-webkit-scrollbar {
