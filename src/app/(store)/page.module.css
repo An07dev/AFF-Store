@@ -910,20 +910,47 @@
   transform: scale(0.94);
 }
 
-/* ===== CATEGORY CONTAINER & TYPOGRAPHY CARDS ===== */
+/* ===== CATEGORY CONTAINER & INDEPENDENT SCROLL ===== */
 .categoryContainer {
-  padding: 16px;
+  padding: 14px 16px 24px;
   background: var(--bg-card, #13161f);
-  min-height: calc(100vh - 200px);
+  height: calc(100vh - 290px);
+  max-height: calc(100dvh - 290px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 70px;
+}
+
+.categoryContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.categoryContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.categoryContainer::-webkit-scrollbar-thumb {
+  background: var(--border-color, #232838);
+  border-radius: 4px;
+}
+
+.categoryContainer::-webkit-scrollbar-thumb:hover {
+  background: var(--primary, #3b82f6);
 }
 
 .categoryHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border-color, #232838);
+  position: sticky;
+  top: -14px;
+  background: var(--bg-card, #13161f);
+  z-index: 5;
+  padding-top: 4px;
 }
 
 .categoryHeaderLeft {
@@ -933,7 +960,7 @@
 }
 
 .categoryTitle {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-main, #f8fafc);
   margin: 0;
@@ -948,7 +975,7 @@
 .categoryTotalBadge {
   font-size: 11px;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 999px;
   background: var(--bg-main, #090a0f);
   color: var(--primary, #3b82f6);
