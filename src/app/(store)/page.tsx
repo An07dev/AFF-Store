@@ -395,7 +395,7 @@ function HomePageContent() {
                   </div>
                   <p className={styles.topName}>{loading ? 'Đang tải...' : item.name}</p>
                   <span className={styles.topPrice}>
-                    {loading ? '...' : formatPrice(item.salePrice || item.price)}đ
+                    {loading ? '...' : formatPrice(item.salePrice || item.price)}
                   </span>
                   <span className={styles.topSold}>
                     Đã bán {loading ? '0' : formatSold(item.sold || 120)}
@@ -542,10 +542,10 @@ function HomePageContent() {
                     </div>
                     <div className={styles.gridPriceRow}>
                       <span className={styles.gridPrice}>
-                        {loading ? '...' : formatPrice(item.salePrice || item.price)}đ
+                        {loading ? '...' : formatPrice(item.salePrice || item.price)}
                       </span>
                       {!loading && item.salePrice && item.salePrice < item.price && (
-                        <span className={styles.gridOldPrice}>{formatPrice(item.price)}đ</span>
+                        <span className={styles.gridOldPrice}>{formatPrice(item.price)}</span>
                       )}
                     </div>
                     <button

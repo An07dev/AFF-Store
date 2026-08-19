@@ -134,7 +134,7 @@ export default function CartPage() {
             <span>
               {selectedSubtotal >= 500000
                 ? '🎉 Đơn hàng đã đủ điều kiện Miễn Phí Vận Chuyển!'
-                : `Thêm ${formatPrice(500000 - selectedSubtotal)}đ để được Freeship toàn quốc!`}
+                : `Thêm ${formatPrice(500000 - selectedSubtotal)} để được Freeship toàn quốc!`}
             </span>
           </div>
 
