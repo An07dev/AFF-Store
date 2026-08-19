@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
+import { createGHNOrder, cancelGHNOrder } from '@/lib/shipping/ghn';
+import { createGHTKOrder, cancelGHTKOrder } from '@/lib/shipping/ghtk';
+import { createViettelPostOrder } from '@/lib/shipping/viettelpost';
 
 export async function GET(
   request: Request,
@@ -87,18 +90,119 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const updated = await Order.findByIdAndUpdate(id, body, { new: true });
-    if (!updated) {
+    let order;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      order = await Order.findById(id);
+    } else {
+      order = await Order.findOne({ orderCode: id.toUpperCase() });
+    }
+
+    if (!order) {
       return NextResponse.json(
         { success: false, message: 'Không tìm thấy đơn hàng để cập nhật' },
         { status: 404 }
       );
     }
 
+    const previousStatus = order.status;
+    const newStatus = body.status || previousStatus;
+
+    // TỰ ĐỘNG ĐẨY ĐƠN SANG HÃNG VẬN CHUYỂN BÊN THỨ 3 KHI ADMIN DUYỆT ĐƠN (CONFIRMED)
+    if (newStatus === 'confirmed' && (!order.trackingCode || order.trackingCode.startsWith('TEMP-'))) {
+      const rawProvider = (body.shippingProvider || order.shippingProvider || order.shippingCarrier || 'ghn').toLowerCase();
+      let provider = 'ghn';
+      if (rawProvider.includes('ghtk') || rawProvider.includes('tiết kiệm') || rawProvider.includes('tiet kiem')) {
+        provider = 'ghtk';
+      } else if (rawProvider.includes('viettel') || rawProvider.includes('vtp')) {
+        provider = 'viettelpost';
+      } else {
+        provider = 'ghn';
+      }
+
+      try {
+        const orderData = {
+          orderCode: order.orderCode,
+          paymentMethod: order.paymentMethod,
+          totalAmount: order.totalAmount,
+          to_name: order.customer?.name,
+          to_phone: order.customer?.phone,
+          to_address: order.customer?.address,
+          province: order.customer?.province,
+          district: order.customer?.district,
+          ward: order.customer?.ward,
+          customer: order.customer,
+          items: order.items,
+          cod_amount: order.paymentStatus === 'paid' ? 0 : order.totalAmount,
+          weight: 500,
+        };
+
+        let result: { trackingCode: string; fee: number };
+        if (provider === 'ghtk') {
+          result = await createGHTKOrder(orderData);
+        } else if (provider === 'viettelpost') {
+          result = await createViettelPostOrder(orderData);
+        } else {
+          result = await createGHNOrder(orderData);
+        }
+
+        if (result && result.trackingCode) {
+          order.trackingCode = result.trackingCode;
+          order.shippingProvider = provider;
+          order.shippingCarrier =
+            provider === 'ghtk'
+              ? 'Giao Hàng Tiết Kiệm (GHTK)'
+              : provider === 'viettelpost'
+              ? 'Viettel Post'
+              : 'Giao Hàng Nhanh (GHN)';
+          order.shippingStatus = 'ready_to_pick';
+
+          const newLog = {
+            time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            status: 'Đã xác nhận đơn',
+            location: 'Kho tổng ShopTik Store',
+            description: `Admin đã duyệt đơn. Hệ thống tự động đẩy đơn sang ${order.shippingCarrier} (Mã vận đơn: ${result.trackingCode}) để Shipper đến lấy hàng.`,
+            carrier: order.shippingCarrier,
+            createdAt: new Date(),
+          };
+
+          if (!order.shippingLogs) order.shippingLogs = [];
+          order.shippingLogs.push(newLog);
+        }
+      } catch (shippingErr: any) {
+        console.error('Tự động đẩy đơn sang hãng vận chuyển gặp sự cố:', shippingErr.message);
+      }
+    }
+
+    // TỰ ĐỘNG HỦY VẬN ĐƠN PHÍA HÃNG KHI ADMIN HỦY ĐƠN (CANCELLED)
+    if (newStatus === 'cancelled' && order.trackingCode) {
+      try {
+        if ((order.shippingProvider || '').includes('ghtk') || (order.shippingCarrier || '').includes('GHTK')) {
+          await cancelGHTKOrder(order.trackingCode);
+        } else if ((order.shippingProvider || '').includes('ghn') || (order.shippingCarrier || '').includes('GHN')) {
+          await cancelGHNOrder(order.trackingCode);
+        }
+      } catch (err: any) {
+        console.error('Lỗi khi gửi yêu cầu hủy vận đơn sang hãng:', err.message);
+      }
+    }
+
+    // Cập nhật các trường khác
+    Object.assign(order, body);
+    await order.save();
+
+    let responseMessage = 'Cập nhật trạng thái đơn hàng thành công';
+    if (newStatus === 'cancelled') {
+      responseMessage = `Đã hủy đơn hàng #${order.orderCode} thành công${order.trackingCode ? ` và gửi lệnh hủy sang ${order.shippingCarrier}` : ''}!`;
+    } else if (newStatus === 'confirmed') {
+      responseMessage = order.trackingCode
+        ? `Đã duyệt đơn và tự động đẩy sang ${order.shippingCarrier || 'hãng vận chuyển'} (Mã vận đơn: ${order.trackingCode})!`
+        : 'Đã duyệt đơn hàng thành công';
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Cập nhật trạng thái đơn hàng thành công',
-      data: updated,
+      message: responseMessage,
+      data: order,
     });
   } catch (error: any) {
     return NextResponse.json(

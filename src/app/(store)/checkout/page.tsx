@@ -295,7 +295,8 @@ export default function CheckoutPage() {
         discountAmount: 0,
         totalAmount: finalTotalAmount,
         paymentMethod,
-        shippingCarrier: currentCarrierObj?.name || 'GHTK',
+        shippingProvider: selectedCarrier || 'ghn',
+        shippingCarrier: currentCarrierObj?.name || 'Giao Hàng Nhanh (GHN)',
         notes: customer.notes.trim() || undefined,
       };
 

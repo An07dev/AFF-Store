@@ -343,135 +343,301 @@
   background: var(--bg-card, #13161f);
   border: 1px solid var(--border-color, #232838);
   border-radius: 16px;
-  padding: 16px;
+  padding: 18px 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .cardTitle {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   color: var(--text-main, #f8fafc);
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 0;
-  padding-bottom: 8px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border-color, #232838);
 }
 
-.stepperWrap {
+/* 5-Step Horizontal Chain Header */
+.horizontalStepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 10px 4px 18px 4px;
+  margin-bottom: 4px;
+}
+
+.hStepItem {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding-left: 6px;
-}
-
-.stepBox {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
   position: relative;
+  flex: 1;
 }
 
-.stepCircle {
-  width: 22px;
-  height: 22px;
+.hStepCircle {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: #1a1e2b;
-  border: 2px solid var(--border-color, #232838);
+  background: #151926;
+  border: 2px solid var(--border-color, #2b3248);
+  color: var(--text-muted, #94a3b8);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-muted, #94a3b8);
-  flex-shrink: 0;
-  z-index: 2;
+  font-size: 12px;
+  font-weight: 800;
+  transition: all 0.3s ease;
 }
 
-.stepDone .stepCircle {
+.hStepDone .hStepCircle {
   background: #10b981;
   border-color: #10b981;
-  color: #fff;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
-.stepTexts {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding-bottom: 14px;
+.hStepActive .hStepCircle {
+  background: #3b82f6;
+  border-color: #60a5fa;
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.6);
+  transform: scale(1.12);
+  animation: activeGlow 1.8s infinite;
 }
 
-.stepTitleRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+@keyframes activeGlow {
+  0% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.9); }
+  100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
 }
 
-.stepTitle {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-main, #f8fafc);
-}
-
-.liveTag {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  font-size: 9px;
-  font-weight: 800;
-  padding: 1px 6px;
-  border-radius: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.waybillInline {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-  font-size: 11px;
-  color: #60a5fa;
-  background: rgba(59, 130, 246, 0.08);
-  padding: 3px 8px;
-  border-radius: 6px;
-  width: fit-content;
-}
-
-.copyWaybillInlineBtn {
-  background: transparent;
-  border: none;
-  color: #60a5fa;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 2px;
+.hStepLabel {
   font-size: 10px;
-  padding: 0;
-  font-weight: 600;
-}
-
-.stepDesc {
-  font-size: 11px;
+  font-weight: 700;
   color: var(--text-muted, #94a3b8);
+  text-align: center;
+  max-width: 68px;
+  line-height: 1.25;
 }
 
-.stepBar {
-  width: 2px;
-  height: 16px;
+.hStepDone .hStepLabel {
+  color: #10b981;
+}
+
+.hStepActive .hStepLabel {
+  color: #60a5fa;
+  font-weight: 800;
+}
+
+.hStepLine {
+  position: absolute;
+  top: 26px;
+  left: 30px;
+  right: 30px;
+  height: 3px;
   background: var(--border-color, #232838);
-  margin-left: 10px;
-  margin-top: -12px;
-  margin-bottom: 4px;
   z-index: 1;
 }
 
-.barDone {
+.hStepLineFill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* Current Step Highlight Banner */
+.currentStepBanner {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(16, 185, 129, 0.08));
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.bannerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bannerStepTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bannerPercent {
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.bannerDesc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-main, #f8fafc);
+  line-height: 1.45;
+}
+
+.bannerMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+  flex-wrap: wrap;
+}
+
+/* 5 Steps Detailed Vertical List */
+.stepDetailList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stepDetailCard {
+  background: #090a10;
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.stepCardDone {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.03);
+}
+
+.stepCardActive {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.12);
+}
+
+.stepCardPending {
+  opacity: 0.6;
+}
+
+.stepBadgeNum {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+  background: #1a1e2b;
+  color: #94a3b8;
+  border: 1px solid var(--border-color, #232838);
+}
+
+.stepCardDone .stepBadgeNum {
   background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.stepCardActive .stepBadgeNum {
+  background: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.stepContentRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stepHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.stepHeading {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepStatusTag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.tagDone {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.tagActive {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  animation: pulse 1.5s infinite;
+}
+
+.tagPending {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+}
+
+.stepDescription {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.stepMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
 /* ===================================================

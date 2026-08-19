@@ -66,6 +66,7 @@ export default function OrderDetailPage() {
 
   const createShipping = async (provider: string) => {
     try {
+      setUpdating(true);
       const res = await apiFetch('/api/shipping/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,9 +74,17 @@ export default function OrderDetailPage() {
           orderId: order._id,
           provider,
           orderData: {
+            orderCode: order.orderCode,
+            paymentMethod: order.paymentMethod,
+            totalAmount: order.totalAmount,
             to_name: order.customer?.name,
             to_phone: order.customer?.phone,
             to_address: order.customer?.address,
+            province: order.customer?.province,
+            district: order.customer?.district,
+            ward: order.customer?.ward,
+            customer: order.customer,
+            items: order.items,
             cod_amount: order.paymentStatus === 'paid' ? 0 : order.totalAmount,
             weight: 500,
           },
@@ -83,11 +92,15 @@ export default function OrderDetailPage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(`Đã tạo vận đơn ${provider.toUpperCase()}: ${data.data.trackingCode}`);
+        toast.success(`Đã đẩy đơn sang ${provider.toUpperCase()} thành công! Mã vận đơn: ${data.data.trackingCode}`);
         fetchOrder();
+      } else {
+        toast.error(data.message || 'Lỗi khi đẩy đơn sang hãng');
       }
     } catch (e) {
       toast.error('Lỗi tạo vận đơn');
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -136,23 +149,54 @@ export default function OrderDetailPage() {
             </button>
           )}
 
+          {/* 1-Click Duyệt Đơn & Tự Động Đẩy Hãng Vận Chuyển Khách Đã Chọn */}
           {order.status === 'pending' && (
             <button
+              type="button"
               className={styles.btnPrimary}
+              style={{
+                background:
+                  (order.shippingProvider || '').includes('ghtk')
+                    ? '#059669'
+                    : '#ea580c',
+              }}
               onClick={() => updateOrderStatus('confirmed')}
               disabled={updating}
             >
-              <FiCheck /> Xác nhận đơn
+              <FiCheck /> Duyệt Đơn & Đẩy Sang {order.shippingCarrier || order.shippingProvider?.toUpperCase() || 'Hãng Vận Chuyển'}
             </button>
           )}
 
-          {order.status === 'confirmed' && (
+          {order.status === 'confirmed' && !order.trackingCode && (
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                style={{ background: '#ea580c' }}
+                onClick={() => createShipping('ghn')}
+                disabled={updating}
+              >
+                <FiTruck /> Đẩy GHN
+              </button>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                style={{ background: '#059669' }}
+                onClick={() => createShipping('ghtk')}
+                disabled={updating}
+              >
+                <FiTruck /> Đẩy GHTK
+              </button>
+            </div>
+          )}
+
+          {order.status === 'confirmed' && order.trackingCode && (
             <button
               className={styles.btnPrimary}
               onClick={() => updateOrderStatus('shipping')}
               disabled={updating}
             >
-              <FiTruck /> Giao hàng
+              <FiTruck /> Chuyển sang Đang giao
             </button>
           )}
 

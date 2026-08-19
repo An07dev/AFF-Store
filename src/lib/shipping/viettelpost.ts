@@ -1,15 +1,19 @@
+import { getDBShippingConfig } from './configHelper';
+
 // Viettel Post Integration
 const VIETTELPOST_API_URL = process.env.VIETTELPOST_API_URL || 'https://partner.viettelpost.vn/v2';
-const VIETTELPOST_TOKEN = process.env.VIETTELPOST_API_TOKEN || '';
 
 export async function calculateViettelPostFee(province: string, district: string, weight = 500) {
-  if (VIETTELPOST_TOKEN) {
+  const dbConfig = await getDBShippingConfig();
+  const token = dbConfig.carriers.viettelpost.token || process.env.VIETTELPOST_TOKEN || '';
+
+  if (token && dbConfig.carriers.viettelpost.enabled) {
     try {
       const res = await fetch(`${VIETTELPOST_API_URL}/order/getPrice`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Token: VIETTELPOST_TOKEN,
+          Token: token,
         },
         body: JSON.stringify({
           PRODUCT_WEIGHT: weight,
@@ -31,7 +35,7 @@ export async function calculateViettelPostFee(province: string, district: string
   }
 
   const isInner = province.toLowerCase().includes('hà nội') || province.toLowerCase().includes('hồ chí minh');
-  const fee = isInner ? 21000 : 31000;
+  const fee = isInner ? dbConfig.rates.defaultInnerFee : dbConfig.rates.defaultOuterFee;
   return {
     fee,
     serviceName: 'Viettel Post Tiêu Chuẩn',
@@ -40,13 +44,16 @@ export async function calculateViettelPostFee(province: string, district: string
 }
 
 export async function createViettelPostOrder(data: any) {
-  if (VIETTELPOST_TOKEN) {
+  const dbConfig = await getDBShippingConfig();
+  const token = dbConfig.carriers.viettelpost.token || process.env.VIETTELPOST_TOKEN || '';
+
+  if (token) {
     try {
       const res = await fetch(`${VIETTELPOST_API_URL}/order/createOrder`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Token: VIETTELPOST_TOKEN,
+          Token: token,
         },
         body: JSON.stringify(data),
       });
@@ -70,11 +77,14 @@ export async function createViettelPostOrder(data: any) {
 }
 
 export async function trackViettelPostOrder(trackingCode: string) {
-  if (VIETTELPOST_TOKEN) {
+  const dbConfig = await getDBShippingConfig();
+  const token = dbConfig.carriers.viettelpost.token || process.env.VIETTELPOST_TOKEN || '';
+
+  if (token) {
     try {
       const res = await fetch(`${VIETTELPOST_API_URL}/order/getOrderTrack?orderNumber=${encodeURIComponent(trackingCode)}`, {
         headers: {
-          Token: VIETTELPOST_TOKEN,
+          Token: token,
         },
       });
       const result = await res.json();

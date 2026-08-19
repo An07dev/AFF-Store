@@ -151,23 +151,30 @@ function TrackingContent() {
       case 'confirmed':
         return { label: 'Đã Xác Nhận', className: styles.statusConfirmed };
       case 'shipping':
+        return { label: 'Bàn Giao Vận Chuyển', className: styles.statusShipping };
+      case 'delivering':
         return { label: 'Đang Giao Hàng', className: styles.statusShipping };
       case 'delivered':
         return { label: 'Giao Thành Công', className: styles.statusDelivered };
       case 'cancelled':
         return { label: 'Đã Hủy Đơn', className: styles.statusCancelled };
+      case 'returned':
+        return { label: 'Chuyển Hoàn', className: styles.statusCancelled };
       case 'pending':
       default:
         return { label: 'Chờ Xử Lý', className: styles.statusPending };
     }
   };
 
-  // Calculate timeline active steps
+  // Calculate timeline active steps (5 steps)
   const getStepIndex = (status: string) => {
     switch (status) {
       case 'cancelled':
+      case 'returned':
         return 0;
       case 'delivered':
+        return 5;
+      case 'delivering':
         return 4;
       case 'shipping':
         return 3;
@@ -181,24 +188,25 @@ function TrackingContent() {
 
   // Carrier info & dynamic logs generator
   const getCarrierDetails = (carrierName: string = '', orderCodeStr: string = 'ST832025') => {
-    const isGHN = carrierName.toLowerCase().includes('ghn') || carrierName.toLowerCase().includes('nhanh');
-    const isViettel = carrierName.toLowerCase().includes('viettel');
+    const rawCarrier = (carrierName || order?.shippingProvider || '').toLowerCase();
+    const isGHN = rawCarrier.includes('ghn') || rawCarrier.includes('nhanh');
+    const isViettel = rawCarrier.includes('viettel') || rawCarrier.includes('vtp');
 
-    let brandName = 'Giao Hàng Tiết Kiệm (GHTK)';
-    let trackingCode = `GHTK.${orderCodeStr.replace(/\D/g, '') || '83920194'}`;
+    let brandName = order?.shippingCarrier || 'Giao Hàng Tiết Kiệm (GHTK)';
+    let trackingCode = order?.trackingCode || `GHTK.${orderCodeStr.replace(/\D/g, '') || '83920194'}`;
     let hotline = '1900 6092';
     let trackUrl = `https://i.ghtk.vn`;
     let color = '#059669';
 
     if (isGHN) {
-      brandName = 'Giao Nhanh (GHN)';
-      trackingCode = `GHN-${orderCodeStr.replace(/\D/g, '') || '92837102'}`;
+      brandName = order?.shippingCarrier || 'Giao Hàng Nhanh (GHN)';
+      trackingCode = order?.trackingCode || `GHN-${orderCodeStr.replace(/\D/g, '') || '92837102'}`;
       hotline = '1900 636677';
       trackUrl = `https://donhang.ghn.vn`;
       color = '#ea580c';
     } else if (isViettel) {
-      brandName = 'Viettel Post Tiêu Chuẩn';
-      trackingCode = `VTP${orderCodeStr.replace(/\D/g, '') || '74829103'}`;
+      brandName = order?.shippingCarrier || 'Viettel Post';
+      trackingCode = order?.trackingCode || `VTP${orderCodeStr.replace(/\D/g, '') || '74829103'}`;
       hotline = '1900 8095';
       trackUrl = `https://viettelpost.com.vn/tra-cuu-hanh-trinh-don`;
       color = '#dc2626';
@@ -209,8 +217,19 @@ function TrackingContent() {
 
   const carrierInfo = order ? getCarrierDetails(order.shippingCarrier, order.orderCode) : null;
 
-  // Generate realistic carrier logs
+  // Generate realistic carrier logs or use real shippingLogs from order
   const getCarrierLogs = (): TrackingLog[] => {
+    if (order?.shippingLogs && order.shippingLogs.length > 0) {
+      return [...order.shippingLogs].reverse().map((log: any, idx: number) => ({
+        time: log.time || new Date(log.createdAt || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        date: log.createdAt ? new Date(log.createdAt).toLocaleDateString('vi-VN') : 'Hôm nay',
+        status: log.status || 'Cập nhật vận chuyển',
+        location: log.location || 'Bưu cục vận chuyển',
+        description: log.description || (log.shipperName ? `Shipper ${log.shipperName} (${log.shipperPhone}) đang giao hàng` : 'Đang xử lý kiện hàng'),
+        isCurrent: idx === 0,
+      }));
+    }
+
     const carrier = carrierInfo?.brandName || 'GHTK';
     const destination = order?.customer?.district ? `${order.customer.district}, ${order.customer.province}` : 'Quận Cầu Giấy, Hà Nội';
 
@@ -383,178 +402,223 @@ function TrackingContent() {
               </div>
             </div>
 
-            {/* Stepper / Journey Timeline */}
+            {/* Stepper / Journey Timeline 5 Bước Minh Bạch */}
             <div className={styles.timelineCard}>
-              <h3 className={styles.cardTitle}>
-                <FiPackage size={16} color="var(--primary, #3b82f6)" />
-                <span>Trạng Thái Tiến Trình Vận Chuyển</span>
-              </h3>
-
-              <div className={styles.stepperWrap}>
-                {/* Step 1 */}
-                <div className={`${styles.stepBox} ${currentStep >= 1 ? styles.stepDone : ''}`}>
-                  <div className={styles.stepCircle}>
-                    {currentStep > 1 ? <FiCheck size={12} /> : '1'}
-                  </div>
-                  <div className={styles.stepTexts}>
-                    <span className={styles.stepTitle}>Đã Tiếp Nhận</span>
-                    <span className={styles.stepDesc}>Hệ thống đã ghi nhận đơn hàng</span>
-                  </div>
-                </div>
-
-                <div className={`${styles.stepBar} ${currentStep >= 2 ? styles.barDone : ''}`} />
-
-                {/* Step 2 */}
-                <div className={`${styles.stepBox} ${currentStep >= 2 ? styles.stepDone : ''}`}>
-                  <div className={styles.stepCircle}>
-                    {currentStep > 2 ? <FiCheck size={12} /> : '2'}
-                  </div>
-                  <div className={styles.stepTexts}>
-                    <span className={styles.stepTitle}>Đang Đóng Gói</span>
-                    <span className={styles.stepDesc}>Shop kiểm tra sản phẩm & đóng gói cẩn thận</span>
-                  </div>
-                </div>
-
-                <div className={`${styles.stepBar} ${currentStep >= 3 ? styles.barDone : ''}`} />
-
-                {/* Step 3: Đang Giao Hàng & Bàn giao đơn vị vận chuyển */}
-                <div className={`${styles.stepBox} ${currentStep >= 3 ? styles.stepDone : ''}`}>
-                  <div className={styles.stepCircle}>
-                    {currentStep > 3 ? <FiCheck size={12} /> : <FiActivity size={12} />}
-                  </div>
-                  <div className={styles.stepTexts}>
-                    <div className={styles.stepTitleRow}>
-                      <span className={styles.stepTitle}>Đang Giao Hàng</span>
-                      <span className={styles.liveTag}>Live Tracking</span>
-                    </div>
-                    <span className={styles.stepDesc}>
-                      Bàn giao đơn vị <strong>{carrierInfo?.brandName}</strong>
-                    </span>
-                    <div className={styles.waybillInline}>
-                      <span>Mã vận đơn: <strong>{carrierInfo?.trackingCode}</strong></span>
-                      <button
-                        type="button"
-                        className={styles.copyWaybillInlineBtn}
-                        onClick={() => handleCopyWaybill(carrierInfo?.trackingCode || '')}
-                      >
-                        {copiedWaybill ? <FiCheck size={11} color="#10b981" /> : <FiCopy size={11} />}
-                        <span>{copiedWaybill ? 'Đã chép' : 'Chép mã'}</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={`${styles.stepBar} ${currentStep >= 4 ? styles.barDone : ''}`} />
-
-                {/* Step 4 */}
-                <div className={`${styles.stepBox} ${currentStep >= 4 ? styles.stepDone : ''}`}>
-                  <div className={styles.stepCircle}>
-                    {currentStep >= 4 ? <FiCheck size={12} /> : '4'}
-                  </div>
-                  <div className={styles.stepTexts}>
-                    <span className={styles.stepTitle}>Đã Giao Thành Công</span>
-                    <span className={styles.stepDesc}>Khách hàng đã nhận kiện hàng</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* DEDICATED CARRIER LIVE TRACKING HUB */}
-            <div className={styles.carrierTrackingCard}>
-              <div className={styles.carrierHubHeader}>
-                <div className={styles.carrierHubLeft}>
-                  <div className={styles.carrierIconBox}>
-                    <FiNavigation size={18} color="#fff" />
-                  </div>
-                  <div className={styles.carrierHubTitleBox}>
-                    <h3 className={styles.carrierHubTitle}>
-                      Theo Dõi Đơn Vị Vận Chuyển
-                    </h3>
-                    <span className={styles.carrierHubSubtitle}>
-                      {carrierInfo?.brandName}
-                    </span>
-                  </div>
-                </div>
-
-                <span className={styles.pulseActive}>
-                  <span className={styles.pulseDot} />
-                  <span>Đang di chuyển</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                <h3 className={styles.cardTitle} style={{ margin: 0, padding: 0, border: 'none' }}>
+                  <FiPackage size={17} color="var(--primary, #3b82f6)" />
+                  <span>Tiến Trình Đơn Hàng (5 Bước Chuẩn Hóa)</span>
+                </h3>
+                <span className={styles.liveTag}>
+                  {currentStep === 5
+                    ? '✓ Hoàn tất 100%'
+                    : currentStep === 4
+                    ? '⚡ Đang đi phát hàng'
+                    : currentStep === 3
+                    ? '🚚 Đang luân chuyển'
+                    : currentStep === 2
+                    ? '📦 Đã duyệt đơn'
+                    : '🛒 Đã ghi nhận'}
                 </span>
               </div>
 
-              {/* Waybill & Carrier Quick Actions */}
-              <div className={styles.waybillBox}>
-                <div className={styles.waybillLeft}>
-                  <span className={styles.waybillLabel}>Mã vận đơn bưu tá:</span>
-                  <span className={styles.waybillCode}>{carrierInfo?.trackingCode}</span>
+              {/* 1. Horizontal 5-Step Visual Chain */}
+              <div className={styles.horizontalStepper}>
+                <div className={styles.hStepLine}>
+                  <div
+                    className={styles.hStepLineFill}
+                    style={{
+                      width:
+                        currentStep === 5
+                          ? '100%'
+                          : currentStep === 4
+                          ? '75%'
+                          : currentStep === 3
+                          ? '50%'
+                          : currentStep === 2
+                          ? '25%'
+                          : '4%',
+                    }}
+                  />
                 </div>
-                <button
-                  type="button"
-                  className={styles.copyWaybillBtn}
-                  onClick={() => handleCopyWaybill(carrierInfo?.trackingCode || '')}
-                >
-                  {copiedWaybill ? <FiCheck size={13} color="#10b981" /> : <FiCopy size={13} />}
-                  <span>{copiedWaybill ? 'Đã chép' : 'Sao chép'}</span>
-                </button>
+
+                {[
+                  { num: 1, label: 'Đặt đơn' },
+                  { num: 2, label: 'Xác nhận' },
+                  { num: 3, label: 'Vận chuyển' },
+                  { num: 4, label: 'Đang giao' },
+                  { num: 5, label: 'Đã nhận' },
+                ].map((st) => {
+                  const isDone = currentStep > st.num || (currentStep === 5 && st.num === 5);
+                  const isActive = currentStep === st.num && currentStep < 5;
+                  return (
+                    <div
+                      key={st.num}
+                      className={`${styles.hStepItem} ${isDone ? styles.hStepDone : ''} ${
+                        isActive ? styles.hStepActive : ''
+                      }`}
+                    >
+                      <div className={styles.hStepCircle}>
+                        {isDone ? <FiCheck size={14} /> : st.num}
+                      </div>
+                      <span className={styles.hStepLabel}>{st.label}</span>
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Carrier Logs Timeline */}
-              <div className={styles.carrierLogsSection}>
-                <h4 className={styles.logsSectionTitle}>
-                  <FiClock size={14} color="var(--primary, #3b82f6)" />
-                  <span>Nhật Ký Hành Trình Chi Tiết (Realtime)</span>
-                </h4>
+              {/* 2. Current Step Highlight Banner */}
+              <div className={styles.currentStepBanner}>
+                <div className={styles.bannerTop}>
+                  <span className={styles.bannerStepTitle}>
+                    {currentStep === 5
+                      ? '🎉 Bước 5/5: Giao Hàng Thành Công'
+                      : currentStep === 4
+                      ? '🛵 Bước 4/5: Shipper Đang Đi Giao Hàng'
+                      : currentStep === 3
+                      ? '🚚 Bước 3/5: Hãng Vận Chuyển Đang Luân Chuyển'
+                      : currentStep === 2
+                      ? '📦 Bước 2/5: Shop Đang Chuẩn Bị & Đóng Gói'
+                      : '🛒 Bước 1/5: Đặt Hàng Thành Công'}
+                  </span>
+                  <span className={styles.bannerPercent}>
+                    {currentStep === 5
+                      ? '100% Hoàn Tất'
+                      : currentStep === 4
+                      ? '80% Tiến Trình'
+                      : currentStep === 3
+                      ? '60% Tiến Trình'
+                      : currentStep === 2
+                      ? '40% Tiến Trình'
+                      : '20% Tiến Trình'}
+                  </span>
+                </div>
+                <p className={styles.bannerDesc}>
+                  {currentStep === 5
+                    ? 'Đơn hàng đã được giao thành công tới người nhận. Cảm ơn bạn đã tin tưởng mua sắm tại ShopTik!'
+                    : currentStep === 4
+                    ? `Bưu tá đang phát kiện hàng tới địa chỉ của bạn (${order.customer?.district || 'khu vực nhận'}). Hãy để ý điện thoại nhé!`
+                    : currentStep === 3
+                    ? `Kiện hàng đã xuất kho và đang được chuyển phát an toàn qua đơn vị ${carrierInfo?.brandName}.`
+                    : currentStep === 2
+                    ? 'Đơn hàng đã được duyệt, nhân viên kho đang đóng gói và dán mã vận đơn điện tử.'
+                    : 'Hệ thống đã tạo đơn hàng thành công và đang chờ kho xử lý.'}
+                </p>
+                <div className={styles.bannerMeta}>
+                  <span>🕒 Cập nhật: {carrierLogs[0]?.time || 'Vừa xong'}</span>
+                  <span>📍 Vị trí: {carrierLogs[0]?.location || 'Hệ thống'}</span>
+                </div>
+              </div>
 
-                <div className={styles.logsList}>
-                  {carrierLogs.map((log, index) => (
-                    <div
-                      key={index}
-                      className={`${styles.logItem} ${log.isCurrent ? styles.logCurrent : ''}`}
-                    >
-                      <div className={styles.logLeftCol}>
-                        <span className={styles.logTime}>{log.time}</span>
-                        <span className={styles.logDate}>{log.date}</span>
+              {/* 3. Detailed Step Breakdown Cards */}
+              <div className={styles.stepDetailList}>
+                {[
+                  {
+                    num: 1,
+                    title: 'Bước 1: Đặt Hàng Thành Công',
+                    desc: 'Khách hàng đặt hàng thành công, hệ thống ghi nhận mã đơn hàng.',
+                    icon: <FiShoppingBag size={13} />,
+                    status: currentStep >= 1 ? (currentStep > 1 ? 'done' : 'active') : 'pending',
+                    location: 'Hệ thống ShopTik Store',
+                    time: new Date(order.createdAt || Date.now()).toLocaleString('vi-VN'),
+                  },
+                  {
+                    num: 2,
+                    title: 'Bước 2: Đang Xác Nhận Đơn',
+                    desc: 'Shop đã duyệt đơn hàng, in phiếu giao hàng và đóng gói sản phẩm.',
+                    icon: <FiPackage size={13} />,
+                    status: currentStep >= 2 ? (currentStep > 2 ? 'done' : 'active') : 'pending',
+                    location: 'Kho tổng đóng gói - Nam Từ Liêm, Hà Nội',
+                    time: currentStep >= 2 ? 'Đã hoàn tất đóng gói' : 'Chờ duyệt',
+                  },
+                  {
+                    num: 3,
+                    title: 'Bước 3: Bàn Giao Đơn Vị Vận Chuyển',
+                    desc: `Bàn giao kiện hàng cho đơn vị ${carrierInfo?.brandName}. Hàng đang được phân loại tại kho trung chuyển.`,
+                    icon: <FiTruck size={13} />,
+                    status: currentStep >= 3 ? (currentStep > 3 ? 'done' : 'active') : 'pending',
+                    location: carrierInfo?.brandName || 'Đơn vị giao hàng',
+                    time: carrierInfo?.trackingCode ? `Mã vận đơn: ${carrierInfo.trackingCode}` : 'Chờ hãng tiếp nhận',
+                  },
+                  {
+                    num: 4,
+                    title: 'Bước 4: Đang Giao Hàng',
+                    desc: 'Kiện hàng đã đến bưu cục đích, Shipper đang đi phát tận nơi tới địa chỉ người nhận.',
+                    icon: <FiNavigation size={13} />,
+                    status: currentStep >= 4 ? (currentStep > 4 ? 'done' : 'active') : 'pending',
+                    location: `Bưu cục phát ${order.customer?.district || 'khu vực giao hàng'}`,
+                    time: currentStep >= 4 ? 'Shipper đang giao tận nơi' : 'Chờ xuất bưu cục',
+                  },
+                  {
+                    num: 5,
+                    title: 'Bước 5: Đã Giao Thành Công',
+                    desc: 'Kiện hàng đã được giao tận tay khách hàng. Xác nhận hoàn tất đơn hàng.',
+                    icon: <FiCheckCircle size={13} />,
+                    status: currentStep >= 5 ? 'done' : 'pending',
+                    location: order.customer?.address || 'Địa chỉ khách hàng',
+                    time: currentStep >= 5 ? (isPaid ? 'Đã giao & Đã thanh toán' : 'Đã giao hàng') : 'Chưa giao',
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.num}
+                    className={`${styles.stepDetailCard} ${
+                      item.status === 'done'
+                        ? styles.stepCardDone
+                        : item.status === 'active'
+                        ? styles.stepCardActive
+                        : styles.stepCardPending
+                    }`}
+                  >
+                    <div className={styles.stepBadgeNum}>
+                      {item.status === 'done' ? <FiCheck size={14} /> : item.num}
+                    </div>
+
+                    <div className={styles.stepContentRight}>
+                      <div className={styles.stepHeaderRow}>
+                        <span className={styles.stepHeading}>
+                          {item.icon} {item.title}
+                        </span>
+                        <span
+                          className={`${styles.stepStatusTag} ${
+                            item.status === 'done'
+                              ? styles.tagDone
+                              : item.status === 'active'
+                              ? styles.tagActive
+                              : styles.tagPending
+                          }`}
+                        >
+                          {item.status === 'done'
+                            ? '✓ Đã xong'
+                            : item.status === 'active'
+                            ? '⚡ Đang thực hiện'
+                            : '⏳ Chờ đến'}
+                        </span>
                       </div>
 
-                      <div className={styles.logTimelineCol}>
-                        <div className={styles.logDot}>
-                          {log.isCurrent ? <span className={styles.activeInnerDot} /> : null}
-                        </div>
-                        {index < carrierLogs.length - 1 && <div className={styles.logLine} />}
-                      </div>
+                      <p className={styles.stepDescription}>{item.desc}</p>
 
-                      <div className={styles.logRightCol}>
-                        <div className={styles.logStatusRow}>
-                          <span className={styles.logStatus}>{log.status}</span>
-                          {log.isCurrent && <span className={styles.newestBadge}>Mới nhất</span>}
+                      {item.num === 3 && carrierInfo?.trackingCode && (
+                        <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <button
+                            type="button"
+                            className={styles.copyBtn}
+                            onClick={() => handleCopyWaybill(carrierInfo.trackingCode)}
+                            style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6 }}
+                          >
+                            {copiedWaybill ? <FiCheck size={12} color="#10b981" /> : <FiCopy size={12} />}
+                            <span>{copiedWaybill ? 'Đã sao chép mã vận đơn' : `Mã vận đơn: ${carrierInfo.trackingCode}`}</span>
+                          </button>
                         </div>
-                        <p className={styles.logDesc}>{log.description}</p>
-                        <span className={styles.logLocation}>📍 {log.location}</span>
+                      )}
+
+                      <div className={styles.stepMetaRow}>
+                        <span className={styles.metaItem}>📍 {item.location}</span>
+                        <span>•</span>
+                        <span className={styles.metaItem}>🕒 {item.time}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Direct Carrier External Actions */}
-              <div className={styles.carrierActionRow}>
-                <a
-                  href={carrierInfo?.trackUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.carrierLinkBtn}
-                >
-                  <FiExternalLink size={14} />
-                  <span>Tra cứu trên Web {carrierInfo?.brandName.split(' ')[0]}</span>
-                </a>
-
-                <a
-                  href={`tel:${carrierInfo?.hotline}`}
-                  className={styles.carrierHotlineBtn}
-                >
-                  <FiPhoneCall size={14} />
-                  <span>Tổng đài: {carrierInfo?.hotline}</span>
-                </a>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -585,36 +649,60 @@ function TrackingContent() {
               </div>
             </div>
 
-            {/* Products Card */}
+            {/* Products Card - Sản Phẩm Trong Đơn Hàng Từ API */}
             {order.items && order.items.length > 0 && (
               <div className={styles.card}>
-                <h3 className={styles.cardTitle}>
-                  <FiShoppingBag size={16} color="var(--primary, #3b82f6)" />
-                  <span>Sản Phẩm Trong Đơn ({order.items.length})</span>
-                </h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 8, borderBottom: '1px solid var(--border-color, #232838)' }}>
+                  <h3 className={styles.cardTitle} style={{ border: 'none', padding: 0, margin: 0 }}>
+                    <FiShoppingBag size={16} color="var(--primary, #3b82f6)" />
+                    <span>Sản Phẩm Trong Đơn ({order.items.reduce((s: number, i: any) => s + (i.quantity || 1), 0)})</span>
+                  </h3>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', fontWeight: 600 }}>
+                    {order.items.length} mặt hàng
+                  </span>
+                </div>
 
                 <div className={styles.itemList}>
-                  {order.items.map((item: any, idx: number) => (
-                    <div key={idx} className={styles.itemRow}>
-                      <img
-                        src={item.image || 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'}
-                        alt={item.name}
-                        className={styles.itemImg}
-                      />
-                      <div className={styles.itemDetails}>
-                        <span className={styles.itemName}>{item.name}</span>
-                        {item.variant?.name && (
-                          <span className={styles.itemVariant}>Phân loại: {item.variant.name}</span>
-                        )}
-                        <div className={styles.itemPriceRow}>
-                          <span className={styles.itemPrice}>
-                            {formatPrice((item.variant?.price || item.price) * item.quantity)}
-                          </span>
-                          <span className={styles.itemQty}>x{item.quantity}</span>
+                  {order.items.map((item: any, idx: number) => {
+                    const variantText =
+                      item.variant?.name ||
+                      [item.variant?.color, item.variant?.size].filter(Boolean).join(' - ') ||
+                      (typeof item.variant === 'string' ? item.variant : '');
+                    const unitPrice = item.price || item.variant?.price || 0;
+                    const itemTotal = unitPrice * (item.quantity || 1);
+
+                    return (
+                      <div key={item._id || idx} className={styles.itemRow}>
+                        <img
+                          src={item.image || 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400'}
+                          alt={item.name}
+                          className={styles.itemImg}
+                          onError={(e: any) => {
+                            e.target.src = 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400';
+                          }}
+                        />
+                        <div className={styles.itemDetails}>
+                          <span className={styles.itemName}>{item.name}</span>
+                          {variantText ? (
+                            <span className={styles.itemVariant}>
+                              Phân loại: <strong style={{ color: '#e2e8f0' }}>{variantText}</strong>
+                            </span>
+                          ) : null}
+                          <div className={styles.itemPriceRow}>
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                              <span className={styles.itemPrice}>{formatPrice(itemTotal)}</span>
+                              {item.quantity > 1 && (
+                                <span style={{ fontSize: 10, color: '#94a3b8' }}>
+                                  ({formatPrice(unitPrice)}/cái)
+                                </span>
+                              )}
+                            </div>
+                            <span className={styles.itemQty}>x{item.quantity || 1}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

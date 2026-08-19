@@ -54,7 +54,10 @@ const SHOP_INFO = {
 const FILTER_PILLS = ['Đề xuất', 'Bán chạy', 'Hàng mới ra mắt', 'Giá ↕'];
 
 function formatPrice(price: number) {
-  return new Intl.NumberFormat('vi-VN').format(price || 0);
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(price || 0);
 }
 
 function calcDiscount(price: number, salePrice: number) {
@@ -466,11 +469,11 @@ function HomePageContent() {
                       </div>
                       <div className={styles.gridPriceRow}>
                         <span className={styles.gridPrice}>
-                          {loading ? '...' : formatPrice(item.salePrice || item.price)}đ
+                          {loading ? '...' : formatPrice(item.salePrice || item.price)}
                         </span>
                         {!loading && item.salePrice && item.salePrice < item.price && (
                           <span className={styles.gridOldPrice}>
-                            {formatPrice(item.price)}đ
+                            {formatPrice(item.price)}
                           </span>
                         )}
                       </div>
@@ -692,10 +695,9 @@ function HomePageContent() {
                       <div className={styles.listPriceRow}>
                         <span className={styles.listPrice}>
                           {formatPrice(item.salePrice || item.price)}
-                          <sup>đ</sup>
                         </span>
                         {item.salePrice && item.salePrice < item.price && (
-                          <span className={styles.listOldPrice}>{formatPrice(item.price)}đ</span>
+                          <span className={styles.listOldPrice}>{formatPrice(item.price)}</span>
                         )}
                       </div>
                     </div>
@@ -754,10 +756,10 @@ function HomePageContent() {
                       </div>
                       <div className={styles.gridPriceRow}>
                         <span className={styles.gridPrice}>
-                          {formatPrice(item.salePrice || item.price)}đ
+                          {formatPrice(item.salePrice || item.price)}
                         </span>
                         {item.salePrice && item.salePrice < item.price && (
-                          <span className={styles.gridOldPrice}>{formatPrice(item.price)}đ</span>
+                          <span className={styles.gridOldPrice}>{formatPrice(item.price)}</span>
                         )}
                       </div>
                       <button

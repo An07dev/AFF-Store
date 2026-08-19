@@ -21,10 +21,29 @@ export async function POST(request: Request) {
     }
 
     if (orderId) {
+      const carrierName =
+        provider === 'ghtk'
+          ? 'Giao Hàng Tiết Kiệm (GHTK)'
+          : provider === 'viettelpost'
+          ? 'Viettel Post'
+          : 'Giao Hàng Nhanh (GHN)';
+
+      const initialLog = {
+        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        status: 'Bàn giao vận chuyển',
+        location: 'Kho tổng ShopTik',
+        description: `Đã tạo vận đơn thành công với ${carrierName}. Mã vận đơn: ${result.trackingCode}`,
+        carrier: provider,
+        createdAt: new Date(),
+      };
+
       await Order.findByIdAndUpdate(orderId, {
         status: 'shipping',
         shippingProvider: provider,
+        shippingCarrier: carrierName,
         trackingCode: result.trackingCode,
+        shippingStatus: 'picking',
+        $push: { shippingLogs: initialLog },
       });
     }
 

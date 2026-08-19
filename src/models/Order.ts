@@ -19,6 +19,17 @@ export interface IOrderCustomer {
   ward?: string;
 }
 
+export interface IShippingLog {
+  time?: string;
+  status?: string;
+  location?: string;
+  description?: string;
+  shipperName?: string;
+  shipperPhone?: string;
+  carrier?: string;
+  createdAt?: Date;
+}
+
 export interface IOrder extends Document {
   orderCode: string;
   customer: IOrderCustomer;
@@ -29,9 +40,13 @@ export interface IOrder extends Document {
   totalAmount: number;
   paymentMethod: 'cod' | 'bank_transfer' | 'online';
   paymentStatus: 'unpaid' | 'paid' | 'refunded';
-  status: 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'shipping' | 'delivering' | 'delivered' | 'cancelled' | 'returned';
   shippingProvider?: string;
+  shippingCarrier?: string;
   trackingCode?: string;
+  carrierOrderId?: string;
+  shippingStatus?: string;
+  shippingLogs?: IShippingLog[];
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -75,11 +90,26 @@ const OrderSchema = new Schema<IOrder>(
     },
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'],
+      enum: ['pending', 'confirmed', 'shipping', 'delivering', 'delivered', 'cancelled', 'returned'],
       default: 'pending',
     },
     shippingProvider: { type: String },
+    shippingCarrier: { type: String },
     trackingCode: { type: String },
+    carrierOrderId: { type: String },
+    shippingStatus: { type: String },
+    shippingLogs: [
+      {
+        time: { type: String },
+        status: { type: String },
+        location: { type: String },
+        description: { type: String },
+        shipperName: { type: String },
+        shipperPhone: { type: String },
+        carrier: { type: String },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
     notes: { type: String },
   },
   { timestamps: true }

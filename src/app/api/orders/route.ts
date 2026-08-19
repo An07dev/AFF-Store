@@ -115,6 +115,8 @@ export async function POST(request: Request) {
       paymentMethod: body.paymentMethod || 'cod',
       paymentStatus: body.paymentStatus || 'unpaid',
       status: body.status || 'pending',
+      shippingProvider: body.shippingProvider || 'ghn',
+      shippingCarrier: body.shippingCarrier || 'Giao Hàng Nhanh (GHN)',
       notes: body.notes,
     });
 
