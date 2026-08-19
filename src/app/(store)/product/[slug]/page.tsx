@@ -280,18 +280,7 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* 4. SHIPPING PERKS */}
-        <div className={styles.serviceCard}>
-          <div className={styles.serviceRow}>
-            <span className={styles.serviceLabel}>Vận chuyển</span>
-            <div className={styles.serviceContent}>
-              <span className={styles.freeshipPill}>Freeship XTRA</span>
-              <span>Miễn phí vận chuyển cho đơn từ 500K</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 5. VARIANT SELECTION CARD */}
+        {/* 3. VARIANT SELECTION CARD */}
         <div className={styles.variantCard}>
           {/* Colors */}
           {colors.length > 0 && (
