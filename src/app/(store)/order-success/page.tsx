@@ -227,8 +227,17 @@ export default function OrderSuccessPage() {
         {/* Payment Details & Bill Summary */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
-            <FiCreditCard size={16} color="var(--primary, #3b82f6)" />
-            <span>Phương Thức Thanh Toán</span>
+            <div className={styles.headerLeft}>
+              <FiCreditCard size={16} color="var(--primary, #3b82f6)" />
+              <span>Phương Thức Thanh Toán</span>
+            </div>
+            <span
+              className={`${styles.statusBadge} ${
+                isPaid ? styles.statusPaid : styles.statusUnpaid
+              }`}
+            >
+              {isPaid ? 'Đã Thanh Toán' : 'Chưa Thanh Toán'}
+            </span>
           </div>
 
           <div className={styles.paymentMethodRow}>
@@ -236,13 +245,6 @@ export default function OrderSuccessPage() {
               {order?.paymentMethod === 'bank_transfer'
                 ? '⚡ Chuyển khoản VietQR (SePay Tự Động)'
                 : '💵 Thanh toán khi nhận hàng (COD)'}
-            </span>
-            <span
-              className={`${styles.statusBadge} ${
-                isPaid ? styles.statusPaid : styles.statusUnpaid
-              }`}
-            >
-              {isPaid ? 'Đã Thanh Toán' : 'Chưa Thanh Toán'}
             </span>
           </div>
 

@@ -46,6 +46,8 @@ export interface IOrder extends Document {
   trackingCode?: string;
   carrierOrderId?: string;
   shippingStatus?: string;
+  paidAt?: Date;
+  transactionId?: string;
   shippingLogs?: IShippingLog[];
   notes?: string;
   createdAt: Date;
