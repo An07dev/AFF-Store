@@ -12,6 +12,8 @@ import {
   FiGrid,
   FiList,
   FiCheck,
+  FiFolder,
+  FiLayers,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useCart } from '@/contexts/CartContext';
@@ -798,32 +800,29 @@ function HomePageContent() {
 
             {categories.length > 0 ? (
               <div className={styles.categoryGrid}>
-                {categories.map((cat, i) => {
-                  const initial = (cat.name || 'D').trim().charAt(0).toUpperCase();
-                  return (
-                    <div
-                      key={cat._id || i}
-                      className={styles.categoryCard}
-                      onClick={() => handleCategorySelect(cat.slug || cat._id)}
-                    >
-                      <div className={styles.categoryCardTop}>
-                        <div className={styles.categoryInitialBadge}>
-                          {initial}
-                        </div>
-                        <span className={styles.categoryCountBadge}>
-                          {cat.productCount ?? 0} SP
-                        </span>
+                {categories.map((cat, i) => (
+                  <div
+                    key={cat._id || i}
+                    className={styles.categoryCard}
+                    onClick={() => handleCategorySelect(cat.slug || cat._id)}
+                  >
+                    <div className={styles.categoryCardTop}>
+                      <div className={styles.categoryIconWrap}>
+                        <FiFolder size={18} />
                       </div>
-                      <div className={styles.categoryCardBody}>
-                        <h3 className={styles.categoryName}>{cat.name}</h3>
-                        <div className={styles.categoryActionRow}>
-                          <span className={styles.categoryActionText}>Xem sản phẩm</span>
-                          <FiChevronRight size={14} className={styles.categoryActionIcon} />
-                        </div>
+                      <span className={styles.categoryCountBadge}>
+                        {cat.productCount ?? 0} SP
+                      </span>
+                    </div>
+                    <div className={styles.categoryCardBody}>
+                      <h3 className={styles.categoryName}>{cat.name}</h3>
+                      <div className={styles.categoryActionRow}>
+                        <span className={styles.categoryActionText}>Xem sản phẩm</span>
+                        <FiChevronRight size={14} className={styles.categoryActionIcon} />
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             ) : (
               <div className={styles.categoryEmpty}>
