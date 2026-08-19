@@ -201,6 +201,13 @@ export default function ProductDetailPage() {
 
       {/* ===== SCROLLABLE CONTENT AREA ===== */}
       <div className={styles.scrollArea}>
+        {/* Top Banner Notice from Theme Setting */}
+        {theme?.pageTitles?.showBannerNotice !== false && (
+          <div className={styles.bannerNotice}>
+            <span>{theme?.pageTitles?.bannerNotice || '🔥 Ưu đãi hot khi giảm giá sâu cho các đơn hàng 🔥'}</span>
+          </div>
+        )}
+
         {/* 1. PRODUCT GALLERY */}
         <div className={styles.gallery}>
           <img
