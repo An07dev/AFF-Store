@@ -38,8 +38,8 @@ Website của bạn được xây dựng với cơ chế tự động hóa hoàn
 1. Đăng nhập vào: 👉 [khachhang.ghn.vn](https://khachhang.ghn.vn) (hoặc [sso.ghn.vn](https://sso.ghn.vn)).
 2. **Lấy Token API & Shop ID:**
    - Vào mục **Thông tin cá nhân / Quản lý tài khoản**.
-   - Copy chuỗi **Token API** (Ví dụ: `f49c1538-9a10-11f1-98fd-3649f7abce24`).
-   - Copy **Mã cửa hàng (Shop ID)** (Ví dụ: `6611723`).
+   - Copy chuỗi **Token API** *(do GHN cấp trong tài khoản)*.
+   - Copy **Mã cửa hàng (Shop ID)** *(Mã định danh cửa hàng/kho)*.
 3. **Cài đặt Kho Lấy Hàng:**
    - Vào mục **Quản lý cửa hàng / Địa chỉ kho**.
    - Đảm bảo đã có ít nhất 1 địa chỉ kho và Số điện thoại liên hệ để bưu tá đến lấy hàng.
@@ -47,7 +47,7 @@ Website của bạn được xây dựng với cơ chế tự động hóa hoàn
    - Vào mục **Thông tin ngân hàng** $\rightarrow$ Điền số tài khoản ngân hàng để GHN chuyển khoản tiền thu hộ COD định kỳ.
 
 ### 2.2. Thao Tác Trên Trang Quản Trị Website (/admin/shipping)
-1. Truy cập: 👉 `http://localhost:3000/admin/shipping`
+1. Truy cập: 👉 `https://<YOUR_DOMAIN>/admin/shipping`
 2. Bấm nút **`[⚙️ Cấu Hình Token API & Shop ID (Modal)]`**.
 3. Chọn Tab **`GHN (Giao Hàng Nhanh)`**:
    - **Bật kích hoạt:** Tích chọn `Bật kết nối`
@@ -65,7 +65,7 @@ Website của bạn được xây dựng với cơ chế tự động hóa hoàn
 1. Đăng nhập vào: 👉 [khachhang.giaohangtietkiem.vn](https://khachhang.giaohangtietkiem.vn).
 2. **Lấy Token API:**
    - Vào mục **Cài đặt tài khoản** $\rightarrow$ **Tích hợp API / Token API**.
-   - Copy chuỗi **Token API** của bạn (Ví dụ: `4NH4Qx1qc4M1FRbYh1o2aRJgwWZH3Hc0xRVdMoG`).
+   - Copy chuỗi **Token API** của bạn.
 3. **Cấu Hình Webhook Bắn Dữ Liệu Về Web:**
    - Vào mục **Cấu hình Webhook** $\rightarrow$ Bấm chỉnh sửa.
    - Điền chính xác các ô như sau:
@@ -74,13 +74,13 @@ Website của bạn được xây dựng với cơ chế tự động hóa hoàn
 | :--- | :--- |
 | **Trạng thái \*** | Tích chọn **`◉ Hoạt động`** *(màu xanh lá)* |
 | **Data format** | Chọn **`JSON`** *(hoặc `application/json`)* |
-| **URL đích \*** | 👉 `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/shipping?carrier=ghtk` |
+| **URL đích \*** | 👉 `https://<YOUR_DOMAIN>/api/webhooks/shipping?carrier=ghtk` |
 | **Headers** | Để trống *(không cần điền gì)* |
 
    - Bấm **`[Lưu thông tin]`**.
 
 ### 3.2. Thao Tác Trên Trang Quản Trị Website (/admin/shipping)
-1. Truy cập: 👉 `http://localhost:3000/admin/shipping`
+1. Truy cập: 👉 `https://<YOUR_DOMAIN>/admin/shipping`
 2. Bấm nút **`[⚙️ Cấu Hình Token API & Shop ID (Modal)]`**.
 3. Chọn Tab **`GHTK`**:
    - **Bật kích hoạt:** Tích chọn `Bật kết nối`
@@ -102,7 +102,7 @@ Website của bạn được xây dựng với cơ chế tự động hóa hoàn
 
 | Trường Thông Tin | Giá Trị Cần Điền |
 | :--- | :--- |
-| **URL Webhook (Gọi lại)** | 👉 `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/sepay` |
+| **URL Webhook (Gọi lại)** | 👉 `https://<YOUR_DOMAIN>/api/webhooks/sepay` |
 | **Data Format** | Chọn **`JSON`** |
 | **Sự kiện kích hoạt** | Tích chọn **`Giao dịch tiền vào (in)`** |
 | **Phương thức** | **`POST`** |
@@ -111,11 +111,11 @@ Website của bạn được xây dựng với cơ chế tự động hóa hoàn
    - Bấm **Lưu Webhook**.
 
 ### 4.2. Thao Tác Trên Trang Quản Trị Website (/admin/payment)
-1. Truy cập: 👉 `http://localhost:3000/admin/payment`
+1. Truy cập: 👉 `https://<YOUR_DOMAIN>/admin/payment`
 2. Điền thông tin tài khoản thụ hưởng:
-   - **Ngân hàng thụ hưởng:** Chọn ngân hàng tương ứng *(Ví dụ: `MBBank`)*
-   - **Số tài khoản ngân hàng \*:** Nhập số tài khoản *(Ví dụ: `0528438642`)*
-   - **Tên chủ tài khoản \*:** Nhập tên in hoa không dấu *(Ví dụ: `LE VAN AN`)*
+   - **Ngân hàng thụ hưởng:** Chọn ngân hàng tương ứng *(Ví dụ: `MBBank`, `Vietcombank`, `Techcombank`,...)*
+   - **Số tài khoản ngân hàng \*:** Nhập số tài khoản ngân hàng của bạn
+   - **Tên chủ tài khoản \*:** Nhập tên in hoa không dấu *(Ví dụ: `NGUYEN VAN A`)*
 3. Bấm **`[Lưu cấu hình tài khoản]`**.
 4. Website sẽ tự động tạo mã **VietQR chuẩn Napas247** tự điền số tiền và mã đơn khi khách hàng thanh toán chuyển khoản.
 
@@ -125,13 +125,12 @@ Website của bạn được xây dựng với cơ chế tự động hóa hoàn
 
 | Dịch Vụ | Phương Thức | URL Webhook Listener |
 | :--- | :---: | :--- |
-| **Giao Hàng Nhanh (GHN)** | `POST / GET` | `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/shipping?carrier=ghn` |
-| **Giao Hàng Tiết Kiệm (GHTK)** | `POST / GET` | `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/shipping?carrier=ghtk` |
-| **Viettel Post (VTP)** | `POST / GET` | `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/shipping?carrier=viettelpost` |
-| **Thanh toán SePay VietQR** | `POST / GET` | `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/sepay` |
+| **Giao Hàng Nhanh (GHN)** | `POST / GET` | `https://<YOUR_DOMAIN>/api/webhooks/shipping?carrier=ghn` |
+| **Giao Hàng Tiết Kiệm (GHTK)** | `POST / GET` | `https://<YOUR_DOMAIN>/api/webhooks/shipping?carrier=ghtk` |
+| **Viettel Post (VTP)** | `POST / GET` | `https://<YOUR_DOMAIN>/api/webhooks/shipping?carrier=viettelpost` |
+| **Thanh toán SePay VietQR** | `POST / GET` | `https://<YOUR_DOMAIN>/api/webhooks/sepay` |
 
-> 💡 **Ghi chú Triển Khai Thực Tế:**  
-> Khi bạn chuyển sang chạy trên domain chính thức (Production), chỉ cần thay thế phần đầu domain ngrok bằng tên miền chính thức của bạn (Ví dụ: `https://tenmiencuaban.com/api/webhooks/...`).
+> 💡 **Ghi chú:** Thay thế `<YOUR_DOMAIN>` bằng tên miền chính thức của website (Ví dụ: `https://yourshop.com/api/webhooks/...`).
 
 ---
 
@@ -141,7 +140,7 @@ Website của bạn được xây dựng với cơ chế tự động hóa hoàn
 1. Khách đặt đơn $\rightarrow$ Đơn tạo ở trạng thái `pending`.
 2. Admin mở trang chi tiết đơn hàng $\rightarrow$ Bấm nút **`[✓ Duyệt Đơn & Đẩy Sang Hãng]`**:
    - Hệ thống tự động gọi API của hãng khách chọn (GHN hoặc GHTK).
-   - Tự động lấy mã vận đơn thật *(ví dụ: `GY844QKV` hoặc `S23147495...`)* và gắn vào đơn.
+   - Tự động lấy mã vận đơn thật và gắn vào đơn.
    - Đơn chuyển sang **`Chờ lấy hàng (Ready to pick)`** trên app bưu tá để Shipper đến lấy hàng.
 3. Khi Shipper quét lấy hàng $\rightarrow$ Giao hàng $\rightarrow$ Webhook tự động đồng bộ sang trang `/tracking`.
 
@@ -167,4 +166,4 @@ Website của bạn được xây dựng với cơ chế tự động hóa hoàn
 ### 🔍 4. Cách Tra Cứu Đơn Hàng Phía Hãng Vận Chuyển:
 - **Giao Hàng Nhanh (GHN):** Tra cứu tại 👉 [donhang.ghn.vn](https://donhang.ghn.vn) hoặc mục *Quản lý đơn hàng* trên [khachhang.ghn.vn](https://khachhang.ghn.vn).
 - **Giao Hàng Tiết Kiệm (GHTK):** Tra cứu tại 👉 [i.ghtk.vn](https://i.ghtk.vn) hoặc mục *Vận hành* trên [khachhang.giaohangtietkiem.vn](https://khachhang.giaohangtietkiem.vn).
-- **Khách Hàng Tra Cứu 5 Bước:** Tra cứu tại 👉 `http://localhost:3000/tracking?code=MÃ_ĐƠN`.
+- **Khách Hàng Tra Cứu 5 Bước:** Tra cứu tại 👉 `https://<YOUR_DOMAIN>/tracking?code=MÃ_ĐƠN`.

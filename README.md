@@ -79,6 +79,8 @@ npm run build
 
 ## 📦 HƯỚNG DẪN CẤU HÌNH VẬN CHUYỂN & THANH TOÁN
 
+> 🌐 **Quy Ước Tên Miền:** Thay thế `<YOUR_DOMAIN>` bằng tên miền chính thức của website (Ví dụ: `https://yourdomain.com`).
+
 ---
 
 ### 3.1. Cấu Hình Giao Hàng Nhanh (GHN)
@@ -86,12 +88,12 @@ npm run build
 #### 🔹 Bước 1: Lấy Token & Shop ID trên GHN
 1. Đăng nhập cổng đối tác: 👉 [khachhang.ghn.vn](https://khachhang.ghn.vn) (hoặc [sso.ghn.vn](https://sso.ghn.vn)).
 2. Vào **Thông tin cá nhân / Quản lý tài khoản**:
-   - Copy **Token API** *(Chuỗi dạng UUID: `f49c1538-9a10-11f1-98fd-3649f7abce24`)*.
-   - Copy **Mã cửa hàng (Shop ID)** *(Dãy số: `6611723`)*.
+   - Copy **Token API** *(Chuỗi dạng UUID do GHN cấp)*.
+   - Copy **Mã cửa hàng (Shop ID)** *(Dãy số định danh kho của bạn)*.
 3. Đảm bảo mục **Địa chỉ kho** đã có địa chỉ lấy hàng và SĐT kho.
 
 #### 🔹 Bước 2: Nhập vào Website
-1. Mở trang: 👉 **`http://localhost:3000/admin/shipping`**
+1. Mở trang quản trị: 👉 **`https://<YOUR_DOMAIN>/admin/shipping`**
 2. Bấm **`[⚙️ Cấu Hình Token API & Shop ID (Modal)]`** $\rightarrow$ Chọn tab **`GHN`**.
 3. Dán **Token API** và **Shop ID** $\rightarrow$ Bấm **`Lưu Cấu Hình Vào Database`**.
 4. Bấm nút **`[Kiểm Tra Kết Nối]`** để xác thực trực tiếp với server GHN.
@@ -105,7 +107,7 @@ npm run build
 2. Vào **Cài đặt tài khoản** $\rightarrow$ **Tích hợp API / Token API** $\rightarrow$ Copy chuỗi **Token API**.
 
 #### 🔹 Bước 2: Nhập vào Website
-1. Mở trang: 👉 **`http://localhost:3000/admin/shipping`**
+1. Mở trang quản trị: 👉 **`https://<YOUR_DOMAIN>/admin/shipping`**
 2. Bấm **`[⚙️ Cấu Hình Token API & Shop ID (Modal)]`** $\rightarrow$ Chọn tab **`GHTK`**.
 3. Dán **Token API** $\rightarrow$ Bấm **`Lưu Cấu Hình Vào Database`**.
 4. Bấm **`[Test API GHTK]`** để xác thực trực tiếp với server GHTK.
@@ -118,8 +120,8 @@ npm run build
 | :--- | :--- |
 | **Trạng thái \*** | Tích chọn **`◉ Hoạt động`** *(màu xanh lá)* |
 | **Data format** | Chọn **`JSON`** *(hoặc `application/json`)* |
-| **URL đích \*** | 👉 **`https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/shipping?carrier=ghtk`** |
-| **Headers** | Để trống |
+| **URL đích \*** | 👉 **`https://<YOUR_DOMAIN>/api/webhooks/shipping?carrier=ghtk`** |
+| **Headers** | Để trống *(không cần điền)* |
 
 3. Bấm **`[Lưu thông tin]`**.
 
@@ -128,11 +130,11 @@ npm run build
 ### 3.3. Cấu Hình Thanh Toán Tự Động SePay (VietQR)
 
 #### 🔹 Bước 1: Cấu hình Tài khoản nhận tiền trên Web
-1. Mở trang: 👉 **`http://localhost:3000/admin/payment`**
-2. Điền:
-   - **Ngân hàng:** Chọn ngân hàng của bạn *(ví dụ: `MBBank`)*.
-   - **Số tài khoản \*:** Nhập số tài khoản ngân hàng *(ví dụ: `0528438642`)*.
-   - **Tên chủ tài khoản \*:** Nhập tên in hoa không dấu *(ví dụ: `LE VAN AN`)*.
+1. Mở trang quản trị: 👉 **`https://<YOUR_DOMAIN>/admin/payment`**
+2. Điền thông tin tài khoản ngân hàng của bạn:
+   - **Ngân hàng:** Chọn ngân hàng thụ hưởng *(ví dụ: `MBBank`, `Vietcombank`, `Techcombank`,...)*.
+   - **Số tài khoản \*:** Nhập số tài khoản ngân hàng của bạn.
+   - **Tên chủ tài khoản \*:** Nhập tên chủ tài khoản in hoa không dấu *(ví dụ: `NGUYEN VAN A`)*.
 3. Bấm **`[Lưu cấu hình tài khoản]`**.
 
 #### 🔹 Bước 2: Cài đặt Webhook trên SePay
@@ -141,7 +143,7 @@ npm run build
 
 | Trường Thông Tin | Giá Trị Cần Điền |
 | :--- | :--- |
-| **URL Webhook (Gọi lại)** | 👉 **`https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/sepay`** |
+| **URL Webhook (Gọi lại)** | 👉 **`https://<YOUR_DOMAIN>/api/webhooks/sepay`** |
 | **Data Format** | Chọn **`JSON`** |
 | **Sự kiện kích hoạt** | Tích chọn **`Giao dịch tiền vào (in)`** |
 | **Phương thức** | **`POST`** |
@@ -154,12 +156,12 @@ npm run build
 
 | Dịch Vụ | Phương Thức | URL Webhook Listener |
 | :--- | :---: | :--- |
-| **Giao Hàng Nhanh (GHN)** | `POST / GET` | `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/shipping?carrier=ghn` |
-| **Giao Hàng Tiết Kiệm (GHTK)** | `POST / GET` | `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/shipping?carrier=ghtk` |
-| **Viettel Post (VTP)** | `POST / GET` | `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/shipping?carrier=viettelpost` |
-| **Thanh toán SePay VietQR** | `POST / GET` | `https://nicotine-mumbling-detract.ngrok-free.dev/api/webhooks/sepay` |
+| **Giao Hàng Nhanh (GHN)** | `POST / GET` | `https://<YOUR_DOMAIN>/api/webhooks/shipping?carrier=ghn` |
+| **Giao Hàng Tiết Kiệm (GHTK)** | `POST / GET` | `https://<YOUR_DOMAIN>/api/webhooks/shipping?carrier=ghtk` |
+| **Viettel Post (VTP)** | `POST / GET` | `https://<YOUR_DOMAIN>/api/webhooks/shipping?carrier=viettelpost` |
+| **Thanh toán SePay VietQR** | `POST / GET` | `https://<YOUR_DOMAIN>/api/webhooks/sepay` |
 
-> 💡 **Ghi chú Triển khai Thực tế:** Khi chạy trên domain chính thức (Production), thay thế phần domain ngrok bằng domain chính thức của website *(Ví dụ: `https://shoptik.vn/api/webhooks/...`)*.
+> 💡 **Ghi chú:** Thay `<YOUR_DOMAIN>` bằng tên miền chính thức của website *(Ví dụ: `https://yourshop.com/api/webhooks/...`)*.
 
 ---
 
@@ -190,7 +192,7 @@ graph TD
 
 ## 📱 THÔNG TIN TÀI KHOẢN QUẢN TRỊ
 
-- **Trang Quản Trị:** `http://localhost:3000/admin`
+- **Trang Quản Trị:** `https://your-domain.com/admin`
 - **Email:** `admin@shoptik.vn`
 - **Mật khẩu:** `Admin@123456`
 - **Tài liệu hướng dẫn chuyên sâu:** Xem file [`HUONG_DAN_CAU_HINH_GHN_GHTK_SEPAY.md`](file:///c:/Users/PC/Desktop/New%20folder/shop-landing/webbanhang/HUONG_DAN_CAU_HINH_GHN_GHTK_SEPAY.md)

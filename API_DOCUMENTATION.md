@@ -1,6 +1,6 @@
 # 📚 TÀI LIỆU TỔNG HỢP TOÀN BỘ API (API DOCUMENTATION)
 > **Dự án**: ShopTik E-Commerce & Admin Management System  
-> **Base URL**: `http://localhost:3000` (hoặc domain production của bạn)  
+> **Base URL**: `https://your-domain.com` (hoặc `http://localhost:3000` khi chạy máy local)  
 > **Authentication**: Bearer Token trong Header `Authorization: Bearer <token>` hoặc Cookie Session (NextAuth)  
 > **Định dạng dữ liệu**: `JSON`
 

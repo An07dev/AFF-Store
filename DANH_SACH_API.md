@@ -1,7 +1,7 @@
 # 📋 DANH SÁCH TỔNG HỢP TOÀN BỘ API DỰ ÁN SHOPTIK
 
 > **Cập nhật:** 2026-08-18  
-> **Base URL:** `http://localhost:3000`  
+> **Base URL:** `https://your-domain.com` (hoặc `http://localhost:3000` khi chạy máy local)  
 > **Database:** MongoDB Atlas Cloud (`Cluster0` / `webstore`)  
 > **Authentication:** Bearer Token trong Header `Authorization: Bearer <token>` hoặc Cookie Session (NextAuth)  
 > **Tài khoản Admin mặc định:** `admin@shoptik.vn` / `admin123`
