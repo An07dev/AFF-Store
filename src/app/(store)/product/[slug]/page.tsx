@@ -208,9 +208,6 @@ export default function ProductDetailPage() {
             alt={product.name}
             className={styles.mainImage}
           />
-          {discountPercent && (
-            <span className={styles.saleTagOverlay}>🔥 Siêu Ưu Đãi</span>
-          )}
           {images.length > 1 && (
             <>
               {/* Prev & Next Navigation Buttons */}
@@ -253,15 +250,7 @@ export default function ProductDetailPage() {
           </div>
         )}
 
-        {/* 2. FLASH SALE STRIP */}
-        <div className={styles.flashSaleStrip}>
-          <div className={styles.flashLeft}>
-            <span>⚡ GIÁ SỐC CHỚP NHOÁNG</span>
-          </div>
-          <div>Kết thúc trong: 04:32:18</div>
-        </div>
-
-        {/* 3. MAIN INFO CARD */}
+        {/* 2. MAIN INFO CARD */}
         <div className={styles.mainCard}>
           <div className={styles.priceRow}>
             <span className={styles.currentPrice}>{formatPrice(currentPrice)}</span>
