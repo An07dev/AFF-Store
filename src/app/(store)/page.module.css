@@ -910,55 +910,33 @@
   transform: scale(0.94);
 }
 
-/* ===== CATEGORY CONTAINER & INDEPENDENT SCROLL ===== */
+/* ===== CATEGORY CONTAINER & SMOOTH INNER LIST SCROLL ===== */
 .categoryContainer {
-  padding: 14px 16px 16px;
+  padding: 0;
   background: var(--bg-card, #13161f);
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  margin-bottom: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.categoryContainer::-webkit-scrollbar {
-  width: 4px;
-}
-
-.categoryContainer::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.categoryContainer::-webkit-scrollbar-thumb {
-  background: var(--border-color, #232838);
-  border-radius: 4px;
-}
-
-.categoryContainer::-webkit-scrollbar-thumb:hover {
-  background: var(--primary, #3b82f6);
-}
-
 .categoryHeader {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
+  align-items: center;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--border-color, #232838);
-  position: sticky;
-  top: -14px;
   background: var(--bg-card, #13161f);
+  margin: 0;
   z-index: 5;
-  padding-top: 4px;
 }
 
 .categoryHeaderLeft {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .categoryTitle {
@@ -969,7 +947,7 @@
 }
 
 .categorySubtitle {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-muted, #94a3b8);
   margin: 0;
 }
@@ -986,10 +964,33 @@
 }
 
 .categoryGrid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   width: 100%;
+}
+
+.categoryGrid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.categoryGrid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.categoryGrid::-webkit-scrollbar-thumb {
+  background: var(--border-color, #232838);
+  border-radius: 4px;
+}
+
+.categoryGrid::-webkit-scrollbar-thumb:hover {
+  background: var(--primary, #3b82f6);
 }
 
 .categoryCard {
