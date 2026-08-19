@@ -806,20 +806,15 @@ function HomePageContent() {
                     className={styles.categoryCard}
                     onClick={() => handleCategorySelect(cat.slug || cat._id)}
                   >
-                    <div className={styles.categoryCardTop}>
+                    <div className={styles.categoryTitleRow}>
                       <div className={styles.categoryIconWrap}>
-                        <FiFolder size={18} />
+                        <FiLayers size={16} />
                       </div>
-                      <span className={styles.categoryCountBadge}>
-                        {cat.productCount ?? 0} SP
-                      </span>
-                    </div>
-                    <div className={styles.categoryCardBody}>
                       <h3 className={styles.categoryName}>{cat.name}</h3>
-                      <div className={styles.categoryActionRow}>
-                        <span className={styles.categoryActionText}>Xem sản phẩm</span>
-                        <FiChevronRight size={14} className={styles.categoryActionIcon} />
-                      </div>
+                    </div>
+                    <div className={styles.categoryActionRow}>
+                      <span className={styles.categoryActionText}>Xem sản phẩm</span>
+                      <FiChevronRight size={14} className={styles.categoryActionIcon} />
                     </div>
                   </div>
                 ))}
