@@ -38,6 +38,27 @@ export default function ProductFormModal({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Auto clean / reset all form state when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        name: '',
+        price: '',
+        salePrice: '',
+        category: '',
+        stock: 50,
+        isFeatured: false,
+        status: 'active',
+        description: '',
+      });
+      setImages([]);
+      setNewImageUrl('');
+      setVariants([]);
+      setIsSubmitting(false);
+      setIsUploading(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   // Add Image via URL
