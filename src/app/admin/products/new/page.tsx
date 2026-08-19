@@ -16,6 +16,20 @@ export default function NewProductPage() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  // Helper to format number with thousand dots separator (VD: 100.000)
+  const formatWithDots = (val: string | number) => {
+    if (val === '' || val === undefined || val === null) return '';
+    const digits = val.toString().replace(/\D/g, '');
+    if (!digits) return '';
+    return Number(digits).toLocaleString('vi-VN');
+  };
+
+  const parseFromDots = (val: string | number) => {
+    if (typeof val === 'number') return val;
+    const digits = (val || '').toString().replace(/\D/g, '');
+    return digits ? Number(digits) : 0;
+  };
+
   const [form, setForm] = useState({
     name: '',
     price: 0,
@@ -256,11 +270,12 @@ export default function NewProductPage() {
                   style={{ flex: 1 }}
                 />
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   placeholder="Giá riêng"
                   className={styles.input}
-                  value={v.price || 0}
-                  onChange={(e) => updateVariant(idx, 'price', parseInt(e.target.value) || 0)}
+                  value={formatWithDots(v.price || 0)}
+                  onChange={(e) => updateVariant(idx, 'price', parseFromDots(e.target.value))}
                   style={{ width: 120 }}
                 />
                 <input
@@ -329,20 +344,24 @@ export default function NewProductPage() {
             <div className={styles.formGroup}>
               <label>Giá niêm yết (₫) *</label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 required
                 className={styles.input}
-                value={form.price || ''}
-                onChange={(e) => setForm({ ...form, price: parseInt(e.target.value) || 0 })}
+                placeholder="VD: 380.000"
+                value={formatWithDots(form.price)}
+                onChange={(e) => setForm({ ...form, price: parseFromDots(e.target.value) })}
               />
             </div>
             <div className={styles.formGroup}>
               <label>Giá khuyến mãi (₫)</label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 className={styles.input}
-                value={form.salePrice || ''}
-                onChange={(e) => setForm({ ...form, salePrice: parseInt(e.target.value) || 0 })}
+                placeholder="VD: 299.000"
+                value={formatWithDots(form.salePrice)}
+                onChange={(e) => setForm({ ...form, salePrice: parseFromDots(e.target.value) })}
               />
             </div>
             <div className={styles.formGroup}>

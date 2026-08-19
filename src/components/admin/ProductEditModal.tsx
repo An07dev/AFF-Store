@@ -40,6 +40,20 @@ export default function ProductEditModal({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Helper to format number with thousand dots separator (VD: 100.000)
+  const formatWithDots = (val: string | number) => {
+    if (val === '' || val === undefined || val === null) return '';
+    const digits = val.toString().replace(/\D/g, '');
+    if (!digits) return '';
+    return Number(digits).toLocaleString('vi-VN');
+  };
+
+  const parseFromDots = (val: string | number) => {
+    if (typeof val === 'number') return val;
+    const digits = (val || '').toString().replace(/\D/g, '');
+    return digits ? Number(digits) : 0;
+  };
+
   // Fetch product data on open
   useEffect(() => {
     if (!productId) return;
@@ -53,8 +67,8 @@ export default function ProductEditModal({
           const prod = data.data;
           setFormData({
             name: prod.name || '',
-            price: prod.price ? String(prod.price) : '',
-            salePrice: prod.salePrice ? String(prod.salePrice) : '',
+            price: prod.price ? formatWithDots(prod.price) : '',
+            salePrice: prod.salePrice ? formatWithDots(prod.salePrice) : '',
             category: prod.category?._id || prod.category || '',
             stock: prod.stock ?? 0,
             isFeatured: !!prod.isFeatured,
@@ -137,7 +151,7 @@ export default function ProductEditModal({
         color: '',
         size: '',
         stock: Number(formData.stock) || 10,
-        price: Number(formData.salePrice || formData.price) || 0,
+        price: parseFromDots(formData.salePrice || formData.price) || 0,
       },
     ]);
   };
@@ -158,11 +172,14 @@ export default function ProductEditModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const rawPrice = parseFromDots(formData.price);
+    const rawSalePrice = formData.salePrice ? parseFromDots(formData.salePrice) : undefined;
+
     if (!formData.name.trim()) {
       toast.error('Vui lòng nhập tên sản phẩm');
       return;
     }
-    if (!formData.price || Number(formData.price) <= 0) {
+    if (!rawPrice || rawPrice <= 0) {
       toast.error('Vui lòng nhập giá niêm yết hợp lệ');
       return;
     }
@@ -173,8 +190,8 @@ export default function ProductEditModal({
 
     const payload = {
       name: formData.name.trim(),
-      price: Number(formData.price),
-      salePrice: formData.salePrice ? Number(formData.salePrice) : undefined,
+      price: rawPrice,
+      salePrice: rawSalePrice,
       category: formData.category,
       images: images.length > 0 ? images : ['/file.svg'],
       stock: Number(formData.stock) || 0,
@@ -266,25 +283,25 @@ export default function ProductEditModal({
               <div className={styles.formGroup}>
                 <label className={styles.label}>Giá niêm yết (VNĐ) *</label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   required
-                  min="0"
                   className={styles.input}
-                  placeholder="VD: 380000"
+                  placeholder="VD: 380.000"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, price: formatWithDots(e.target.value) })}
                 />
               </div>
 
               <div className={styles.formGroup}>
                 <label className={styles.label}>Giá khuyến mãi (VNĐ)</label>
                 <input
-                  type="number"
-                  min="0"
+                  type="text"
+                  inputMode="numeric"
                   className={styles.input}
-                  placeholder="VD: 299000"
+                  placeholder="VD: 299.000"
                   value={formData.salePrice}
-                  onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, salePrice: formatWithDots(e.target.value) })}
                 />
               </div>
 
@@ -405,12 +422,12 @@ export default function ProductEditModal({
                       onChange={(e) => handleUpdateVariant(idx, 'stock', parseInt(e.target.value) || 0)}
                     />
                     <input
-                      type="number"
-                      min="0"
+                      type="text"
+                      inputMode="numeric"
                       className={styles.input}
-                      placeholder="Giá biến thể"
-                      value={v.price}
-                      onChange={(e) => handleUpdateVariant(idx, 'price', parseInt(e.target.value) || 0)}
+                      placeholder="Giá biến thể (VD: 299.000)"
+                      value={formatWithDots(v.price)}
+                      onChange={(e) => handleUpdateVariant(idx, 'price', parseFromDots(e.target.value))}
                     />
                     <button
                       type="button"
