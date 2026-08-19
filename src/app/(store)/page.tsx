@@ -783,44 +783,63 @@ function HomePageContent() {
         loading && categories.length === 0 ? (
           <StoreLoading text="Đang tải danh mục..." />
         ) : (
-          <div className={styles.categoryGrid}>
-            {categories.length > 0
-              ? categories.map((cat, i) => {
-                  const emojis = ['👗', '👕', '👟', '👜', '🕶️', '💄', '📱', '🏠'];
+          <div className={styles.categoryContainer}>
+            <div className={styles.categoryHeader}>
+              <div className={styles.categoryHeaderLeft}>
+                <h2 className={styles.categoryTitle}>Danh Mục Sản Phẩm</h2>
+                <p className={styles.categorySubtitle}>
+                  Chọn danh mục để khám phá các sản phẩm nổi bật
+                </p>
+              </div>
+              <span className={styles.categoryTotalBadge}>
+                {categories.length} danh mục
+              </span>
+            </div>
+
+            {categories.length > 0 ? (
+              <div className={styles.categoryGrid}>
+                {categories.map((cat, i) => {
+                  const initial = (cat.name || 'D').trim().charAt(0).toUpperCase();
                   return (
                     <div
-                      key={cat._id}
+                      key={cat._id || i}
                       className={styles.categoryCard}
                       onClick={() => handleCategorySelect(cat.slug || cat._id)}
                     >
-                      <span className={styles.categoryEmoji}>{emojis[i % emojis.length]}</span>
-                      <span className={styles.categoryName}>{cat.name}</span>
-                      <span className={styles.categoryCount}>
-                        {cat.productCount || 0} sản phẩm
-                      </span>
+                      <div className={styles.categoryCardTop}>
+                        <div className={styles.categoryInitialBadge}>
+                          {initial}
+                        </div>
+                        <span className={styles.categoryCountBadge}>
+                          {cat.productCount ?? 0} SP
+                        </span>
+                      </div>
+                      <div className={styles.categoryCardBody}>
+                        <h3 className={styles.categoryName}>{cat.name}</h3>
+                        <div className={styles.categoryActionRow}>
+                          <span className={styles.categoryActionText}>Xem sản phẩm</span>
+                          <FiChevronRight size={14} className={styles.categoryActionIcon} />
+                        </div>
+                      </div>
                     </div>
                   );
-                })
-              : [
-                  { name: 'Thời trang Nam', emoji: '👕' },
-                { name: 'Thời trang Nữ', emoji: '👗' },
-                { name: 'Giày Sneaker', emoji: '👟' },
-                { name: 'Túi Xách & Balo', emoji: '👜' },
-                { name: 'Phụ Kiện Kính Mũ', emoji: '🕶️' },
-                { name: 'Mỹ Phẩm Skincare', emoji: '💄' },
-              ].map((cat, i) => (
-                <div
-                  key={i}
-                  className={styles.categoryCard}
-                  onClick={() => {
-                    setSearchQuery(cat.name);
-                    setActiveTab(1);
-                  }}
+                })}
+              </div>
+            ) : (
+              <div className={styles.categoryEmpty}>
+                <h3 className={styles.categoryEmptyTitle}>Chưa có danh mục nào</h3>
+                <p className={styles.categoryEmptyText}>
+                  Danh mục sản phẩm sẽ tự động hiển thị tại đây khi được thêm vào hệ thống.
+                </p>
+                <button
+                  type="button"
+                  className={styles.categoryEmptyBtn}
+                  onClick={() => setActiveTab(1)}
                 >
-                  <span className={styles.categoryEmoji}>{cat.emoji}</span>
-                  <span className={styles.categoryName}>{cat.name}</span>
-                </div>
-              ))}
+                  Xem Tất Cả Sản Phẩm
+                </button>
+              </div>
+            )}
           </div>
         )
       )}
