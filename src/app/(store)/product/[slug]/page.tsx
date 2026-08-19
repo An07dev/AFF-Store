@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   FiChevronLeft,
+  FiChevronRight,
   FiShare2,
   FiShoppingCart,
   FiStar,
@@ -64,6 +65,15 @@ export default function ProductDetailPage() {
       fetchProduct();
     }
   }, [params.slug]);
+
+  // Auto slide image every 3 seconds for products with multiple images
+  useEffect(() => {
+    if (!product?.images || product.images.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveImageIndex((prev) => (prev + 1) % product.images.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [product?.images]);
 
   if (loading) return <StoreLoading />;
   if (!product) {
@@ -149,6 +159,16 @@ export default function ProductDetailPage() {
     }
   };
 
+  const handlePrevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setActiveImageIndex((prev) => (prev + 1) % images.length);
+  };
+
   const images =
     product.images && product.images.length > 0
       ? product.images
@@ -192,9 +212,29 @@ export default function ProductDetailPage() {
             <span className={styles.saleTagOverlay}>🔥 Siêu Ưu Đãi</span>
           )}
           {images.length > 1 && (
-            <span className={styles.imageCounter}>
-              {activeImageIndex + 1}/{images.length}
-            </span>
+            <>
+              {/* Prev & Next Navigation Buttons */}
+              <button
+                type="button"
+                className={`${styles.galleryNavBtn} ${styles.galleryPrevBtn}`}
+                onClick={handlePrevImage}
+                aria-label="Ảnh trước"
+              >
+                <FiChevronLeft size={20} />
+              </button>
+              <button
+                type="button"
+                className={`${styles.galleryNavBtn} ${styles.galleryNextBtn}`}
+                onClick={handleNextImage}
+                aria-label="Ảnh sau"
+              >
+                <FiChevronRight size={20} />
+              </button>
+
+              <span className={styles.imageCounter}>
+                {activeImageIndex + 1}/{images.length}
+              </span>
+            </>
           )}
         </div>
 

@@ -9,6 +9,8 @@ import {
   FiShoppingCart,
   FiZap,
   FiStar,
+  FiChevronLeft,
+  FiChevronRight,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
@@ -30,11 +32,13 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   // Initialize or reset selections when product opens
   useEffect(() => {
     if (product) {
       setQuantity(1);
+      setActiveImageIndex(0);
       if (product.variants && product.variants.length > 0) {
         setSelectedVariant(product.variants[0]);
         if (product.variants[0].color) setSelectedColor(product.variants[0].color);
@@ -46,6 +50,15 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
       }
     }
   }, [product]);
+
+  // Auto slide image every 3 seconds for products with multiple images
+  useEffect(() => {
+    if (!product?.images || product.images.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveImageIndex((prev) => (prev + 1) % product.images.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [product?.images]);
 
   if (!product) return null;
 
@@ -90,6 +103,21 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
     if (match) setSelectedVariant(match);
   };
 
+  const images: string[] =
+    product.images && product.images.length > 0
+      ? product.images
+      : ['https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'];
+
+  const handlePrevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setActiveImageIndex((prev) => (prev + 1) % images.length);
+  };
+
   const handleAddToCart = () => {
     addToCart(product, quantity, selectedVariant);
     toast.success(`Đã thêm ${product.name} vào giỏ hàng!`);
@@ -115,15 +143,35 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
           {/* Image Container */}
           <div className={styles.imageContainer}>
             <img
-              src={
-                (product.images && product.images[0]) ||
-                'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
-              }
+              src={images[activeImageIndex] || images[0]}
               alt={product.name}
               className={styles.productImg}
             />
             {discountPercent && (
               <span className={styles.saleBadge}>Giảm {discountPercent}%</span>
+            )}
+            {images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className={`${styles.navArrowBtn} ${styles.prevArrow}`}
+                  onClick={handlePrevImage}
+                  aria-label="Ảnh trước"
+                >
+                  <FiChevronLeft size={16} />
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.navArrowBtn} ${styles.nextArrow}`}
+                  onClick={handleNextImage}
+                  aria-label="Ảnh sau"
+                >
+                  <FiChevronRight size={16} />
+                </button>
+                <span className={styles.imageCounter}>
+                  {activeImageIndex + 1}/{images.length}
+                </span>
+              </>
             )}
           </div>
 

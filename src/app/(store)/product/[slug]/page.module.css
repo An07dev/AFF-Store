@@ -136,6 +136,43 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
+/* Gallery Navigation Arrows */
+.galleryNavBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.galleryNavBtn:hover {
+  background: var(--primary, #3b82f6);
+  color: var(--primary-text, #ffffff);
+  border-color: transparent;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.galleryPrevBtn {
+  left: 12px;
+}
+
+.galleryNextBtn {
+  right: 12px;
+}
+
 .thumbRow {
   display: flex;
   gap: 8px;
