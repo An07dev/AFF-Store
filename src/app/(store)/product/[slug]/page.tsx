@@ -254,6 +254,24 @@ export default function ProductDetailPage() {
           });
 
           setSelectedAttributes(initialSelection);
+
+          // Trigger ViewContent tracking event
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(
+              new CustomEvent('shoptik-track-event', {
+                detail: {
+                  eventName: 'ViewContent',
+                  customData: {
+                    content_name: prod.name,
+                    content_ids: [prod._id || prod.slug],
+                    content_type: 'product',
+                    value: prod.salePrice || prod.price,
+                    currency: 'VND',
+                  },
+                },
+              })
+            );
+          }
         }
       } catch (e) {
         console.error(e);
@@ -461,11 +479,47 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (!validateSelection()) return;
     addToCart(product, quantity, matchedVariant || undefined);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('shoptik-track-event', {
+          detail: {
+            eventName: 'AddToCart',
+            customData: {
+              content_name: product.name,
+              content_ids: [product._id || product.slug],
+              content_type: 'product',
+              value: (matchedVariant?.price || product.salePrice || product.price) * quantity,
+              currency: 'VND',
+              num_items: quantity,
+            },
+          },
+        })
+      );
+    }
   };
 
   const handleBuyNow = () => {
     if (!validateSelection()) return;
-    buyNow(product, quantity, matchedVariant || undefined);
+    addToCart(product, quantity, matchedVariant || undefined);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('shoptik-track-event', {
+          detail: {
+            eventName: 'AddToCart',
+            customData: {
+              content_name: product.name,
+              content_ids: [product._id || product.slug],
+              content_type: 'product',
+              value: (matchedVariant?.price || product.salePrice || product.price) * quantity,
+              currency: 'VND',
+              num_items: quantity,
+            },
+          },
+        })
+      );
+    }
     router.push('/checkout');
   };
 

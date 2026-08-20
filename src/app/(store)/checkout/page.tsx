@@ -73,6 +73,26 @@ export default function CheckoutPage() {
     setIsInitialized(true);
   }, [checkoutItems, cartItems]);
 
+  useEffect(() => {
+    if (activeItems.length > 0) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('shoptik-track-event', {
+            detail: {
+              eventName: 'InitiateCheckout',
+              customData: {
+                value: activeItems.reduce((sum, item) => sum + getCartItemPrice(item) * item.quantity, 0),
+                currency: 'VND',
+                num_items: activeItems.reduce((sum, item) => sum + item.quantity, 0),
+                content_ids: activeItems.map((item) => item.productId),
+              },
+            },
+          })
+        );
+      }
+    }
+  }, [activeItems.length]);
+
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [customer, setCustomer] = useState({
     name: '',
@@ -248,6 +268,28 @@ export default function CheckoutPage() {
 
       if (data.success && data.data) {
         toast.success('Đặt hàng thành công!');
+
+        // Dispatch Purchase event for 100% real tracking and Server-side CAPI
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('shoptik-track-event', {
+              detail: {
+                eventName: 'Purchase',
+                customData: {
+                  value: finalTotalAmount,
+                  currency: 'VND',
+                  order_id: data.data.orderCode || data.data._id,
+                  num_items: activeItems.reduce((s, i) => s + i.quantity, 0),
+                  content_ids: activeItems.map((i) => i.productId),
+                },
+                userData: {
+                  email: customer.email.trim() || undefined,
+                  phone: customer.phone.trim() || undefined,
+                },
+              },
+            })
+          );
+        }
 
         // Save customer info locally for future visits without accumulating duplicate strings
         try {
