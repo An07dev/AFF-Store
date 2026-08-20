@@ -526,14 +526,17 @@ export default function CheckoutPage() {
                 {/* Row 5: Email & Note */}
                 <div className={styles.gridTwo}>
                   <div className={styles.inputGroup}>
-                    <label>Email (Tùy chọn)</label>
+                    <label>Email (Nhận hóa đơn điện tử)</label>
                     <input
                       type="email"
-                      placeholder="email@example.com"
+                      placeholder="vd: khachhang@gmail.com"
                       className={styles.input}
                       value={customer.email}
                       onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
                     />
+                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
+                      Nhận thông báo xác nhận và tiến trình đơn hàng
+                    </span>
                   </div>
                   <div className={styles.inputGroup}>
                     <label>Ghi chú (Tùy chọn)</label>

@@ -4,6 +4,7 @@ import Order from '@/models/Order';
 import Customer from '@/models/Customer';
 import Product from '@/models/Product';
 import { generateOrderCode } from '@/lib/utils';
+import { sendOrderEmails } from '@/lib/email';
 
 export async function GET(request: Request) {
   try {
@@ -151,6 +152,11 @@ export async function POST(request: Request) {
         });
       }
     }
+
+    // Gửi email thông báo đơn hàng ngầm (không bắt khách hàng phải chờ)
+    sendOrderEmails(newOrder.toObject ? newOrder.toObject() : newOrder).catch((e) => {
+      console.error('Email dispatch error:', e);
+    });
 
     return NextResponse.json(
       {

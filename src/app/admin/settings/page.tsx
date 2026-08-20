@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FiSave,
   FiRotateCcw,
@@ -14,6 +14,9 @@ import {
   FiCheck,
   FiEye,
   FiLock,
+  FiMail,
+  FiSend,
+  FiHelpCircle,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useTheme, ThemeConfig, defaultTheme } from '@/contexts/ThemeContext';
@@ -191,10 +194,104 @@ const PRESET_THEMES: { id: string; name: string; primaryColor: string; bg: strin
 
 export default function AdminSettingsPage() {
   const { theme, setTheme, saveTheme, resetToDefault, toggleThemeMode, applyCSSVariables } = useTheme();
-  const [activeTab, setActiveTab] = useState<'titles' | 'mode' | 'buttons' | 'texts' | 'components' | 'password'>('titles');
+  const [activeTab, setActiveTab] = useState<'titles' | 'mode' | 'buttons' | 'texts' | 'components' | 'email' | 'password'>('titles');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Email SMTP Settings State
+  const [emailForm, setEmailForm] = useState({
+    enabled: true,
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    user: '',
+    pass: '',
+    senderName: 'ShopTik Store',
+    senderEmail: '',
+    adminNotificationEmail: '',
+    sendToCustomer: true,
+    sendToAdmin: true,
+  });
+  const [loadingEmailConfig, setLoadingEmailConfig] = useState(false);
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [testEmailTarget, setTestEmailTarget] = useState('');
+  const [testingEmail, setTestingEmail] = useState(false);
+
+  // Fetch Email Config
+  useEffect(() => {
+    async function fetchEmailConfig() {
+      try {
+        setLoadingEmailConfig(true);
+        const res = await apiFetch('/api/settings/email');
+        const data = await res.json();
+        if (data.success && data.data) {
+          setEmailForm(data.data);
+          if (data.data.adminNotificationEmail || data.data.user) {
+            setTestEmailTarget(data.data.adminNotificationEmail || data.data.user);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading email settings:', err);
+      } finally {
+        setLoadingEmailConfig(false);
+      }
+    }
+    fetchEmailConfig();
+  }, []);
+
+  const handleSaveEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingEmail(true);
+    try {
+      const res = await apiFetch('/api/settings/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailForm),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Đã lưu cấu hình Email SMTP thành công!');
+        if (data.data) {
+          setEmailForm((prev) => ({ ...prev, ...data.data }));
+        }
+      } else {
+        toast.error(data.message || 'Lỗi lưu cấu hình email');
+      }
+    } catch (err: any) {
+      toast.error('Lỗi kết nối máy chủ');
+    } finally {
+      setSavingEmail(false);
+    }
+  };
+
+  const handleSendTestEmail = async () => {
+    if (!testEmailTarget || !testEmailTarget.includes('@')) {
+      toast.error('Vui lòng nhập địa chỉ email nhận thư thử nghiệm');
+      return;
+    }
+    setTestingEmail(true);
+    try {
+      const res = await apiFetch('/api/settings/email/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...emailForm,
+          targetEmail: testEmailTarget,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(data.message, { duration: 6000 });
+      } else {
+        toast.error(data.message || 'Gửi email thử nghiệm thất bại', { duration: 6000 });
+      }
+    } catch (err: any) {
+      toast.error('Lỗi khi gửi email test');
+    } finally {
+      setTestingEmail(false);
+    }
+  };
 
   // Change Password State
   const [passwordForm, setPasswordForm] = useState({
@@ -368,6 +465,12 @@ export default function AdminSettingsPage() {
               onClick={() => setActiveTab('components')}
             >
               <FiLayout /> Màu Component
+            </button>
+            <button
+              className={`${styles.tabBtn} ${activeTab === 'email' ? styles.activeTabBtn : ''}`}
+              onClick={() => setActiveTab('email')}
+            >
+              <FiMail /> Cấu Hình Email (SMTP)
             </button>
             <button
               className={`${styles.tabBtn} ${activeTab === 'password' ? styles.activeTabBtn : ''}`}
@@ -876,7 +979,257 @@ export default function AdminSettingsPage() {
               </>
             )}
 
-            {/* TAB 6: CHANGE PASSWORD */}
+            {/* TAB 6: EMAIL SMTP SETTINGS */}
+            {activeTab === 'email' && (
+              <form onSubmit={handleSaveEmail} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <div className={styles.sectionHeader}>
+                  <h3>Cấu Hình Email Thông Báo (SMTP)</h3>
+                  <p>Tự động gửi email xác nhận cho khách hàng và thông báo đơn mới cho Admin qua Gmail / SMTP</p>
+                </div>
+
+                {/* Enable Switch Box */}
+                <div
+                  style={{
+                    background: 'var(--bg-card, #131826)',
+                    border: '1px solid var(--border-color, #1e2638)',
+                    borderRadius: 12,
+                    padding: '14px 18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-main, #f8fafc)' }}>
+                      Kích hoạt gửi Email tự động
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
+                      Tự động gửi email khi khách hàng hoàn tất đặt hàng trên website
+                    </div>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={emailForm.enabled}
+                      onChange={(e) => setEmailForm({ ...emailForm, enabled: e.target.checked })}
+                      style={{ width: 18, height: 18, accentColor: 'var(--primary, #3b82f6)', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontWeight: 600, fontSize: 13, color: emailForm.enabled ? '#10b981' : '#64748b' }}>
+                      {emailForm.enabled ? 'Đang Bật' : 'Đang Tắt'}
+                    </span>
+                  </label>
+                </div>
+
+                {/* Basic SMTP Credentials */}
+                <div className={styles.fieldGrid}>
+                  <div className={styles.formGroup}>
+                    <label>Tài khoản Email gửi (Gmail / SMTP User) *</label>
+                    <input
+                      type="email"
+                      required
+                      className={styles.input}
+                      placeholder="vd: cuahang.shoptik@gmail.com"
+                      value={emailForm.user}
+                      onChange={(e) => setEmailForm({ ...emailForm, user: e.target.value })}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 4 }}>
+                      Địa chỉ Gmail bạn dùng để phát thư đi
+                    </span>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Mật khẩu ứng dụng SMTP (Google App Password) *</label>
+                    <input
+                      type="password"
+                      required
+                      className={styles.input}
+                      placeholder="16 ký tự mã ứng dụng (vd: abcd efgh ijkl mnop)"
+                      value={emailForm.pass}
+                      onChange={(e) => setEmailForm({ ...emailForm, pass: e.target.value })}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 4 }}>
+                      Mật khẩu ứng dụng 16 ký tự (Không phải mật khẩu đăng nhập Gmail thường)
+                    </span>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Tên người gửi hiển thị (Sender Name)</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      placeholder="vd: ShopTik Store"
+                      value={emailForm.senderName}
+                      onChange={(e) => setEmailForm({ ...emailForm, senderName: e.target.value })}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Email Admin nhận thông báo đơn mới *</label>
+                    <input
+                      type="email"
+                      required
+                      className={styles.input}
+                      placeholder="vd: admin@shoptik.vn"
+                      value={emailForm.adminNotificationEmail}
+                      onChange={(e) => setEmailForm({ ...emailForm, adminNotificationEmail: e.target.value })}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 4 }}>
+                      Hộp thư nhận thông báo khi có khách hàng vừa đặt đơn mới
+                    </span>
+                  </div>
+                </div>
+
+                {/* Recipient Toggles */}
+                <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginTop: 4 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
+                    <input
+                      type="checkbox"
+                      checked={emailForm.sendToCustomer}
+                      onChange={(e) => setEmailForm({ ...emailForm, sendToCustomer: e.target.checked })}
+                      style={{ accentColor: 'var(--primary, #3b82f6)' }}
+                    />
+                    <span>Gửi email hóa đơn xác nhận cho <strong>Khách hàng</strong></span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
+                    <input
+                      type="checkbox"
+                      checked={emailForm.sendToAdmin}
+                      onChange={(e) => setEmailForm({ ...emailForm, sendToAdmin: e.target.checked })}
+                      style={{ accentColor: 'var(--primary, #3b82f6)' }}
+                    />
+                    <span>Gửi email cảnh báo đơn mới cho <strong>Admin / Chủ Shop</strong></span>
+                  </label>
+                </div>
+
+                {/* Advanced Server Details */}
+                <div
+                  style={{
+                    background: 'var(--bg-card, #131826)',
+                    border: '1px solid var(--border-color, #1e2638)',
+                    borderRadius: 12,
+                    padding: 16,
+                  }}
+                >
+                  <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-main, #f8fafc)', marginBottom: 12 }}>
+                    ⚙️ Cấu Hình Máy Chủ Nâng Cao (Mặc định Gmail)
+                  </div>
+                  <div className={styles.fieldGrid}>
+                    <div className={styles.formGroup}>
+                      <label>SMTP Host</label>
+                      <input
+                        type="text"
+                        className={styles.input}
+                        value={emailForm.host}
+                        onChange={(e) => setEmailForm({ ...emailForm, host: e.target.value })}
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>SMTP Port (465 SSL hoặc 587 TLS)</label>
+                      <input
+                        type="number"
+                        className={styles.input}
+                        value={emailForm.port}
+                        onChange={(e) => setEmailForm({ ...emailForm, port: Number(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save Config Button */}
+                <button
+                  type="submit"
+                  className={styles.saveBtn}
+                  disabled={savingEmail}
+                  style={{ alignSelf: 'flex-start' }}
+                >
+                  <FiSave /> {savingEmail ? 'Đang lưu...' : 'Lưu Cấu Hình Email'}
+                </button>
+
+                {/* Test Email Section Box */}
+                <div
+                  style={{
+                    marginTop: 10,
+                    background: 'var(--bg-card, #131826)',
+                    border: '1px dashed var(--primary, #3b82f6)',
+                    borderRadius: 12,
+                    padding: 18,
+                  }}
+                >
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--primary, #3b82f6)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <FiSend size={15} /> Kiểm Tra Kết Nối Gửi Thư (Send Test Email)
+                  </div>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', margin: '0 0 12px 0' }}>
+                    Nhập địa chỉ email của bạn để gửi một bức thư thử nghiệm và đảm bảo cấu hình hoạt động hoàn hảo.
+                  </p>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    <input
+                      type="email"
+                      className={styles.input}
+                      placeholder="Nhập email nhận thư test..."
+                      value={testEmailTarget}
+                      onChange={(e) => setTestEmailTarget(e.target.value)}
+                      style={{ flex: 1, minWidth: 240 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSendTestEmail}
+                      disabled={testingEmail || !emailForm.user || !emailForm.pass}
+                      style={{
+                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '10px 20px',
+                        borderRadius: 8,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        opacity: testingEmail || !emailForm.user || !emailForm.pass ? 0.6 : 1,
+                      }}
+                    >
+                      <FiSend /> {testingEmail ? 'Đang gửi test...' : 'Gửi Thử Email'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Google App Password Guide Alert */}
+                <div
+                  style={{
+                    background: '#eff6ff',
+                    border: '1px solid #bfdbfe',
+                    borderRadius: 12,
+                    padding: 16,
+                    color: '#1e3a8a',
+                    fontSize: 12,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <FiHelpCircle size={15} /> Hướng dẫn tạo Mật khẩu ứng dụng Gmail (3 bước nhanh):
+                  </div>
+                  <ol style={{ margin: 0, paddingLeft: 18 }}>
+                    <li>Đăng nhập tài khoản Gmail gửi thư và <strong>Bật xác thực 2 bước (2-Step Verification)</strong>.</li>
+                    <li>
+                      Truy cập trang tạo mật khẩu ứng dụng Google:{' '}
+                      <a
+                        href="https://myaccount.google.com/apppasswords"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: '#2563eb', fontWeight: 700, textDecoration: 'underline' }}
+                      >
+                        https://myaccount.google.com/apppasswords
+                      </a>
+                    </li>
+                    <li>Đặt tên ứng dụng (vd: <em>ShopTik Web</em>) ➔ Bấm <strong>Tạo</strong> ➔ Sao chép mã 16 chữ cái màu vàng và dán vào ô <strong>Mật khẩu ứng dụng SMTP</strong> ở trên.</li>
+                  </ol>
+                </div>
+              </form>
+            )}
+
+            {/* TAB 7: CHANGE PASSWORD */}
             {activeTab === 'password' && (
               <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                 <div className={styles.sectionHeader}>

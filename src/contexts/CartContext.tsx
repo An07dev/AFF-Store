@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 
 export interface CartItem {
@@ -321,7 +321,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   // 8. Remove Checked Out Items (removes only items that were purchased)
-  const removeCheckedOutItems = (checkedOutList: CartItem[]) => {
+  const removeCheckedOutItems = useCallback((checkedOutList: CartItem[]) => {
     if (!checkedOutList || checkedOutList.length === 0) return;
     setItems((prevItems) => {
       return prevItems.filter((item) => {
@@ -332,7 +332,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
     });
     setCheckoutItems([]);
-  };
+  }, []);
 
   return (
     <CartContext.Provider

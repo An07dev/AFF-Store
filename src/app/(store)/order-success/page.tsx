@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
@@ -13,6 +13,9 @@ import {
   FiCreditCard,
   FiShoppingBag,
   FiClock,
+  FiSearch,
+  FiMessageSquare,
+  FiAlertCircle,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
@@ -22,7 +25,7 @@ import StoreLoading from '@/components/store/StoreLoading';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const code = searchParams.get('code') || '';
@@ -33,6 +36,8 @@ export default function OrderSuccessPage() {
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const cleanedUpRef = useRef(false);
 
   useEffect(() => {
     async function fetchOrderDetail() {
@@ -47,24 +52,32 @@ export default function OrderSuccessPage() {
         if (data.success && data.data) {
           setOrder(data.data);
 
-          // Nếu đơn hàng đã thanh toán hoặc COD, dọn dẹp các sản phẩm chờ trong giỏ
-          if (data.data.paymentStatus === 'paid' || data.data.paymentMethod === 'cod' || isPaidQuery) {
-            try {
-              const pending = sessionStorage.getItem('shoptik_pending_payment_items');
-              if (pending) {
-                const pendingItems = JSON.parse(pending);
-                if (Array.isArray(pendingItems) && pendingItems.length > 0) {
-                  removeCheckedOutItems(pendingItems);
+          // Dọn dẹp giỏ hàng một lần duy nhất nếu đơn hàng là COD hoặc đã thanh toán
+          if (!cleanedUpRef.current) {
+            cleanedUpRef.current = true;
+            if (data.data.paymentStatus === 'paid' || data.data.paymentMethod === 'cod' || isPaidQuery) {
+              try {
+                const pending = sessionStorage.getItem('shoptik_pending_payment_items');
+                if (pending) {
+                  const pendingItems = JSON.parse(pending);
+                  if (Array.isArray(pendingItems) && pendingItems.length > 0) {
+                    removeCheckedOutItems(pendingItems);
+                  }
+                  sessionStorage.removeItem('shoptik_pending_payment_items');
+                } else if (data.data.items && Array.isArray(data.data.items)) {
+                  removeCheckedOutItems(data.data.items);
                 }
-                sessionStorage.removeItem('shoptik_pending_payment_items');
-              } else if (data.data.items && Array.isArray(data.data.items)) {
-                removeCheckedOutItems(data.data.items);
+              } catch (e) {
+                console.error('Error cleaning up cart:', e);
               }
-            } catch (e) {}
+            }
           }
+        } else {
+          setOrder(null);
         }
       } catch (err) {
         console.error('Error loading order details:', err);
+        setOrder(null);
       } finally {
         setLoading(false);
       }
@@ -83,16 +96,105 @@ export default function OrderSuccessPage() {
     }
   };
 
+  const handleSearchOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchInput.trim()) return;
+    router.push(`/order-success?code=${encodeURIComponent(searchInput.trim().toUpperCase())}`);
+  };
+
   if (loading) {
     return <StoreLoading text="Đang tải thông tin xác nhận đơn hàng..." />;
   }
 
-  const orderCode = order?.orderCode || code || 'ST832025';
+  // Case: Order not found or no code provided
+  if (!order && (!code || !loading)) {
+    return (
+      <div className={styles.page}>
+        <nav className={styles.topNav}>
+          <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Trang chủ">
+            <FiChevronLeft size={22} />
+          </button>
+          <div className={styles.navTitle}>Tra Cứu Đơn Hàng</div>
+          <div style={{ width: 32 }} />
+        </nav>
+
+        <div className={styles.scrollArea}>
+          <div className={styles.heroCard} style={{ marginTop: 20 }}>
+            <div className={styles.iconRing} style={{ background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+              <FiAlertCircle className={styles.successIcon} style={{ color: '#ef4444' }} />
+            </div>
+            <h1 className={styles.heroTitle}>Không Tìm Thấy Đơn Hàng</h1>
+            <p className={styles.heroDesc}>
+              {code
+                ? `Mã đơn hàng #${code} không tồn tại hoặc đã bị hủy trên hệ thống.`
+                : 'Vui lòng nhập mã đơn hàng hoặc số điện thoại để kiểm tra tiến trình đơn hàng của bạn.'}
+            </p>
+
+            <form onSubmit={handleSearchOrder} style={{ width: '100%', marginTop: 10, display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                placeholder="Nhập mã đơn (VD: ST123456)..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: 10,
+                  border: '1px solid var(--border-color, #232838)',
+                  background: 'var(--bg-main, #090a0f)',
+                  color: 'var(--text-main, #f8fafc)',
+                  fontSize: 13,
+                  outline: 'none',
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  background: 'var(--primary, #3b82f6)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 10,
+                  padding: '0 16px',
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <FiSearch size={14} /> Tìm kiếm
+              </button>
+            </form>
+          </div>
+
+          <div className={styles.actionGroup}>
+            <Link href="/" className={styles.primaryBtn}>
+              <FiShoppingBag size={18} />
+              <span>Khám Phá Sản Phẩm</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const orderCode = order?.orderCode || code;
   const isPaid = isPaidQuery || order?.paymentStatus === 'paid';
   const shopName = theme?.pageTitles?.logoText || 'ShopTik Store';
-  const subtotal = order?.subtotal || order?.items?.reduce((acc: number, i: any) => acc + (i.price * i.quantity), 0) || 0;
+  const subtotal =
+    order?.subtotal ||
+    order?.items?.reduce((acc: number, i: any) => acc + (i.price * i.quantity), 0) ||
+    0;
   const shippingFee = order?.shippingFee || 0;
-  const totalAmount = order?.totalAmount || (subtotal + shippingFee);
+  const discountAmount = order?.discountAmount || 0;
+  const totalAmount = order?.totalAmount || Math.max(0, subtotal + shippingFee - discountAmount);
+
+  // Stepper state calculation
+  const orderStatus = order?.status || 'pending';
+  const isConfirmed = orderStatus === 'confirmed' || orderStatus === 'shipping' || orderStatus === 'delivered';
+  const isShipping = orderStatus === 'shipping' || orderStatus === 'delivered';
+  const isDelivered = orderStatus === 'delivered';
 
   return (
     <div className={styles.page}>
@@ -137,7 +239,7 @@ export default function OrderSuccessPage() {
           </h3>
 
           <div className={styles.stepperContainer}>
-            {/* Step 1 */}
+            {/* Step 1: Đã Đặt */}
             <div className={`${styles.stepItem} ${styles.stepCompleted}`}>
               <div className={styles.stepDot}>
                 <FiCheck size={12} />
@@ -145,27 +247,33 @@ export default function OrderSuccessPage() {
               <span className={styles.stepName}>Đã Đặt</span>
             </div>
 
-            <div className={`${styles.stepLine} ${styles.lineCompleted}`} />
+            <div className={`${styles.stepLine} ${isConfirmed ? styles.lineCompleted : ''}`} />
 
-            {/* Step 2 */}
-            <div className={`${styles.stepItem} ${styles.stepActive}`}>
-              <div className={styles.stepDot}>2</div>
+            {/* Step 2: Đang Chuẩn Bị */}
+            <div className={`${styles.stepItem} ${isConfirmed ? styles.stepCompleted : styles.stepActive}`}>
+              <div className={styles.stepDot}>
+                {isConfirmed ? <FiCheck size={12} /> : '2'}
+              </div>
               <span className={styles.stepName}>Đang Chuẩn Bị</span>
             </div>
 
-            <div className={styles.stepLine} />
+            <div className={`${styles.stepLine} ${isShipping ? styles.lineCompleted : ''}`} />
 
-            {/* Step 3 */}
-            <div className={styles.stepItem}>
-              <div className={styles.stepDot}>3</div>
+            {/* Step 3: Đang Giao */}
+            <div className={`${styles.stepItem} ${isShipping ? styles.stepCompleted : ''}`}>
+              <div className={styles.stepDot}>
+                {isShipping ? <FiCheck size={12} /> : '3'}
+              </div>
               <span className={styles.stepName}>Đang Giao</span>
             </div>
 
-            <div className={styles.stepLine} />
+            <div className={`${styles.stepLine} ${isDelivered ? styles.lineCompleted : ''}`} />
 
-            {/* Step 4 */}
-            <div className={styles.stepItem}>
-              <div className={styles.stepDot}>4</div>
+            {/* Step 4: Hoàn Tất */}
+            <div className={`${styles.stepItem} ${isDelivered ? styles.stepCompleted : ''}`}>
+              <div className={styles.stepDot}>
+                {isDelivered ? <FiCheck size={12} /> : '4'}
+              </div>
               <span className={styles.stepName}>Hoàn Tất</span>
             </div>
           </div>
@@ -180,27 +288,34 @@ export default function OrderSuccessPage() {
             </div>
 
             <div className={styles.itemList}>
-              {order.items.map((item: any, idx: number) => (
-                <div key={idx} className={styles.itemRow}>
-                  <img
-                    src={item.image || 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'}
-                    alt={item.name}
-                    className={styles.itemImg}
-                  />
-                  <div className={styles.itemDetails}>
-                    <span className={styles.itemName}>{item.name}</span>
-                    {item.variant?.name && (
-                      <span className={styles.itemVariant}>Phân loại: {item.variant.name}</span>
-                    )}
-                    <div className={styles.itemPriceRow}>
-                      <span className={styles.itemPrice}>
-                        {formatPrice((item.variant?.price || item.price) * item.quantity)}
-                      </span>
-                      <span className={styles.itemQty}>x{item.quantity}</span>
+              {order.items.map((item: any, idx: number) => {
+                const itemImg = item.image || item.variant?.image || '/file.svg';
+                const variantName = item.variant?.name || item.variant?.title;
+                const unitPrice = item.price || item.variant?.price || 0;
+                const lineTotal = unitPrice * item.quantity;
+
+                return (
+                  <div key={item._id || idx} className={styles.itemRow}>
+                    <img
+                      src={itemImg}
+                      alt={item.name}
+                      className={styles.itemImg}
+                    />
+                    <div className={styles.itemDetails}>
+                      <span className={styles.itemName}>{item.name}</span>
+                      {variantName && (
+                        <span className={styles.itemVariant}>Phân loại: {variantName}</span>
+                      )}
+                      <div className={styles.itemPriceRow}>
+                        <span className={styles.itemPrice}>
+                          {formatPrice(lineTotal)}
+                        </span>
+                        <span className={styles.itemQty}>x{item.quantity}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -217,12 +332,14 @@ export default function OrderSuccessPage() {
               <span className={styles.customerName}>
                 {order?.customer?.name || 'Khách Hàng'}
               </span>
-              <span className={styles.customerPhone}>
-                ({order?.customer?.phone || '0988888888'})
-              </span>
+              {order?.customer?.phone && (
+                <span className={styles.customerPhone}>
+                  ({order.customer.phone})
+                </span>
+              )}
             </div>
             <p className={styles.fullAddress}>
-              {order?.customer?.address || 'Số 10 Phạm Hùng, Phường Mai Dịch, Quận Cầu Giấy, Hà Nội'}
+              {order?.customer?.address || 'Chưa có thông tin địa chỉ'}
             </p>
           </div>
 
@@ -235,10 +352,14 @@ export default function OrderSuccessPage() {
                 <span className={styles.carrierName}>
                   {order?.shippingCarrier || 'Giao Hàng Tiết Kiệm (GHTK)'}
                 </span>
-                <span className={styles.carrierEstimated}>Dự kiến giao: 1-2 ngày</span>
+                <span className={styles.carrierEstimated}>
+                  {order?.trackingCode ? `Mã vận đơn: ${order.trackingCode}` : 'Dự kiến giao: 1-3 ngày'}
+                </span>
               </div>
             </div>
-            <span className={styles.carrierFee}>{formatPrice(shippingFee)}</span>
+            <span className={styles.carrierFee}>
+              {shippingFee > 0 ? formatPrice(shippingFee) : 'Miễn phí'}
+            </span>
           </div>
         </div>
 
@@ -250,9 +371,8 @@ export default function OrderSuccessPage() {
               <span>Phương Thức Thanh Toán</span>
             </div>
             <span
-              className={`${styles.statusBadge} ${
-                isPaid ? styles.statusPaid : styles.statusUnpaid
-              }`}
+              className={`${styles.statusBadge} ${isPaid ? styles.statusPaid : styles.statusUnpaid
+                }`}
             >
               {isPaid ? 'Đã Thanh Toán' : 'Chưa Thanh Toán'}
             </span>
@@ -261,7 +381,7 @@ export default function OrderSuccessPage() {
           <div className={styles.paymentMethodRow}>
             <span className={styles.paymentTitle}>
               {order?.paymentMethod === 'bank_transfer'
-                ? '⚡ Chuyển khoản VietQR (SePay Tự Động)'
+                ? '⚡ Chuyển khoản VietQR (Tự Động)'
                 : '💵 Thanh toán khi nhận hàng (COD)'}
             </span>
           </div>
@@ -275,8 +395,14 @@ export default function OrderSuccessPage() {
             </div>
             <div className={styles.billRow}>
               <span>Phí vận chuyển</span>
-              <span>{formatPrice(shippingFee)}</span>
+              <span>{shippingFee > 0 ? formatPrice(shippingFee) : 'Miễn phí'}</span>
             </div>
+            {discountAmount > 0 && (
+              <div className={styles.billRow} style={{ color: '#10b981' }}>
+                <span>Giảm giá</span>
+                <span>-{formatPrice(discountAmount)}</span>
+              </div>
+            )}
             <div className={`${styles.billRow} ${styles.totalRow}`}>
               <span>Tổng thanh toán</span>
               <span className={styles.totalVal}>{formatPrice(totalAmount)}</span>
@@ -293,5 +419,13 @@ export default function OrderSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={<StoreLoading text="Đang tải thông tin đơn hàng..." />}>
+      <OrderSuccessContent />
+    </Suspense>
   );
 }
