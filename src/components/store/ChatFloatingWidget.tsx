@@ -8,6 +8,7 @@ import {
   FiMaximize2,
   FiSend,
   FiPhone,
+  FiImage,
 } from 'react-icons/fi';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getSocket, initSocket } from '@/lib/socket';
@@ -38,6 +39,7 @@ export default function ChatFloatingWidget() {
   const [conversationId, setConversationId] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [phoneSubmitted, setPhoneSubmitted] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Position & Dragging State
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
@@ -46,6 +48,17 @@ export default function ChatFloatingWidget() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isOpenRef = useRef(isOpen);
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  const conversationIdRef = useRef(conversationId);
+  useEffect(() => {
+    conversationIdRef.current = conversationId;
+  }, [conversationId]);
 
   const dragStartRef = useRef<{
     startX: number;
@@ -137,23 +150,58 @@ export default function ChatFloatingWidget() {
     return () => window.removeEventListener('resize', computeDefaultPosition);
   }, []);
 
-  // 3. Setup Socket Connection
+  // 3. Fetch Messages from API
+  const fetchMessages = async () => {
+    const cid = conversationIdRef.current;
+    if (!cid) return;
+    try {
+      const res = await apiFetch(`/api/chat/messages?conversationId=${cid}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        if (data.data.length === 0) {
+          setMessages([
+            {
+              id: 'greeting',
+              sender: 'shop',
+              text: `👋 Chào bạn! Shop có thể hỗ trợ tư vấn size hoặc sản phẩm nào cho bạn hôm nay ạ?`,
+              time: 'Vừa xong',
+            },
+          ]);
+        } else {
+          setMessages(data.data);
+        }
+      }
+    } catch (e) {}
+  };
+
+  // 4. Setup Socket Connection
   useEffect(() => {
     if (!conversationId) return;
 
     const socket = initSocket();
     if (!socket) return;
 
-    socket.emit('join_room', {
-      conversationId,
-      role: 'user',
-      customerInfo: {
-        name: localStorage.getItem('shoptik_guest_name') || 'Khách hàng',
-        phone: customerPhone,
-      },
-    });
+    const joinUserRoom = () => {
+      if (!conversationIdRef.current) return;
+      socket.emit('join_room', {
+        conversationId: conversationIdRef.current,
+        role: 'user',
+        customerInfo: {
+          name: localStorage.getItem('shoptik_guest_name') || 'Khách hàng',
+          phone: customerPhone,
+        },
+      });
+    };
+
+    joinUserRoom();
+    socket.on('connect', joinUserRoom);
 
     const handleReceiveMessage = (msg: any) => {
+      // Filter out messages not belonging to this customer conversation
+      if (msg.conversationId && msg.conversationId !== conversationIdRef.current) {
+        return;
+      }
+
       setMessages((prev) => {
         if (msg._id && prev.some((m) => m._id === msg._id)) {
           return prev;
@@ -177,7 +225,8 @@ export default function ChatFloatingWidget() {
           (m) =>
             (!m._id || m._id.startsWith('temp_') || m.id?.startsWith('temp_')) &&
             m.sender === msg.sender &&
-            m.text === msg.text
+            m.text === msg.text &&
+            ((!m.image && !msg.image) || m.image === msg.image)
         );
 
         if (tempIdx !== -1) {
@@ -191,14 +240,16 @@ export default function ChatFloatingWidget() {
 
       if (msg.sender === 'admin') {
         playNotificationSound();
-        if (!isOpen) {
+        if (!isOpenRef.current) {
           setUnreadCount((c) => c + 1);
+        } else {
+          socket.emit('mark_read', { conversationId: conversationIdRef.current, readBy: 'user' });
         }
       }
     };
 
     const handleUserTyping = (data: any) => {
-      if (data.conversationId === conversationId && data.sender === 'admin') {
+      if (data.conversationId === conversationIdRef.current && data.sender === 'admin') {
         setIsTyping(data.isTyping);
       }
     };
@@ -207,41 +258,27 @@ export default function ChatFloatingWidget() {
     socket.on('user_typing', handleUserTyping);
 
     return () => {
+      socket.off('connect', joinUserRoom);
       socket.off('receive_message', handleReceiveMessage);
       socket.off('user_typing', handleUserTyping);
     };
-  }, [conversationId, isOpen, customerPhone]);
+  }, [conversationId, customerPhone]);
 
-  // 4. Load initial messages
-  const fetchMessages = async () => {
-    if (!conversationId) return;
-    try {
-      const res = await apiFetch(`/api/chat/messages?conversationId=${conversationId}`);
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        if (data.data.length === 0) {
-          setMessages([
-            {
-              id: 'greeting',
-              sender: 'shop',
-              text: `👋 Chào bạn! Shop có thể hỗ trợ tư vấn size hoặc sản phẩm nào cho bạn hôm nay ạ?`,
-              time: 'Vừa xong',
-            },
-          ]);
-        } else {
-          setMessages(data.data);
-        }
-      }
-    } catch (e) {}
-  };
-
+  // 5. Polling & Sync when popup is open
   useEffect(() => {
-    if (conversationId && isOpen) {
+    if (!isOpen || !conversationId) return;
+
+    fetchMessages();
+    setUnreadCount(0);
+    const socket = getSocket();
+    socket?.emit('mark_read', { conversationId, readBy: 'user' });
+
+    // Polling fallback every 3.5s while popup is open to ensure 100% real-time reliability
+    const pollInterval = setInterval(() => {
       fetchMessages();
-      setUnreadCount(0);
-      const socket = getSocket();
-      socket?.emit('mark_read', { conversationId, readBy: 'user' });
-    }
+    }, 3500);
+
+    return () => clearInterval(pollInterval);
   }, [isOpen, conversationId]);
 
   useEffect(() => {
@@ -250,7 +287,7 @@ export default function ChatFloatingWidget() {
     }
   }, [messages, isOpen, isTyping]);
 
-  // 5. Drag & Drop Event Handlers (Mouse & Touch)
+  // 6. Drag & Drop Event Handlers (Mouse & Touch)
   const startDrag = (clientX: number, clientY: number) => {
     if (!wrapperRef.current || !btnRef.current) return;
     const parent = wrapperRef.current.parentElement;
@@ -351,9 +388,9 @@ export default function ChatFloatingWidget() {
   };
 
   // Send message
-  const handleSend = async (textToSend?: string) => {
+  const handleSend = async (textToSend?: string, attachedImg?: string) => {
     const text = textToSend !== undefined ? textToSend : inputText;
-    if (!text.trim() || !conversationId) return;
+    if ((!text.trim() && !attachedImg) || !conversationId) return;
 
     const clientMsgId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const socket = getSocket();
@@ -367,6 +404,7 @@ export default function ChatFloatingWidget() {
       customerName: guestName,
       customerPhone,
       text: text.trim(),
+      image: attachedImg || '',
     };
 
     // Optimistic UI
@@ -377,6 +415,7 @@ export default function ChatFloatingWidget() {
       sender: 'user',
       senderName: guestName,
       text: payload.text,
+      image: payload.image,
       time: 'Vừa xong',
     };
     setMessages((prev) => [...prev, tempMsg]);
@@ -414,6 +453,32 @@ export default function ChatFloatingWidget() {
       } catch (e) {
         console.error(e);
       }
+    }
+  };
+
+  // Upload image in mini popup
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setIsUploading(true);
+    try {
+      const res = await apiFetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.data?.url) {
+        handleSend('', data.data.url);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -650,17 +715,35 @@ export default function ChatFloatingWidget() {
               handleSend();
             }}
           >
+            <button
+              type="button"
+              className={styles.actionBtn}
+              style={{ color: 'var(--text-muted, #94a3b8)', background: 'transparent' }}
+              title="Gửi ảnh"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FiImage size={17} />
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+
             <input
               type="text"
               className={styles.popupInput}
-              placeholder="Nhập tin nhắn..."
+              placeholder={isUploading ? 'Đang tải ảnh...' : 'Nhập tin nhắn...'}
               value={inputText}
+              disabled={isUploading}
               onChange={(e) => setInputText(e.target.value)}
             />
             <button
               type="submit"
               className={styles.popupSendBtn}
-              disabled={!inputText.trim()}
+              disabled={!inputText.trim() && !isUploading}
               title="Gửi"
             >
               <FiSend size={14} />

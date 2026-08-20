@@ -163,22 +163,27 @@ function ChatContent() {
     const socket = initSocket();
     if (!socket) return;
 
-    socket.emit('join_room', {
-      conversationId,
-      role: 'user',
-      customerInfo: {
-        name: customerInfo.name,
-        phone: customerInfo.phone,
-        product: pinnedProduct
-          ? {
-              name: pinnedProduct.name,
-              price: pinnedProduct.salePrice || pinnedProduct.price,
-              image: pinnedProduct.images?.[0] || pinnedProduct.image,
-              slug: pinnedProduct.slug,
-            }
-          : undefined,
-      },
-    });
+    const joinUserChat = () => {
+      socket.emit('join_room', {
+        conversationId,
+        role: 'user',
+        customerInfo: {
+          name: customerInfo.name,
+          phone: customerInfo.phone,
+          product: pinnedProduct
+            ? {
+                name: pinnedProduct.name,
+                price: pinnedProduct.salePrice || pinnedProduct.price,
+                image: pinnedProduct.images?.[0] || pinnedProduct.image,
+                slug: pinnedProduct.slug,
+              }
+            : undefined,
+        },
+      });
+    };
+
+    joinUserChat();
+    socket.on('connect', joinUserChat);
 
     const handleReceiveMessage = (msg: any) => {
       setMessages((prev) => {
@@ -243,6 +248,7 @@ function ChatContent() {
     }, 5000);
 
     return () => {
+      socket.off('connect', joinUserChat);
       socket.off('receive_message', handleReceiveMessage);
       socket.off('user_typing', handleUserTyping);
       clearInterval(interval);
