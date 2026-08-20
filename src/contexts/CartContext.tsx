@@ -9,16 +9,53 @@ export interface CartItem {
   name: string;
   slug?: string;
   price: number;
+  originalPrice?: number;
   quantity: number;
+  stock?: number;
   image?: string;
   variant?: {
+    _id?: string;
+    sku?: string;
+    title?: string;
     name?: string;
     color?: string;
     size?: string;
+    attributes?: Record<string, string>;
     price?: number;
+    salePrice?: number;
+    stock?: number;
   };
   selected?: boolean;
 }
+
+export const getCartItemPrice = (item: CartItem): number => {
+  if (item.variant) {
+    if (item.variant.salePrice !== undefined && item.variant.salePrice !== null && Number(item.variant.salePrice) > 0) {
+      return Number(item.variant.salePrice);
+    }
+    if (item.variant.price !== undefined && item.variant.price !== null && Number(item.variant.price) > 0) {
+      return Number(item.variant.price);
+    }
+  }
+  return item.price || 0;
+};
+
+export const getCartItemOriginalPrice = (item: CartItem): number => {
+  if (item.variant?.price !== undefined && item.variant.price !== null && Number(item.variant.price) > 0) {
+    return Number(item.variant.price);
+  }
+  return item.originalPrice || item.price || 0;
+};
+
+export const getCartItemStock = (item: CartItem): number => {
+  if (item.variant?.stock !== undefined && item.variant.stock !== null) {
+    return Number(item.variant.stock);
+  }
+  if (item.stock !== undefined && item.stock !== null) {
+    return Number(item.stock);
+  }
+  return 999;
+};
 
 interface CartContextType {
   items: CartItem[];
@@ -31,8 +68,8 @@ interface CartContextType {
   isDrawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
-  addToCart: (product: any, quantity?: number, variant?: any) => void;
-  buyNow: (product: any, quantity?: number, variant?: any) => CartItem;
+  addToCart: (product: any, quantity?: number, variant?: any) => boolean;
+  buyNow: (product: any, quantity?: number, variant?: any) => CartItem | null;
   updateQuantity: (indexOrId: string | number, quantity: number) => void;
   removeFromCart: (indexOrId: string | number) => void;
   clearCart: () => void;
@@ -88,63 +125,152 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  // Cart count represents the number of distinct product/variant items in cart
+  const cartCount = items.length;
 
   const subtotal = items.reduce((acc, item) => {
-    const itemPrice = item.variant?.price || item.price;
-    return acc + itemPrice * item.quantity;
+    return acc + getCartItemPrice(item) * item.quantity;
   }, 0);
 
   const shippingFee = subtotal >= 500000 || subtotal === 0 ? 0 : 30000;
   const totalAmount = subtotal + shippingFee;
 
-  // 3. Add to Cart (Local Only - No API call)
-  const addToCart = (product: any, quantity = 1, variant?: any) => {
+  // 3. Add to Cart (With strict stock validation & clamping)
+  const addToCart = (product: any, quantity = 1, variant?: any): boolean => {
     const prodId = product._id || product.id;
-    const variantName = variant?.name || (variant?.color && variant?.size ? `${variant.color} - ${variant.size}` : '');
+    const variantName =
+      variant?.title ||
+      variant?.name ||
+      (variant?.attributes
+        ? Object.values(variant.attributes).filter(Boolean).join(' / ')
+        : variant?.color && variant?.size
+        ? `${variant.color} - ${variant.size}`
+        : variant?.color || variant?.size || '');
+
+    const effectivePrice =
+      variant?.salePrice !== undefined && variant.salePrice !== null && Number(variant.salePrice) > 0
+        ? Number(variant.salePrice)
+        : (variant?.price !== undefined && variant.price !== null && Number(variant.price) > 0
+          ? Number(variant.price)
+          : (product.salePrice && Number(product.salePrice) > 0 ? Number(product.salePrice) : (Number(product.price) || 0)));
+
+    const originalPrice =
+      variant?.price !== undefined && variant.price !== null && Number(variant.price) > 0
+        ? Number(variant.price)
+        : (Number(product.price) || effectivePrice);
+
+    const availableStock =
+      variant?.stock !== undefined && variant?.stock !== null
+        ? Number(variant.stock)
+        : (product.stock !== undefined && product.stock !== null ? Number(product.stock) : 999);
+
+    if (availableStock <= 0) {
+      toast.error('Sản phẩm/phiên bản này hiện đã hết hàng trong kho!');
+      return false;
+    }
+
+    let reachedMax = false;
 
     setItems((prevItems) => {
-      const existingIndex = prevItems.findIndex(
-        (item) => item.productId === prodId && (!variantName || item.variant?.name === variantName)
-      );
+      const existingIndex = prevItems.findIndex((item) => {
+        if (item.productId !== prodId) return false;
+        if (!variant && !item.variant) return true;
+        if (variant && item.variant) {
+          if (variant._id && item.variant._id && String(variant._id) === String(item.variant._id)) return true;
+          if (variant.sku && item.variant.sku && variant.sku === item.variant.sku) return true;
+          return item.variant.name === variantName;
+        }
+        return false;
+      });
 
       if (existingIndex > -1) {
-        const updated = [...prevItems];
-        updated[existingIndex].quantity += quantity;
-        return updated;
+        const currentQty = prevItems[existingIndex].quantity;
+        if (currentQty >= availableStock) {
+          reachedMax = true;
+          return prevItems;
+        }
+
+        const newQty = Math.min(availableStock, currentQty + quantity);
+        return prevItems.map((item, idx) =>
+          idx === existingIndex
+            ? { ...item, quantity: newQty, stock: availableStock, variant: item.variant ? { ...item.variant, stock: availableStock } : undefined }
+            : item
+        );
       } else {
+        const initialQty = Math.min(availableStock, quantity);
         const newItem: CartItem = {
           _id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           productId: prodId,
           name: product.name,
           slug: product.slug,
-          price: product.salePrice || product.price,
-          quantity,
-          image: (product.images && product.images[0]) || product.image || '/file.svg',
-          variant: variant ? { ...variant, name: variantName } : undefined,
+          price: effectivePrice,
+          originalPrice,
+          quantity: initialQty,
+          stock: availableStock,
+          image: variant?.image || (product.images && product.images[0]) || product.image || '/file.svg',
+          variant: variant ? { ...variant, name: variantName, price: originalPrice, salePrice: effectivePrice, stock: availableStock } : undefined,
           selected: true,
         };
         return [...prevItems, newItem];
       }
     });
 
+    if (reachedMax) {
+      toast.error(`Số lượng trong giỏ đã đạt tối đa tồn kho (${availableStock} sản phẩm)!`);
+      return false;
+    }
+
     toast.success('Đã thêm sản phẩm vào giỏ hàng!');
+    return true;
   };
 
   // 4. Buy Now (Isolates only this product for checkout, does not pollute or force other cart items)
-  const buyNow = (product: any, quantity = 1, variant?: any): CartItem => {
+  const buyNow = (product: any, quantity = 1, variant?: any): CartItem | null => {
     const prodId = product._id || product.id;
-    const variantName = variant?.name || (variant?.color && variant?.size ? `${variant.color} - ${variant.size}` : '');
+    const variantName =
+      variant?.title ||
+      variant?.name ||
+      (variant?.attributes
+        ? Object.values(variant.attributes).filter(Boolean).join(' / ')
+        : variant?.color && variant?.size
+        ? `${variant.color} - ${variant.size}`
+        : variant?.color || variant?.size || '');
+
+    const effectivePrice =
+      variant?.salePrice !== undefined && variant.salePrice !== null && Number(variant.salePrice) > 0
+        ? Number(variant.salePrice)
+        : (variant?.price !== undefined && variant.price !== null && Number(variant.price) > 0
+          ? Number(variant.price)
+          : (product.salePrice && Number(product.salePrice) > 0 ? Number(product.salePrice) : (Number(product.price) || 0)));
+
+    const originalPrice =
+      variant?.price !== undefined && variant.price !== null && Number(variant.price) > 0
+        ? Number(variant.price)
+        : (Number(product.price) || effectivePrice);
+
+    const availableStock =
+      variant?.stock !== undefined && variant?.stock !== null
+        ? Number(variant.stock)
+        : (product.stock !== undefined && product.stock !== null ? Number(product.stock) : 999);
+
+    if (availableStock <= 0) {
+      toast.error('Sản phẩm/phiên bản này hiện đã hết hàng trong kho!');
+      return null;
+    }
+
+    const finalQty = Math.min(availableStock, quantity);
 
     const singleCheckoutItem: CartItem = {
       _id: `buynow_${Date.now()}`,
       productId: prodId,
       name: product.name,
       slug: product.slug,
-      price: product.salePrice || product.price,
-      quantity,
-      image: (product.images && product.images[0]) || product.image || '/file.svg',
-      variant: variant ? { ...variant, name: variantName } : undefined,
+      price: effectivePrice,
+      originalPrice,
+      quantity: finalQty,
+      stock: availableStock,
+      image: variant?.image || (product.images && product.images[0]) || product.image || '/file.svg',
+      variant: variant ? { ...variant, name: variantName, price: originalPrice, salePrice: effectivePrice, stock: availableStock } : undefined,
       selected: true,
     };
 
@@ -152,21 +278,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return singleCheckoutItem;
   };
 
-  // 5. Update Quantity (Local Only - No API call)
+  // 5. Update Quantity (Strict stock limit enforcement)
   const updateQuantity = (identifier: string | number, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(identifier);
       return;
     }
 
+    let overStockMsg = '';
+
     setItems((prevItems) => {
       return prevItems.map((item, idx) => {
         if (item._id === identifier || idx === identifier) {
+          const maxStock = getCartItemStock(item);
+
+          if (quantity > maxStock) {
+            overStockMsg = `Kho chỉ còn tối đa ${maxStock} sản phẩm!`;
+            return { ...item, quantity: maxStock };
+          }
           return { ...item, quantity };
         }
         return item;
       });
     });
+
+    if (overStockMsg) {
+      toast.error(overStockMsg);
+    }
   };
 
   // 6. Remove Item (Local Only - No API call)

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -16,6 +16,7 @@ import {
   FiTag,
   FiShield,
   FiCheck,
+  FiAlertCircle,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
@@ -25,20 +26,25 @@ import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import StoreLoading from '@/components/store/StoreLoading';
 import BannerNotice from '@/components/common/BannerNotice';
 import { apiFetch } from '@/lib/api';
+import {
+  IProductOption,
+  IVariantItem,
+  findMatchingVariant,
+} from '@/lib/variant-helper';
 import styles from './page.module.css';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { cartCount, addToCart, buyNow, openDrawer } = useCart();
+  const { cartCount, addToCart, buyNow } = useCart();
   const { theme } = useTheme();
-  const { user, openAuthModal } = useCustomerAuth();
+  const { user } = useCustomerAuth();
 
   const [product, setProduct] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedVariant, setSelectedVariant] = useState<any>(null);
-  const [selectedColor, setSelectedColor] = useState<string>('');
-  const [selectedSize, setSelectedSize] = useState<string>('');
+
+  // Dynamic Selected Attributes state: { [optionName: string]: string }
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -49,12 +55,66 @@ export default function ProductDetailPage() {
         const res = await apiFetch(`/api/products/${params.slug}`);
         const data = await res.json();
         if (data.success && data.data) {
-          setProduct(data.data);
-          if (data.data.variants && data.data.variants.length > 0) {
-            setSelectedVariant(data.data.variants[0]);
-            if (data.data.variants[0].color) setSelectedColor(data.data.variants[0].color);
-            if (data.data.variants[0].size) setSelectedSize(data.data.variants[0].size);
+          const prod = data.data;
+          setProduct(prod);
+
+          // Extract options and variants
+          const variants: any[] = prod.variants || [];
+          let options: IProductOption[] = prod.options || [];
+
+          // If no options, extract from variants
+          if (options.length === 0 && variants.length > 0) {
+            const attrMap: Record<string, Set<string>> = {};
+            variants.forEach((v) => {
+              if (v.attributes) {
+                const attrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
+                Object.entries(attrs).forEach(([k, val]: any) => {
+                  if (typeof val === 'string' && val.trim()) {
+                    if (!attrMap[k]) attrMap[k] = new Set();
+                    attrMap[k].add(val.trim());
+                  }
+                });
+              } else {
+                if (v.color?.trim()) {
+                  if (!attrMap['Màu sắc']) attrMap['Màu sắc'] = new Set();
+                  attrMap['Màu sắc'].add(v.color.trim());
+                }
+                if (v.size?.trim()) {
+                  if (!attrMap['Kích cỡ']) attrMap['Kích cỡ'] = new Set();
+                  attrMap['Kích cỡ'].add(v.size.trim());
+                }
+              }
+            });
+
+            options = Object.entries(attrMap).map(([name, set]) => ({
+              name,
+              values: Array.from(set),
+            }));
           }
+
+          // Initialize default selection (prefer first in-stock variant)
+          const initialSelection: Record<string, string> = {};
+          if (variants.length > 0) {
+            const firstInStock = variants.find((v) => (v.stock ?? 0) > 0) || variants[0];
+            if (firstInStock) {
+              if (firstInStock.attributes) {
+                const attrs = firstInStock.attributes instanceof Map ? Object.fromEntries(firstInStock.attributes) : firstInStock.attributes;
+                Object.assign(initialSelection, attrs);
+              } else {
+                if (firstInStock.color) initialSelection['Màu sắc'] = firstInStock.color;
+                if (firstInStock.size) initialSelection['Kích cỡ'] = firstInStock.size;
+              }
+            }
+          }
+
+          // Fallback for options without initial value
+          options.forEach((opt) => {
+            if (!initialSelection[opt.name] && opt.values.length > 0) {
+              initialSelection[opt.name] = opt.values[0];
+            }
+          });
+
+          setSelectedAttributes(initialSelection);
         }
       } catch (e) {
         console.error(e);
@@ -67,12 +127,119 @@ export default function ProductDetailPage() {
     }
   }, [params.slug]);
 
+  // Extract normalized options list
+  const options: IProductOption[] = useMemo(() => {
+    if (!product) return [];
+    if (product.options && Array.isArray(product.options) && product.options.length > 0) {
+      return product.options.filter((o: any) => o.name && o.values && o.values.length > 0);
+    }
+    if (product.variants && product.variants.length > 0) {
+      const attrMap: Record<string, Set<string>> = {};
+      product.variants.forEach((v: any) => {
+        if (v.attributes) {
+          const attrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
+          Object.entries(attrs).forEach(([k, val]: any) => {
+            if (typeof val === 'string' && val.trim()) {
+              if (!attrMap[k]) attrMap[k] = new Set();
+              attrMap[k].add(val.trim());
+            }
+          });
+        } else {
+          if (v.color?.trim()) {
+            if (!attrMap['Màu sắc']) attrMap['Màu sắc'] = new Set();
+            attrMap['Màu sắc'].add(v.color.trim());
+          }
+          if (v.size?.trim()) {
+            if (!attrMap['Kích cỡ']) attrMap['Kích cỡ'] = new Set();
+            attrMap['Kích cỡ'].add(v.size.trim());
+          }
+        }
+      });
+
+      return Object.entries(attrMap).map(([name, set]) => ({
+        name,
+        values: Array.from(set),
+      }));
+    }
+    return [];
+  }, [product]);
+
+  // Normalized variants list
+  const variants: IVariantItem[] = useMemo(() => {
+    if (!product || !product.variants) return [];
+    return product.variants.map((v: any, idx: number) => {
+      let attrs: Record<string, string> = {};
+      if (v.attributes) {
+        attrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
+      } else {
+        if (v.color) attrs['Màu sắc'] = v.color;
+        if (v.size) attrs['Kích cỡ'] = v.size;
+      }
+      return {
+        _id: v._id,
+        sku: v.sku || `SKU-${idx + 1}`,
+        title: v.title || v.name || Object.values(attrs).filter(Boolean).join(' / ') || `Biến thể ${idx + 1}`,
+        attributes: attrs,
+        price: v.price !== undefined ? v.price : (product.salePrice || product.price),
+        salePrice: v.salePrice,
+        stock: v.stock ?? 0,
+        image: v.image || '',
+      };
+    });
+  }, [product]);
+
+  // Resolve matching variant based on selected attributes
+  const matchedVariant = useMemo(() => {
+    if (variants.length === 0) return null;
+    return findMatchingVariant(variants, selectedAttributes);
+  }, [variants, selectedAttributes]);
+
+  // Real-time calculated price & stock
+  const currentPrice = matchedVariant
+    ? (matchedVariant.salePrice && matchedVariant.salePrice > 0 ? matchedVariant.salePrice : matchedVariant.price)
+    : (product?.salePrice && product.salePrice > 0 ? product.salePrice : (product?.price || 0));
+
+  const originalPrice = matchedVariant ? matchedVariant.price : (product?.price || 0);
+
+  const hasDiscount = matchedVariant
+    ? (matchedVariant.salePrice !== undefined && matchedVariant.salePrice > 0 && matchedVariant.salePrice < matchedVariant.price)
+    : (product?.salePrice !== undefined && product.salePrice > 0 && product.salePrice < product.price);
+
+  const discountPercent = hasDiscount && originalPrice > 0
+    ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
+    : null;
+
+  const currentStock = matchedVariant
+    ? (matchedVariant.stock ?? 0)
+    : (product?.stock ?? 0);
+
+  const isOutOfStock = currentStock <= 0;
+
+  // Auto adjust quantity if stock changes
+  useEffect(() => {
+    if (currentStock > 0 && quantity > currentStock) {
+      setQuantity(currentStock);
+    } else if (currentStock === 0) {
+      setQuantity(1);
+    }
+  }, [currentStock]);
+
+  // Switch image if variant has a dedicated image
+  useEffect(() => {
+    if (matchedVariant?.image && product?.images) {
+      const idx = product.images.findIndex((img: string) => img === matchedVariant.image);
+      if (idx > -1) {
+        setActiveImageIndex(idx);
+      }
+    }
+  }, [matchedVariant]);
+
   // Auto slide image every 3 seconds for products with multiple images
   useEffect(() => {
     if (!product?.images || product.images.length <= 1) return;
     const timer = setInterval(() => {
       setActiveImageIndex((prev) => (prev + 1) % product.images.length);
-    }, 3000);
+    }, 3500);
     return () => clearInterval(timer);
   }, [product?.images]);
 
@@ -103,53 +270,62 @@ export default function ProductDetailPage() {
     );
   }
 
-  // Extract distinct colors and sizes
-  const colors: string[] = Array.from(
-    new Set(
-      (product.variants || [])
-        .map((v: any) => v.color)
-        .filter(Boolean)
-    )
-  );
-
-  const sizes: string[] = Array.from(
-    new Set(
-      (product.variants || [])
-        .map((v: any) => v.size)
-        .filter(Boolean)
-    )
-  );
-
-  const currentPrice = selectedVariant?.price || product.salePrice || product.price;
-  const currentStock = selectedVariant?.stock ?? product.stock ?? 99;
-  const discountPercent =
-    product.salePrice && product.salePrice < product.price
-      ? Math.round(((product.price - product.salePrice) / product.price) * 100)
-      : null;
-
-  const handleSelectColor = (color: string) => {
-    setSelectedColor(color);
-    const match = (product.variants || []).find(
-      (v: any) => v.color === color && (selectedSize ? v.size === selectedSize : true)
-    );
-    if (match) setSelectedVariant(match);
+  // Check if a specific option value can be selected and has available stock
+  const isOptionValueAvailable = (optionName: string, value: string): boolean => {
+    if (variants.length === 0) return true;
+    const trialSelection = { ...selectedAttributes, [optionName]: value };
+    return variants.some((v) => {
+      const attrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
+      const isMatch = Object.keys(trialSelection).every((key) => attrs[key] === trialSelection[key]);
+      return isMatch && v.stock > 0;
+    });
   };
 
-  const handleSelectSize = (size: string) => {
-    setSelectedSize(size);
-    const match = (product.variants || []).find(
-      (v: any) => v.size === size && (selectedColor ? v.color === selectedColor : true)
-    );
-    if (match) setSelectedVariant(match);
+  const handleSelectAttribute = (optionName: string, value: string) => {
+    setSelectedAttributes((prev) => ({
+      ...prev,
+      [optionName]: value,
+    }));
+  };
+
+  // Rigorous error check before adding to cart / buying
+  const validateSelection = (): boolean => {
+    if (options.length > 0) {
+      for (const opt of options) {
+        if (!selectedAttributes[opt.name]) {
+          toast.error(`Vui lòng chọn ${opt.name}!`);
+          return false;
+        }
+      }
+    }
+
+    if (variants.length > 0 && !matchedVariant) {
+      toast.error('Phiên bản phân loại đã chọn không tồn tại!');
+      return false;
+    }
+
+    if (isOutOfStock) {
+      toast.error('Phiên bản này hiện đã tạm hết hàng trong kho!');
+      return false;
+    }
+
+    if (quantity > currentStock) {
+      toast.error(`Chỉ còn ${currentStock} sản phẩm trong kho!`);
+      setQuantity(currentStock);
+      return false;
+    }
+
+    return true;
   };
 
   const handleAddToCart = () => {
-    addToCart(product, quantity, selectedVariant);
-    toast.success(`Đã thêm ${product.name} vào giỏ hàng!`);
+    if (!validateSelection()) return;
+    addToCart(product, quantity, matchedVariant || undefined);
   };
 
   const handleBuyNow = () => {
-    buyNow(product, quantity, selectedVariant);
+    if (!validateSelection()) return;
+    buyNow(product, quantity, matchedVariant || undefined);
     router.push('/checkout');
   };
 
@@ -254,9 +430,9 @@ export default function ProductDetailPage() {
         <div className={styles.mainCard}>
           <div className={styles.priceRow}>
             <span className={styles.currentPrice}>{formatPrice(currentPrice)}</span>
-            {product.salePrice && product.salePrice < product.price && (
+            {hasDiscount && (
               <>
-                <span className={styles.oldPrice}>{formatPrice(product.price)}</span>
+                <span className={styles.oldPrice}>{formatPrice(originalPrice)}</span>
                 {discountPercent && (
                   <span className={styles.discountBadge}>-{discountPercent}%</span>
                 )}
@@ -273,100 +449,100 @@ export default function ProductDetailPage() {
             <span className={styles.sold}>
               Đã bán {product.sold || product.soldCount || 150}
             </span>
-            <span className={styles.stock}>Kho: {currentStock} có sẵn</span>
+            <span className={styles.stock}>
+              {isOutOfStock ? (
+                <span className={styles.outOfStockBadge}>Tạm hết hàng</span>
+              ) : (
+                `Kho: ${currentStock} có sẵn`
+              )}
+            </span>
           </div>
         </div>
 
-        {/* 3. VARIANT SELECTION CARD */}
-        <div className={styles.variantCard}>
-          {/* Colors */}
-          {colors.length > 0 && (
-            <div className={styles.variantSection}>
-              <div className={styles.variantTitle}>
-                <span>Màu sắc</span>
-                {selectedColor && <span style={{ color: 'var(--primary, #3b82f6)' }}>{selectedColor}</span>}
-              </div>
-              <div className={styles.variantChips}>
-                {colors.map((color) => (
-                  <button
-                    key={color}
-                    className={`${styles.variantBtn} ${selectedColor === color ? styles.activeVariant : ''}`}
-                    onClick={() => handleSelectColor(color)}
-                  >
-                    {color}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+        {/* 3. DYNAMIC MULTI-DIMENSIONAL VARIANT SELECTION CARD */}
+        {(options.length > 0 || (variants.length > 0 && options.length === 0)) && (
+          <div className={styles.variantCard}>
+            {options.map((opt) => (
+              <div key={opt.name} className={styles.variantSection}>
+                <div className={styles.variantTitle}>
+                  <span>{opt.name}</span>
+                  {selectedAttributes[opt.name] && (
+                    <span style={{ color: 'var(--primary, #3b82f6)', fontWeight: 600 }}>
+                      {selectedAttributes[opt.name]}
+                    </span>
+                  )}
+                </div>
+                <div className={styles.variantChips}>
+                  {opt.values.map((val) => {
+                    const isSelected = selectedAttributes[opt.name] === val;
+                    const isAvailable = isOptionValueAvailable(opt.name, val);
 
-          {/* Sizes */}
-          {sizes.length > 0 && (
-            <div className={styles.variantSection}>
-              <div className={styles.variantTitle}>
-                <span>Kích cỡ</span>
-                {selectedSize && <span style={{ color: 'var(--primary, #3b82f6)' }}>{selectedSize}</span>}
+                    return (
+                      <button
+                        key={val}
+                        type="button"
+                        className={`${styles.variantBtn} ${isSelected ? styles.activeVariant : ''} ${!isAvailable && !isSelected ? styles.disabledVariant : ''}`}
+                        onClick={() => handleSelectAttribute(opt.name, val)}
+                        title={!isAvailable && !isSelected ? 'Tùy chọn này tạm hết hàng' : undefined}
+                      >
+                        {val}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              <div className={styles.variantChips}>
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    className={`${styles.variantBtn} ${selectedSize === size ? styles.activeVariant : ''}`}
-                    onClick={() => handleSelectSize(size)}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+            ))}
 
-          {/* Generic Variants if no separate color/size */}
-          {colors.length === 0 && sizes.length === 0 && product.variants && product.variants.length > 0 && (
-            <div className={styles.variantSection}>
-              <div className={styles.variantTitle}>Phân loại hàng</div>
-              <div className={styles.variantChips}>
-                {product.variants.map((v: any, idx: number) => {
-                  const label = v.name || `Tùy chọn ${idx + 1}`;
-                  const isSelected = selectedVariant?._id === v._id || selectedVariant === v;
-                  return (
-                    <button
-                      key={idx}
-                      className={`${styles.variantBtn} ${isSelected ? styles.activeVariant : ''}`}
-                      onClick={() => setSelectedVariant(v)}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
+            {/* Fallback for single generic variants list */}
+            {options.length === 0 && variants.length > 0 && (
+              <div className={styles.variantSection}>
+                <div className={styles.variantTitle}>Phân loại hàng</div>
+                <div className={styles.variantChips}>
+                  {variants.map((v, idx) => {
+                    const isSelected = matchedVariant?._id === v._id || matchedVariant?.sku === v.sku;
+                    const isAvail = v.stock > 0;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        className={`${styles.variantBtn} ${isSelected ? styles.activeVariant : ''} ${!isAvail ? styles.disabledVariant : ''}`}
+                        onClick={() => setSelectedAttributes(v.attributes || {})}
+                      >
+                        {v.title}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Quantity Stepper */}
-          <div className={styles.quantityRow}>
-            <span style={{ fontSize: 13, fontWeight: 700 }}>Số lượng</span>
-            <div className={styles.quantityControl}>
-              <button
-                className={styles.qtyBtn}
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
-              >
-                <FiMinus size={12} />
-              </button>
-              <span className={styles.qtyValue}>{quantity}</span>
-              <button
-                className={styles.qtyBtn}
-                onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
-                disabled={quantity >= currentStock}
-              >
-                <FiPlus size={12} />
-              </button>
+            {/* Quantity Stepper */}
+            <div className={styles.quantityRow}>
+              <span style={{ fontSize: 13, fontWeight: 700 }}>Số lượng</span>
+              <div className={styles.quantityControl}>
+                <button
+                  type="button"
+                  className={styles.qtyBtn}
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1 || isOutOfStock}
+                >
+                  <FiMinus size={12} />
+                </button>
+                <span className={styles.qtyValue}>{isOutOfStock ? 0 : quantity}</span>
+                <button
+                  type="button"
+                  className={styles.qtyBtn}
+                  onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
+                  disabled={quantity >= currentStock || isOutOfStock}
+                >
+                  <FiPlus size={12} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* 6. SHOP INFO CARD */}
+        {/* 4. SHOP INFO CARD */}
         <div className={styles.shopCard}>
           <div className={styles.shopLeft}>
             <div className={styles.shopAvatar}>
@@ -390,7 +566,7 @@ export default function ProductDetailPage() {
           </Link>
         </div>
 
-        {/* 7. DESCRIPTION CARD */}
+        {/* 5. DESCRIPTION CARD */}
         <div className={styles.descCard}>
           <h2 className={styles.descTitle}>Mô tả sản phẩm</h2>
           <div className={styles.descContent}>
@@ -402,22 +578,34 @@ export default function ProductDetailPage() {
 
       {/* ===== FIXED BOTTOM ACTION BAR ===== */}
       <div className={styles.bottomBar}>
-        <button
+        <Link
+          href={`/chat?product=${product.slug || ''}`}
           className={styles.actionIconBtn}
-          onClick={() => toast('Hệ thống CSKH 24/7: Hotline 1900 6868', { icon: '💬' })}
         >
           <FiMessageSquare size={18} />
           <span>Chat</span>
-        </button>
+        </Link>
         <Link href="/cart" className={styles.actionIconBtn}>
           <FiShoppingCart size={18} />
           <span>Giỏ</span>
         </Link>
-        <button className={styles.addCartBtn} onClick={handleAddToCart}>
-          <span>Thêm vào giỏ</span>
+        <button
+          type="button"
+          className={styles.addCartBtn}
+          onClick={handleAddToCart}
+          disabled={isOutOfStock}
+          style={isOutOfStock ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+        >
+          <span>{isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ'}</span>
         </button>
-        <button className={styles.buyNowBtn} onClick={handleBuyNow}>
-          <span>Mua ngay</span>
+        <button
+          type="button"
+          className={styles.buyNowBtn}
+          onClick={handleBuyNow}
+          disabled={isOutOfStock}
+          style={isOutOfStock ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+        >
+          <span>{isOutOfStock ? 'Tạm hết hàng' : 'Mua ngay'}</span>
         </button>
       </div>
     </div>

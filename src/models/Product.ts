@@ -1,11 +1,22 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
+
+export interface IProductOption {
+  name: string;
+  values: string[];
+}
 
 export interface IVariant {
+  _id?: any;
+  sku?: string;
+  title?: string;
   name?: string;
   color?: string;
   size?: string;
-  price?: number;
-  stock?: number;
+  attributes?: Record<string, string>;
+  price: number;
+  salePrice?: number;
+  stock: number;
+  image?: string;
 }
 
 export interface IProduct extends Document {
@@ -13,6 +24,8 @@ export interface IProduct extends Document {
   slug: string;
   price: number;
   salePrice?: number;
+  minPrice?: number;
+  maxPrice?: number;
   category: mongoose.Types.ObjectId;
   images: string[];
   stock: number;
@@ -20,35 +33,83 @@ export interface IProduct extends Document {
   description?: string;
   isFeatured: boolean;
   status: 'active' | 'hidden';
+  options?: IProductOption[];
   variants: IVariant[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-const ProductSchema = new Schema<IProduct>(
+const ProductOptionSchema = new Schema<IProductOption>(
   {
-    name: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    price: { type: Number, required: true },
-    salePrice: { type: Number },
-    category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
-    images: [{ type: String }],
-    stock: { type: Number, default: 0 },
-    soldCount: { type: Number, default: 0 },
-    description: { type: String },
-    isFeatured: { type: Boolean, default: false },
-    status: { type: String, enum: ['active', 'hidden'], default: 'active' },
-    variants: [
-      {
-        name: { type: String },
-        color: { type: String },
-        size: { type: String },
-        price: { type: Number },
-        stock: { type: Number, default: 0 },
-      },
-    ],
+    name: { type: String, required: true, trim: true },
+    values: [{ type: String, required: true, trim: true }],
   },
-  { timestamps: true }
+  { _id: false }
 );
 
-export default mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);
+const VariantSchema = new Schema<IVariant>(
+  {
+    sku: { type: String, trim: true, default: '' },
+    title: { type: String, trim: true, default: '' },
+    name: { type: String, trim: true, default: '' },
+    color: { type: String, default: '' },
+    size: { type: String, default: '' },
+    attributes: { type: Schema.Types.Mixed, default: {} },
+    price: { type: Number, required: true, min: 0 },
+    salePrice: { type: Number, default: 0, min: 0 },
+    stock: { type: Number, required: true, default: 0, min: 0 },
+    image: { type: String, default: '' },
+  },
+  { _id: true, toJSON: { getters: true }, toObject: { getters: true } }
+);
+
+const ProductSchema = new Schema<IProduct>(
+  {
+    name: { type: String, required: true, trim: true },
+    slug: { type: String, required: true, unique: true, index: true },
+    price: { type: Number, required: true, min: 0 },
+    salePrice: { type: Number, default: 0, min: 0 },
+    minPrice: { type: Number, default: 0, index: true },
+    maxPrice: { type: Number, default: 0, index: true },
+    category: { type: Schema.Types.ObjectId, ref: 'Category', required: true, index: true },
+    images: [{ type: String }],
+    stock: { type: Number, default: 0, min: 0 },
+    soldCount: { type: Number, default: 0, min: 0 },
+    description: { type: String, default: '' },
+    isFeatured: { type: Boolean, default: false, index: true },
+    status: { type: String, enum: ['active', 'hidden'], default: 'active', index: true },
+    options: { type: [ProductOptionSchema], default: [] },
+    variants: { type: [VariantSchema], default: [] },
+  },
+  { timestamps: true, toJSON: { getters: true }, toObject: { getters: true } }
+);
+
+ProductSchema.pre('save', function () {
+  if (this.variants && this.variants.length > 0) {
+    let calculatedStock = 0;
+    let min = Infinity;
+    let max = -Infinity;
+
+    for (const v of this.variants) {
+      calculatedStock += Number(v.stock) || 0;
+      const effectivePrice = v.salePrice && v.salePrice > 0 ? Number(v.salePrice) : Number(v.price);
+      if (effectivePrice < min) min = effectivePrice;
+      if (effectivePrice > max) max = effectivePrice;
+    }
+
+    this.stock = calculatedStock;
+    this.minPrice = min === Infinity ? (this.salePrice || this.price) : min;
+    this.maxPrice = max === -Infinity ? this.price : max;
+  } else {
+    this.minPrice = this.salePrice && this.salePrice > 0 ? this.salePrice : this.price;
+    this.maxPrice = this.price;
+  }
+});
+
+// Avoid stale model caching in Next.js hot reload
+if (mongoose.models && mongoose.models.Product) {
+  delete (mongoose.models as any).Product;
+}
+
+const Product: Model<IProduct> = mongoose.model<IProduct>('Product', ProductSchema);
+export default Product;

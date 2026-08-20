@@ -17,6 +17,7 @@ import {
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useCart } from '@/contexts/CartContext';
 import StoreLoading from '@/components/store/StoreLoading';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
@@ -27,6 +28,7 @@ export default function OrderSuccessPage() {
   const code = searchParams.get('code') || '';
   const isPaidQuery = searchParams.get('paid') === 'true';
   const { theme } = useTheme();
+  const { removeCheckedOutItems } = useCart();
 
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +46,22 @@ export default function OrderSuccessPage() {
         const data = await res.json();
         if (data.success && data.data) {
           setOrder(data.data);
+
+          // Nếu đơn hàng đã thanh toán hoặc COD, dọn dẹp các sản phẩm chờ trong giỏ
+          if (data.data.paymentStatus === 'paid' || data.data.paymentMethod === 'cod' || isPaidQuery) {
+            try {
+              const pending = sessionStorage.getItem('shoptik_pending_payment_items');
+              if (pending) {
+                const pendingItems = JSON.parse(pending);
+                if (Array.isArray(pendingItems) && pendingItems.length > 0) {
+                  removeCheckedOutItems(pendingItems);
+                }
+                sessionStorage.removeItem('shoptik_pending_payment_items');
+              } else if (data.data.items && Array.isArray(data.data.items)) {
+                removeCheckedOutItems(data.data.items);
+              }
+            } catch (e) {}
+          }
         }
       } catch (err) {
         console.error('Error loading order details:', err);
@@ -53,7 +71,7 @@ export default function OrderSuccessPage() {
     }
 
     fetchOrderDetail();
-  }, [code]);
+  }, [code, isPaidQuery, removeCheckedOutItems]);
 
   const handleCopyCode = () => {
     const targetCode = order?.orderCode || code;

@@ -47,17 +47,52 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    if (body.name && !body.slug) {
-      body.slug = generateSlug(body.name);
-    }
-
-    const updated = await Product.findByIdAndUpdate(id, body, { new: true });
-    if (!updated) {
+    const product = await Product.findById(id);
+    if (!product) {
       return NextResponse.json(
         { success: false, message: 'Không tìm thấy sản phẩm để cập nhật' },
         { status: 404 }
       );
     }
+
+    if (body.name && !body.slug && body.name !== product.name) {
+      body.slug = generateSlug(body.name);
+    }
+
+    if (body.variants && Array.isArray(body.variants)) {
+      body.variants = body.variants.map((v: any, idx: number) => {
+        const parsedSalePrice =
+          v.salePrice !== undefined && v.salePrice !== null && v.salePrice !== ''
+            ? Number(v.salePrice)
+            : 0;
+
+        const colorVal = v.color || v.attributes?.['Màu sắc'] || v.attributes?.['Màu'];
+        const sizeVal = v.size || v.attributes?.['Kích cỡ'] || v.attributes?.['Size'] || v.attributes?.['Kích thước'];
+        const title =
+          v.title ||
+          v.name ||
+          (v.attributes ? Object.values(v.attributes).filter(Boolean).join(' / ') : '') ||
+          [colorVal, sizeVal].filter(Boolean).join(' / ') ||
+          `Biến thể ${idx + 1}`;
+
+        return {
+          ...v,
+          sku: v.sku?.trim() || `${(product.slug || 'SP').toUpperCase()}-${idx + 1}`,
+          title,
+          name: title,
+          color: colorVal,
+          size: sizeVal,
+          attributes: v.attributes instanceof Map ? Object.fromEntries(v.attributes) : (v.attributes || {}),
+          price: Number(v.price) || Number(body.price) || product.price || 0,
+          salePrice: parsedSalePrice,
+          stock: Math.max(0, Number(v.stock) || 0),
+          image: v.image || '',
+        };
+      });
+    }
+
+    Object.assign(product, body);
+    const updated = await product.save();
 
     return NextResponse.json({
       success: true,

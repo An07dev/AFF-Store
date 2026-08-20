@@ -26,9 +26,25 @@ function BottomNavContent() {
   const isCategories = pathname === '/' && currentTab === 'categories';
   const isTracking = pathname === '/tracking';
 
+  const handleProductsClick = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('reset-product-filters'));
+    }
+  };
+
+  const handleHomeClick = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('reset-store-home'));
+    }
+  };
+
   return (
     <nav className={styles.bottomNav}>
-      <Link href="/" className={`${styles.navItem} ${isHome ? styles.active : ''}`}>
+      <Link
+        href="/"
+        className={`${styles.navItem} ${isHome ? styles.active : ''}`}
+        onClick={handleHomeClick}
+      >
         <FiHome className={styles.icon} />
         <span>Trang chủ</span>
       </Link>
@@ -36,6 +52,7 @@ function BottomNavContent() {
       <Link
         href="/?tab=products"
         className={`${styles.navItem} ${isProducts ? styles.active : ''}`}
+        onClick={handleProductsClick}
       >
         <FiGrid className={styles.icon} />
         <span>Sản phẩm</span>

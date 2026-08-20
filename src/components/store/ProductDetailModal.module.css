@@ -246,6 +246,25 @@
   font-weight: 700;
 }
 
+.variantChipDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: line-through;
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-dim, #64748b) !important;
+}
+
+.skuBadge {
+  font-family: monospace;
+  font-size: 10px;
+  padding: 1px 6px;
+  background: #1a1e2b;
+  border-radius: 4px;
+  color: #94a3b8;
+  border: 1px solid var(--border-color, #232838);
+}
+
 /* Quantity */
 .quantityRow {
   display: flex;

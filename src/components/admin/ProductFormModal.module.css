@@ -192,28 +192,30 @@
 .variantSection {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   background-color: var(--bg-main, #090a0f);
   border: 1px solid var(--border-color, #232838);
-  border-radius: var(--radius-md, 10px);
-  padding: 16px;
+  border-radius: var(--radius-md, 12px);
+  padding: 18px;
 }
 
 .variantHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .addVariantBtn {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: transparent;
+  background: rgba(59, 130, 246, 0.1);
   color: var(--primary, #3b82f6);
   border: 1px dashed var(--primary, #3b82f6);
-  padding: 6px 12px;
-  border-radius: var(--radius-sm, 6px);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm, 8px);
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
@@ -221,14 +223,179 @@
 }
 
 .addVariantBtn:hover {
-  background-color: rgba(59, 130, 246, 0.1);
+  background-color: rgba(59, 130, 246, 0.2);
+  transform: translateY(-1px);
 }
 
-.variantRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr auto;
-  gap: 8px;
+.generateBtn {
+  display: flex;
   align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm, 8px);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  transition: all 0.2s;
+}
+
+.generateBtn:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.generateBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Option Groups Builder */
+.optionCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.optionCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.suggestionChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.suggestionChip {
+  background: #1a1e2b;
+  color: #94a3b8;
+  border: 1px solid #2d3343;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.725rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.suggestionChip:hover {
+  color: #ffffff;
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 28px;
+  align-items: center;
+}
+
+.tagBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 3px 10px;
+  border-radius: 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.tagRemoveBtn {
+  background: none;
+  border: none;
+  color: #93c5fd;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+.tagRemoveBtn:hover {
+  color: #ef4444;
+}
+
+/* Bulk Bar */
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--border-color, #232838);
+  border-radius: 8px;
+  padding: 8px 12px;
+  flex-wrap: wrap;
+}
+
+.bulkTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.bulkApplyBtn {
+  background: #1a1e2b;
+  color: #60a5fa;
+  border: 1px solid #3b82f6;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.775rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bulkApplyBtn:hover {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+/* Table Matrix */
+.matrixTableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 8px;
+}
+
+.matrixTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.matrixTable th {
+  background: #161a26;
+  color: #94a3b8;
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid #232838;
+  white-space: nowrap;
+}
+
+.matrixTable td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #1a1e2b;
+  vertical-align: middle;
+}
+
+.matrixTable tr:last-child td {
+  border-bottom: none;
 }
 
 .deleteVariantBtn {
@@ -236,11 +403,12 @@
   border: none;
   color: #ef4444;
   cursor: pointer;
-  padding: 8px;
+  padding: 6px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s;
 }
 
 .deleteVariantBtn:hover {

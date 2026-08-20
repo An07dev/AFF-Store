@@ -201,32 +201,61 @@ export default function ProductDetailModal({ productId, onClose }: ProductDetail
               {/* Variants Section */}
               {product.variants && product.variants.length > 0 && (
                 <div className={styles.section}>
-                  <h3 className={styles.sectionTitle}>Bảng Chi Tiết Biến Thể Sản Phẩm</h3>
+                  <h3 className={styles.sectionTitle}>Bảng Chi Tiết Biến Thể Sản Phẩm ({product.variants.length})</h3>
                   <div className={styles.tableWrap}>
                     <table className={styles.variantTable}>
                       <thead>
                         <tr>
-                          <th>Màu sắc</th>
-                          <th>Kích thước</th>
+                          <th>Tên phân loại / Biến thể</th>
+                          <th>Mã SKU</th>
                           <th>Giá biến thể</th>
                           <th>Tồn kho</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {product.variants.map((v: any, i: number) => (
-                          <tr key={i}>
-                            <td><strong>{v.color || '-'}</strong></td>
-                            <td>{v.size || '-'}</td>
-                            <td style={{ color: 'var(--primary, #3b82f6)', fontWeight: 600 }}>
-                              {formatPrice(v.price || product.salePrice || product.price)}
-                            </td>
-                            <td>
-                              <span style={{ color: (v.stock || 0) < 5 ? '#ef4444' : 'inherit' }}>
-                                {v.stock ?? 0} cái
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
+                        {product.variants.map((v: any, i: number) => {
+                          const attrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : (v.attributes || {});
+                          const title = v.title || v.name || Object.values(attrs).filter(Boolean).join(' / ') || [v.color, v.size].filter(Boolean).join(' / ') || `Biến thể ${i + 1}`;
+
+                          return (
+                            <tr key={i}>
+                              <td>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                  <strong style={{ color: '#f8fafc' }}>{title}</strong>
+                                  {Object.keys(attrs).length > 0 ? (
+                                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                                      {Object.entries(attrs).map(([k, val]: any) => (
+                                        <span key={k} style={{ fontSize: '0.7rem', color: '#94a3b8', background: '#1e2330', padding: '1px 6px', borderRadius: 4 }}>
+                                          {k}: {val}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  ) : (v.color || v.size) ? (
+                                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                                      {[v.color, v.size].filter(Boolean).join(' - ')}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </td>
+                              <td style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: '#94a3b8' }}>
+                                {v.sku || '-'}
+                              </td>
+                              <td style={{ color: 'var(--primary, #3b82f6)', fontWeight: 600 }}>
+                                {formatPrice(v.salePrice || v.price || product.salePrice || product.price)}
+                                {v.salePrice && v.price && v.salePrice < v.price && (
+                                  <span style={{ textDecoration: 'line-through', color: '#64748b', fontSize: '0.75rem', marginLeft: 6 }}>
+                                    {formatPrice(v.price)}
+                                  </span>
+                                )}
+                              </td>
+                              <td>
+                                <span style={{ color: (v.stock || 0) < 5 ? '#ef4444' : 'inherit', fontWeight: 500 }}>
+                                  {v.stock ?? 0} sản phẩm
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

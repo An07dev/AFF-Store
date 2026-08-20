@@ -83,10 +83,49 @@ export async function POST(request: Request) {
       );
     }
 
-    const slug = body.slug || generateSlug(body.name);
+    let slug = body.slug || generateSlug(body.name);
+    const existing = await Product.findOne({ slug });
+    if (existing) {
+      slug = `${slug}-${Date.now().toString().slice(-4)}`;
+    }
+
+    let variants = body.variants;
+    if (variants && Array.isArray(variants)) {
+      variants = variants.map((v: any, idx: number) => {
+        const parsedSalePrice =
+          v.salePrice !== undefined && v.salePrice !== null && v.salePrice !== ''
+            ? Number(v.salePrice)
+            : 0;
+
+        const colorVal = v.color || v.attributes?.['Màu sắc'] || v.attributes?.['Màu'];
+        const sizeVal = v.size || v.attributes?.['Kích cỡ'] || v.attributes?.['Size'] || v.attributes?.['Kích thước'];
+        const title =
+          v.title ||
+          v.name ||
+          (v.attributes ? Object.values(v.attributes).filter(Boolean).join(' / ') : '') ||
+          [colorVal, sizeVal].filter(Boolean).join(' / ') ||
+          `Biến thể ${idx + 1}`;
+
+        return {
+          ...v,
+          sku: v.sku?.trim() || `${slug.toUpperCase()}-${idx + 1}`,
+          title,
+          name: title,
+          color: colorVal,
+          size: sizeVal,
+          attributes: v.attributes instanceof Map ? Object.fromEntries(v.attributes) : (v.attributes || {}),
+          price: Number(v.price) || Number(body.price) || 0,
+          salePrice: parsedSalePrice,
+          stock: Math.max(0, Number(v.stock) || 0),
+          image: v.image || '',
+        };
+      });
+    }
+
     const newProduct = await Product.create({
       ...body,
       slug,
+      variants,
     });
 
     return NextResponse.json(

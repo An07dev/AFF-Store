@@ -4,6 +4,7 @@ import React from 'react';
 import CartDrawer from '@/components/store/CartDrawer';
 import AuthModal from '@/components/store/AuthModal';
 import BottomNav from '@/components/store/BottomNav';
+import ChatFloatingWidget from '@/components/store/ChatFloatingWidget';
 import styles from './layout.module.css';
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
         <div className={styles.phoneScreen}>
           {children}
         </div>
+        <ChatFloatingWidget />
         <BottomNav />
       </div>
 

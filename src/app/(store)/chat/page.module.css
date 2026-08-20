@@ -77,7 +77,13 @@
   color: var(--text-muted, #94a3b8);
 }
 
-.hotlineBtn {
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phoneBtn {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -89,7 +95,66 @@
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
-  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.phoneBtn:hover {
+  background: var(--bg-card-hover, #1a1e2b);
+  border-color: var(--primary, #3b82f6);
+}
+
+/* ===== PRODUCT PINNED BANNER ===== */
+.productPinnedCard {
+  background: var(--bg-card, #13161f);
+  border-bottom: 1px solid var(--border-color, #232838);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.productPinnedImg {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #000;
+}
+
+.productPinnedInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.productPinnedTitle {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-main, #f8fafc);
+}
+
+.productPinnedPrice {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary, #3b82f6);
+}
+
+.sendProductInquiryBtn {
+  padding: 5px 10px;
+  background: var(--primary, #3b82f6);
+  color: var(--primary-text, #ffffff);
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 /* ===== CHAT MESSAGES SCROLL AREA ===== */
@@ -114,6 +179,46 @@
   border-radius: 10px;
   border: 1px solid var(--border-color, #232838);
   margin-bottom: 4px;
+}
+
+/* Lead Phone Prompt Card */
+.leadPromptCard {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+  border: 1px dashed rgba(59, 130, 246, 0.35);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.leadPromptHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary, #3b82f6);
+}
+
+.leadPromptDesc {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.leadPromptBtn {
+  align-self: flex-start;
+  background: var(--primary, #3b82f6);
+  color: #fff;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 2px;
 }
 
 /* Shop Message Bubble */
@@ -141,32 +246,129 @@
 .shopBubble {
   background: var(--bg-card, #13161f);
   border: 1px solid var(--border-color, #232838);
-  border-radius: 12px;
+  border-radius: 14px;
   border-top-left-radius: 2px;
   padding: 10px 12px;
   color: var(--text-main, #f8fafc);
   font-size: 13px;
   line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.msgTime {
+  font-size: 10px;
+  color: var(--text-dim, #64748b);
+  align-self: flex-end;
+  margin-top: 2px;
 }
 
 /* User Message Bubble */
 .userMsgRow {
   align-self: flex-end;
   display: flex;
-  gap: 8px;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: flex-end;
   max-width: 86%;
 }
 
 .userBubble {
   background: var(--primary, #3b82f6);
   color: var(--primary-text, #ffffff);
-  border-radius: 12px;
+  border-radius: 14px;
   border-top-right-radius: 2px;
   padding: 10px 12px;
   font-size: 13px;
   line-height: 1.45;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.userBubble .msgTime {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.msgImage {
+  max-width: 200px;
+  border-radius: 8px;
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+/* Attached Product Card Inside Message */
+.msgProductCard {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.msgProductImg {
+  width: 38px;
+  height: 38px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.msgProductInfo {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+}
+
+.msgProductName {
+  font-weight: 700;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msgProductPrice {
+  color: #FFB800;
+  font-weight: 800;
+}
+
+/* Typing box */
+.typingBox {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.typingDots {
+  display: flex;
+  gap: 3px;
+}
+
+.typingDots span {
+  width: 5px;
+  height: 5px;
+  background: var(--primary, #3b82f6);
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typingDots span:nth-child(1) { animation-delay: -0.32s; }
+.typingDots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
 }
 
 /* Quick Suggestion Chips */
@@ -264,4 +466,118 @@
 
 .sendBtn:hover {
   opacity: 0.9;
+}
+
+.sendBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Modal */
+.modalBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s;
+}
+
+.modalContent {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.modalTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 6px;
+}
+
+.modalDesc {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.formLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-main, #f8fafc);
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.inputIcon {
+  color: var(--primary, #3b82f6);
+}
+
+.formInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-main, #f8fafc);
+}
+
+.modalActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.cancelBtn {
+  flex: 1;
+  background: var(--bg-card-hover, #1a1e2b);
+  border: 1px solid var(--border-color, #232838);
+  color: var(--text-muted, #94a3b8);
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.saveBtn {
+  flex: 1;
+  background: var(--primary, #3b82f6);
+  border: none;
+  color: #fff;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

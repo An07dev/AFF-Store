@@ -18,6 +18,10 @@ export interface ThemeConfig {
     bannerNotice: string;
     showBannerNotice: boolean;
   };
+  socialLinks: {
+    tiktokUrl: string;
+    facebookUrl: string;
+  };
   buttonColors: {
     primaryBg: string;
     primaryText: string;
@@ -56,6 +60,10 @@ export const defaultTheme: ThemeConfig = {
     metaDescription: 'Trải nghiệm mua sắm thời trang trực tuyến thời thượng, giao hàng nhanh chóng toàn quốc.',
     bannerNotice: '🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ',
     showBannerNotice: true,
+  },
+  socialLinks: {
+    tiktokUrl: '',
+    facebookUrl: '',
   },
   buttonColors: {
     primaryBg: '#3b82f6',
@@ -208,8 +216,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const res = await apiFetch('/api/settings/theme');
         const data = await res.json();
         if (data.success && data.data) {
-          setTheme(data.data);
-          applyCSSVariables(data.data);
+          const merged: ThemeConfig = {
+            ...defaultTheme,
+            ...data.data,
+            pageTitles: { ...defaultTheme.pageTitles, ...(data.data.pageTitles || {}) },
+            socialLinks: { ...defaultTheme.socialLinks, ...(data.data.socialLinks || {}) },
+            buttonColors: { ...defaultTheme.buttonColors, ...(data.data.buttonColors || {}) },
+            textColors: { ...defaultTheme.textColors, ...(data.data.textColors || {}) },
+            componentColors: { ...defaultTheme.componentColors, ...(data.data.componentColors || {}) },
+          };
+          setTheme(merged);
+          applyCSSVariables(merged);
         }
       } catch (e) {
         console.error('Failed to load theme from API', e);

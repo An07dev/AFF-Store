@@ -13,14 +13,20 @@ export interface IThemeConfig {
     homeTitle: string; // "Trang Chủ | ShopTik"
     adminTitle: string; // "ShopTik Admin Portal"
     logoText: string; // "ShopTik"
-    logoUrl: string; // URL hình ảnh logo (vd: "/uploads/logo.png" hoặc "https://...")
-    faviconUrl: string; // URL favicon tab trình duyệt (vd: "/favicon.ico")
+    logoUrl: string; // URL hình ảnh logo
+    faviconUrl: string; // URL favicon tab trình duyệt
     metaDescription: string; // "Trải nghiệm mua sắm thời trang trực tuyến thời thượng"
     bannerNotice: string; // "🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ"
     showBannerNotice: boolean;
   };
 
-  // 3. Màu sắc Button (Nút bấm)
+  // 3. Social Links (TikTok, Facebook)
+  socialLinks: {
+    tiktokUrl: string; // Link kênh TikTok
+    facebookUrl: string; // Link Fanpage Facebook
+  };
+
+  // 4. Màu sắc Button (Nút bấm)
   buttonColors: {
     primaryBg: string; // Màu nền nút chính (vd: #3b82f6)
     primaryText: string; // Màu chữ nút chính (vd: #ffffff)
@@ -30,7 +36,7 @@ export interface IThemeConfig {
     borderRadius: string; // Bo góc nút: '6px' | '8px' | '12px' | '999px'
   };
 
-  // 4. Màu sắc Text (Văn bản)
+  // 5. Màu sắc Text (Văn bản)
   textColors: {
     textPrimary: string; // Màu chữ tiêu đề/chính (vd: #f8fafc hoặc #0f172a)
     textSecondary: string; // Màu chữ nội dung phụ (vd: #94a3b8 hoặc #64748b)
@@ -38,7 +44,7 @@ export interface IThemeConfig {
     textAccent: string; // Màu chữ nổi bật (vd: #3b82f6)
   };
 
-  // 5. Màu sắc Component (Thành phần giao diện)
+  // 6. Màu sắc Component (Thành phần giao diện)
   componentColors: {
     background: string; // Màu nền toàn trang (vd: #090a0f hoặc #f8fafc)
     cardBackground: string; // Màu nền thẻ card / modal (vd: #13161f hoặc #ffffff)
@@ -63,6 +69,10 @@ export const defaultThemeConfig: IThemeConfig = {
     metaDescription: 'Trải nghiệm mua sắm thời trang trực tuyến thời thượng, giao hàng nhanh chóng toàn quốc.',
     bannerNotice: '🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ',
     showBannerNotice: true,
+  },
+  socialLinks: {
+    tiktokUrl: '',
+    facebookUrl: '',
   },
   buttonColors: {
     primaryBg: '#3b82f6',
@@ -102,10 +112,11 @@ export async function GET() {
     }
 
     // Merge with defaults to ensure all fields exist
-    const mergedData = {
+    const mergedData: IThemeConfig = {
       ...defaultThemeConfig,
       ...setting.value,
       pageTitles: { ...defaultThemeConfig.pageTitles, ...(setting.value.pageTitles || {}) },
+      socialLinks: { ...defaultThemeConfig.socialLinks, ...(setting.value.socialLinks || {}) },
       buttonColors: { ...defaultThemeConfig.buttonColors, ...(setting.value.buttonColors || {}) },
       textColors: { ...defaultThemeConfig.textColors, ...(setting.value.textColors || {}) },
       componentColors: { ...defaultThemeConfig.componentColors, ...(setting.value.componentColors || {}) },
@@ -138,6 +149,10 @@ export async function POST(request: Request) {
       pageTitles: {
         ...currentVal.pageTitles,
         ...(body.pageTitles || {}),
+      },
+      socialLinks: {
+        ...currentVal.socialLinks,
+        ...(body.socialLinks || {}),
       },
       buttonColors: {
         ...currentVal.buttonColors,

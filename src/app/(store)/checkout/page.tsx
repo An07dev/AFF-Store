@@ -16,7 +16,7 @@ import {
   FiChevronRight,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
-import { useCart, CartItem } from '@/contexts/CartContext';
+import { useCart, CartItem, getCartItemPrice, getCartItemOriginalPrice } from '@/contexts/CartContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { formatPrice } from '@/lib/utils';
 import { vietnamProvinces } from '@/lib/vietnamLocations';
@@ -139,8 +139,7 @@ export default function CheckoutPage() {
 
   // Derived subtotal for this purchase
   const checkoutSubtotal = activeItems.reduce((acc, item) => {
-    const itemPrice = item.variant?.price || item.price;
-    return acc + itemPrice * item.quantity;
+    return acc + getCartItemPrice(item) * item.quantity;
   }, 0);
 
   // Fetch dynamic carrier rates from POST /api/shipping/calculate
@@ -285,7 +284,7 @@ export default function CheckoutPage() {
         items: activeItems.map((i) => ({
           productId: i.productId,
           name: i.name,
-          price: i.variant?.price || i.price,
+          price: getCartItemPrice(i),
           quantity: i.quantity,
           image: i.image,
           variant: i.variant,
@@ -338,12 +337,17 @@ export default function CheckoutPage() {
           console.error('Error saving profile or order code locally:', e);
         }
 
-        // Remove only the items that were purchased in this checkout session
-        removeCheckedOutItems(activeItems);
-
         if (paymentMethod === 'bank_transfer') {
+          // Lưu danh sách sản phẩm chờ thanh toán vào sessionStorage
+          try {
+            sessionStorage.setItem('shoptik_pending_payment_items', JSON.stringify(activeItems));
+          } catch (e) {}
+
+          // KHÔNG xóa sản phẩm khỏi giỏ hàng ngay để nếu khách chưa chuyển khoản và quay lại mua tiếp, sản phẩm vẫn còn trong giỏ
           router.push(`/payment?orderId=${data.data._id}&code=${data.data.orderCode}`);
         } else {
+          // Thanh toán COD -> Xóa sản phẩm vừa mua khỏi giỏ hàng ngay
+          removeCheckedOutItems(activeItems);
           router.push(`/order-success?code=${data.data.orderCode}`);
         }
       } else {
@@ -570,27 +574,40 @@ export default function CheckoutPage() {
             <span>{shopName} ({activeItems.length} món)</span>
           </div>
 
-          {activeItems.map((i, idx) => (
-            <div key={idx} className={styles.orderItemRow}>
-              <img
-                src={i.image || 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'}
-                alt={i.name}
-                className={styles.orderItemImg}
-              />
-              <div className={styles.orderItemDetails}>
-                <span className={styles.orderItemName}>{i.name}</span>
-                {i.variant?.name && (
-                  <span className={styles.orderItemVariant}>Phân loại: {i.variant.name}</span>
-                )}
-                <div className={styles.orderItemPriceRow}>
-                  <span className={styles.orderItemPrice}>
-                    {formatPrice((i.variant?.price || i.price) * i.quantity)}
-                  </span>
-                  <span className={styles.orderItemQty}>x{i.quantity}</span>
+          {activeItems.map((i, idx) => {
+            const itemPrice = getCartItemPrice(i);
+            const originalPrice = getCartItemOriginalPrice(i);
+            const hasDiscount = originalPrice > itemPrice;
+
+            return (
+              <div key={idx} className={styles.orderItemRow}>
+                <img
+                  src={i.image || 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'}
+                  alt={i.name}
+                  className={styles.orderItemImg}
+                />
+                <div className={styles.orderItemDetails}>
+                  <span className={styles.orderItemName}>{i.name}</span>
+                  {i.variant?.name && (
+                    <span className={styles.orderItemVariant}>Phân loại: {i.variant.name}</span>
+                  )}
+                  <div className={styles.orderItemPriceRow}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                      <span className={styles.orderItemPrice}>
+                        {formatPrice(itemPrice * i.quantity)}
+                      </span>
+                      {hasDiscount && (
+                        <span style={{ fontSize: 11, color: '#64748b', textDecoration: 'line-through' }}>
+                          {formatPrice(originalPrice * i.quantity)}
+                        </span>
+                      )}
+                    </div>
+                    <span className={styles.orderItemQty}>x{i.quantity}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* 3. SHIPPING CARRIER SELECTOR (API 8.1 SO SÁNH 3 HÃNG) */}

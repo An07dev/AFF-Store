@@ -480,6 +480,58 @@ export default function AdminSettingsPage() {
                     }
                   />
                 </div>
+
+                {/* Social Links Section */}
+                <div style={{ marginTop: 24, paddingTop: 18, borderTop: '1px solid var(--admin-border, #232838)' }}>
+                  <div className={styles.sectionHeader} style={{ marginBottom: 14 }}>
+                    <h3>🔗 Liên Kết Mạng Xã Hội (TikTok & Facebook)</h3>
+                    <p>Cài đặt link kênh TikTok và Facebook hiển thị trực tiếp tại nút bấm đầu Shop trên trang chủ</p>
+                  </div>
+
+                  <div className={styles.fieldGrid}>
+                    <div className={styles.formGroup}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>🎵</span> Link Kênh TikTok Shop
+                      </label>
+                      <input
+                        type="url"
+                        className={styles.input}
+                        placeholder="https://www.tiktok.com/@tenshop"
+                        value={theme.socialLinks?.tiktokUrl || ''}
+                        onChange={(e) =>
+                          setTheme({
+                            ...theme,
+                            socialLinks: { ...theme.socialLinks, tiktokUrl: e.target.value },
+                          })
+                        }
+                      />
+                      <span style={{ fontSize: 11, color: 'var(--admin-text-muted, #94a3b8)', marginTop: 4 }}>
+                        VD: https://www.tiktok.com/@footballstore
+                      </span>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>👥</span> Link Fanpage / Facebook Shop
+                      </label>
+                      <input
+                        type="url"
+                        className={styles.input}
+                        placeholder="https://www.facebook.com/tenshop"
+                        value={theme.socialLinks?.facebookUrl || ''}
+                        onChange={(e) =>
+                          setTheme({
+                            ...theme,
+                            socialLinks: { ...theme.socialLinks, facebookUrl: e.target.value },
+                          })
+                        }
+                      />
+                      <span style={{ fontSize: 11, color: 'var(--admin-text-muted, #94a3b8)', marginTop: 4 }}>
+                        VD: https://www.facebook.com/footballstore
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
 

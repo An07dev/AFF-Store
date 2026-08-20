@@ -376,6 +376,35 @@
   font-weight: 700;
 }
 
+.disabledVariant {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: line-through;
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-dim, #64748b) !important;
+}
+
+.skuBadge {
+  font-family: monospace;
+  font-size: 11px;
+  padding: 2px 6px;
+  background: #1a1e2b;
+  border-radius: 4px;
+  color: #94a3b8;
+  border: 1px solid var(--border-color, #232838);
+}
+
+.outOfStockBadge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
 /* Quantity Control */
 .quantityRow {
   display: flex;

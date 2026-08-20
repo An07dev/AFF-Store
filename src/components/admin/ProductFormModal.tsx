@@ -1,10 +1,25 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { FiX, FiPlus, FiTrash2, FiUploadCloud, FiCheck, FiLayers } from 'react-icons/fi';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  FiX,
+  FiPlus,
+  FiTrash2,
+  FiUploadCloud,
+  FiCheck,
+  FiLayers,
+  FiZap,
+  FiTag,
+  FiSliders,
+} from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import LazyImage from '@/components/common/LazyImage';
 import { apiFetch } from '@/lib/api';
+import {
+  IProductOption,
+  IVariantItem,
+  generateCartesianVariants,
+} from '@/lib/variant-helper';
 import styles from './ProductFormModal.module.css';
 
 interface ProductFormModalProps {
@@ -13,6 +28,16 @@ interface ProductFormModalProps {
   onSuccess: () => void;
   categories: any[];
 }
+
+const POPULAR_OPTION_SUGGESTIONS = [
+  'Màu sắc',
+  'Kích cỡ',
+  'Dung lượng',
+  'Khối lượng',
+  'Thể tích',
+  'Chất liệu',
+  'RAM',
+];
 
 export default function ProductFormModal({
   isOpen,
@@ -33,19 +58,29 @@ export default function ProductFormModal({
 
   const [images, setImages] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
-  const [variants, setVariants] = useState<Array<{ color: string; size: string; stock: number; price: number }>>([]);
+
+  // Senior Architecture: Options metadata & Cartesian Variants
+  const [options, setOptions] = useState<IProductOption[]>([]);
+  const [tagInputs, setTagInputs] = useState<Record<number, string>>({});
+  const [variants, setVariants] = useState<IVariantItem[]>([]);
+
+  // Bulk Edit Bar state
+  const [bulkPrice, setBulkPrice] = useState('');
+  const [bulkSalePrice, setBulkSalePrice] = useState('');
+  const [bulkStock, setBulkStock] = useState('');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Auto clean / reset all form state when modal opens
-  React.useEffect(() => {
+  // Auto reset form state when modal opens
+  useEffect(() => {
     if (isOpen) {
       setFormData({
         name: '',
         price: '',
         salePrice: '',
-        category: '',
+        category: categories && categories.length > 0 ? categories[0]._id : '',
         stock: 50,
         isFeatured: false,
         status: 'active',
@@ -53,11 +88,38 @@ export default function ProductFormModal({
       });
       setImages([]);
       setNewImageUrl('');
+      setOptions([]);
+      setTagInputs({});
       setVariants([]);
+      setBulkPrice('');
+      setBulkSalePrice('');
+      setBulkStock('');
       setIsSubmitting(false);
       setIsUploading(false);
     }
-  }, [isOpen]);
+  }, [isOpen, categories]);
+
+  // Helper to format number with thousand dots separator (VD: 100.000)
+  const formatWithDots = (val: string | number | undefined | null) => {
+    if (val === '' || val === undefined || val === null) return '';
+    const digits = val.toString().replace(/\D/g, '');
+    if (!digits) return '';
+    return Number(digits).toLocaleString('vi-VN');
+  };
+
+  const parseFromDots = (val: string | number | undefined | null) => {
+    if (typeof val === 'number') return val;
+    const digits = (val || '').toString().replace(/\D/g, '');
+    return digits ? Number(digits) : 0;
+  };
+
+  // Sync total stock if variants exist
+  useEffect(() => {
+    if (variants.length > 0) {
+      const sumStock = variants.reduce((acc, v) => acc + (Number(v.stock) || 0), 0);
+      setFormData((prev) => ({ ...prev, stock: sumStock }));
+    }
+  }, [variants]);
 
   if (!isOpen) return null;
 
@@ -96,51 +158,140 @@ export default function ProductFormModal({
     }
   };
 
-  // Remove Image
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Add Variant row
-  const handleAddVariant = () => {
+  // ================= OPTION BUILDER HANDLERS =================
+  const handleAddOption = (defaultName = '') => {
+    setOptions((prev) => [...prev, { name: defaultName, values: [] }]);
+  };
+
+  const handleUpdateOptionName = (idx: number, name: string) => {
+    setOptions((prev) =>
+      prev.map((opt, i) => (i === idx ? { ...opt, name } : opt))
+    );
+  };
+
+  const handleRemoveOption = (idx: number) => {
+    setOptions((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleAddTagValue = (optIdx: number) => {
+    const val = (tagInputs[optIdx] || '').trim();
+    if (!val) return;
+
+    setOptions((prev) =>
+      prev.map((opt, i) => {
+        if (i === optIdx) {
+          if (opt.values.includes(val)) {
+            toast.error(`Giá trị "${val}" đã tồn tại!`);
+            return opt;
+          }
+          return { ...opt, values: [...opt.values, val] };
+        }
+        return opt;
+      })
+    );
+
+    setTagInputs((prev) => ({ ...prev, [optIdx]: '' }));
+  };
+
+  const handleRemoveTagValue = (optIdx: number, valIdx: number) => {
+    setOptions((prev) =>
+      prev.map((opt, i) => {
+        if (i === optIdx) {
+          return { ...opt, values: opt.values.filter((_, vIndex) => vIndex !== valIdx) };
+        }
+        return opt;
+      })
+    );
+  };
+
+  // ================= CARTESIAN GENERATOR =================
+  const handleGenerateCartesianVariants = () => {
+    const rawPrice = parseFromDots(formData.price) || 0;
+    const rawStock = Number(formData.stock) || 10;
+
+    const validOptions = options.filter((opt) => opt.name?.trim() && opt.values.length > 0);
+    if (validOptions.length === 0) {
+      toast.error('Vui lòng thêm ít nhất 1 nhóm thuộc tính có giá trị (VD: Màu sắc: Đỏ, Xanh)!');
+      return;
+    }
+
+    const generated = generateCartesianVariants(
+      validOptions,
+      rawPrice,
+      rawStock,
+      formData.name || 'SP'
+    );
+
+    if (generated.length === 0) {
+      toast.error('Không thể sinh biến thể. Vui lòng kiểm tra lại các nhóm thuộc tính!');
+      return;
+    }
+
+    setVariants(generated);
+    toast.success(`Đã tự động sinh ${generated.length} biến thể thành công!`);
+  };
+
+  // ================= BULK APPLY HANDLER =================
+  const handleBulkApply = () => {
+    if (variants.length === 0) {
+      toast.error('Chưa có biến thể nào để áp dụng!');
+      return;
+    }
+
+    const parsedPrice = bulkPrice ? parseFromDots(bulkPrice) : undefined;
+    const parsedSale = bulkSalePrice ? parseFromDots(bulkSalePrice) : undefined;
+    const parsedStock = bulkStock ? Math.max(0, parseInt(bulkStock) || 0) : undefined;
+
+    if (parsedPrice === undefined && parsedSale === undefined && parsedStock === undefined) {
+      toast.error('Vui lòng nhập ít nhất một giá trị (Giá hoặc Tồn kho) để áp dụng hàng loạt!');
+      return;
+    }
+
+    setVariants((prev) =>
+      prev.map((v) => ({
+        ...v,
+        price: parsedPrice !== undefined ? parsedPrice : v.price,
+        salePrice: parsedSale !== undefined ? parsedSale : v.salePrice,
+        stock: parsedStock !== undefined ? parsedStock : v.stock,
+      }))
+    );
+
+    toast.success('Đã áp dụng thay đổi cho tất cả các biến thể!');
+  };
+
+  // ================= VARIANT ROW HANDLERS =================
+  const handleAddManualVariant = () => {
+    const rawPrice = parseFromDots(formData.price) || 0;
+    const rawStock = 10;
+    const count = variants.length + 1;
+
     setVariants((prev) => [
       ...prev,
       {
-        color: '',
-        size: '',
-        stock: Number(formData.stock) || 10,
-        price: Number(formData.salePrice || formData.price) || 0,
+        sku: `SP-CUSTOM-${count}`,
+        title: `Tùy chọn ${count}`,
+        attributes: { 'Phân loại': `Tùy chọn ${count}` },
+        price: rawPrice,
+        stock: rawStock,
       },
     ]);
   };
 
-  // Update Variant field
-  const handleUpdateVariant = (index: number, field: string, value: any) => {
+  const handleUpdateVariantField = (idx: number, field: keyof IVariantItem, val: any) => {
     setVariants((prev) =>
-      prev.map((v, i) => (i === index ? { ...v, [field]: value } : v))
+      prev.map((v, i) => (i === idx ? { ...v, [field]: val } : v))
     );
   };
 
-  // Remove Variant row
-  const handleRemoveVariant = (index: number) => {
-    setVariants((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveVariant = (idx: number) => {
+    setVariants((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  // Helper to format number with thousand dots separator (VD: 100.000)
-  const formatWithDots = (val: string | number) => {
-    if (val === '' || val === undefined || val === null) return '';
-    const digits = val.toString().replace(/\D/g, '');
-    if (!digits) return '';
-    return Number(digits).toLocaleString('vi-VN');
-  };
-
-  const parseFromDots = (val: string | number) => {
-    if (typeof val === 'number') return val;
-    const digits = (val || '').toString().replace(/\D/g, '');
-    return digits ? Number(digits) : 0;
-  };
-
-  // Submit Form using API 2.3 POST specs
+  // ================= FORM SUBMISSION =================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -160,6 +311,25 @@ export default function ProductFormModal({
       return;
     }
 
+    // Format variants for standard backend payload
+    const preparedVariants = variants.map((v, i) => {
+      const colorVal = v.attributes?.['Màu sắc'] || v.attributes?.['Màu'] || '';
+      const sizeVal = v.attributes?.['Kích cỡ'] || v.attributes?.['Size'] || v.attributes?.['Kích thước'] || '';
+
+      return {
+        sku: v.sku?.trim() || `SKU-${i + 1}`,
+        title: v.title || Object.values(v.attributes || {}).join(' / ') || `Biến thể ${i + 1}`,
+        name: v.title || Object.values(v.attributes || {}).join(' / '),
+        color: colorVal || undefined,
+        size: sizeVal || undefined,
+        attributes: v.attributes || {},
+        price: Number(v.price) || rawPrice,
+        salePrice: v.salePrice !== undefined && v.salePrice !== null ? Number(v.salePrice) : 0,
+        stock: Math.max(0, Number(v.stock) || 0),
+        image: v.image || '',
+      };
+    });
+
     const payload = {
       name: formData.name.trim(),
       price: rawPrice,
@@ -170,7 +340,8 @@ export default function ProductFormModal({
       isFeatured: formData.isFeatured,
       status: formData.status,
       description: formData.description.trim(),
-      variants: variants.filter((v) => v.color || v.size),
+      options: options.filter((opt) => opt.name?.trim() && opt.values.length > 0),
+      variants: preparedVariants,
     };
 
     setIsSubmitting(true);
@@ -219,7 +390,7 @@ export default function ProductFormModal({
                 type="text"
                 required
                 className={styles.input}
-                placeholder="VD: Áo Khoác Bomber Kaki 2 Lớp"
+                placeholder="VD: Điện Thoại iPhone 15 Pro Max"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
@@ -271,14 +442,18 @@ export default function ProductFormModal({
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Số lượng trong kho</label>
+              <label className={styles.label}>
+                Tổng tồn kho {variants.length > 0 && <span style={{ color: '#60a5fa', fontSize: '0.75rem' }}>(Tự động tính từ biến thể)</span>}
+              </label>
               <input
                 type="number"
                 min="0"
                 className={styles.input}
                 placeholder="VD: 50"
                 value={formData.stock}
-                onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })}
+                readOnly={variants.length > 0}
+                style={variants.length > 0 ? { opacity: 0.85, cursor: 'not-allowed', backgroundColor: '#131826' } : {}}
+                onChange={(e) => setFormData({ ...formData, stock: Math.max(0, parseInt(e.target.value) || 0) })}
               />
             </div>
           </div>
@@ -346,65 +521,323 @@ export default function ProductFormModal({
             </div>
           </div>
 
-          {/* Row 4: Variants Manager */}
+          {/* ================= SENIOR ARCHITECTURE: OPTIONS BUILDER & CARTESIAN MATRIX ================= */}
           <div className={styles.variantSection}>
+            {/* Option Builder Header */}
             <div className={styles.variantHeader}>
-              <label className={styles.label} style={{ margin: 0 }}>
-                Phân loại biến thể (Màu sắc / Kích thước)
-              </label>
-              <button type="button" className={styles.addVariantBtn} onClick={handleAddVariant}>
-                <FiPlus /> Thêm biến thể
-              </button>
+              <div>
+                <label className={styles.label} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FiSliders style={{ color: 'var(--primary, #3b82f6)' }} /> 1. Thiết Lập Nhóm Thuộc Tính (Options)
+                </label>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #94a3b8)', display: 'block', marginTop: 2 }}>
+                  Tạo các nhóm phân loại (Màu sắc, Dung lượng, Size...) để tự động sinh ma trận biến thể
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  className={styles.addVariantBtn}
+                  onClick={() => handleAddOption()}
+                >
+                  <FiPlus /> Thêm nhóm thuộc tính
+                </button>
+              </div>
             </div>
 
-            {variants.length === 0 ? (
-              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-muted, #94a3b8)' }}>
-                Chưa có biến thể nào. Bấm "+ Thêm biến thể" nếu sản phẩm có nhiều màu hoặc size.
-              </p>
+            {/* Quick Suggestions Chips */}
+            <div className={styles.suggestionChips}>
+              <span style={{ fontSize: '0.725rem', color: '#64748b', alignSelf: 'center' }}>Gợi ý nhanh:</span>
+              {POPULAR_OPTION_SUGGESTIONS.map((sug) => (
+                <button
+                  key={sug}
+                  type="button"
+                  className={styles.suggestionChip}
+                  onClick={() => {
+                    const alreadyExists = options.some((opt) => opt.name?.toLowerCase() === sug.toLowerCase());
+                    if (alreadyExists) {
+                      toast.error(`Nhóm "${sug}" đã được thêm!`);
+                    } else {
+                      handleAddOption(sug);
+                    }
+                  }}
+                >
+                  + {sug}
+                </button>
+              ))}
+            </div>
+
+            {/* List of Option Cards */}
+            {options.length === 0 ? (
+              <div style={{ padding: '14px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '1px dashed #232838', borderRadius: 8, color: '#64748b', fontSize: '0.8125rem' }}>
+                Chưa có nhóm thuộc tính nào. Bấm <strong>"+ Thêm nhóm thuộc tính"</strong> hoặc chọn gợi ý ở trên nếu sản phẩm có nhiều phân loại.
+              </div>
             ) : (
-              variants.map((v, idx) => (
-                <div key={idx} className={styles.variantRow}>
+              options.map((opt, optIdx) => (
+                <div key={optIdx} className={styles.optionCard}>
+                  <div className={styles.optionCardHeader}>
+                    <div style={{ flex: 1, maxWidth: 260 }}>
+                      <input
+                        type="text"
+                        className={styles.input}
+                        placeholder="Tên nhóm (VD: Màu sắc, Size, Dung lượng...)"
+                        value={opt.name}
+                        onChange={(e) => handleUpdateOptionName(optIdx, e.target.value)}
+                        style={{ height: 36, fontSize: '0.85rem', fontWeight: 600 }}
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      className={styles.deleteVariantBtn}
+                      onClick={() => handleRemoveOption(optIdx)}
+                      title="Xóa nhóm thuộc tính này"
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
+                  </div>
+
+                  {/* Tag List & Tag Input */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div className={styles.tagList}>
+                      {opt.values.length === 0 ? (
+                        <span style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic' }}>
+                          Chưa có giá trị. Nhập giá trị bên dưới và nhấn Enter.
+                        </span>
+                      ) : (
+                        opt.values.map((val, valIdx) => (
+                          <span key={valIdx} className={styles.tagBadge}>
+                            <FiTag size={11} /> {val}
+                            <button
+                              type="button"
+                              className={styles.tagRemoveBtn}
+                              onClick={() => handleRemoveTagValue(optIdx, valIdx)}
+                              title="Xóa giá trị này"
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        ))
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input
+                        type="text"
+                        className={styles.input}
+                        placeholder={`Nhập giá trị cho "${opt.name || 'nhóm'}" (VD: Đen, Trắng, 128GB...) và ấn Enter`}
+                        value={tagInputs[optIdx] || ''}
+                        onChange={(e) => setTagInputs({ ...tagInputs, [optIdx]: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddTagValue(optIdx);
+                          }
+                        }}
+                        style={{ height: 34, fontSize: '0.8125rem' }}
+                      />
+                      <button
+                        type="button"
+                        className={styles.uploadBtn}
+                        onClick={() => handleAddTagValue(optIdx)}
+                        style={{ height: 34 }}
+                      >
+                        <FiPlus /> Thêm giá trị
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+
+            {/* Generator Action Bar */}
+            {options.length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 6, flexWrap: 'wrap', gap: 10 }}>
+                <span style={{ fontSize: '0.775rem', color: '#94a3b8' }}>
+                  Tổng số biến thể dự kiến:{' '}
+                  <strong style={{ color: '#60a5fa' }}>
+                    {options.reduce((acc, opt) => acc * (opt.values.length || 1), options.some((o) => o.values.length > 0) ? 1 : 0)} biến thể
+                  </strong>
+                </span>
+                <button
+                  type="button"
+                  className={styles.generateBtn}
+                  onClick={handleGenerateCartesianVariants}
+                >
+                  <FiZap /> Sinh Biến Thể Tự Động (Tích Descartes)
+                </button>
+              </div>
+            )}
+
+            {/* ================= 2. VARIANTS MATRIX TABLE ================= */}
+            <div style={{ marginTop: 12, borderTop: '1px solid #232838', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className={styles.variantHeader}>
+                <div>
+                  <label className={styles.label} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <FiLayers style={{ color: '#a855f7' }} /> 2. Danh Sách Biến Thể Chi Tiết ({variants.length})
+                  </label>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #94a3b8)', display: 'block', marginTop: 2 }}>
+                    Tùy chỉnh giá bán, giá sale, mã SKU và tồn kho riêng cho từng biến thể
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.addVariantBtn}
+                  onClick={handleAddManualVariant}
+                >
+                  <FiPlus /> Thêm thủ công
+                </button>
+              </div>
+
+              {/* Bulk Edit Bar */}
+              {variants.length > 1 && (
+                <div className={styles.bulkBar}>
+                  <span className={styles.bulkTitle}>Áp dụng nhanh cho tất cả:</span>
                   <input
                     type="text"
+                    inputMode="numeric"
+                    placeholder="Giá bán (₫)"
                     className={styles.input}
-                    placeholder="Màu sắc (VD: Đen, Trắng)"
-                    value={v.color}
-                    onChange={(e) => handleUpdateVariant(idx, 'color', e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    className={styles.input}
-                    placeholder="Kích thước (VD: M, L, XL)"
-                    value={v.size}
-                    onChange={(e) => handleUpdateVariant(idx, 'size', e.target.value)}
-                  />
-                  <input
-                    type="number"
-                    min="0"
-                    className={styles.input}
-                    placeholder="Kho (VD: 25)"
-                    value={v.stock}
-                    onChange={(e) => handleUpdateVariant(idx, 'stock', parseInt(e.target.value) || 0)}
+                    value={bulkPrice}
+                    onChange={(e) => setBulkPrice(formatWithDots(e.target.value))}
+                    style={{ width: 120, height: 32, fontSize: '0.775rem' }}
                   />
                   <input
                     type="text"
                     inputMode="numeric"
+                    placeholder="Giá sale (₫)"
                     className={styles.input}
-                    placeholder="Giá biến thể (VD: 299.000)"
-                    value={formatWithDots(v.price)}
-                    onChange={(e) => handleUpdateVariant(idx, 'price', parseFromDots(e.target.value))}
+                    value={bulkSalePrice}
+                    onChange={(e) => setBulkSalePrice(formatWithDots(e.target.value))}
+                    style={{ width: 120, height: 32, fontSize: '0.775rem' }}
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Tồn kho"
+                    className={styles.input}
+                    value={bulkStock}
+                    onChange={(e) => setBulkStock(e.target.value)}
+                    style={{ width: 90, height: 32, fontSize: '0.775rem' }}
                   />
                   <button
                     type="button"
-                    className={styles.deleteVariantBtn}
-                    onClick={() => handleRemoveVariant(idx)}
-                    title="Xóa biến thể này"
+                    className={styles.bulkApplyBtn}
+                    onClick={handleBulkApply}
                   >
-                    <FiTrash2 />
+                    Áp dụng tất cả
                   </button>
                 </div>
-              ))
-            )}
+              )}
+
+              {/* Matrix Table */}
+              {variants.length === 0 ? (
+                <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-muted, #94a3b8)' }}>
+                  Chưa có biến thể nào được tạo. Hãy bấm nút <strong>"Sinh Biến Thể Tự Động"</strong> ở trên hoặc thêm thủ công.
+                </p>
+              ) : (
+                <div className={styles.matrixTableWrap}>
+                  <table className={styles.matrixTable}>
+                    <thead>
+                      <tr>
+                        <th>Tên phân loại / Biến thể</th>
+                        <th style={{ width: 140 }}>Mã SKU</th>
+                        <th style={{ width: 125 }}>Giá riêng (₫) *</th>
+                        <th style={{ width: 125 }}>Giá sale (₫)</th>
+                        <th style={{ width: 85 }}>Kho *</th>
+                        <th style={{ width: 40, textAlign: 'center' }}>Xóa</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {variants.map((v, idx) => (
+                        <tr key={idx}>
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                              <strong style={{ color: '#f8fafc' }}>{v.title || `Biến thể ${idx + 1}`}</strong>
+                              {v.attributes && (
+                                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                                  {Object.entries(v.attributes).map(([k, val]) => (
+                                    <span key={k} style={{ fontSize: '0.7rem', color: '#94a3b8', background: '#1e2330', padding: '1px 6px', borderRadius: 4 }}>
+                                      {k}: {val}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              className={styles.input}
+                              value={v.sku || ''}
+                              onChange={(e) => handleUpdateVariantField(idx, 'sku', e.target.value)}
+                              style={{ height: 32, fontSize: '0.775rem', fontFamily: 'monospace' }}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              className={styles.input}
+                              placeholder="Giá bán"
+                              value={formatWithDots(v.price)}
+                              onChange={(e) =>
+                                handleUpdateVariantField(idx, 'price', parseFromDots(e.target.value))
+                              }
+                              style={{ height: 32, fontSize: '0.775rem', fontWeight: 600, color: '#60a5fa' }}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              className={styles.input}
+                              placeholder="Giá sale"
+                              value={formatWithDots(v.salePrice)}
+                              onChange={(e) =>
+                                handleUpdateVariantField(
+                                  idx,
+                                  'salePrice',
+                                  e.target.value ? parseFromDots(e.target.value) : undefined
+                                )
+                              }
+                              style={{ height: 32, fontSize: '0.775rem' }}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              className={styles.input}
+                              value={v.stock !== undefined ? v.stock : 0}
+                              onChange={(e) =>
+                                handleUpdateVariantField(
+                                  idx,
+                                  'stock',
+                                  Math.max(0, parseInt(e.target.value) || 0)
+                                )
+                              }
+                              style={{ height: 32, fontSize: '0.775rem' }}
+                            />
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              className={styles.deleteVariantBtn}
+                              onClick={() => handleRemoveVariant(idx)}
+                              title="Xóa biến thể này"
+                            >
+                              <FiTrash2 size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Row 5: Description */}
@@ -412,7 +845,7 @@ export default function ProductFormModal({
             <label className={styles.label}>Mô tả sản phẩm</label>
             <textarea
               className={styles.textarea}
-              placeholder="VD: Chất liệu kaki cao cấp, chống gió thoáng khí, đường may tỉ mỉ..."
+              placeholder="VD: Chất liệu cao cấp, bảo hành chính hãng, thiết kế sang trọng..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />

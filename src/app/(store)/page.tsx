@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   FiChevronLeft,
   FiSearch,
@@ -15,6 +15,7 @@ import {
   FiFolder,
   FiLayers,
 } from 'react-icons/fi';
+import { FaTiktok, FaFacebook } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { useCart } from '@/contexts/CartContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -95,8 +96,10 @@ function HomePageContent() {
   const { cartCount, addToCart, openDrawer } = useCart();
   const { theme } = useTheme();
   const { user, openAuthModal } = useCustomerAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
+  const catParam = searchParams.get('category');
 
   const [activeTab, setActiveTab] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
@@ -105,17 +108,52 @@ function HomePageContent() {
   const [activeFilter, setActiveFilter] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [priceSortAsc, setPriceSortAsc] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Sync activeTab with URL tabParam
+  // Sync activeTab and category with URL params
   useEffect(() => {
     if (tabParam === 'products') {
       setActiveTab(1);
+      if (catParam) {
+        setSelectedCategory(catParam);
+        fetchProductsByParams(activeFilter, priceSortAsc, searchQuery, catParam);
+      } else {
+        setSelectedCategory('all');
+        setSearchQuery('');
+        fetchProductsByParams(activeFilter, priceSortAsc, '', 'all');
+      }
     } else if (tabParam === 'categories') {
       setActiveTab(2);
     } else {
       setActiveTab(0);
     }
-  }, [tabParam]);
+  }, [tabParam, catParam]);
+
+  // Listen to custom events from BottomNav
+  useEffect(() => {
+    const handleResetProductFilters = () => {
+      setSelectedCategory('all');
+      setSearchQuery('');
+      setActiveFilter(0);
+      setActiveTab(1);
+      fetchProductsByParams(0, false, '', 'all');
+    };
+
+    const handleResetStoreHome = () => {
+      setSelectedCategory('all');
+      setSearchQuery('');
+      setActiveFilter(0);
+      setActiveTab(0);
+      fetchProductsByParams(0, false, '', 'all');
+    };
+
+    window.addEventListener('reset-product-filters', handleResetProductFilters);
+    window.addEventListener('reset-store-home', handleResetStoreHome);
+    return () => {
+      window.removeEventListener('reset-product-filters', handleResetProductFilters);
+      window.removeEventListener('reset-store-home', handleResetStoreHome);
+    };
+  }, []);
 
   // Interactivity states
   const [isFollowed, setIsFollowed] = useState(false);
@@ -124,8 +162,6 @@ function HomePageContent() {
   const [selectedProductForModal, setSelectedProductForModal] = useState<any | null>(null);
 
   const tabsRef = useRef<HTMLDivElement>(null);
-
-  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const shopDisplayName = theme?.pageTitles?.logoText || SHOP_INFO.name;
   const avatarInitials = shopDisplayName ? shopDisplayName.substring(0, 2).toUpperCase() : 'ST';
@@ -210,6 +246,7 @@ function HomePageContent() {
   const handleCategorySelect = (catSlug: string) => {
     setSelectedCategory(catSlug);
     setActiveTab(1); // Switch to products tab
+    router.push(`/?tab=products&category=${encodeURIComponent(catSlug)}`);
     fetchProductsByParams(activeFilter, priceSortAsc, searchQuery, catSlug);
   };
 
@@ -314,29 +351,37 @@ function HomePageContent() {
               </div>
             </div>
           <div className={styles.shopActions}>
-            <button
-              className={`${styles.followBtn} ${isFollowed ? styles.followed : ''}`}
-              onClick={() => {
-                setIsFollowed(!isFollowed);
-                toast.success(
-                  !isFollowed ? 'Đã theo dõi ShopTik Store!' : 'Đã bỏ theo dõi shop'
-                );
+            <a
+              href={theme.socialLinks?.tiktokUrl || '#'}
+              target={theme.socialLinks?.tiktokUrl ? '_blank' : '_self'}
+              rel="noopener noreferrer"
+              className={styles.tiktokBtn}
+              onClick={(e) => {
+                if (!theme.socialLinks?.tiktokUrl) {
+                  e.preventDefault();
+                  toast('Shop đang cập nhật liên kết kênh TikTok!', { icon: '🎵' });
+                }
               }}
             >
-              {isFollowed ? (
-                <>
-                  <FiCheck size={12} style={{ display: 'inline', marginRight: 2 }} /> Đang theo dõi
-                </>
-              ) : (
-                '+ Theo dõi'
-              )}
-            </button>
-            <button
-              className={styles.chatBtn}
-              onClick={() => toast('Hệ thống CSKH 24/7: Hotline 1900 6868', { icon: '💬' })}
+              <FaTiktok size={11} />
+              <span>TikTok</span>
+            </a>
+
+            <a
+              href={theme.socialLinks?.facebookUrl || '#'}
+              target={theme.socialLinks?.facebookUrl ? '_blank' : '_self'}
+              rel="noopener noreferrer"
+              className={styles.facebookBtn}
+              onClick={(e) => {
+                if (!theme.socialLinks?.facebookUrl) {
+                  e.preventDefault();
+                  toast('Shop đang cập nhật liên kết Facebook!', { icon: '👥' });
+                }
+              }}
             >
-              Tin nhắn
-            </button>
+              <FaFacebook size={11} />
+              <span>Facebook</span>
+            </a>
           </div>
         </div>
       </div>
@@ -352,7 +397,13 @@ function HomePageContent() {
               <h2 className={styles.sectionTitle}>⭐ Sản phẩm hàng đầu</h2>
               <button
                 className={styles.seeMore}
-                onClick={() => setActiveTab(1)}
+                onClick={() => {
+                  setSelectedCategory('all');
+                  setSearchQuery('');
+                  setActiveTab(1);
+                  router.push('/?tab=products');
+                  fetchProductsByParams(activeFilter, priceSortAsc, '', 'all');
+                }}
                 style={{ background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 Xem thêm <FiChevronRight size={14} />
@@ -588,6 +639,7 @@ function HomePageContent() {
                 onClick={() => {
                   setSelectedCategory('all');
                   setSearchQuery('');
+                  router.push('/?tab=products');
                   fetchProductsByParams(activeFilter, priceSortAsc, '', 'all');
                 }}
               >
@@ -812,7 +864,13 @@ function HomePageContent() {
                 <button
                   type="button"
                   className={styles.categoryEmptyBtn}
-                  onClick={() => setActiveTab(1)}
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setSearchQuery('');
+                    setActiveTab(1);
+                    router.push('/?tab=products');
+                    fetchProductsByParams(0, false, '', 'all');
+                  }}
                 >
                   Xem Tất Cả Sản Phẩm
                 </button>

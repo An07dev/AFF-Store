@@ -14,6 +14,7 @@ import {
   FiZap,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { useCart } from '@/contexts/CartContext';
 import { formatPrice } from '@/lib/utils';
 import { generateQrUrl } from '@/lib/payment/sepay';
 import StoreLoading from '@/components/store/StoreLoading';
@@ -23,6 +24,7 @@ import styles from './page.module.css';
 export default function PaymentPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { removeCheckedOutItems } = useCart();
   const orderId = searchParams.get('orderId');
   const code = searchParams.get('code') || '';
 
@@ -74,6 +76,23 @@ export default function PaymentPage() {
         setOrder(data.data);
         if (data.data.isPaid) {
           toast.success('🎉 Thanh toán thành công! Đang chuyển hướng...');
+
+          // Xóa sản phẩm đã thanh toán xong khỏi giỏ hàng
+          try {
+            const pending = sessionStorage.getItem('shoptik_pending_payment_items');
+            if (pending) {
+              const pendingItems = JSON.parse(pending);
+              if (Array.isArray(pendingItems) && pendingItems.length > 0) {
+                removeCheckedOutItems(pendingItems);
+              }
+              sessionStorage.removeItem('shoptik_pending_payment_items');
+            } else if (data.data.items && Array.isArray(data.data.items)) {
+              removeCheckedOutItems(data.data.items);
+            }
+          } catch (e) {
+            console.error('Error removing paid items from cart:', e);
+          }
+
           setTimeout(() => {
             router.push(`/order-success?code=${data.data.orderCode || code}&paid=true`);
           }, 1000);

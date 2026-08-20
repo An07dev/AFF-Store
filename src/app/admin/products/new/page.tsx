@@ -40,7 +40,7 @@ export default function NewProductPage() {
     description: '',
     isFeatured: false,
     status: 'active',
-    variants: [] as { color?: string; size?: string; price?: number; stock?: number }[],
+    variants: [] as { color?: string; size?: string; price?: number; salePrice?: number; stock?: number }[],
   });
 
   useEffect(() => {
@@ -93,7 +93,16 @@ export default function NewProductPage() {
   const addVariant = () => {
     setForm((prev) => ({
       ...prev,
-      variants: [...prev.variants, { color: 'Đen', size: 'L', price: form.salePrice || form.price, stock: 20 }],
+      variants: [
+        ...prev.variants,
+        {
+          color: 'Đen',
+          size: 'L',
+          price: form.price || 0,
+          salePrice: form.salePrice ? form.salePrice : undefined,
+          stock: 20,
+        },
+      ],
     }));
   };
 
@@ -276,7 +285,18 @@ export default function NewProductPage() {
                   className={styles.input}
                   value={formatWithDots(v.price || 0)}
                   onChange={(e) => updateVariant(idx, 'price', parseFromDots(e.target.value))}
-                  style={{ width: 120 }}
+                  style={{ width: 110 }}
+                />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Giá sale"
+                  className={styles.input}
+                  value={v.salePrice ? formatWithDots(v.salePrice) : ''}
+                  onChange={(e) =>
+                    updateVariant(idx, 'salePrice', e.target.value ? parseFromDots(e.target.value) : undefined)
+                  }
+                  style={{ width: 110 }}
                 />
                 <input
                   type="number"
@@ -284,7 +304,7 @@ export default function NewProductPage() {
                   className={styles.input}
                   value={v.stock || 0}
                   onChange={(e) => updateVariant(idx, 'stock', parseInt(e.target.value) || 0)}
-                  style={{ width: 90 }}
+                  style={{ width: 80 }}
                 />
                 <button
                   type="button"

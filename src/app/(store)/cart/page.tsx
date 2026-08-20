@@ -13,7 +13,7 @@ import {
   FiChevronRight,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
-import { useCart } from '@/contexts/CartContext';
+import { useCart, getCartItemPrice, getCartItemOriginalPrice, getCartItemStock } from '@/contexts/CartContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { formatPrice } from '@/lib/utils';
 import BannerNotice from '@/components/common/BannerNotice';
@@ -63,8 +63,7 @@ export default function CartPage() {
   const selectedCount = selectedItems.reduce((acc, i) => acc + i.quantity, 0);
 
   const selectedSubtotal = selectedItems.reduce((acc, item) => {
-    const itemPrice = item.variant?.price || item.price;
-    return acc + itemPrice * item.quantity;
+    return acc + getCartItemPrice(item) * item.quantity;
   }, 0);
 
   // Cart total is purely the subtotal of selected products (shipping is calculated at checkout)
@@ -153,7 +152,11 @@ export default function CartPage() {
             {items.map((item, idx) => {
               const itemId = item._id || item.productId || `item_${idx}`;
               const isChecked = isItemSelected(itemId);
-              const itemPrice = item.variant?.price || item.price;
+              const itemPrice = getCartItemPrice(item);
+              const originalPrice = getCartItemOriginalPrice(item);
+              const hasDiscount = originalPrice > itemPrice;
+              const itemStock = getCartItemStock(item);
+              const isAtMaxStock = item.quantity >= itemStock;
 
               return (
                 <div key={itemId} className={styles.itemCard}>
@@ -183,20 +186,44 @@ export default function CartPage() {
                     )}
 
                     <div className={styles.itemPriceRow}>
-                      <span className={styles.itemPrice}>{formatPrice(itemPrice)}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                          <span className={styles.itemPrice}>{formatPrice(itemPrice)}</span>
+                          {hasDiscount && (
+                            <span style={{ fontSize: 11, color: '#64748b', textDecoration: 'line-through' }}>
+                              {formatPrice(originalPrice)}
+                            </span>
+                          )}
+                        </div>
+                        {isAtMaxStock && itemStock > 0 && (
+                          <span style={{ fontSize: 10, color: '#f59e0b', fontWeight: 700 }}>
+                            (Tối đa: {itemStock} trong kho)
+                          </span>
+                        )}
+                      </div>
 
                       <div className={styles.stepper}>
                         <button
                           className={styles.qtyBtn}
                           onClick={() => updateQuantity(item._id || idx, item.quantity - 1)}
                           disabled={item.quantity <= 1}
+                          aria-label="Giảm số lượng"
                         >
                           <FiMinus size={11} />
                         </button>
                         <span className={styles.qtyVal}>{item.quantity}</span>
                         <button
                           className={styles.qtyBtn}
-                          onClick={() => updateQuantity(item._id || idx, item.quantity + 1)}
+                          onClick={() => {
+                            if (item.quantity >= itemStock) {
+                              toast.error(`Kho chỉ còn tối đa ${itemStock} sản phẩm!`);
+                              return;
+                            }
+                            updateQuantity(item._id || idx, item.quantity + 1);
+                          }}
+                          disabled={isAtMaxStock}
+                          aria-label="Tăng số lượng"
+                          title={isAtMaxStock ? `Kho chỉ còn ${itemStock} sản phẩm` : undefined}
                         >
                           <FiPlus size={11} />
                         </button>

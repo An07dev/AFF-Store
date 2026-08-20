@@ -192,43 +192,59 @@
   flex-shrink: 0;
 }
 
-.followBtn {
-  padding: 6px 16px;
+.tiktokBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 14px;
   border-radius: var(--radius-md, 8px);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   background: var(--primary, #3b82f6);
   color: var(--primary-text, #ffffff);
   border: none;
+  text-decoration: none;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.followBtn:active {
+.tiktokBtn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.tiktokBtn:active {
   transform: scale(0.96);
 }
 
-.followed {
-  background: var(--secondary-btn-bg, #1a1e2b) !important;
-  color: var(--secondary-btn-text, #94a3b8) !important;
-  border: 1px solid var(--border-color, #232838);
-}
-
-.chatBtn {
+.facebookBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   padding: 5px 14px;
   border-radius: var(--radius-md, 8px);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   background: var(--secondary-btn-bg, #1a1e2b);
   color: var(--secondary-btn-text, #94a3b8);
   border: 1px solid var(--border-color, #232838);
+  text-decoration: none;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.chatBtn:hover {
-  border-color: var(--primary, #3b82f6);
-  color: var(--text-main, #ffffff);
+.facebookBtn:hover {
+  border-color: #1877f2;
+  color: #1877f2;
+  background: var(--bg-card-hover, #1a1e2b);
+}
+
+.facebookBtn:active {
+  transform: scale(0.96);
 }
 
 /* ===== STICKY TAB BAR ===== */

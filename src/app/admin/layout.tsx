@@ -16,6 +16,7 @@ import {
   FiMenu,
   FiBell,
   FiUser,
+  FiMessageSquare,
 } from 'react-icons/fi';
 import { useTheme } from '@/contexts/ThemeContext';
 import styles from './layout.module.css';
@@ -27,6 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const menuItems = [
     { name: 'Dashboard', icon: FiHome, path: '/admin' },
+    { name: 'Tin nhắn CSKH', icon: FiMessageSquare, path: '/admin/chat' },
     { name: 'Sản phẩm', icon: FiPackage, path: '/admin/products' },
     { name: 'Danh mục', icon: FiFolder, path: '/admin/categories' },
     { name: 'Đơn hàng', icon: FiShoppingCart, path: '/admin/orders' },
