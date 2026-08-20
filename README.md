@@ -24,10 +24,11 @@
 
 1. [✨ Tính Năng Nổi Bật](#-tính-năng-nổi-bật)
 2. [🚀 Khởi Chạy Dự Án](#-khởi-chạy-dự-án)
-3. [📦 HƯỚNG DẪN CẤU HÌNH VẬN CHUYỂN & THANH TOÁN](#-hướng-dẫn-cấu-hình-vận-chuyển--thanh-toán)
+3. [📦 HƯỚNG DẪN CẤU HÌNH VẬN CHUYỂN, THANH TOÁN & EMAIL](#-hướng-dẫn-cấu-hình-vận-chuyển--thanh-toán)
    - [3.1. Cấu Hình Giao Hàng Nhanh (GHN)](#31-cấu-hình-giao-hàng-nhanh-ghn)
    - [3.2. Cấu Hình Giao Hàng Tiết Kiệm (GHTK)](#32-cấu-hình-giao-hàng-tiết-kiệm-ghtk)
    - [3.3. Cấu Hình Thanh Toán Tự Động SePay (VietQR)](#33-cấu-hình-thanh-toán-tự-động-sepay-vietqr)
+   - [3.4. Cấu Hình Gửi Email Thông Báo Đơn Hàng (Gmail SMTP / Nodemailer)](#34-cấu-hình-gửi-email-thông-báo-đơn-hàng-gmail-smtp--nodemailer)
 4. [🌐 Danh Sách URL Webhook Cần Cài Đặt](#-danh-sách-url-webhook-cần-cài-đặt)
 5. [🔄 Luồng Vận Hành Tự Động Hóa 1-Chạm](#-luồng-vận-hành-tự-động-hóa-1-chạm)
 6. [📱 Thông Tin Tài Khoản Quản Trị](#-thông-tin-tài-khoản-quản-trị)
@@ -149,6 +150,44 @@ npm run build
 | **Phương thức** | **`POST`** |
 
 3. Bấm **Lưu Webhook**.
+
+---
+
+### 3.4. Cấu Hình Gửi Email Thông Báo Đơn Hàng (Gmail SMTP / Nodemailer)
+
+Hệ thống hỗ trợ tự động gửi:
+- **Email cho Khách hàng:** Hóa đơn điện tử chi tiết sản phẩm, số tiền, địa chỉ và link tra cứu đơn.
+- **Email cho Admin:** Cảnh báo có đơn mới cần xử lý ngay lập tức.
+
+#### 🔹 Bước 1: Tạo Mật khẩu ứng dụng Gmail (Google App Password)
+1. Đăng nhập tài khoản Gmail gửi thư và đảm bảo đã **Bật xác minh 2 bước** tại: 👉 [myaccount.google.com/security](https://myaccount.google.com/security).
+2. Truy cập trang tạo mật khẩu ứng dụng Google: 👉 [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
+3. Đặt tên ứng dụng (Ví dụ: `ShopTik Web`) $\rightarrow$ Bấm **Tạo (Create)**.
+4. Copy chuỗi **16 ký tự** màu vàng Google cấp (Ví dụ: `abcd efgh ijkl mnop`).
+
+#### 🔹 Bước 2: Nhập Cấu Hình Vào Trang Quản Trị
+1. Mở trang quản trị: 👉 **`https://<YOUR_DOMAIN>/admin/settings`** $\rightarrow$ Chọn tab **`Cấu Hình Email (SMTP)`**.
+2. Điền thông tin:
+   - **Kích hoạt gửi Email tự động:** Bật `[x]`.
+   - **Tài khoản Email gửi (Gmail):** Điền địa chỉ Gmail của bạn *(vd: `cuahang.shoptik@gmail.com`)*.
+   - **Mật khẩu ứng dụng SMTP:** Dán chuỗi 16 ký tự vừa copy ở Bước 1.
+   - **Tên người gửi:** `ShopTik Store` *(hoặc tên shop của bạn)*.
+   - **Email Admin nhận thông báo:** Điền hộp thư của chủ shop.
+3. Bấm **`[Lưu Cấu Hình Email]`**.
+
+#### 🔹 Bước 3: Kiểm tra gửi thử (Test Email)
+- Tại mục **"Kiểm Tra Kết Nối Gửi Thư"** ở dưới cùng trang, nhập email của bạn và bấm **`[Gửi Thử Email]`** để xác thực kết nối ngay lập tức.
+
+#### 🔹 Cấu hình qua biến môi trường `.env` (Tùy chọn):
+Nếu bạn muốn nạp sẵn cấu hình qua file `.env` / Vercel Environment Variables:
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=cuahang.shoptik@gmail.com
+SMTP_PASS=abcdefghijklmnop
+SMTP_SENDER_NAME="ShopTik Store"
+ADMIN_NOTIFICATION_EMAIL=admin@shoptik.vn
+```
 
 ---
 
