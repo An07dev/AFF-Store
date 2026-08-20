@@ -53,7 +53,7 @@ export default function ProductCard({ product, onQuickView }: ProductCardProps) 
         </div>
 
         <div className={styles.bottomRow}>
-          <span className={styles.soldCount}>Đã bán {product.soldCount || 0}</span>
+          <span className={styles.soldCount}>Đã bán {product.soldCount ?? product.sold ?? 0}</span>
           <button
             className={styles.addBtn}
             title="Thêm vào giỏ"

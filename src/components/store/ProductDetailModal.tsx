@@ -8,14 +8,11 @@ import {
   FiMinus,
   FiShoppingCart,
   FiZap,
-  FiStar,
-  FiChevronLeft,
-  FiChevronRight,
+  FiCheck,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/contexts/CartContext';
-import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import {
   IProductOption,
   IVariantItem,
@@ -31,7 +28,6 @@ interface ProductDetailModalProps {
 export default function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
   const router = useRouter();
   const { addToCart, buyNow } = useCart();
-  const { user } = useCustomerAuth();
 
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
@@ -98,7 +94,7 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
     });
   }, [product]);
 
-  // Initialize or reset selections when product opens
+  // Initialize selections when product opens
   useEffect(() => {
     if (product) {
       setQuantity(1);
@@ -167,15 +163,6 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
     }
   }, [matchedVariant]);
 
-  // Auto slide image every 3.5s
-  useEffect(() => {
-    if (!product?.images || product.images.length <= 1) return;
-    const timer = setInterval(() => {
-      setActiveImageIndex((prev) => (prev + 1) % product.images.length);
-    }, 3500);
-    return () => clearInterval(timer);
-  }, [product?.images]);
-
   if (!product) return null;
 
   const images: string[] =
@@ -194,6 +181,7 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
   };
 
   const handleSelectAttribute = (optionName: string, value: string) => {
+    if (!isOptionValueAvailable(optionName, value)) return;
     setSelectedAttributes((prev) => ({
       ...prev,
       [optionName]: value,
@@ -229,16 +217,6 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
     return true;
   };
 
-  const handlePrevImage = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
-
-  const handleNextImage = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setActiveImageIndex((prev) => (prev + 1) % images.length);
-  };
-
   const handleAddToCart = () => {
     if (!validateSelection()) return;
     addToCart(product, quantity, matchedVariant || undefined);
@@ -252,55 +230,27 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
     router.push('/checkout');
   };
 
+  // Selected label summary
+  const selectedValuesList = Object.values(selectedAttributes).filter(Boolean);
+  const selectedSummary = selectedValuesList.length > 0 ? selectedValuesList.join(', ') : '';
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        {/* Close button */}
-        <button className={styles.closeBtn} onClick={onClose} aria-label="Đóng">
-          <FiX size={18} />
-        </button>
-
-        {/* Scrollable Modal Content */}
-        <div className={styles.scrollBody}>
-          {/* Image Container */}
-          <div className={styles.imageContainer}>
+        {/* ===== 1. SHOPEE COMPACT PRODUCT HEADER ===== */}
+        <div className={styles.headerSummary}>
+          <div className={styles.thumbnailBox}>
             <img
               src={images[activeImageIndex] || images[0]}
               alt={product.name}
-              className={styles.productImg}
+              className={styles.thumbnailImg}
             />
             {discountPercent && (
-              <span className={styles.saleBadge}>Giảm {discountPercent}%</span>
-            )}
-            {images.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  className={`${styles.navArrowBtn} ${styles.prevArrow}`}
-                  onClick={handlePrevImage}
-                  aria-label="Ảnh trước"
-                >
-                  <FiChevronLeft size={16} />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.navArrowBtn} ${styles.nextArrow}`}
-                  onClick={handleNextImage}
-                  aria-label="Ảnh sau"
-                >
-                  <FiChevronRight size={16} />
-                </button>
-                <span className={styles.imageCounter}>
-                  {activeImageIndex + 1}/{images.length}
-                </span>
-              </>
+              <span className={styles.thumbnailBadge}>-{discountPercent}%</span>
             )}
           </div>
 
-          {/* Info section */}
-          <div className={styles.infoSection}>
-            <h2 className={styles.productName}>{product.name}</h2>
-
+          <div className={styles.headerInfo}>
             <div className={styles.priceRow}>
               <span className={styles.currentPrice}>{formatPrice(currentPrice)}</span>
               {hasDiscount && (
@@ -308,116 +258,136 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
               )}
             </div>
 
-            {/* DYNAMIC OPTIONS */}
-            {options.map((opt) => (
-              <div key={opt.name} className={styles.variantBlock}>
-                <div className={styles.variantTitle} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>{opt.name}:</span>
-                  {selectedAttributes[opt.name] && (
-                    <span style={{ color: 'var(--primary, #3b82f6)', fontWeight: 600 }}>
-                      {selectedAttributes[opt.name]}
-                    </span>
-                  )}
-                </div>
-                <div className={styles.variantChips}>
-                  {opt.values.map((val) => {
-                    const isSelected = selectedAttributes[opt.name] === val;
-                    const isAvail = isOptionValueAvailable(opt.name, val);
+            <div className={styles.stockText}>
+              {isOutOfStock ? (
+                <span className={styles.outOfStockText}>Tạm hết hàng</span>
+              ) : (
+                <span>Kho: <strong style={{ color: 'var(--text-main, #fff)' }}>{currentStock}</strong></span>
+              )}
+            </div>
 
-                    return (
-                      <button
-                        key={val}
-                        type="button"
-                        className={`${styles.variantChip} ${isSelected ? styles.variantChipActive : ''} ${!isAvail && !isSelected ? styles.variantChipDisabled : ''}`}
-                        onClick={() => handleSelectAttribute(opt.name, val)}
-                        title={!isAvail && !isSelected ? 'Tùy chọn này tạm hết hàng' : undefined}
-                      >
-                        {val}
-                      </button>
-                    );
-                  })}
-                </div>
+            <div className={styles.selectedLabel}>
+              {selectedSummary ? (
+                <span>Đã chọn: <strong style={{ color: 'var(--primary, #3b82f6)' }}>{selectedSummary}</strong></span>
+              ) : (
+                <span style={{ color: 'var(--text-muted, #94a3b8)' }}>Vui lòng chọn phân loại</span>
+              )}
+            </div>
+          </div>
+
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Đóng">
+            <FiX size={18} />
+          </button>
+        </div>
+
+        {/* ===== 2. SCROLLABLE OPTIONS BODY ===== */}
+        <div className={styles.scrollBody}>
+          <h3 className={styles.productTitle}>{product.name}</h3>
+
+          {/* DYNAMIC MULTI-DIMENSIONAL OPTIONS */}
+          {options.map((opt) => (
+            <div key={opt.name} className={styles.variantBlock}>
+              <div className={styles.variantTitle}>
+                <span>{opt.name}:</span>
+                {selectedAttributes[opt.name] && (
+                  <span className={styles.activeVariantText}>
+                    {selectedAttributes[opt.name]}
+                  </span>
+                )}
               </div>
-            ))}
+              <div className={styles.variantChips}>
+                {opt.values.map((val) => {
+                  const isSelected = selectedAttributes[opt.name] === val;
+                  const isAvail = isOptionValueAvailable(opt.name, val);
 
-            {/* Fallback generic variants */}
-            {options.length === 0 && variants.length > 0 && (
-              <div className={styles.variantBlock}>
-                <div className={styles.variantTitle}>Phân loại:</div>
-                <div className={styles.variantChips}>
-                  {variants.map((v, idx) => {
-                    const isSelected = matchedVariant?._id === v._id || matchedVariant?.sku === v.sku;
-                    const isAvail = v.stock > 0;
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        className={`${styles.variantChip} ${isSelected ? styles.variantChipActive : ''} ${!isAvail ? styles.variantChipDisabled : ''}`}
-                        onClick={() => setSelectedAttributes(v.attributes || {})}
-                      >
-                        {v.title}
-                      </button>
-                    );
-                  })}
-                </div>
+                  return (
+                    <button
+                      key={val}
+                      type="button"
+                      disabled={!isAvail}
+                      className={`${styles.variantChip} ${isSelected ? styles.variantChipActive : ''} ${!isAvail ? styles.variantChipDisabled : ''}`}
+                      onClick={() => isAvail && handleSelectAttribute(opt.name, val)}
+                      title={!isAvail ? 'Tùy chọn này tạm hết hàng' : undefined}
+                    >
+                      {val}
+                      {isSelected && <FiCheck size={12} className={styles.checkIcon} />}
+                    </button>
+                  );
+                })}
               </div>
-            )}
+            </div>
+          ))}
 
-            {/* Quantity */}
-            <div className={styles.quantityRow}>
-              <span className={styles.variantTitle}>Số lượng:</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div className={styles.stepper}>
-                  <button
-                    type="button"
-                    className={styles.stepperBtn}
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    disabled={quantity <= 1 || isOutOfStock}
-                  >
-                    <FiMinus size={12} />
-                  </button>
-                  <span className={styles.stepperVal}>{isOutOfStock ? 0 : quantity}</span>
-                  <button
-                    type="button"
-                    className={styles.stepperBtn}
-                    onClick={() => setQuantity((q) => Math.min(currentStock, q + 1))}
-                    disabled={quantity >= currentStock || isOutOfStock}
-                  >
-                    <FiPlus size={12} />
-                  </button>
-                </div>
-                <span className={styles.stockHint}>
-                  {isOutOfStock ? (
-                    <span style={{ color: '#ef4444', fontWeight: 700 }}>Hết hàng</span>
-                  ) : (
-                    `Kho: ${currentStock}`
-                  )}
-                </span>
+          {/* Fallback generic variants */}
+          {options.length === 0 && variants.length > 0 && (
+            <div className={styles.variantBlock}>
+              <div className={styles.variantTitle}>Phân loại:</div>
+              <div className={styles.variantChips}>
+                {variants.map((v, idx) => {
+                  const isSelected = matchedVariant?._id === v._id || matchedVariant?.sku === v.sku;
+                  const isAvail = v.stock > 0;
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      disabled={!isAvail}
+                      className={`${styles.variantChip} ${isSelected ? styles.variantChipActive : ''} ${!isAvail ? styles.variantChipDisabled : ''}`}
+                      onClick={() => isAvail && setSelectedAttributes(v.attributes || {})}
+                    >
+                      {v.title}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Quantity Selector */}
+          <div className={styles.quantityRow}>
+            <span className={styles.qtyLabel}>Số lượng</span>
+            <div className={styles.stepperWrap}>
+              <div className={styles.stepper}>
+                <button
+                  type="button"
+                  className={styles.stepperBtn}
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={quantity <= 1 || isOutOfStock}
+                >
+                  <FiMinus size={13} />
+                </button>
+                <span className={styles.stepperVal}>{isOutOfStock ? 0 : quantity}</span>
+                <button
+                  type="button"
+                  className={styles.stepperBtn}
+                  onClick={() => setQuantity((q) => Math.min(currentStock, q + 1))}
+                  disabled={quantity >= currentStock || isOutOfStock}
+                >
+                  <FiPlus size={13} />
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Modal Action Buttons */}
-        <div className={styles.btnRow}>
+        {/* ===== 3. FIXED BOTTOM ACTION BAR ===== */}
+        <div className={styles.footerActions}>
           <button
             type="button"
             className={styles.addCartBtn}
             onClick={handleAddToCart}
             disabled={isOutOfStock}
-            style={isOutOfStock ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
           >
-            <FiShoppingCart size={15} />
+            <FiShoppingCart size={16} />
             <span>{isOutOfStock ? 'Hết hàng' : 'Thêm giỏ'}</span>
           </button>
+
           <button
             type="button"
             className={styles.buyNowBtn}
             onClick={handleBuyNow}
             disabled={isOutOfStock}
-            style={isOutOfStock ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
           >
-            <FiZap size={15} />
+            <FiZap size={16} />
             <span>{isOutOfStock ? 'Tạm hết hàng' : 'Mua ngay'}</span>
           </button>
         </div>

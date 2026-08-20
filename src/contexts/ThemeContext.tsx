@@ -4,6 +4,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { apiFetch } from '@/lib/api';
 
+export interface BannerSlide {
+  tag: string;
+  title: string;
+  image: string;
+  link?: string;
+}
+
 export interface ThemeConfig {
   themeName: string;
   mode: 'dark' | 'light';
@@ -18,6 +25,7 @@ export interface ThemeConfig {
     bannerNotice: string;
     showBannerNotice: boolean;
   };
+  banners: BannerSlide[];
   socialLinks: {
     tiktokUrl: string;
     facebookUrl: string;
@@ -47,6 +55,33 @@ export interface ThemeConfig {
   };
 }
 
+export const defaultBanners: BannerSlide[] = [
+  {
+    tag: 'Siêu Sale Shopee',
+    title: '🔥 Giảm Đến 50% & Freeship 0Đ Toàn Quốc',
+    image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=900&auto=format&fit=crop&q=80',
+    link: '/?tab=products&filter=flash-sale',
+  },
+  {
+    tag: 'Hàng Hiệu Mall',
+    title: '⭐ Bộ Sưu Tập Thể Thao Mùa Giải Mới 2026',
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=900&auto=format&fit=crop&q=80',
+    link: '/?tab=products',
+  },
+  {
+    tag: 'Flash Sale Giờ Vàng',
+    title: '⚡ Săn Deal Chớp Nhoáng - Số Lượng Có Hạn',
+    image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=900&auto=format&fit=crop&q=80',
+    link: '/?tab=products&filter=flash-sale',
+  },
+  {
+    tag: 'Quà Tặng Độc Quyền',
+    title: '🎁 Mua 1 Tặng 1 - Tặng Kèm Phụ Kiện Thể Thao',
+    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&auto=format&fit=crop&q=80',
+    link: '/?tab=products',
+  },
+];
+
 export const defaultTheme: ThemeConfig = {
   themeName: 'modern-blue',
   mode: 'dark',
@@ -61,6 +96,7 @@ export const defaultTheme: ThemeConfig = {
     bannerNotice: '🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ',
     showBannerNotice: true,
   },
+  banners: defaultBanners,
   socialLinks: {
     tiktokUrl: '',
     facebookUrl: '',
@@ -220,6 +256,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             ...defaultTheme,
             ...data.data,
             pageTitles: { ...defaultTheme.pageTitles, ...(data.data.pageTitles || {}) },
+            banners: Array.isArray(data.data.banners) && data.data.banners.length > 0 ? data.data.banners : defaultTheme.banners,
             socialLinks: { ...defaultTheme.socialLinks, ...(data.data.socialLinks || {}) },
             buttonColors: { ...defaultTheme.buttonColors, ...(data.data.buttonColors || {}) },
             textColors: { ...defaultTheme.textColors, ...(data.data.textColors || {}) },

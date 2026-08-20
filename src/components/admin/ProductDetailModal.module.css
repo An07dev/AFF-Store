@@ -23,6 +23,7 @@
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .header {
@@ -172,7 +173,7 @@
 
 .metaLabel {
   font-size: 0.75rem;
-  color: var(--text-dim, #64748b);
+  color: var(--text-muted, #64748b);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -189,7 +190,7 @@
   display: flex;
   align-items: baseline;
   gap: 12px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary, #3b82f6) 10%, transparent) 0%, rgba(16, 185, 129, 0.08) 100%);
   border: 1px solid var(--border-color, #232838);
   padding: 16px;
   border-radius: var(--radius-md, 10px);
@@ -203,7 +204,7 @@
 
 .oldPrice {
   font-size: 1rem;
-  color: var(--text-dim, #64748b);
+  color: var(--text-muted, #64748b);
   text-decoration: line-through;
 }
 
@@ -274,14 +275,46 @@
 .variantTable td {
   padding: 10px 14px;
   border-bottom: 1px solid var(--border-color, #232838);
+  color: var(--text-main, #ffffff);
 }
 
 .variantTable th {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--bg-card-hover, #161a26);
   color: var(--text-muted, #94a3b8);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.75rem;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.variantTable tr:last-child td {
+  border-bottom: none;
+}
+
+.variantTitle {
+  font-weight: 700;
+  color: var(--text-main, #ffffff);
+}
+
+.attributeBadge {
+  font-size: 0.71875rem;
+  color: var(--text-muted, #94a3b8);
+  background: var(--bg-card-hover, #1e2330);
+  border: 1px solid var(--border-color, #2b3248);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.attributeFallback {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.skuCell {
+  font-family: monospace;
+  font-size: 0.8125rem;
+  color: var(--text-muted, #94a3b8);
 }
 
 .descriptionBox {
@@ -302,7 +335,7 @@
   align-items: center;
   padding: 16px 24px;
   border-top: 1px solid var(--border-color, #232838);
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-card, #13161f);
 }
 
 .btnGroup {
@@ -326,8 +359,9 @@
 }
 
 .viewStoreBtn:hover {
-  color: var(--text-main, #fff);
+  color: var(--primary, #3b82f6);
   border-color: var(--primary, #3b82f6);
+  background-color: color-mix(in srgb, var(--primary, #3b82f6) 10%, transparent);
 }
 
 .editBtn {

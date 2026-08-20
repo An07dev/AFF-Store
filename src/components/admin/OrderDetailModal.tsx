@@ -8,6 +8,7 @@ import { formatPrice, formatDate } from '@/lib/utils';
 import LazyImage from '@/components/common/LazyImage';
 import Skeleton from '@/components/common/Skeleton';
 import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
+import ShipOrderModal from '@/components/admin/ShipOrderModal';
 import { apiFetch } from '@/lib/api';
 import styles from './OrderDetailModal.module.css';
 
@@ -25,6 +26,7 @@ export default function OrderDetailModal({
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isShipModalOpen, setIsShipModalOpen] = useState(false);
 
   useEffect(() => {
     if (!orderId) {
@@ -57,6 +59,12 @@ export default function OrderDetailModal({
   if (!orderId) return null;
 
   const handleUpdateStatus = async (status: string) => {
+    if (status === 'shipping') {
+      // Open carrier selection modal
+      setIsShipModalOpen(true);
+      return;
+    }
+
     setIsUpdating(true);
     try {
       const res = await apiFetch(`/api/orders/${orderId}`, {
@@ -286,6 +294,16 @@ export default function OrderDetailModal({
           </div>
         )}
       </div>
+
+      {/* Ship Order Carrier Modal */}
+      <ShipOrderModal
+        order={isShipModalOpen ? order : null}
+        onClose={() => setIsShipModalOpen(false)}
+        onSuccess={() => {
+          onSuccess();
+          onClose();
+        }}
+      />
     </div>
   );
 }

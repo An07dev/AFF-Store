@@ -47,11 +47,31 @@ export async function GET(request: Request) {
     else if (sort === 'popular') sortOption = { soldCount: -1 };
 
     const total = await Product.countDocuments(filter);
-    const products = await Product.find(filter)
+    let products = await Product.find(filter)
       .populate('category', 'name slug')
       .sort(sortOption)
       .skip((page - 1) * limit)
       .limit(limit);
+
+    if (sort === 'flash-sale' || sort === 'discount-desc') {
+      products = [...products].sort((a: any, b: any) => {
+        const discA = a.salePrice && a.salePrice < a.price ? (a.price - a.salePrice) / a.price : 0;
+        const discB = b.salePrice && b.salePrice < b.price ? (b.price - b.salePrice) / b.price : 0;
+        return discB - discA;
+      });
+    } else if (sort === 'price-asc') {
+      products = [...products].sort((a: any, b: any) => {
+        const pA = a.salePrice && a.salePrice > 0 ? a.salePrice : a.price;
+        const pB = b.salePrice && b.salePrice > 0 ? b.salePrice : b.price;
+        return pA - pB;
+      });
+    } else if (sort === 'price-desc') {
+      products = [...products].sort((a: any, b: any) => {
+        const pA = a.salePrice && a.salePrice > 0 ? a.salePrice : a.price;
+        const pB = b.salePrice && b.salePrice > 0 ? b.salePrice : b.price;
+        return pB - pA;
+      });
+    }
 
     return NextResponse.json({
       success: true,

@@ -534,7 +534,7 @@ export default function ProductEditModal({
 
               <div className={styles.formGroup}>
                 <label className={styles.label}>
-                  Tổng tồn kho {variants.length > 0 && <span style={{ color: '#60a5fa', fontSize: '0.75rem' }}>(Tự động tính từ biến thể)</span>}
+                  Tổng tồn kho {variants.length > 0 && <span style={{ color: 'var(--primary, #3b82f6)', fontSize: '0.75rem' }}>(Tự động tính từ biến thể)</span>}
                 </label>
                 <input
                   type="number"
@@ -543,7 +543,6 @@ export default function ProductEditModal({
                   placeholder="VD: 50"
                   value={formData.stock}
                   readOnly={variants.length > 0}
-                  style={variants.length > 0 ? { opacity: 0.85, cursor: 'not-allowed', backgroundColor: '#131826' } : {}}
                   onChange={(e) => setFormData({ ...formData, stock: Math.max(0, parseInt(e.target.value) || 0) })}
                 />
               </div>
@@ -638,7 +637,7 @@ export default function ProductEditModal({
 
               {/* Quick Suggestions Chips */}
               <div className={styles.suggestionChips}>
-                <span style={{ fontSize: '0.725rem', color: '#64748b', alignSelf: 'center' }}>Gợi ý nhanh:</span>
+                <span style={{ fontSize: '0.725rem', color: 'var(--text-muted, #94a3b8)', alignSelf: 'center' }}>Gợi ý nhanh:</span>
                 {POPULAR_OPTION_SUGGESTIONS.map((sug) => (
                   <button
                     key={sug}
@@ -660,7 +659,7 @@ export default function ProductEditModal({
 
               {/* List of Option Cards */}
               {options.length === 0 ? (
-                <div style={{ padding: '14px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '1px dashed #232838', borderRadius: 8, color: '#64748b', fontSize: '0.8125rem' }}>
+                <div className={styles.emptyOptionBox}>
                   Chưa có nhóm thuộc tính nào. Bấm <strong>"+ Thêm nhóm thuộc tính"</strong> hoặc chọn gợi ý ở trên nếu sản phẩm có nhiều phân loại.
                 </div>
               ) : (
@@ -692,7 +691,7 @@ export default function ProductEditModal({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <div className={styles.tagList}>
                         {opt.values.length === 0 ? (
-                          <span style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #94a3b8)', fontStyle: 'italic' }}>
                             Chưa có giá trị. Nhập giá trị bên dưới và nhấn Enter.
                           </span>
                         ) : (
@@ -744,9 +743,9 @@ export default function ProductEditModal({
               {/* Generator Action Bar */}
               {options.length > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 6, flexWrap: 'wrap', gap: 10 }}>
-                  <span style={{ fontSize: '0.775rem', color: '#94a3b8' }}>
+                  <span style={{ fontSize: '0.775rem', color: 'var(--text-muted, #94a3b8)' }}>
                     Tổng số biến thể dự kiến:{' '}
-                    <strong style={{ color: '#60a5fa' }}>
+                    <strong style={{ color: 'var(--primary, #3b82f6)' }}>
                       {options.reduce((acc, opt) => acc * (opt.values.length || 1), options.some((o) => o.values.length > 0) ? 1 : 0)} biến thể
                     </strong>
                   </span>
@@ -761,7 +760,7 @@ export default function ProductEditModal({
               )}
 
               {/* ================= 2. VARIANTS MATRIX TABLE ================= */}
-              <div style={{ marginTop: 12, borderTop: '1px solid #232838', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ marginTop: 12, borderTop: '1px solid var(--border-color, #232838)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div className={styles.variantHeader}>
                   <div>
                     <label className={styles.label} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -844,12 +843,12 @@ export default function ProductEditModal({
                         {variants.map((v, idx) => (
                           <tr key={idx}>
                             <td>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                <strong style={{ color: '#f8fafc' }}>{v.title || `Biến thể ${idx + 1}`}</strong>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                <strong style={{ color: 'var(--text-main, #f8fafc)' }}>{v.title || `Biến thể ${idx + 1}`}</strong>
                                 {v.attributes && (
                                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                                     {Object.entries(v.attributes).map(([k, val]) => (
-                                      <span key={k} style={{ fontSize: '0.7rem', color: '#94a3b8', background: '#1e2330', padding: '1px 6px', borderRadius: 4 }}>
+                                      <span key={k} className={styles.attributeBadge}>
                                         {k}: {val}
                                       </span>
                                     ))}

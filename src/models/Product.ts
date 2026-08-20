@@ -30,6 +30,8 @@ export interface IProduct extends Document {
   images: string[];
   stock: number;
   soldCount: number;
+  rating?: number;
+  reviewCount?: number;
   description?: string;
   isFeatured: boolean;
   status: 'active' | 'hidden';
@@ -75,6 +77,8 @@ const ProductSchema = new Schema<IProduct>(
     images: [{ type: String }],
     stock: { type: Number, default: 0, min: 0 },
     soldCount: { type: Number, default: 0, min: 0 },
+    rating: { type: Number, default: 5, min: 1, max: 5 },
+    reviewCount: { type: Number, default: 0, min: 0 },
     description: { type: String, default: '' },
     isFeatured: { type: Boolean, default: false, index: true },
     status: { type: String, enum: ['active', 'hidden'], default: 'active', index: true },

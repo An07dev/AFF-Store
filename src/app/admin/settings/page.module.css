@@ -467,3 +467,199 @@
   border: 1px solid;
   cursor: pointer;
 }
+
+/* ===== BANNER SETTINGS TAB STYLES ===== */
+.bannerList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.bannerCard {
+  background: var(--bg-card, #131826);
+  border: 1px solid var(--border-color, #1e2638);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.2s;
+}
+
+.bannerCard:hover {
+  border-color: var(--primary, #3b82f6);
+}
+
+.bannerCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color, #1e2638);
+  padding-bottom: 10px;
+}
+
+.bannerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.bannerCardActions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.iconActionBtn {
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  color: var(--text-muted, #94a3b8);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.iconActionBtn:hover:not(:disabled) {
+  color: #fff;
+  border-color: var(--primary, #3b82f6);
+  background: var(--bg-card-hover, #1a1e2b);
+}
+
+.iconActionBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.deleteIconBtn {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.deleteIconBtn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.bannerCardGrid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .bannerCardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bannerInputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bannerLivePreviewWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.previewLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bannerLivePreview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--border-color, #232838);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.bannerLiveImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bannerLiveOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12px 14px;
+  gap: 4px;
+}
+
+.bannerLiveTag {
+  align-self: flex-start;
+  background: var(--primary, #3b82f6);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.bannerLiveTitle {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.addBannerBtn {
+  margin-top: 16px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1.5px dashed var(--primary, #3b82f6);
+  color: var(--primary, #3b82f6);
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.addBannerBtn:hover {
+  background: var(--primary, #3b82f6);
+  color: #ffffff;
+}
+

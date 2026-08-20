@@ -3,6 +3,7 @@ import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import Category from '@/models/Category';
 import Product from '@/models/Product';
+import Review from '@/models/Review';
 import { hashPassword } from '@/lib/auth';
 
 export async function POST() {
@@ -114,9 +115,61 @@ export async function POST() {
     ];
 
     for (const prod of productsData) {
-      const p = await Product.findOne({ slug: prod.slug });
+      let p = await Product.findOne({ slug: prod.slug });
       if (!p) {
-        await Product.create(prod);
+        p = await Product.create(prod);
+      }
+
+      // Seed reviews for this product if none exist
+      const existingReviews = await Review.countDocuments({ product: p._id });
+      if (existingReviews === 0) {
+        const sampleReviews = [
+          {
+            product: p._id,
+            author: 'Trần Minh Hoàng',
+            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100',
+            rating: 5,
+            variantTitle: 'Đen / L',
+            comment: 'Sản phẩm tuyệt vời đúng như mô tả. Vải dày dặn, mặc rất mát và vừa vặn. Shop giao hàng siêu nhanh chỉ 2 ngày là nhận được hàng.',
+            images: [
+              'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400',
+              'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400',
+            ],
+            likes: 12,
+            verified: true,
+            reply: {
+              content: 'ShopTik chân thành cảm ơn bạn Hoàng đã tin tưởng và ủng hộ shop. Chúc bạn luôn có những trải nghiệm tuyệt vời!',
+              createdAt: new Date(),
+            },
+            status: 'approved',
+          },
+          {
+            product: p._id,
+            author: 'Nguyễn Thị Thu Hà',
+            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
+            rating: 5,
+            variantTitle: 'Trắng / M',
+            comment: 'Đẹp lắm mọi người ơi, đường may cẩn thận không có chỉ thừa. Sẽ ủng hộ shop thêm nhiều lần nữa!',
+            images: [],
+            likes: 6,
+            verified: true,
+            status: 'approved',
+          },
+          {
+            product: p._id,
+            author: 'Lê Văn Hùng',
+            avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100',
+            rating: 4,
+            variantTitle: 'Xanh Navy / XL',
+            comment: 'Hàng ok, đóng gói bọc kỹ 2 lớp hộp chắc chắn. Form áo hơi ôm một xíu nhưng mặc lên dáng rất thể thao và khỏe khoắn.',
+            images: [],
+            likes: 3,
+            verified: true,
+            status: 'approved',
+          },
+        ];
+        await Review.insertMany(sampleReviews);
+        await Product.findByIdAndUpdate(p._id, { rating: 4.8, reviewCount: 3 });
       }
     }
 

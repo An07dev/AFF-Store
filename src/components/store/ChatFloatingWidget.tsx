@@ -756,7 +756,7 @@ export default function ChatFloatingWidget() {
       <button
         ref={btnRef}
         type="button"
-        className={styles.floatingBtn}
+        className={`${styles.floatingBtn} ${isOpen ? styles.floatingBtnOpen : ''}`}
         onClick={handleButtonClick}
         onMouseDown={(e) => startDrag(e.clientX, e.clientY)}
         onTouchStart={(e) => {
@@ -764,13 +764,12 @@ export default function ChatFloatingWidget() {
             startDrag(e.touches[0].clientX, e.touches[0].clientY);
           }
         }}
-        aria-label="Mở chat trực tuyến"
-        title="Nhấn để chat hoặc kéo thả để đổi vị trí"
+        aria-label={isOpen ? 'Đóng hộp thoại chat' : 'Mở chat trực tuyến'}
+        title={isOpen ? 'Đóng chat' : 'Chat với Shop (Kéo thả để di chuyển)'}
       >
         <span className={styles.floatingIcon}>
-          {isOpen ? <FiX /> : <FiMessageSquare />}
+          {isOpen ? <FiX size={20} /> : <FiMessageSquare size={20} />}
         </span>
-        <span className={styles.btnText}>{isOpen ? 'Đóng' : 'Chat với Shop'}</span>
         {unreadCount > 0 && !isOpen && (
           <span className={styles.unreadBadge}>{unreadCount}</span>
         )}

@@ -377,8 +377,10 @@
 }
 
 .disabledVariant {
-  opacity: 0.45;
-  cursor: not-allowed;
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  user-select: none !important;
   text-decoration: line-through;
   background: rgba(0, 0, 0, 0.2) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
@@ -605,3 +607,495 @@
 .buyNowBtn:active {
   transform: scale(0.97);
 }
+
+/* ===== REVIEWS PREVIEW CARD ===== */
+.ratingLink {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.ratingLink:hover {
+  opacity: 0.85;
+}
+
+.reviewsCard {
+  background: var(--bg-card, #13161f);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid var(--border-color, #232838);
+  border-bottom: 1px solid var(--border-color, #232838);
+}
+
+.reviewsCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.reviewsCardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin: 0 0 4px;
+}
+
+.reviewsRatingSummary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reviewsScoreBig {
+  font-size: 15px;
+  font-weight: 900;
+  color: #fbbf24;
+}
+
+.reviewsStarsRow {
+  display: flex;
+  align-items: center;
+  gap: 1.5px;
+  color: #fbbf24;
+}
+
+.reviewsCountText {
+  font-size: 11.5px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.seeAllReviewsLink {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--primary, #3b82f6);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.reviewsPreviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.previewReviewItem {
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: var(--radius-md, 8px);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.previewReviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.previewAuthor {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.previewStars {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  color: #fbbf24;
+}
+
+.previewVariant {
+  font-size: 10.5px;
+  color: var(--text-muted, #64748b);
+}
+
+.previewComment {
+  font-size: 12px;
+  color: var(--text-main, #f8fafc);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.previewImgs {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.previewImg {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid var(--border-color, #232838);
+}
+
+.noReviewsYet {
+  padding: 8px 0;
+  color: var(--text-muted, #64748b);
+  font-size: 12px;
+}
+
+.noReviewsYet p {
+  margin: 0;
+}
+
+.writeReviewCtaBtn {
+  width: 100%;
+  padding: 11px;
+  border-radius: var(--radius-md, 8px);
+  border: 1.5px dashed var(--primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary, #3b82f6);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.writeReviewCtaBtn:hover {
+  background: var(--primary, #3b82f6);
+  color: #ffffff;
+}
+
+.quickReviewBtn {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: var(--primary, #3b82f6);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.quickReviewBtn:hover {
+  background: var(--primary, #3b82f6);
+  color: #ffffff;
+}
+
+/* Modal Form Styles */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modalSheet {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-card, #13161f);
+  border-radius: 20px 20px 0 0;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUpReviewModal 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes slideUpReviewModal {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color, #232838);
+}
+
+.modalTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  margin: 0;
+}
+
+.closeBtn {
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  color: var(--text-muted, #94a3b8);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.modalBody {
+  padding: 16px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ratingSelectorWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  background: var(--bg-main, #090a0f);
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #232838);
+}
+
+.starPicker {
+  display: flex;
+  gap: 8px;
+}
+
+.starBtn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #475569;
+  cursor: pointer;
+  transition: transform 0.15s;
+  padding: 2px;
+}
+
+.starBtnFilled {
+  color: #fbbf24;
+}
+
+.starBtn:hover {
+  transform: scale(1.2);
+}
+
+.ratingEmotionLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+}
+
+.inputField {
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  color: var(--text-main, #f8fafc);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.inputField:focus {
+  border-color: var(--primary, #3b82f6);
+}
+
+.textareaField {
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  color: var(--text-main, #f8fafc);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  min-height: 85px;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.textareaField:focus {
+  border-color: var(--primary, #3b82f6);
+}
+
+.quickTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quickTagBtn {
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #232838);
+  color: var(--text-muted, #94a3b8);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.quickTagBtn:hover {
+  border-color: var(--primary, #3b82f6);
+  color: var(--text-main, #f8fafc);
+}
+
+/* Upload Row */
+.uploadedPhotosGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.uploadedThumbWrap {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color, #232838);
+}
+
+.uploadedThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.removeThumbBtn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.uploadPhotoBtn {
+  width: 60px;
+  height: 60px;
+  background: var(--bg-main, #090a0f);
+  border: 1.5px dashed var(--border-color, #232838);
+  color: var(--text-muted, #94a3b8);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.uploadPhotoBtn:hover {
+  border-color: var(--primary, #3b82f6);
+  color: var(--primary, #3b82f6);
+}
+
+.modalFooter {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color, #232838);
+  display: flex;
+  gap: 10px;
+}
+
+.submitBtn {
+  flex: 1;
+  padding: 12px;
+  background: var(--primary, #3b82f6);
+  color: var(--primary-text, #ffffff);
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Lightbox Modal */
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lightboxImg {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.closeLightboxBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+

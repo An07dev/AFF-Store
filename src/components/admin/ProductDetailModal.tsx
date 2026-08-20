@@ -220,36 +220,36 @@ export default function ProductDetailModal({ productId, onClose }: ProductDetail
                           return (
                             <tr key={i}>
                               <td>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                  <strong style={{ color: '#f8fafc' }}>{title}</strong>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                  <strong className={styles.variantTitle}>{title}</strong>
                                   {Object.keys(attrs).length > 0 ? (
                                     <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                                       {Object.entries(attrs).map(([k, val]: any) => (
-                                        <span key={k} style={{ fontSize: '0.7rem', color: '#94a3b8', background: '#1e2330', padding: '1px 6px', borderRadius: 4 }}>
+                                        <span key={k} className={styles.attributeBadge}>
                                           {k}: {val}
                                         </span>
                                       ))}
                                     </div>
                                   ) : (v.color || v.size) ? (
-                                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                                    <span className={styles.attributeFallback}>
                                       {[v.color, v.size].filter(Boolean).join(' - ')}
                                     </span>
                                   ) : null}
                                 </div>
                               </td>
-                              <td style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: '#94a3b8' }}>
+                              <td className={styles.skuCell}>
                                 {v.sku || '-'}
                               </td>
                               <td style={{ color: 'var(--primary, #3b82f6)', fontWeight: 600 }}>
                                 {formatPrice(v.salePrice || v.price || product.salePrice || product.price)}
                                 {v.salePrice && v.price && v.salePrice < v.price && (
-                                  <span style={{ textDecoration: 'line-through', color: '#64748b', fontSize: '0.75rem', marginLeft: 6 }}>
+                                  <span style={{ textDecoration: 'line-through', color: 'var(--text-muted, #64748b)', fontSize: '0.75rem', marginLeft: 6 }}>
                                     {formatPrice(v.price)}
                                   </span>
                                 )}
                               </td>
                               <td>
-                                <span style={{ color: (v.stock || 0) < 5 ? '#ef4444' : 'inherit', fontWeight: 500 }}>
+                                <span style={{ color: (v.stock || 0) < 5 ? '#ef4444' : 'var(--text-main, #ffffff)', fontWeight: 600 }}>
                                   {v.stock ?? 0} sản phẩm
                                 </span>
                               </td>

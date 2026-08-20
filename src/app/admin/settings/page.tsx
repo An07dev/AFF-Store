@@ -17,9 +17,14 @@ import {
   FiMail,
   FiSend,
   FiHelpCircle,
+  FiLayers,
+  FiPlus,
+  FiTrash2,
+  FiArrowUp,
+  FiArrowDown,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
-import { useTheme, ThemeConfig, defaultTheme } from '@/contexts/ThemeContext';
+import { useTheme, ThemeConfig, BannerSlide, defaultTheme, defaultBanners } from '@/contexts/ThemeContext';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -194,10 +199,12 @@ const PRESET_THEMES: { id: string; name: string; primaryColor: string; bg: strin
 
 export default function AdminSettingsPage() {
   const { theme, setTheme, saveTheme, resetToDefault, toggleThemeMode, applyCSSVariables } = useTheme();
-  const [activeTab, setActiveTab] = useState<'titles' | 'mode' | 'buttons' | 'texts' | 'components' | 'email' | 'password'>('titles');
+  const [activeTab, setActiveTab] = useState<'titles' | 'banners' | 'mode' | 'buttons' | 'texts' | 'components' | 'email' | 'password'>('titles');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadingBannerIdx, setUploadingBannerIdx] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const bannerInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Email SMTP Settings State
   const [emailForm, setEmailForm] = useState({
@@ -388,6 +395,74 @@ export default function AdminSettingsPage() {
     }
   };
 
+  // Banner Handlers
+  const handleBannerChange = (index: number, field: keyof BannerSlide, value: string) => {
+    const currentBanners = theme.banners && theme.banners.length > 0 ? theme.banners : defaultBanners;
+    const updated = [...currentBanners];
+    updated[index] = { ...updated[index], [field]: value };
+    setTheme({ ...theme, banners: updated });
+  };
+
+  const handleAddBanner = () => {
+    const currentBanners = theme.banners && theme.banners.length > 0 ? theme.banners : defaultBanners;
+    const newBanner: BannerSlide = {
+      tag: 'Khuyến Mãi Mới',
+      title: '🔥 Siêu Ưu Đãi Đặc Biệt Hôm Nay',
+      image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=900&auto=format&fit=crop&q=80',
+      link: '/?tab=products',
+    };
+    setTheme({ ...theme, banners: [...currentBanners, newBanner] });
+    toast.success('Đã thêm 1 banner mới!');
+  };
+
+  const handleRemoveBanner = (index: number) => {
+    const currentBanners = theme.banners && theme.banners.length > 0 ? theme.banners : defaultBanners;
+    if (currentBanners.length <= 1) {
+      toast.error('Cửa hàng cần ít nhất 1 banner!');
+      return;
+    }
+    const updated = currentBanners.filter((_, idx) => idx !== index);
+    setTheme({ ...theme, banners: updated });
+    toast.success('Đã xóa banner!');
+  };
+
+  const handleMoveBanner = (index: number, direction: 'up' | 'down') => {
+    const currentBanners = theme.banners && theme.banners.length > 0 ? theme.banners : defaultBanners;
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= currentBanners.length) return;
+    const updated = [...currentBanners];
+    const [moved] = updated.splice(index, 1);
+    updated.splice(targetIndex, 0, moved);
+    setTheme({ ...theme, banners: updated });
+  };
+
+  const handleBannerUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploadingBannerIdx(index);
+    try {
+      const res = await apiFetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.data?.url) {
+        handleBannerChange(index, 'image', data.data.url);
+        toast.success(`Upload ảnh banner #${index + 1} thành công!`);
+      } else {
+        toast.error(data.message || 'Lỗi upload ảnh banner');
+      }
+    } catch (err) {
+      toast.error('Lỗi khi tải ảnh banner lên');
+    } finally {
+      setUploadingBannerIdx(null);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     await saveTheme(theme);
@@ -441,6 +516,12 @@ export default function AdminSettingsPage() {
               onClick={() => setActiveTab('titles')}
             >
               <FiImage /> Tiêu Đề & Logo
+            </button>
+            <button
+              className={`${styles.tabBtn} ${activeTab === 'banners' ? styles.activeTabBtn : ''}`}
+              onClick={() => setActiveTab('banners')}
+            >
+              <FiLayers /> Banner Trang Chủ ({(theme.banners || defaultBanners).length})
             </button>
             <button
               className={`${styles.tabBtn} ${activeTab === 'mode' ? styles.activeTabBtn : ''}`}
@@ -585,56 +666,149 @@ export default function AdminSettingsPage() {
                 </div>
 
                 {/* Social Links Section */}
-                <div style={{ marginTop: 24, paddingTop: 18, borderTop: '1px solid var(--admin-border, #232838)' }}>
-                  <div className={styles.sectionHeader} style={{ marginBottom: 14 }}>
-                    <h3>🔗 Liên Kết Mạng Xã Hội (TikTok & Facebook)</h3>
-                    <p>Cài đặt link kênh TikTok và Facebook hiển thị trực tiếp tại nút bấm đầu Shop trên trang chủ</p>
-                  </div>
+              </>
+            )}
 
-                  <div className={styles.fieldGrid}>
-                    <div className={styles.formGroup}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span>🎵</span> Link Kênh TikTok Shop
-                      </label>
-                      <input
-                        type="url"
-                        className={styles.input}
-                        placeholder="https://www.tiktok.com/@tenshop"
-                        value={theme.socialLinks?.tiktokUrl || ''}
-                        onChange={(e) =>
-                          setTheme({
-                            ...theme,
-                            socialLinks: { ...theme.socialLinks, tiktokUrl: e.target.value },
-                          })
-                        }
-                      />
-                      <span style={{ fontSize: 11, color: 'var(--admin-text-muted, #94a3b8)', marginTop: 4 }}>
-                        VD: https://www.tiktok.com/@footballstore
-                      </span>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span>👥</span> Link Fanpage / Facebook Shop
-                      </label>
-                      <input
-                        type="url"
-                        className={styles.input}
-                        placeholder="https://www.facebook.com/tenshop"
-                        value={theme.socialLinks?.facebookUrl || ''}
-                        onChange={(e) =>
-                          setTheme({
-                            ...theme,
-                            socialLinks: { ...theme.socialLinks, facebookUrl: e.target.value },
-                          })
-                        }
-                      />
-                      <span style={{ fontSize: 11, color: 'var(--admin-text-muted, #94a3b8)', marginTop: 4 }}>
-                        VD: https://www.facebook.com/footballstore
-                      </span>
-                    </div>
+            {/* TAB: BANNERS CAROUSEL */}
+            {activeTab === 'banners' && (
+              <>
+                <div className={styles.sectionHeader}>
+                  <div>
+                    <h3>Quản Lý Banner Quảng Cáo Trang Chủ</h3>
+                    <p>Tùy biến hình ảnh banner trượt Carousel, nhãn tag nổi bật, tiêu đề và link chuyển hướng</p>
                   </div>
                 </div>
+
+                <div className={styles.bannerList}>
+                  {(theme.banners && theme.banners.length > 0 ? theme.banners : defaultBanners).map((banner, index) => (
+                    <div key={index} className={styles.bannerCard}>
+                      <div className={styles.bannerCardHeader}>
+                        <span className={styles.bannerBadge}>
+                          <FiLayers size={14} /> Banner #{index + 1}
+                        </span>
+                        <div className={styles.bannerCardActions}>
+                          <button
+                            type="button"
+                            className={styles.iconActionBtn}
+                            disabled={index === 0}
+                            onClick={() => handleMoveBanner(index, 'up')}
+                            title="Di chuyển lên trên"
+                          >
+                            <FiArrowUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.iconActionBtn}
+                            disabled={index === (theme.banners || defaultBanners).length - 1}
+                            onClick={() => handleMoveBanner(index, 'down')}
+                            title="Di chuyển xuống dưới"
+                          >
+                            <FiArrowDown size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.deleteIconBtn}
+                            onClick={() => handleRemoveBanner(index)}
+                            title="Xóa banner này"
+                          >
+                            <FiTrash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className={styles.bannerCardGrid}>
+                        <div className={styles.bannerInputs}>
+                          <div className={styles.formGroup}>
+                            <label>Nhãn / Tag nổi bật (góc trên trái)</label>
+                            <input
+                              type="text"
+                              className={styles.input}
+                              placeholder="Ví dụ: Siêu Sale Shopee, Flash Sale..."
+                              value={banner.tag || ''}
+                              onChange={(e) => handleBannerChange(index, 'tag', e.target.value)}
+                            />
+                          </div>
+
+                          <div className={styles.formGroup}>
+                            <label>Tiêu đề Banner</label>
+                            <input
+                              type="text"
+                              className={styles.input}
+                              placeholder="Ví dụ: 🔥 Giảm Đến 50% & Freeship 0Đ"
+                              value={banner.title || ''}
+                              onChange={(e) => handleBannerChange(index, 'title', e.target.value)}
+                            />
+                          </div>
+
+                          <div className={styles.formGroup}>
+                            <label>Đường dẫn khi click vào banner (Link URL)</label>
+                            <input
+                              type="text"
+                              className={styles.input}
+                              placeholder="/?tab=products&filter=flash-sale"
+                              value={banner.link || ''}
+                              onChange={(e) => handleBannerChange(index, 'link', e.target.value)}
+                            />
+                          </div>
+
+                          <div className={styles.formGroup}>
+                            <label>Hình ảnh Banner (URL hoặc Upload từ máy tính)</label>
+                            <div className={styles.uploadRow}>
+                              <input
+                                type="text"
+                                className={styles.input}
+                                placeholder="https://images.unsplash.com/... hoặc /uploads/banner.jpg"
+                                value={banner.image || ''}
+                                onChange={(e) => handleBannerChange(index, 'image', e.target.value)}
+                                style={{ flex: 1 }}
+                              />
+                              <button
+                                type="button"
+                                className={styles.uploadBtn}
+                                onClick={() => bannerInputRefs.current[index]?.click()}
+                                disabled={uploadingBannerIdx === index}
+                              >
+                                <FiUploadCloud /> {uploadingBannerIdx === index ? 'Đang tải...' : 'Upload ảnh'}
+                              </button>
+                              <input
+                                type="file"
+                                ref={(el) => { bannerInputRefs.current[index] = el; }}
+                                style={{ display: 'none' }}
+                                accept="image/*"
+                                onChange={(e) => handleBannerUpload(index, e)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className={styles.bannerLivePreviewWrap}>
+                          <span className={styles.previewLabel}>Xem trước hiển thị:</span>
+                          <div className={styles.bannerLivePreview}>
+                            <img
+                              src={banner.image || 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=900&auto=format&fit=crop&q=80'}
+                              alt={banner.title || 'Preview'}
+                              className={styles.bannerLiveImg}
+                            />
+                            {(banner.tag || banner.title) && (
+                              <div className={styles.bannerLiveOverlay}>
+                                {banner.tag && <span className={styles.bannerLiveTag}>{banner.tag}</span>}
+                                {banner.title && <h4 className={styles.bannerLiveTitle}>{banner.title}</h4>}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.addBannerBtn}
+                  onClick={handleAddBanner}
+                >
+                  <FiPlus size={18} /> Thêm Banner Mới
+                </button>
               </>
             )}
 

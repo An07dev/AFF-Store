@@ -65,8 +65,13 @@ export async function PUT(
     const previousStatus = order.status;
     const newStatus = body.status || previousStatus;
 
-    // TỰ ĐỘNG ĐẨY ĐƠN SANG HÃNG VẬN CHUYỂN BÊN THỨ 3 KHI ADMIN CHUYỂN SANG "ĐANG GIAO HÀNG" (SHIPPING / DELIVERING)
-    if ((newStatus === 'shipping' || newStatus === 'delivering') && (!order.trackingCode || order.trackingCode.startsWith('TEMP-'))) {
+    // TỰ ĐỘNG ĐẨY ĐƠN SANG HÃNG VẬN CHUYỂN BÊN THỨ 3 KHI ADMIN CHUYỂN SANG "ĐANG GIAO HÀNG" (NẾU CHƯA CÓ MÃ VẬN ĐƠN)
+    if (
+      (newStatus === 'shipping' || newStatus === 'delivering') &&
+      !body.trackingCode &&
+      (!order.trackingCode || order.trackingCode.startsWith('TEMP-')) &&
+      body.shippingProvider !== 'internal'
+    ) {
       const rawProvider = (body.shippingProvider || order.shippingProvider || order.shippingCarrier || 'ghn').toLowerCase();
       let provider = 'ghn';
       if (rawProvider.includes('ghtk') || rawProvider.includes('tiết kiệm') || rawProvider.includes('tiet kiem')) {

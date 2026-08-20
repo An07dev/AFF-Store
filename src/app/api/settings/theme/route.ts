@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Setting from '@/models/Setting';
 
+export interface IBannerSlide {
+  tag: string;
+  title: string;
+  image: string;
+  link?: string;
+}
+
 export interface IThemeConfig {
   // 1. Theme & Mode
   themeName: string; // 'default' | 'modern-blue' | 'emerald-luxury' | 'sunset-amber' | 'minimal-light'
@@ -20,13 +27,16 @@ export interface IThemeConfig {
     showBannerNotice: boolean;
   };
 
-  // 3. Social Links (TikTok, Facebook)
+  // 3. Banner Slides Carousel
+  banners: IBannerSlide[];
+
+  // 4. Social Links (TikTok, Facebook)
   socialLinks: {
     tiktokUrl: string; // Link kênh TikTok
     facebookUrl: string; // Link Fanpage Facebook
   };
 
-  // 4. Màu sắc Button (Nút bấm)
+  // 5. Màu sắc Button (Nút bấm)
   buttonColors: {
     primaryBg: string; // Màu nền nút chính (vd: #3b82f6)
     primaryText: string; // Màu chữ nút chính (vd: #ffffff)
@@ -36,7 +46,7 @@ export interface IThemeConfig {
     borderRadius: string; // Bo góc nút: '6px' | '8px' | '12px' | '999px'
   };
 
-  // 5. Màu sắc Text (Văn bản)
+  // 6. Màu sắc Text (Văn bản)
   textColors: {
     textPrimary: string; // Màu chữ tiêu đề/chính (vd: #f8fafc hoặc #0f172a)
     textSecondary: string; // Màu chữ nội dung phụ (vd: #94a3b8 hoặc #64748b)
@@ -44,7 +54,7 @@ export interface IThemeConfig {
     textAccent: string; // Màu chữ nổi bật (vd: #3b82f6)
   };
 
-  // 6. Màu sắc Component (Thành phần giao diện)
+  // 7. Màu sắc Component (Thành phần giao diện)
   componentColors: {
     background: string; // Màu nền toàn trang (vd: #090a0f hoặc #f8fafc)
     cardBackground: string; // Màu nền thẻ card / modal (vd: #13161f hoặc #ffffff)
@@ -70,6 +80,32 @@ export const defaultThemeConfig: IThemeConfig = {
     bannerNotice: '🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ',
     showBannerNotice: true,
   },
+  banners: [
+    {
+      tag: 'Siêu Sale Shopee',
+      title: '🔥 Giảm Đến 50% & Freeship 0Đ Toàn Quốc',
+      image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=900&auto=format&fit=crop&q=80',
+      link: '/?tab=products&filter=flash-sale',
+    },
+    {
+      tag: 'Hàng Hiệu Mall',
+      title: '⭐ Bộ Sưu Tập Thể Thao Mùa Giải Mới 2026',
+      image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=900&auto=format&fit=crop&q=80',
+      link: '/?tab=products',
+    },
+    {
+      tag: 'Flash Sale Giờ Vàng',
+      title: '⚡ Săn Deal Chớp Nhoáng - Số Lượng Có Hạn',
+      image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=900&auto=format&fit=crop&q=80',
+      link: '/?tab=products&filter=flash-sale',
+    },
+    {
+      tag: 'Quà Tặng Độc Quyền',
+      title: '🎁 Mua 1 Tặng 1 - Tặng Kèm Phụ Kiện Thể Thao',
+      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&auto=format&fit=crop&q=80',
+      link: '/?tab=products',
+    },
+  ],
   socialLinks: {
     tiktokUrl: '',
     facebookUrl: '',
@@ -116,6 +152,7 @@ export async function GET() {
       ...defaultThemeConfig,
       ...setting.value,
       pageTitles: { ...defaultThemeConfig.pageTitles, ...(setting.value.pageTitles || {}) },
+      banners: Array.isArray(setting.value.banners) && setting.value.banners.length > 0 ? setting.value.banners : defaultThemeConfig.banners,
       socialLinks: { ...defaultThemeConfig.socialLinks, ...(setting.value.socialLinks || {}) },
       buttonColors: { ...defaultThemeConfig.buttonColors, ...(setting.value.buttonColors || {}) },
       textColors: { ...defaultThemeConfig.textColors, ...(setting.value.textColors || {}) },
@@ -150,6 +187,7 @@ export async function POST(request: Request) {
         ...currentVal.pageTitles,
         ...(body.pageTitles || {}),
       },
+      banners: Array.isArray(body.banners) ? body.banners : (currentVal.banners || defaultThemeConfig.banners),
       socialLinks: {
         ...currentVal.socialLinks,
         ...(body.socialLinks || {}),

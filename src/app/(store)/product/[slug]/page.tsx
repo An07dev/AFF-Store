@@ -17,6 +17,10 @@ import {
   FiShield,
   FiCheck,
   FiAlertCircle,
+  FiEdit3,
+  FiX,
+  FiCamera,
+  FiCheckCircle,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
@@ -47,6 +51,141 @@ export default function ProductDetailPage() {
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // Reviews preview state
+  const [reviewsPreview, setReviewsPreview] = useState<any[]>([]);
+  const [reviewsStats, setReviewsStats] = useState<{ averageRating: number; totalReviews: number }>({
+    averageRating: 5.0,
+    totalReviews: 0,
+  });
+
+  // Write Review Modal State
+  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+  const [ratingInput, setRatingInput] = useState(5);
+  const [authorInput, setAuthorInput] = useState('');
+  const [variantInput, setVariantInput] = useState('');
+  const [commentInput, setCommentInput] = useState('');
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const reviewFileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const EMOTION_LABELS: Record<number, string> = {
+    1: '1★ Rất không hài lòng',
+    2: '2★ Không hài lòng',
+    3: '3★ Bình thường',
+    4: '4★ Hài lòng',
+    5: '5★ Rất tuyệt vời',
+  };
+
+  const QUICK_TAGS = [
+    'Chất lượng sản phẩm tuyệt vời 🌟',
+    'Đóng gói hàng cẩn thận 📦',
+    'Giao hàng siêu nhanh chóng 🚀',
+    'Đáng tiền 💯',
+    'Tư vấn nhiệt tình 💬',
+  ];
+
+  const loadReviewsPreview = async () => {
+    if (!params.slug) return;
+    try {
+      const res = await apiFetch(`/api/reviews?slug=${encodeURIComponent(params.slug as string)}&limit=3`);
+      const data = await res.json();
+      if (data.success) {
+        setReviewsPreview(data.data || []);
+        if (data.stats) {
+          setReviewsStats({
+            averageRating: data.stats.averageRating || 5.0,
+            totalReviews: data.stats.totalReviews || 0,
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Error loading reviews preview:', e);
+    }
+  };
+
+  useEffect(() => {
+    loadReviewsPreview();
+  }, [params.slug]);
+
+  // Handle Photo Upload in Review
+  const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    if (uploadedImages.length >= 5) {
+      toast.error('Bạn chỉ có thể tải lên tối đa 5 hình ảnh');
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const file = files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await apiFetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.data?.url) {
+        setUploadedImages((prev) => [...prev, data.data.url]);
+        toast.success('Đã tải ảnh lên thành công!');
+      } else {
+        toast.error(data.message || 'Lỗi khi tải ảnh lên');
+      }
+    } catch (err) {
+      toast.error('Không thể kết nối máy chủ để upload ảnh');
+    } finally {
+      setIsUploading(false);
+      if (reviewFileInputRef.current) reviewFileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!authorInput.trim()) {
+      toast.error('Vui lòng nhập họ và tên của bạn');
+      return;
+    }
+    if (!commentInput.trim()) {
+      toast.error('Vui lòng nhập nội dung đánh giá nhận xét');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await apiFetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: params.slug,
+          author: authorInput.trim(),
+          rating: ratingInput,
+          variantTitle: variantInput.trim(),
+          comment: commentInput.trim(),
+          images: uploadedImages,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Gửi đánh giá thành công! Cảm ơn nhận xét của bạn.');
+        setIsWriteModalOpen(false);
+        setCommentInput('');
+        setUploadedImages([]);
+        loadReviewsPreview();
+      } else {
+        toast.error(data.message || 'Gửi đánh giá thất bại');
+      }
+    } catch (err) {
+      toast.error('Lỗi kết nối khi gửi đánh giá');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchProduct() {
@@ -282,6 +421,7 @@ export default function ProductDetailPage() {
   };
 
   const handleSelectAttribute = (optionName: string, value: string) => {
+    if (!isOptionValueAvailable(optionName, value)) return;
     setSelectedAttributes((prev) => ({
       ...prev,
       [optionName]: value,
@@ -443,11 +583,16 @@ export default function ProductDetailPage() {
           <h1 className={styles.title}>{product.name}</h1>
 
           <div className={styles.metaRow}>
-            <span className={styles.rating}>
-              <FiStar style={{ fill: '#FFB800' }} size={13} /> {product.rating || 5.0}
-            </span>
+            <Link href={`/product/${product.slug}/reviews`} className={styles.ratingLink}>
+              <span className={styles.rating}>
+                <FiStar style={{ fill: '#FFB800' }} size={13} /> {reviewsStats.averageRating || product.rating || 5.0}
+                <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 3 }}>
+                  ({reviewsStats.totalReviews} đánh giá)
+                </span>
+              </span>
+            </Link>
             <span className={styles.sold}>
-              Đã bán {product.sold || product.soldCount || 150}
+              Đã bán {product.soldCount ?? product.sold ?? 0}
             </span>
             <span className={styles.stock}>
               {isOutOfStock ? (
@@ -481,9 +626,10 @@ export default function ProductDetailPage() {
                       <button
                         key={val}
                         type="button"
-                        className={`${styles.variantBtn} ${isSelected ? styles.activeVariant : ''} ${!isAvailable && !isSelected ? styles.disabledVariant : ''}`}
-                        onClick={() => handleSelectAttribute(opt.name, val)}
-                        title={!isAvailable && !isSelected ? 'Tùy chọn này tạm hết hàng' : undefined}
+                        disabled={!isAvailable}
+                        className={`${styles.variantBtn} ${isSelected ? styles.activeVariant : ''} ${!isAvailable ? styles.disabledVariant : ''}`}
+                        onClick={() => isAvailable && handleSelectAttribute(opt.name, val)}
+                        title={!isAvailable ? 'Tùy chọn này tạm hết hàng' : undefined}
                       >
                         {val}
                       </button>
@@ -505,8 +651,9 @@ export default function ProductDetailPage() {
                       <button
                         key={idx}
                         type="button"
+                        disabled={!isAvail}
                         className={`${styles.variantBtn} ${isSelected ? styles.activeVariant : ''} ${!isAvail ? styles.disabledVariant : ''}`}
-                        onClick={() => setSelectedAttributes(v.attributes || {})}
+                        onClick={() => isAvail && setSelectedAttributes(v.attributes || {})}
                       >
                         {v.title}
                       </button>
@@ -574,6 +721,92 @@ export default function ProductDetailPage() {
               'Chất liệu cao cấp, đường may tỉ mỉ, form dáng chuẩn thời trang hiện đại.\nThiết kế trẻ trung năng động, dễ phối đồ phù hợp đi học, đi chơi, đi làm.'}
           </div>
         </div>
+
+        {/* 6. REVIEWS & RATINGS SUMMARY CARD */}
+        <div className={styles.reviewsCard}>
+          <div className={styles.reviewsCardHeader}>
+            <div>
+              <h2 className={styles.reviewsCardTitle}>Đánh Giá & Nhận Xét</h2>
+              <div className={styles.reviewsRatingSummary}>
+                <span className={styles.reviewsScoreBig}>{reviewsStats.averageRating || '5.0'}</span>
+                <div className={styles.reviewsStarsRow}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <FiStar
+                      key={i}
+                      size={13}
+                      style={{
+                        fill: i <= Math.round(reviewsStats.averageRating) ? '#fbbf24' : 'none',
+                        color: '#fbbf24',
+                      }}
+                    />
+                  ))}
+                </div>
+                <span className={styles.reviewsCountText}>({reviewsStats.totalReviews} đánh giá)</span>
+              </div>
+            </div>
+            <Link href={`/product/${product.slug}/reviews`} className={styles.seeAllReviewsLink}>
+              Xem tất cả <FiChevronRight size={13} />
+            </Link>
+          </div>
+
+          {/* Reviews Preview List or Empty Prompt */}
+          {reviewsPreview.length > 0 ? (
+            <div className={styles.reviewsPreviewList}>
+              {reviewsPreview.map((rev) => (
+                <div key={rev._id} className={styles.previewReviewItem}>
+                  <div className={styles.previewReviewHeader}>
+                    <div className={styles.previewAuthor}>
+                      {rev.author ? (rev.author.length <= 2 ? rev.author + '***' : rev.author[0] + '***' + rev.author[rev.author.length - 1]) : 'Khách hàng'}
+                    </div>
+                    <div className={styles.previewStars}>
+                      {[1, 2, 3, 4, 5].map((s: number) => (
+                        <FiStar
+                          key={s}
+                          size={11}
+                          style={{
+                            fill: s <= rev.rating ? '#fbbf24' : 'none',
+                            color: '#fbbf24',
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  {rev.variantTitle && (
+                    <span className={styles.previewVariant}>Phân loại: {rev.variantTitle}</span>
+                  )}
+                  <p className={styles.previewComment}>{rev.comment}</p>
+                  {Array.isArray(rev.images) && rev.images.length > 0 && (
+                    <div className={styles.previewImgs}>
+                      {rev.images.slice(0, 3).map((imgUrl: string, idx: number) => (
+                        <img
+                          key={idx}
+                          src={imgUrl}
+                          alt="Review"
+                          className={styles.previewImg}
+                          onClick={() => setLightboxImage(imgUrl)}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.noReviewsYet}>
+              <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+            </div>
+          )}
+
+          <button
+            type="button"
+            className={styles.writeReviewCtaBtn}
+            onClick={() => setIsWriteModalOpen(true)}
+          >
+            <FiEdit3 size={15} />
+            <span>Viết đánh giá cho sản phẩm này</span>
+          </button>
+        </div>
       </div>
 
       {/* ===== FIXED BOTTOM ACTION BAR ===== */}
@@ -585,9 +818,9 @@ export default function ProductDetailPage() {
           <FiMessageSquare size={18} />
           <span>Chat</span>
         </Link>
-        <Link href="/cart" className={styles.actionIconBtn}>
-          <FiShoppingCart size={18} />
-          <span>Giỏ</span>
+        <Link href={`/product/${product.slug}/reviews`} className={styles.actionIconBtn}>
+          <FiStar size={18} />
+          <span>Đánh giá</span>
         </Link>
         <button
           type="button"
@@ -608,6 +841,182 @@ export default function ProductDetailPage() {
           <span>{isOutOfStock ? 'Tạm hết hàng' : 'Mua ngay'}</span>
         </button>
       </div>
+
+      {/* ===== WRITE REVIEW MODAL ===== */}
+      {isWriteModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setIsWriteModalOpen(false)}>
+          <div className={styles.modalSheet} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Đánh Giá Sản Phẩm</h3>
+              <button
+                type="button"
+                className={styles.closeBtn}
+                onClick={() => setIsWriteModalOpen(false)}
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitReview} className={styles.modalBody}>
+              {/* Interactive Star Rating Selector */}
+              <div className={styles.ratingSelectorWrap}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+                  Chất lượng sản phẩm
+                </span>
+                <div className={styles.starPicker}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={`${styles.starBtn} ${star <= ratingInput ? styles.starBtnFilled : ''}`}
+                      onClick={() => setRatingInput(star)}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+                <span className={styles.ratingEmotionLabel}>{EMOTION_LABELS[ratingInput]}</span>
+              </div>
+
+              {/* Author Name */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Họ và tên của bạn *</label>
+                <input
+                  type="text"
+                  className={styles.inputField}
+                  placeholder="Ví dụ: Nguyễn Văn A"
+                  value={authorInput}
+                  onChange={(e) => setAuthorInput(e.target.value)}
+                  required
+                />
+              </div>
+
+              {/* Variant Selector */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Phân loại hàng đã mua (tùy chọn)</label>
+                {product?.variants && product.variants.length > 0 ? (
+                  <select
+                    className={styles.inputField}
+                    value={variantInput}
+                    onChange={(e) => setVariantInput(e.target.value)}
+                  >
+                    <option value="">-- Chọn phân loại sản phẩm --</option>
+                    {product.variants.map((v: any, idx: number) => (
+                      <option key={idx} value={v.title || v.name || `Phân loại ${idx + 1}`}>
+                        {v.title || v.name || `Phân loại ${idx + 1}`}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    className={styles.inputField}
+                    placeholder="Ví dụ: Màu Đen, Size L..."
+                    value={variantInput}
+                    onChange={(e) => setVariantInput(e.target.value)}
+                  />
+                )}
+              </div>
+
+              {/* Quick Tags Suggestions */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Gợi ý nhận xét nhanh</label>
+                <div className={styles.quickTags}>
+                  {QUICK_TAGS.map((tag, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={styles.quickTagBtn}
+                      onClick={() => {
+                        setCommentInput((prev) => (prev ? `${prev}. ${tag}` : tag));
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Comment Textarea */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Nhận xét chi tiết *</label>
+                <textarea
+                  className={styles.textareaField}
+                  placeholder="Hãy chia sẻ trải nghiệm sử dụng thực tế của bạn về sản phẩm này nhé..."
+                  value={commentInput}
+                  onChange={(e) => setCommentInput(e.target.value)}
+                  required
+                />
+              </div>
+
+              {/* Upload Photos */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  Thêm hình ảnh thực tế ({uploadedImages.length}/5)
+                </label>
+                <div className={styles.uploadedPhotosGrid}>
+                  {uploadedImages.map((url, i) => (
+                    <div key={i} className={styles.uploadedThumbWrap}>
+                      <img src={url} alt={`Upload ${i + 1}`} className={styles.uploadedThumb} />
+                      <button
+                        type="button"
+                        className={styles.removeThumbBtn}
+                        onClick={() => handleRemovePhoto(i)}
+                        title="Xóa ảnh"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+
+                  {uploadedImages.length < 5 && (
+                    <button
+                      type="button"
+                      className={styles.uploadPhotoBtn}
+                      onClick={() => reviewFileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      <FiCamera size={18} />
+                      <span>{isUploading ? 'Đang tải...' : 'Thêm ảnh'}</span>
+                    </button>
+                  )}
+                  <input
+                    type="file"
+                    ref={reviewFileInputRef}
+                    style={{ display: 'none' }}
+                    accept="image/*"
+                    onChange={handleUploadPhoto}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button
+                  type="submit"
+                  className={styles.submitBtn}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Đang gửi...' : 'Gửi Đánh Giá Ngay'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ===== LIGHTBOX MODAL ===== */}
+      {lightboxImage && (
+        <div className={styles.lightboxOverlay} onClick={() => setLightboxImage(null)}>
+          <button
+            type="button"
+            className={styles.closeLightboxBtn}
+            onClick={() => setLightboxImage(null)}
+          >
+            ✕
+          </button>
+          <img src={lightboxImage} alt="Ảnh phóng to" className={styles.lightboxImg} />
+        </div>
+      )}
     </div>
   );
 }

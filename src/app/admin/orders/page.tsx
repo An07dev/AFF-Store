@@ -18,6 +18,7 @@ import { formatPrice, formatDate } from '@/lib/utils';
 import Skeleton from '@/components/common/Skeleton';
 import OrderDetailModal from '@/components/admin/OrderDetailModal';
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
+import ShipOrderModal from '@/components/admin/ShipOrderModal';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -35,6 +36,7 @@ export default function OrdersPage() {
 
   // Modal states
   const [selectedDetailOrderId, setSelectedDetailOrderId] = useState<string | null>(null);
+  const [shippingTargetOrder, setShippingTargetOrder] = useState<any | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; code: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -350,26 +352,49 @@ export default function OrdersPage() {
                           </button>
 
                           {o.status === 'pending' && (
-                            <button
-                              type="button"
-                              className={styles.actionBtn}
-                              title="Duyệt đơn hàng"
-                              style={{ color: '#10b981' }}
-                              onClick={() => handleUpdateStatus(o._id, 'confirmed')}
-                            >
-                              <FiCheck />
-                            </button>
+                            <>
+                              <button
+                                type="button"
+                                className={styles.actionBtn}
+                                title="Duyệt đơn hàng"
+                                style={{ color: '#10b981' }}
+                                onClick={() => handleUpdateStatus(o._id, 'confirmed')}
+                              >
+                                <FiCheck />
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.actionBtn}
+                                title="Chọn đơn vị giao hàng"
+                                style={{ color: '#ea580c' }}
+                                onClick={() => setShippingTargetOrder(o)}
+                              >
+                                <FiTruck />
+                              </button>
+                            </>
                           )}
 
                           {o.status === 'confirmed' && (
                             <button
                               type="button"
                               className={styles.actionBtn}
-                              title="Chuyển sang Đang giao"
+                              title="Chọn đơn vị giao hàng"
                               style={{ color: 'var(--primary, #3b82f6)' }}
-                              onClick={() => handleUpdateStatus(o._id, 'shipping')}
+                              onClick={() => setShippingTargetOrder(o)}
                             >
                               <FiTruck />
+                            </button>
+                          )}
+
+                          {o.status === 'shipping' && (
+                            <button
+                              type="button"
+                              className={styles.actionBtn}
+                              title="Hoàn thành giao hàng"
+                              style={{ color: '#10b981' }}
+                              onClick={() => handleUpdateStatus(o._id, 'delivered')}
+                            >
+                              <FiCheck />
                             </button>
                           )}
 
@@ -458,6 +483,13 @@ export default function OrdersPage() {
       <OrderDetailModal
         orderId={selectedDetailOrderId}
         onClose={() => setSelectedDetailOrderId(null)}
+        onSuccess={fetchOrders}
+      />
+
+      {/* Ship Order Carrier Modal */}
+      <ShipOrderModal
+        order={shippingTargetOrder}
+        onClose={() => setShippingTargetOrder(null)}
         onSuccess={fetchOrders}
       />
 

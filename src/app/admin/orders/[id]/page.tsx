@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
 import AdminLoading from '@/components/admin/AdminLoading';
 import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
+import ShipOrderModal from '@/components/admin/ShipOrderModal';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -18,6 +19,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [isShipModalOpen, setIsShipModalOpen] = useState(false);
 
   const fetchOrder = async () => {
     try {
@@ -60,46 +62,6 @@ export default function OrderDetailPage() {
       }
     } catch (err) {
       toast.error('Lỗi kết nối máy chủ');
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  const createShipping = async (provider: string) => {
-    try {
-      setUpdating(true);
-      const res = await apiFetch('/api/shipping/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: order._id,
-          provider,
-          orderData: {
-            orderCode: order.orderCode,
-            paymentMethod: order.paymentMethod,
-            totalAmount: order.totalAmount,
-            to_name: order.customer?.name,
-            to_phone: order.customer?.phone,
-            to_address: order.customer?.address,
-            province: order.customer?.province,
-            district: order.customer?.district,
-            ward: order.customer?.ward,
-            customer: order.customer,
-            items: order.items,
-            cod_amount: order.paymentStatus === 'paid' ? 0 : order.totalAmount,
-            weight: 500,
-          },
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success(`Đã đẩy đơn sang ${provider.toUpperCase()} thành công! Mã vận đơn: ${data.data.trackingCode}`);
-        fetchOrder();
-      } else {
-        toast.error(data.message || 'Lỗi khi đẩy đơn sang hãng');
-      }
-    } catch (e) {
-      toast.error('Lỗi tạo vận đơn');
     } finally {
       setUpdating(false);
     }
@@ -150,57 +112,44 @@ export default function OrderDetailPage() {
             </button>
           )}
 
-          {/* 1-Click Duyệt Đơn & Tự Động Đẩy Hãng Vận Chuyển Khách Đã Chọn */}
+          {/* Pending: Duyệt đơn hoặc Chọn đơn vị giao hàng */}
           {order.status === 'pending' && (
-            <button
-              type="button"
-              className={styles.btnPrimary}
-              style={{
-                background:
-                  (order.shippingProvider || '').includes('ghtk')
-                    ? '#059669'
-                    : '#ea580c',
-              }}
-              onClick={() => updateOrderStatus('confirmed')}
-              disabled={updating}
-            >
-              <FiCheck /> Duyệt Đơn & Đẩy Sang {order.shippingCarrier || order.shippingProvider?.toUpperCase() || 'Hãng Vận Chuyển'}
-            </button>
-          )}
-
-          {order.status === 'confirmed' && !order.trackingCode && (
-            <div style={{ display: 'flex', gap: 6 }}>
+            <>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                style={{ background: '#10b981' }}
+                onClick={() => updateOrderStatus('confirmed')}
+                disabled={updating}
+              >
+                <FiCheck /> Duyệt Đơn
+              </button>
               <button
                 type="button"
                 className={styles.btnPrimary}
                 style={{ background: '#ea580c' }}
-                onClick={() => createShipping('ghn')}
+                onClick={() => setIsShipModalOpen(true)}
                 disabled={updating}
               >
-                <FiTruck /> Đẩy GHN
+                <FiTruck /> Chọn Đơn Vị Giao Hàng
               </button>
-              <button
-                type="button"
-                className={styles.btnPrimary}
-                style={{ background: '#059669' }}
-                onClick={() => createShipping('ghtk')}
-                disabled={updating}
-              >
-                <FiTruck /> Đẩy GHTK
-              </button>
-            </div>
+            </>
           )}
 
-          {order.status === 'confirmed' && order.trackingCode && (
+          {/* Confirmed: Chọn đơn vị giao hàng & Đẩy đơn */}
+          {order.status === 'confirmed' && (
             <button
+              type="button"
               className={styles.btnPrimary}
-              onClick={() => updateOrderStatus('shipping')}
+              style={{ background: 'var(--primary, #3b82f6)' }}
+              onClick={() => setIsShipModalOpen(true)}
               disabled={updating}
             >
-              <FiTruck /> Chuyển sang Đang giao
+              <FiTruck /> Chọn Đơn Vị Giao Hàng
             </button>
           )}
 
+          {/* Shipping: Hoàn thành đơn */}
           {order.status === 'shipping' && (
             <button
               className={styles.btnPrimary}
@@ -330,47 +279,49 @@ export default function OrderDetailPage() {
               <FiTruck className={styles.inlineIcon} /> Vận chuyển & Giao hàng
             </h3>
             {order.trackingCode ? (
-              <div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <p className={styles.infoText}>
-                  Đơn vị: <strong>{order.shippingProvider?.toUpperCase()}</strong>
+                  Đơn vị vận chuyển: <strong>{order.shippingCarrier || order.shippingProvider?.toUpperCase()}</strong>
                 </p>
                 <p className={styles.infoText}>
                   Mã vận đơn: <strong style={{ color: 'var(--primary, #3b82f6)' }}>{order.trackingCode}</strong>
                 </p>
+                {order.status !== 'delivered' && order.status !== 'cancelled' && (
+                  <button
+                    type="button"
+                    className={styles.btnSecondary}
+                    style={{ marginTop: 6 }}
+                    onClick={() => setIsShipModalOpen(true)}
+                  >
+                    <FiTruck /> Đổi / Chọn lại đơn vị giao hàng
+                  </button>
+                )}
               </div>
             ) : (
               <div>
                 <p className={styles.textMuted} style={{ marginBottom: 12 }}>
-                  Chưa đẩy sang hãng vận chuyển. Chọn hãng để đẩy đơn:
+                  Đơn hàng chưa phân bổ đơn vị vận chuyển.
                 </p>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className={styles.btnSecondary}
-                    onClick={() => createShipping('ghn')}
-                  >
-                    Giao Hàng Nhanh (GHN)
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.btnSecondary}
-                    onClick={() => createShipping('ghtk')}
-                  >
-                    GHTK
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.btnSecondary}
-                    onClick={() => createShipping('viettelpost')}
-                  >
-                    ViettelPost
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className={styles.btnPrimary}
+                  style={{ width: '100%', justifyContent: 'center' }}
+                  onClick={() => setIsShipModalOpen(true)}
+                >
+                  <FiTruck /> Chọn Đơn Vị Giao Hàng Ngay
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Ship Order Modal */}
+      <ShipOrderModal
+        order={isShipModalOpen ? order : null}
+        onClose={() => setIsShipModalOpen(false)}
+        onSuccess={fetchOrder}
+      />
     </div>
   );
 }
