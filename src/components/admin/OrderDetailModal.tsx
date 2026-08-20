@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
 import LazyImage from '@/components/common/LazyImage';
 import Skeleton from '@/components/common/Skeleton';
+import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
 import { apiFetch } from '@/lib/api';
 import styles from './OrderDetailModal.module.css';
 
@@ -247,6 +248,13 @@ export default function OrderDetailModal({
                   <span className={styles.totalPrice}>{formatPrice(order.totalAmount)}</span>
                 </div>
               </div>
+
+              {/* Real-time Shipping Tracker */}
+              <OrderTrackingTimeline
+                orderCode={order.orderCode}
+                trackingCode={order.trackingCode}
+                carrier={order.shippingProvider || order.shippingCarrier}
+              />
             </>
           ) : null}
         </div>

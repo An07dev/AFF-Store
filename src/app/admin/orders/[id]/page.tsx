@@ -7,6 +7,7 @@ import { FiArrowLeft, FiCheck, FiTruck, FiUser, FiMapPin, FiPackage, FiX, FiDoll
 import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
 import AdminLoading from '@/components/admin/AdminLoading';
+import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -265,8 +266,15 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
+          {/* Real-time Order Tracking Timeline */}
+          <OrderTrackingTimeline
+            orderCode={order.orderCode}
+            trackingCode={order.trackingCode}
+            carrier={order.shippingProvider || order.shippingCarrier}
+          />
+
           {order.notes && (
-            <div className={styles.card}>
+            <div className={styles.card} style={{ marginTop: 20 }}>
               <h3>Ghi chú của khách</h3>
               <p style={{ color: '#f3f4f6', fontStyle: 'italic' }}>"{order.notes}"</p>
             </div>

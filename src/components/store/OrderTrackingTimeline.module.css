@@ -1,0 +1,360 @@
+.trackingCard {
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  border-radius: 16px;
+  padding: 22px 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  margin-top: 16px;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Embedded mode when placed inside 5-Step Stepper card */
+.embeddedWrap {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+  box-shadow: none;
+}
+
+/* Carrier & Action Bar */
+.carrierActionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card-hover, rgba(0, 0, 0, 0.25));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.06));
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.carrierLeftCol {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.carrierBadge {
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.carrierGHN {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+.carrierGHTK {
+  background: rgba(22, 163, 74, 0.15);
+  color: #16a34a;
+  border: 1px solid rgba(22, 163, 74, 0.35);
+}
+
+.carrierVTP {
+  background: rgba(220, 38, 38, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+}
+
+.carrierStandard {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary, #3b82f6);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.waybillWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.waybillLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.waybillCode {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  font-family: monospace;
+  background: var(--bg-main, rgba(255, 255, 255, 0.06));
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+.copyBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.copyBtn:hover {
+  color: var(--primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.carrierRightCol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.liveTag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.71875rem;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.simTag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.71875rem;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.refreshBtn {
+  background: var(--bg-main, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  color: var(--text-muted, #94a3b8);
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refreshBtn:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--primary, #3b82f6);
+  color: var(--primary, #3b82f6);
+}
+
+/* View Switcher Tabs (Timeline vs Roadmap) */
+.viewSwitchWrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-card-hover, rgba(0, 0, 0, 0.35));
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.06));
+  margin-bottom: 16px;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.switchTabBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.switchTabBtn:hover {
+  color: var(--text-main, #ffffff);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.switchTabActive {
+  background: var(--primary, #3b82f6) !important;
+  color: var(--primary-text, #ffffff) !important;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+/* Vertical Timeline List */
+.timelineList {
+  position: relative;
+  padding-left: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.timelineList::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 9px;
+  width: 2px;
+  background: var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+.timelineItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nodeIcon {
+  position: absolute;
+  left: -28px;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg-card, #13161f);
+  border: 2px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  color: var(--text-muted, #64748b);
+  z-index: 2;
+  transition: all 0.2s;
+}
+
+.itemCurrent .nodeIcon {
+  background: var(--primary, #3b82f6);
+  border-color: var(--primary, #3b82f6);
+  color: #fff;
+  box-shadow: 0 0 12px var(--primary, #3b82f6);
+  animation: nodePulse 1.8s infinite;
+}
+
+@keyframes nodePulse {
+  0% { box-shadow: 0 0 6px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 16px rgba(59, 130, 246, 0.9); }
+  100% { box-shadow: 0 0 6px rgba(59, 130, 246, 0.5); }
+}
+
+.itemCompleted .nodeIcon {
+  background: #10b981;
+  border-color: #34d399;
+  color: #fff;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.itemTitle {
+  font-size: 0.84375rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.itemCurrent .itemTitle {
+  color: var(--primary, #3b82f6);
+}
+
+.itemTime {
+  font-size: 0.71875rem;
+  color: var(--text-muted, #94a3b8);
+  font-family: monospace;
+}
+
+.itemDesc {
+  font-size: 0.78125rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
+}
+
+.itemLocation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.71875rem;
+  color: var(--primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.08);
+  padding: 2px 7px;
+  border-radius: 4px;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+/* Light Theme Overrides */
+:global([data-theme='light']) .carrierActionBar {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+:global([data-theme='light']) .viewSwitchWrap {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+:global([data-theme='light']) .waybillCode {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+:global([data-theme='light']) .nodeIcon {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+:global([data-theme='light']) .timelineList::before {
+  background: #e2e8f0;
+}

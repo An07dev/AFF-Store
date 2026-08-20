@@ -1,53 +1,34 @@
 import { NextResponse } from 'next/server';
-import { trackGHNOrder } from '@/lib/shipping/ghn';
-import { trackGHTKOrder } from '@/lib/shipping/ghtk';
-import { trackViettelPostOrder } from '@/lib/shipping/viettelpost';
+import { getUnifiedOrderTracking } from '@/lib/shipping/unifiedTracker';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    const code = searchParams.get('code') || searchParams.get('orderCode') || searchParams.get('trackingCode') || '';
     const carrier = searchParams.get('carrier') || '';
-    const trackingCode = searchParams.get('code') || '';
 
-    if (!trackingCode) {
+    if (!code) {
       return NextResponse.json(
-        { success: false, message: 'Thiếu mã vận đơn (trackingCode)' },
+        { success: false, message: 'Vui lòng cung cấp mã đơn hàng hoặc mã vận đơn (code)' },
         { status: 400 }
       );
     }
 
-    let carrierResult: any = null;
-    const lower = carrier.toLowerCase();
+    const trackingResult = await getUnifiedOrderTracking({
+      orderCode: code,
+      trackingCode: code,
+      carrier,
+    });
 
-    if (lower.includes('ghn') || trackingCode.startsWith('GHN')) {
-      carrierResult = await trackGHNOrder(trackingCode);
-    } else if (lower.includes('ghtk') || trackingCode.startsWith('GHTK')) {
-      carrierResult = await trackGHTKOrder(trackingCode);
-    } else if (lower.includes('viettel') || trackingCode.startsWith('VTP')) {
-      carrierResult = await trackViettelPostOrder(trackingCode);
-    }
-
-    if (carrierResult && carrierResult.success) {
-      return NextResponse.json({
-        success: true,
-        data: carrierResult,
-      });
-    }
-
-    // Default structured logs if real API is not connected or in sandbox
     return NextResponse.json({
       success: true,
-      data: {
-        trackingCode,
-        carrier: carrier || 'Giao Hàng Tiết Kiệm (GHTK)',
-        status: 'shipping',
-        isLive: false,
-        message: 'Đang hiển thị hành trình ước tính (Chưa cấu hình API Token thực của hãng)',
-      },
+      data: trackingResult,
     });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || 'Lỗi tra cứu vận đơn' },
+      { success: false, message: error.message || 'Lỗi tra cứu hành trình vận đơn' },
       { status: 500 }
     );
   }

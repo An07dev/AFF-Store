@@ -27,6 +27,7 @@ import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
 import { useTheme } from '@/contexts/ThemeContext';
 import BannerNotice from '@/components/common/BannerNotice';
+import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -446,27 +447,42 @@ function TrackingContent() {
               </div>
             </div>
 
-            {/* Stepper / Journey Timeline 5 Bước Minh Bạch */}
+            {/* Stepper / Journey Timeline 5 Bước Minh Bạch & Bản Đồ Roadmap */}
             <div className={styles.timelineCard}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-                <h3 className={styles.cardTitle} style={{ margin: 0, padding: 0, border: 'none' }}>
-                  <FiPackage size={17} color="var(--primary, #3b82f6)" />
-                  <span>Tiến Trình Đơn Hàng (5 Bước Chuẩn Hóa)</span>
-                </h3>
-                <span className={styles.liveTag}>
-                  {currentStep === 5
-                    ? '✓ Hoàn tất 100%'
-                    : currentStep === 4
-                    ? '⚡ Đang đi phát hàng'
-                    : currentStep === 3
-                    ? '🚚 Đang luân chuyển'
-                    : currentStep === 2
-                    ? '📦 Đã duyệt đơn'
-                    : '🛒 Đã ghi nhận'}
-                </span>
+              <div className={styles.stepperHeader}>
+                <div className={styles.stepperHeaderLeft}>
+                  <div className={styles.stepperIconWrap}>
+                    <FiPackage size={18} />
+                  </div>
+                  <div>
+                    <h3 className={styles.stepperMainTitle}>
+                      Tiến Trình Đơn Hàng ({currentStep}/5 Bước)
+                    </h3>
+                    <p className={styles.stepperSubtitle}>
+                      Tự động cập nhật hành trình từ hãng vận chuyển theo thời gian thực
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.stepperHeaderRight}>
+                  <span className={`${styles.livePillTag} ${currentStep === 5 ? styles.pillDelivered : styles.pillActive}`}>
+                    <span className={styles.pillPulseDot} />
+                    <span>
+                      {currentStep === 5
+                        ? '✓ Giao Thành Công'
+                        : currentStep === 4
+                        ? '🛵 Shipper Đang Giao'
+                        : currentStep === 3
+                        ? '🚚 Đang Luân Chuyển'
+                        : currentStep === 2
+                        ? '📦 Đã Duyệt Đơn'
+                        : '🛒 Đã Ghi Nhận'}
+                    </span>
+                  </span>
+                </div>
               </div>
 
-              {/* 1. Horizontal 5-Step Visual Chain */}
+              {/* 1. Horizontal 5-Step Visual Chain with Modern Icons */}
               <div className={styles.horizontalStepper}>
                 <div className={styles.hStepLine}>
                   <div
@@ -487,11 +503,11 @@ function TrackingContent() {
                 </div>
 
                 {[
-                  { num: 1, label: 'Đặt đơn' },
-                  { num: 2, label: 'Xác nhận' },
-                  { num: 3, label: 'Vận chuyển' },
-                  { num: 4, label: 'Đang giao' },
-                  { num: 5, label: 'Đã nhận' },
+                  { num: 1, label: 'Đặt đơn', sub: 'Tiếp nhận', icon: <FiShoppingBag size={14} /> },
+                  { num: 2, label: 'Xác nhận', sub: 'Đã duyệt', icon: <FiPackage size={14} /> },
+                  { num: 3, label: 'Vận chuyển', sub: 'Kho tổng', icon: <FiTruck size={14} /> },
+                  { num: 4, label: 'Đang giao', sub: 'Bưu tá phát', icon: <FiNavigation size={14} /> },
+                  { num: 5, label: 'Đã nhận', sub: 'Hoàn tất', icon: <FiCheckCircle size={14} /> },
                 ].map((st) => {
                   const isDone = currentStep > st.num || (currentStep === 5 && st.num === 5);
                   const isActive = currentStep === st.num && currentStep < 5;
@@ -503,167 +519,22 @@ function TrackingContent() {
                       }`}
                     >
                       <div className={styles.hStepCircle}>
-                        {isDone ? <FiCheck size={14} /> : st.num}
+                        {isDone ? <FiCheck size={16} /> : st.icon}
+                        <span className={styles.stepNumBadge}>{st.num}</span>
                       </div>
                       <span className={styles.hStepLabel}>{st.label}</span>
+                      <span className={styles.hStepSubLabel}>{st.sub}</span>
                     </div>
                   );
                 })}
               </div>
 
-              {/* 2. Current Step Highlight Banner */}
-              <div className={styles.currentStepBanner}>
-                <div className={styles.bannerTop}>
-                  <span className={styles.bannerStepTitle}>
-                    {currentStep === 5
-                      ? '🎉 Bước 5/5: Giao Hàng Thành Công'
-                      : currentStep === 4
-                      ? '🛵 Bước 4/5: Shipper Đang Đi Giao Hàng'
-                      : currentStep === 3
-                      ? '🚚 Bước 3/5: Hãng Vận Chuyển Đang Luân Chuyển'
-                      : currentStep === 2
-                      ? '📦 Bước 2/5: Shop Đang Chuẩn Bị & Đóng Gói'
-                      : '🛒 Bước 1/5: Đặt Hàng Thành Công'}
-                  </span>
-                  <span className={styles.bannerPercent}>
-                    {currentStep === 5
-                      ? '100% Hoàn Tất'
-                      : currentStep === 4
-                      ? '80% Tiến Trình'
-                      : currentStep === 3
-                      ? '60% Tiến Trình'
-                      : currentStep === 2
-                      ? '40% Tiến Trình'
-                      : '20% Tiến Trình'}
-                  </span>
-                </div>
-                <p className={styles.bannerDesc}>
-                  {currentStep === 5
-                    ? 'Đơn hàng đã được giao thành công tới người nhận. Cảm ơn bạn đã tin tưởng mua sắm tại ShopTik!'
-                    : currentStep === 4
-                    ? `Bưu tá đang phát kiện hàng tới địa chỉ của bạn (${order.customer?.district || 'khu vực nhận'}). Hãy để ý điện thoại nhé!`
-                    : currentStep === 3
-                    ? `Kiện hàng đã xuất kho và đang được chuyển phát an toàn qua đơn vị ${carrierInfo?.brandName}.`
-                    : currentStep === 2
-                    ? 'Đơn hàng đã được duyệt, nhân viên kho đang đóng gói và dán mã vận đơn điện tử.'
-                    : 'Hệ thống đã tạo đơn hàng thành công và đang chờ kho xử lý.'}
-                </p>
-                <div className={styles.bannerMeta}>
-                  <span>🕒 Cập nhật: {carrierLogs[0]?.time || 'Vừa xong'}</span>
-                  <span>📍 Vị trí: {carrierLogs[0]?.location || 'Hệ thống'}</span>
-                </div>
-              </div>
-
-              {/* 3. Detailed Step Breakdown Cards */}
-              <div className={styles.stepDetailList}>
-                {[
-                  {
-                    num: 1,
-                    title: 'Bước 1: Đặt Hàng Thành Công',
-                    desc: 'Khách hàng đặt hàng thành công, hệ thống ghi nhận mã đơn hàng.',
-                    icon: <FiShoppingBag size={13} />,
-                    status: currentStep >= 1 ? (currentStep > 1 ? 'done' : 'active') : 'pending',
-                    location: 'Hệ thống ShopTik Store',
-                    time: new Date(order.createdAt || Date.now()).toLocaleString('vi-VN'),
-                  },
-                  {
-                    num: 2,
-                    title: 'Bước 2: Đang Xác Nhận Đơn',
-                    desc: 'Shop đã duyệt đơn hàng, in phiếu giao hàng và đóng gói sản phẩm.',
-                    icon: <FiPackage size={13} />,
-                    status: currentStep >= 2 ? (currentStep > 2 ? 'done' : 'active') : 'pending',
-                    location: 'Kho tổng đóng gói - Nam Từ Liêm, Hà Nội',
-                    time: currentStep >= 2 ? 'Đã hoàn tất đóng gói' : 'Chờ duyệt',
-                  },
-                  {
-                    num: 3,
-                    title: 'Bước 3: Bàn Giao Đơn Vị Vận Chuyển',
-                    desc: `Bàn giao kiện hàng cho đơn vị ${carrierInfo?.brandName}. Hàng đang được phân loại tại kho trung chuyển.`,
-                    icon: <FiTruck size={13} />,
-                    status: currentStep >= 3 ? (currentStep > 3 ? 'done' : 'active') : 'pending',
-                    location: carrierInfo?.brandName || 'Đơn vị giao hàng',
-                    time: carrierInfo?.trackingCode ? `Mã vận đơn: ${carrierInfo.trackingCode}` : 'Chờ hãng tiếp nhận',
-                  },
-                  {
-                    num: 4,
-                    title: 'Bước 4: Đang Giao Hàng',
-                    desc: 'Kiện hàng đã đến bưu cục đích, Shipper đang đi phát tận nơi tới địa chỉ người nhận.',
-                    icon: <FiNavigation size={13} />,
-                    status: currentStep >= 4 ? (currentStep > 4 ? 'done' : 'active') : 'pending',
-                    location: `Bưu cục phát ${order.customer?.district || 'khu vực giao hàng'}`,
-                    time: currentStep >= 4 ? 'Shipper đang giao tận nơi' : 'Chờ xuất bưu cục',
-                  },
-                  {
-                    num: 5,
-                    title: 'Bước 5: Đã Giao Thành Công',
-                    desc: 'Kiện hàng đã được giao tận tay khách hàng. Xác nhận hoàn tất đơn hàng.',
-                    icon: <FiCheckCircle size={13} />,
-                    status: currentStep >= 5 ? 'done' : 'pending',
-                    location: order.customer?.address || 'Địa chỉ khách hàng',
-                    time: currentStep >= 5 ? (isPaid ? 'Đã giao & Đã thanh toán' : 'Đã giao hàng') : 'Chưa giao',
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.num}
-                    className={`${styles.stepDetailCard} ${
-                      item.status === 'done'
-                        ? styles.stepCardDone
-                        : item.status === 'active'
-                        ? styles.stepCardActive
-                        : styles.stepCardPending
-                    }`}
-                  >
-                    <div className={styles.stepBadgeNum}>
-                      {item.status === 'done' ? <FiCheck size={14} /> : item.num}
-                    </div>
-
-                    <div className={styles.stepContentRight}>
-                      <div className={styles.stepHeaderRow}>
-                        <span className={styles.stepHeading}>
-                          {item.icon} {item.title}
-                        </span>
-                        <span
-                          className={`${styles.stepStatusTag} ${
-                            item.status === 'done'
-                              ? styles.tagDone
-                              : item.status === 'active'
-                              ? styles.tagActive
-                              : styles.tagPending
-                          }`}
-                        >
-                          {item.status === 'done'
-                            ? '✓ Đã xong'
-                            : item.status === 'active'
-                            ? '⚡ Đang thực hiện'
-                            : '⏳ Chờ đến'}
-                        </span>
-                      </div>
-
-                      <p className={styles.stepDescription}>{item.desc}</p>
-
-                      {item.num === 3 && carrierInfo?.trackingCode && (
-                        <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <button
-                            type="button"
-                            className={styles.copyBtn}
-                            onClick={() => handleCopyWaybill(carrierInfo.trackingCode)}
-                            style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6 }}
-                          >
-                            {copiedWaybill ? <FiCheck size={12} color="#10b981" /> : <FiCopy size={12} />}
-                            <span>{copiedWaybill ? 'Đã sao chép mã vận đơn' : `Mã vận đơn: ${carrierInfo.trackingCode}`}</span>
-                          </button>
-                        </div>
-                      )}
-
-                      <div className={styles.stepMetaRow}>
-                        <span className={styles.metaItem}>📍 {item.location}</span>
-                        <span>•</span>
-                        <span className={styles.metaItem}>🕒 {item.time}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {/* 2. Real-time Shipping Journey & Interactive Roadmap */}
+              <OrderTrackingTimeline
+                orderCode={order.orderCode}
+                trackingCode={order.trackingCode || carrierInfo?.trackingCode}
+                carrier={order.shippingProvider || order.shippingCarrier || carrierInfo?.brandName}
+              />
             </div>
 
             {/* Delivery & Address Info */}

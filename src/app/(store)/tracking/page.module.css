@@ -357,38 +357,126 @@
   color: var(--text-muted, #94a3b8);
 }
 
-/* Timeline Card */
+/* Timeline Card - Ultra Modern Glassmorphism */
 .timelineCard {
-  background: var(--bg-card, #13161f);
-  border: 1px solid var(--border-color, #232838);
-  border-radius: 16px;
-  padding: 18px 16px;
+  background: linear-gradient(180deg, rgba(19, 23, 34, 0.95) 0%, rgba(13, 16, 23, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 22px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  gap: 20px;
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.05);
+  position: relative;
+  overflow: hidden;
 }
 
-.cardTitle {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--text-main, #f8fafc);
+.timelineCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary, #3b82f6), #10b981, transparent);
+  opacity: 0.8;
+}
+
+/* Stepper Header */
+.stepperHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stepperHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stepperIconWrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #3b82f6) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #3b82f6) 28%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary, #3b82f6);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--primary, #3b82f6) 20%, transparent);
+}
+
+.stepperMainTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  letter-spacing: -0.01em;
   margin: 0;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border-color, #232838);
+}
+
+.stepperSubtitle {
+  font-size: 11.5px;
+  color: var(--text-muted, #94a3b8);
+  margin: 2px 0 0 0;
+}
+
+.stepperHeaderRight {
+  display: flex;
+  align-items: center;
+}
+
+.livePillTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.pillActive {
+  background: color-mix(in srgb, var(--primary, #3b82f6) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #3b82f6) 35%, transparent);
+  color: var(--primary, #3b82f6);
+}
+
+.pillDelivered {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+}
+
+.pillPulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  animation: pulseDot 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
 }
 
 /* 5-Step Horizontal Chain Header */
 .horizontalStepper {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   position: relative;
-  padding: 10px 4px 18px 4px;
-  margin-bottom: 4px;
+  padding: 12px 6px 14px 6px;
+  margin: 4px 0;
 }
 
 .hStepItem {
@@ -402,75 +490,121 @@
 }
 
 .hStepCircle {
-  width: 32px;
-  height: 32px;
+  position: relative;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: #151926;
-  border: 2px solid var(--border-color, #2b3248);
-  color: var(--text-muted, #94a3b8);
+  background: var(--bg-card, #141824);
+  border: 2px solid var(--border-color, #232838);
+  color: var(--text-muted, #64748b);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stepNumBadge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--bg-main, #0f121d);
+  border: 1px solid var(--border-color, #2b3248);
+  font-size: 8.5px;
   font-weight: 800;
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted, #94a3b8);
 }
 
 .hStepDone .hStepCircle {
-  background: #10b981;
-  border-color: #10b981;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: #34d399;
   color: #ffffff;
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+}
+
+.hStepDone .stepNumBadge {
+  background: #065f46;
+  border-color: #34d399;
+  color: #d1fae5;
 }
 
 .hStepActive .hStepCircle {
-  background: #3b82f6;
-  border-color: #60a5fa;
-  color: #ffffff;
-  box-shadow: 0 0 16px rgba(59, 130, 246, 0.6);
-  transform: scale(1.12);
-  animation: activeGlow 1.8s infinite;
+  background: linear-gradient(135deg, var(--primary, #3b82f6) 0%, var(--primary-hover, #2563eb) 100%);
+  border-color: color-mix(in srgb, var(--primary, #3b82f6) 80%, white);
+  color: var(--primary-text, #ffffff);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--primary, #3b82f6) 60%, transparent);
+  transform: scale(1.14);
+  animation: activeGlow 2s infinite ease-in-out;
+}
+
+.hStepActive .stepNumBadge {
+  background: color-mix(in srgb, var(--primary, #3b82f6) 80%, black);
+  border-color: var(--primary, #3b82f6);
+  color: var(--primary-text, #ffffff);
 }
 
 @keyframes activeGlow {
-  0% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
-  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.9); }
-  100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
+  0% { box-shadow: 0 0 10px color-mix(in srgb, var(--primary, #3b82f6) 50%, transparent); }
+  50% { box-shadow: 0 0 24px color-mix(in srgb, var(--primary, #3b82f6) 90%, transparent); }
+  100% { box-shadow: 0 0 10px color-mix(in srgb, var(--primary, #3b82f6) 50%, transparent); }
 }
 
 .hStepLabel {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--text-muted, #94a3b8);
   text-align: center;
-  max-width: 68px;
-  line-height: 1.25;
+  line-height: 1.2;
+}
+
+.hStepSubLabel {
+  font-size: 9.5px;
+  color: var(--text-muted, #64748b);
+  text-align: center;
 }
 
 .hStepDone .hStepLabel {
   color: #10b981;
 }
 
+.hStepDone .hStepSubLabel {
+  color: #34d399;
+  font-weight: 600;
+}
+
 .hStepActive .hStepLabel {
-  color: #60a5fa;
+  color: var(--primary, #3b82f6);
   font-weight: 800;
+}
+
+.hStepActive .hStepSubLabel {
+  color: var(--primary, #3b82f6);
+  font-weight: 600;
+  opacity: 0.9;
 }
 
 .hStepLine {
   position: absolute;
-  top: 26px;
-  left: 30px;
-  right: 30px;
-  height: 3px;
-  background: var(--border-color, #232838);
+  top: 31px;
+  left: 36px;
+  right: 36px;
+  height: 4px;
+  background: var(--border-color, #1e2433);
+  border-radius: 4px;
   z-index: 1;
 }
 
 .hStepLineFill {
   height: 100%;
-  background: linear-gradient(90deg, #10b981, #3b82f6);
-  border-radius: 3px;
-  transition: width 0.4s ease;
+  background: linear-gradient(90deg, #10b981 0%, var(--primary, #3b82f6) 70%, var(--primary-hover, #6366f1) 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--primary, #3b82f6) 50%, transparent);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Current Step Highlight Banner */
@@ -1233,3 +1367,36 @@
   margin: 0;
   line-height: 1.5;
 }
+
+/* Light Theme Overrides for Tracking & Stepper */
+:global([data-theme='light']) .timelineCard {
+  background: var(--bg-card, #ffffff);
+  border-color: var(--border-color, #e2e8f0);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme='light']) .stepperHeader {
+  border-bottom-color: #f1f5f9;
+}
+
+:global([data-theme='light']) .stepperIconWrap {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+:global([data-theme='light']) .hStepCircle {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+}
+
+:global([data-theme='light']) .stepNumBadge {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+:global([data-theme='light']) .hStepLine {
+  background: #e2e8f0;
+}
+
