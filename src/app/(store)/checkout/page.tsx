@@ -108,34 +108,37 @@ export default function CheckoutPage() {
   }, []);
 
   // Shipping carriers state (GHN, GHTK, Viettel Post)
-  const [carriers, setCarriers] = useState<CarrierOption[]>([
-    {
-      carrier: 'ghtk',
-      name: 'Giao Hàng Tiết Kiệm (GHTK)',
-      fee: 20000,
-      estimatedDays: '1-2 ngày',
-      description: 'Tiết kiệm, độ phủ sóng toàn quốc',
-    },
-    {
-      carrier: 'ghn',
-      name: 'Giao Nhanh (GHN)',
-      fee: 22000,
-      estimatedDays: '1 ngày',
-      description: 'Hỏa tốc nội thành, giao nhanh',
-    },
-    {
-      carrier: 'viettelpost',
-      name: 'Viettel Post Tiêu Chuẩn',
-      fee: 21000,
-      estimatedDays: '1-2 ngày',
-      description: 'Mạng lưới an toàn, bảo đảm',
-    },
-  ]);
+  const [carriers, setCarriers] = useState<CarrierOption[]>([]);
   const [selectedCarrier, setSelectedCarrier] = useState<string>('ghtk');
   const [loadingShipping, setLoadingShipping] = useState(false);
 
+  const [paymentConfig, setPaymentConfig] = useState({ codEnabled: true, bankTransferEnabled: true });
   const [paymentMethod, setPaymentMethod] = useState<'bank_transfer' | 'cod'>('bank_transfer');
   const [submitting, setSubmitting] = useState(false);
+
+  // Fetch payment config to show only enabled payment methods
+  useEffect(() => {
+    async function fetchPaymentConfig() {
+      try {
+        const res = await apiFetch('/api/settings/payment');
+        const data = await res.json();
+        if (data.success && data.data) {
+          const cod = data.data.codEnabled !== false;
+          const bank = data.data.bankTransferEnabled !== false;
+          setPaymentConfig({ codEnabled: cod, bankTransferEnabled: bank });
+
+          if (bank) {
+            setPaymentMethod('bank_transfer');
+          } else if (cod) {
+            setPaymentMethod('cod');
+          }
+        }
+      } catch (e) {
+        console.error('Error loading payment config in checkout:', e);
+      }
+    }
+    fetchPaymentConfig();
+  }, []);
 
   // Derived subtotal for this purchase
   const checkoutSubtotal = activeItems.reduce((acc, item) => {
@@ -195,6 +198,17 @@ export default function CheckoutPage() {
             if (!list.some((c) => c.carrier === selectedCarrier)) {
               setSelectedCarrier(list[0].carrier);
             }
+          } else {
+            setCarriers([
+              {
+                carrier: 'standard',
+                name: 'Giao Hàng Tiêu Chuẩn',
+                fee: 25000,
+                estimatedDays: '2-3 ngày',
+                description: 'Giao hàng toàn quốc',
+              },
+            ]);
+            setSelectedCarrier('standard');
           }
         }
       } catch (err) {
@@ -265,6 +279,10 @@ export default function CheckoutPage() {
     }
     if (activeItems.length === 0) {
       toast.error('Không có sản phẩm nào để thanh toán!');
+      return;
+    }
+    if (!paymentConfig.codEnabled && !paymentConfig.bankTransferEnabled) {
+      toast.error('Cửa hàng hiện đang tạm đóng cổng thanh toán. Vui lòng liên hệ Chat với Shop!');
       return;
     }
 
@@ -663,45 +681,66 @@ export default function CheckoutPage() {
           </div>
 
           <div className={styles.paymentList}>
-            <div
-              className={`${styles.paymentOption} ${paymentMethod === 'bank_transfer' ? styles.paymentActive : ''}`}
-              onClick={() => setPaymentMethod('bank_transfer')}
-            >
-              <input
-                type="radio"
-                name="payment"
-                checked={paymentMethod === 'bank_transfer'}
-                onChange={() => setPaymentMethod('bank_transfer')}
-              />
-              <div className={styles.paymentOptionInfo}>
-                <span className={styles.paymentOptionTitle}>
-                  ⚡ Chuyển khoản VietQR (SePay Tự Động)
-                </span>
-                <span className={styles.paymentOptionDesc}>
-                  Quét mã QR qua mọi ứng dụng ngân hàng, xác nhận trong 3 giây
-                </span>
+            {paymentConfig.bankTransferEnabled && (
+              <div
+                className={`${styles.paymentOption} ${paymentMethod === 'bank_transfer' ? styles.paymentActive : ''}`}
+                onClick={() => setPaymentMethod('bank_transfer')}
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  checked={paymentMethod === 'bank_transfer'}
+                  onChange={() => setPaymentMethod('bank_transfer')}
+                />
+                <div className={styles.paymentOptionInfo}>
+                  <span className={styles.paymentOptionTitle}>
+                    ⚡ Chuyển khoản VietQR (SePay Tự Động)
+                  </span>
+                  <span className={styles.paymentOptionDesc}>
+                    Quét mã QR qua mọi ứng dụng ngân hàng, xác nhận trong 3 giây
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div
-              className={`${styles.paymentOption} ${paymentMethod === 'cod' ? styles.paymentActive : ''}`}
-              onClick={() => setPaymentMethod('cod')}
-            >
-              <input
-                type="radio"
-                name="payment"
-                checked={paymentMethod === 'cod'}
-                onChange={() => setPaymentMethod('cod')}
-              />
-              <div className={styles.paymentOptionInfo}>
-                <span className={styles.paymentOptionTitle}>
-                  💵 Thanh toán khi nhận hàng (COD)
-                </span>
-                <span className={styles.paymentOptionDesc}>
-                  Kiểm tra hàng và thanh toán tiền mặt cho shipper
-                </span>
+            {paymentConfig.codEnabled && (
+              <div
+                className={`${styles.paymentOption} ${paymentMethod === 'cod' ? styles.paymentActive : ''}`}
+                onClick={() => setPaymentMethod('cod')}
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  checked={paymentMethod === 'cod'}
+                  onChange={() => setPaymentMethod('cod')}
+                />
+                <div className={styles.paymentOptionInfo}>
+                  <span className={styles.paymentOptionTitle}>
+                    💵 Thanh toán khi nhận hàng (COD)
+                  </span>
+                  <span className={styles.paymentOptionDesc}>
+                    Kiểm tra hàng và thanh toán tiền mặt cho shipper
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
+
+            {!paymentConfig.bankTransferEnabled && !paymentConfig.codEnabled && (
+              <div
+                style={{
+                  padding: '14px 16px',
+                  background: 'rgba(245, 158, 11, 0.1)',
+                  border: '1px solid rgba(245, 158, 11, 0.3)',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  color: '#f59e0b',
+                  textAlign: 'center',
+                  lineHeight: 1.5,
+                }}
+              >
+                ⚠️ Cửa hàng đang tạm đóng cổng thanh toán tự động. Quý khách vui lòng bấm <strong>Chat với Shop</strong> để được nhân viên hỗ trợ đặt hàng nhanh!
+              </div>
+            )}
           </div>
         </div>
 

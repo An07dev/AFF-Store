@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiLogIn, FiShield } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useTheme } from '@/contexts/ThemeContext';
 import { apiFetch } from '@/lib/api';
+import { getStoredToken, isTokenExpired } from '@/lib/auth-client';
 import styles from './page.module.css';
 
 export default function AdminLoginPage() {
@@ -16,6 +17,14 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Auto-redirect if already logged in with a valid token
+  useEffect(() => {
+    const token = getStoredToken();
+    if (token && !isTokenExpired(token)) {
+      router.replace('/admin');
+    }
+  }, [router]);
 
   const handleFillDefault = () => {
     setIdentifier('admin@shoptik.vn');
@@ -58,11 +67,9 @@ export default function AdminLoginPage() {
         localStorage.setItem('admin_user', JSON.stringify(user));
 
         toast.success(`Xin chào, ${user.name}! Đăng nhập thành công.`);
-        
+
         // Redirect to admin dashboard
-        setTimeout(() => {
-          router.push('/admin');
-        }, 500);
+        router.push('/admin');
       } else {
         toast.error(data.message || 'Tài khoản hoặc mật khẩu không chính xác');
       }

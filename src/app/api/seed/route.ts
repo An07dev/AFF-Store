@@ -12,8 +12,8 @@ export async function POST() {
     // 1. Seed Admin User
     const adminEmail = 'admin@shoptik.vn';
     let admin = await User.findOne({ email: adminEmail });
+    const hashedPassword = await hashPassword('admin123');
     if (!admin) {
-      const hashedPassword = await hashPassword('admin123');
       admin = await User.create({
         name: 'Admin ShopTik',
         email: adminEmail,
@@ -21,6 +21,10 @@ export async function POST() {
         password: hashedPassword,
         role: 'admin',
       });
+    } else {
+      admin.password = hashedPassword;
+      admin.role = 'admin';
+      await admin.save();
     }
 
     // 2. Seed Categories

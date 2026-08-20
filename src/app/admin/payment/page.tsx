@@ -91,6 +91,8 @@ export const BANK_GROUPS = [
 const BANK_LIST = BANK_GROUPS.flatMap((g) => g.banks);
 
 export default function PaymentAdminPage() {
+  const [codEnabled, setCodEnabled] = useState(true);
+  const [bankTransferEnabled, setBankTransferEnabled] = useState(true);
   const [bankName, setBankName] = useState('MBBank');
   const [accountNumber, setAccountNumber] = useState('0988123456');
   const [accountName, setAccountName] = useState('SHOPTIK VIETNAM');
@@ -116,6 +118,8 @@ export default function PaymentAdminPage() {
         const res = await apiFetch('/api/settings/payment');
         const data = await res.json();
         if (data.success && data.data) {
+          if (data.data.codEnabled !== undefined) setCodEnabled(!!data.data.codEnabled);
+          if (data.data.bankTransferEnabled !== undefined) setBankTransferEnabled(!!data.data.bankTransferEnabled);
           if (data.data.bankName) setBankName(data.data.bankName);
           if (data.data.accountNumber) setAccountNumber(data.data.accountNumber);
           if (data.data.accountName) setAccountName(data.data.accountName);
@@ -131,7 +135,7 @@ export default function PaymentAdminPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    const data = { bankName, accountNumber, accountName, sepayToken };
+    const data = { codEnabled, bankTransferEnabled, bankName, accountNumber, accountName, sepayToken };
     try {
       const res = await apiFetch('/api/settings/payment', {
         method: 'POST',
@@ -141,7 +145,7 @@ export default function PaymentAdminPage() {
       const resData = await res.json();
       if (resData.success) {
         localStorage.setItem('payment_settings', JSON.stringify(data));
-        toast.success('Đã lưu cấu hình tài khoản vào Database MongoDB thành công!');
+        toast.success('Đã lưu cấu hình phương thức thanh toán thành công!');
       } else {
         toast.error(resData.message || 'Lỗi khi lưu cấu hình');
       }
@@ -239,6 +243,87 @@ export default function PaymentAdminPage() {
       <div className={styles.layoutGrid}>
         {/* Left Column: Account & Webhook Settings */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Payment Methods Toggle Card */}
+          <div className={styles.card}>
+            <h3 className={styles.cardTitle}>
+              <FiDollarSign style={{ color: '#10b981' }} />
+              Trạng Thái Phương Thức Thanh Toán (Bật / Tắt)
+            </h3>
+            <p style={{ fontSize: 13, color: 'var(--text-muted, #94a3b8)', marginTop: -6, marginBottom: 14 }}>
+              Cấu hình các hình thức thanh toán được phép hiển thị tại trang Checkout của khách hàng
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Option 1: COD */}
+              <div
+                style={{
+                  background: 'var(--bg-main, #090a0f)',
+                  border: '1px solid var(--border-color, #232838)',
+                  borderRadius: 10,
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-main, #f8fafc)' }}>
+                    💵 Thanh toán khi nhận hàng (COD)
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
+                    Khách hàng thanh toán tiền mặt cho Shipper khi nhận được kiện hàng
+                  </div>
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flexShrink: 0 }}>
+                  <input
+                    type="checkbox"
+                    checked={codEnabled}
+                    onChange={(e) => setCodEnabled(e.target.checked)}
+                    style={{ width: 18, height: 18, accentColor: 'var(--primary, #3b82f6)', cursor: 'pointer' }}
+                  />
+                  <span style={{ fontWeight: 700, fontSize: 13, color: codEnabled ? '#10b981' : '#64748b' }}>
+                    {codEnabled ? 'Đang Bật' : 'Đang Tắt'}
+                  </span>
+                </label>
+              </div>
+
+              {/* Option 2: Bank Transfer VietQR */}
+              <div
+                style={{
+                  background: 'var(--bg-main, #090a0f)',
+                  border: '1px solid var(--border-color, #232838)',
+                  borderRadius: 10,
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-main, #f8fafc)' }}>
+                    ⚡ Chuyển khoản Ngân hàng (VietQR / SePay Tự Động)
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
+                    Tự động tạo mã QR Napas247 và tự động xác nhận Đã Thanh Toán khi tiền về tài khoản
+                  </div>
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flexShrink: 0 }}>
+                  <input
+                    type="checkbox"
+                    checked={bankTransferEnabled}
+                    onChange={(e) => setBankTransferEnabled(e.target.checked)}
+                    style={{ width: 18, height: 18, accentColor: 'var(--primary, #3b82f6)', cursor: 'pointer' }}
+                  />
+                  <span style={{ fontWeight: 700, fontSize: 13, color: bankTransferEnabled ? '#10b981' : '#64748b' }}>
+                    {bankTransferEnabled ? 'Đang Bật' : 'Đang Tắt'}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
           {/* Settings Card */}
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>
