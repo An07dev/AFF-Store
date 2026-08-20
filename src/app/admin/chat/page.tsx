@@ -95,6 +95,11 @@ export default function AdminChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const activeConvIdRef = useRef<string | null>(activeConvId);
+
+  useEffect(() => {
+    activeConvIdRef.current = activeConvId;
+  }, [activeConvId]);
 
   // Notification chime
   const playDing = () => {
@@ -134,7 +139,7 @@ export default function AdminChatPage() {
         }));
         setConversations(convs);
 
-        if (!activeConvId && convs.length > 0) {
+        if (!activeConvIdRef.current && convs.length > 0) {
           setActiveConvId(convs[0].conversationId);
         }
       }
@@ -183,15 +188,19 @@ export default function AdminChatPage() {
     });
 
     const handleNewMessageAlert = (data: any) => {
-      playDing();
-      toast(`💬 Tin nhắn mới từ ${data.customerName || 'Khách hàng'}: "${data.text || '[Ảnh]'}"`, {
-        icon: '🔔',
-      });
+      // Nếu tin nhắn không thuộc cuộc trò chuyện đang mở, phát chuông và báo toast
+      if (data.conversationId !== activeConvIdRef.current) {
+        playDing();
+        toast(`💬 Tin nhắn mới từ ${data.customerName || 'Khách hàng'}: "${data.text || '[Ảnh]'}"`, {
+          icon: '🔔',
+        });
+      }
       fetchConversations();
     };
 
     const handleReceiveMessage = (msg: any) => {
-      if (msg.conversationId === activeConvId) {
+      // Nếu tin nhắn thuộc hội thoại hiện tại đang mở trên màn hình Admin
+      if (msg.conversationId === activeConvIdRef.current) {
         setMessages((prev) => {
           // 1. If already exists by _id, skip
           if (msg._id && prev.some((m) => m._id === msg._id)) {
@@ -230,13 +239,20 @@ export default function AdminChatPage() {
           return [...prev, msg];
         });
 
-        socket.emit('mark_read', { conversationId: activeConvId, readBy: 'admin' });
+        if (msg.sender === 'user') {
+          playDing();
+          socket.emit('mark_read', { conversationId: activeConvIdRef.current, readBy: 'admin' });
+        }
+      } else {
+        if (msg.sender === 'user') {
+          playDing();
+        }
       }
       fetchConversations();
     };
 
     const handleUserTyping = (data: any) => {
-      if (data.conversationId === activeConvId && data.sender === 'user') {
+      if (data.conversationId === activeConvIdRef.current && data.sender === 'user') {
         setIsUserTyping(data.isTyping);
       }
     };
@@ -250,7 +266,16 @@ export default function AdminChatPage() {
     socket.on('user_typing', handleUserTyping);
     socket.on('conversation_updated', handleConvUpdated);
 
+    // Đồng bộ định kỳ 4s giữ tin nhắn luôn tươi mới
+    const pollInterval = setInterval(() => {
+      if (activeConvIdRef.current) {
+        fetchActiveMessages(activeConvIdRef.current);
+      }
+      fetchConversations();
+    }, 4000);
+
     return () => {
+      clearInterval(pollInterval);
       socket.off('new_message_notification', handleNewMessageAlert);
       socket.off('receive_message', handleReceiveMessage);
       socket.off('user_typing', handleUserTyping);

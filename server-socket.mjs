@@ -237,6 +237,9 @@ io.on('connection', (socket) => {
       // Broadcast message to room conv_{conversationId}
       io.to(`conv_${conversationId}`).emit('receive_message', msgObj);
 
+      // Đồng thời phát tin nhắn tới admin_hub để tất cả Admin trực tuyến nhận ngay lập tức
+      io.to('admin_hub').emit('receive_message', msgObj);
+
       // If sent by user, send alert to Admin Hub
       if (isUser) {
         io.to('admin_hub').emit('new_message_notification', {
@@ -270,6 +273,15 @@ io.on('connection', (socket) => {
         sender,
         isTyping: !!isTyping,
       });
+
+      // Nếu là khách đang gõ, thông báo cho admin_hub
+      if (sender === 'user') {
+        socket.to('admin_hub').emit('user_typing', {
+          conversationId,
+          sender,
+          isTyping: !!isTyping,
+        });
+      }
     }
   });
 
