@@ -93,6 +93,50 @@ export default function AdminChatPage() {
   const [newTagInput, setNewTagInput] = useState('');
   const [adminNotesInput, setAdminNotesInput] = useState('');
 
+  // AI Bot Settings State
+  const [showBotModal, setShowBotModal] = useState(false);
+  const [botConfig, setBotConfig] = useState({
+    enabled: true,
+    botName: 'AI Trợ Lý ShopTik',
+    welcomeMessage: 'Dạ chào bạn! Em là Trợ lý AI của shop. Em có thể giúp bạn tư vấn chọn size chuẩn xác, tra cứu đơn hàng hoặc giải đáp chính sách cửa hàng 24/7 ạ!',
+    geminiApiKey: '',
+  });
+  const [isSavingBot, setIsSavingBot] = useState(false);
+
+  useEffect(() => {
+    // Load bot config
+    apiFetch('/api/settings/chatbot')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setBotConfig(data.data);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const handleSaveBotConfig = async () => {
+    setIsSavingBot(true);
+    try {
+      const res = await apiFetch('/api/settings/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(botConfig),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Đã lưu cấu hình AI Chatbot thành công!');
+        setShowBotModal(false);
+      } else {
+        toast.error(data.message || 'Lỗi lưu cấu hình');
+      }
+    } catch (e) {
+      toast.error('Lỗi kết nối khi lưu cấu hình');
+    } finally {
+      setIsSavingBot(false);
+    }
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const activeConvIdRef = useRef<string | null>(activeConvId);
@@ -557,8 +601,31 @@ export default function AdminChatPage() {
             <div className={styles.sidebarTitle}>
               <FiMessageSquare /> Tin Nhắn CSKH
             </div>
-            <div className={styles.liveBadge}>
-              <span className={styles.liveDot} /> Realtime
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button
+                type="button"
+                onClick={() => setShowBotModal(true)}
+                style={{
+                  background: botConfig.enabled ? '#0284c7' : '#334155',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: 6,
+                  padding: '3px 8px',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                title="Cấu hình AI Bot tư vấn tự động"
+              >
+                🤖 {botConfig.enabled ? 'AI: Bật' : 'AI: Tắt'}
+              </button>
+              <div className={styles.liveBadge}>
+                <span className={styles.liveDot} /> Realtime
+              </div>
             </div>
           </div>
 
@@ -746,11 +813,27 @@ export default function AdminChatPage() {
                     })
                   : 'Vừa xong';
 
+                const isBot = msg.sender === 'bot';
+
+                if (isBot) {
+                  return (
+                    <div key={msg._id || idx} className={styles.adminMsgRow}>
+                      <div className={styles.adminBubble} style={{ background: '#082f49', borderColor: '#0284c7', borderWidth: 1, borderStyle: 'solid' }}>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: '#38bdf8', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span>🤖 AI Trợ Lý Tự Động ({msg.senderName || 'Bot'}):</span>
+                        </div>
+                        {msg.text && <div style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>}
+                        <span className={styles.msgTime}>{timeStr} • Trả lời tự động</span>
+                      </div>
+                    </div>
+                  );
+                }
+
                 if (isAdmin) {
                   return (
                     <div key={msg._id || idx} className={styles.adminMsgRow}>
                       <div className={styles.adminBubble}>
-                        {msg.text && <div>{msg.text}</div>}
+                        {msg.text && <div style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>}
                         {msg.image && (
                           <img
                             src={msg.image}
@@ -759,7 +842,7 @@ export default function AdminChatPage() {
                             onClick={() => window.open(msg.image, '_blank')}
                           />
                         )}
-                        <span className={styles.msgTime}>{timeStr} • Đã gửi</span>
+                        <span className={styles.msgTime}>{timeStr} • Đã gửi (Admin)</span>
                       </div>
                     </div>
                   );
@@ -1024,6 +1107,204 @@ export default function AdminChatPage() {
             >
               Lưu ghi chú
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          AI CHATBOT CONFIGURATION MODAL
+      ======================================================== */}
+      {showBotModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: 16,
+          }}
+          onClick={() => setShowBotModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#131826',
+              border: '1px solid #232838',
+              borderRadius: 16,
+              width: '100%',
+              maxWidth: 520,
+              padding: 24,
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 22 }}>🤖</span>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#f8fafc' }}>
+                  Cấu Hình AI Chatbot 24/7
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBotModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#94a3b8',
+                  fontSize: 18,
+                  cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* Enable / Disable Switch */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 14px',
+                  background: '#090a0f',
+                  borderRadius: 10,
+                  border: '1px solid #232838',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#f8fafc' }}>
+                    Tự động trả lời tin nhắn (AI Auto-Reply)
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                    Tự động tư vấn size, tra cứu đơn hàng #ST... và giải đáp chính sách 24/7
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={botConfig.enabled}
+                  onChange={(e) => setBotConfig({ ...botConfig, enabled: e.target.checked })}
+                  style={{ width: 18, height: 18, cursor: 'pointer' }}
+                />
+              </div>
+
+              {/* Bot Name */}
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 6 }}>
+                  Tên hiển thị của AI Bot:
+                </label>
+                <input
+                  type="text"
+                  value={botConfig.botName}
+                  onChange={(e) => setBotConfig({ ...botConfig, botName: e.target.value })}
+                  placeholder="Ví dụ: AI Trợ Lý ShopTik"
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #232838',
+                    backgroundColor: '#090a0f',
+                    color: '#f8fafc',
+                    fontSize: 13,
+                    outline: 'none',
+                  }}
+                />
+              </div>
+
+              {/* Welcome Message */}
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 6 }}>
+                  Lời chào mặc định (Welcome Message):
+                </label>
+                <textarea
+                  rows={3}
+                  value={botConfig.welcomeMessage}
+                  onChange={(e) => setBotConfig({ ...botConfig, welcomeMessage: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #232838',
+                    backgroundColor: '#090a0f',
+                    color: '#f8fafc',
+                    fontSize: 12,
+                    outline: 'none',
+                    resize: 'none',
+                  }}
+                />
+              </div>
+
+              {/* Gemini API Key */}
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 4 }}>
+                  Google Gemini API Key (Tùy chọn nâng cao):
+                </label>
+                <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6 }}>
+                  Hệ thống mặc định dùng Động cơ Local NLP thông minh miễn phí. Nếu nhập API Key, Bot sẽ sử dụng Gemini 1.5 Flash.
+                </div>
+                <input
+                  type="password"
+                  value={botConfig.geminiApiKey}
+                  onChange={(e) => setBotConfig({ ...botConfig, geminiApiKey: e.target.value })}
+                  placeholder="AIzaSy..."
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #232838',
+                    backgroundColor: '#090a0f',
+                    color: '#f8fafc',
+                    fontSize: 13,
+                    outline: 'none',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
+              <button
+                type="button"
+                onClick={() => setShowBotModal(false)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 8,
+                  backgroundColor: '#1a1e2b',
+                  color: '#94a3b8',
+                  border: '1px solid #232838',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveBotConfig}
+                disabled={isSavingBot}
+                style={{
+                  padding: '8px 20px',
+                  borderRadius: 8,
+                  backgroundColor: '#0284c7',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: isSavingBot ? 'not-allowed' : 'pointer',
+                  opacity: isSavingBot ? 0.6 : 1,
+                }}
+              >
+                {isSavingBot ? 'Đang lưu...' : 'Lưu Cấu Hình'}
+              </button>
+            </div>
           </div>
         </div>
       )}
