@@ -14,10 +14,6 @@ function hashSha256(val?: string): string | undefined {
 
 export async function POST(request: Request) {
   try {
-    await connectToDatabase();
-    const settingDoc = await Setting.findOne({ key: 'marketing_settings' });
-    const config: IMarketingConfig = settingDoc?.value ? { ...defaultMarketingConfig, ...settingDoc.value } : defaultMarketingConfig;
-
     const body = await request.json();
     const {
       eventName = 'PageView',
@@ -26,7 +22,17 @@ export async function POST(request: Request) {
       userData = {},
       customData = {},
       isTest = false,
+      configOverride,
     } = body;
+
+    await connectToDatabase();
+    const settingDoc = await Setting.findOne({ key: 'marketing_settings' });
+
+    const config: IMarketingConfig = configOverride
+      ? { ...defaultMarketingConfig, ...(settingDoc?.value || {}), ...configOverride }
+      : settingDoc?.value
+      ? { ...defaultMarketingConfig, ...settingDoc.value }
+      : defaultMarketingConfig;
 
     const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1';
     const userAgent = request.headers.get('user-agent') || '';

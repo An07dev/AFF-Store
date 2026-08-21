@@ -30,6 +30,7 @@
    - [3.3. Cấu Hình Thanh Toán Tự Động SePay (VietQR)](#33-cấu-hình-thanh-toán-tự-động-sepay-vietqr)
    - [3.4. Cấu Hình Gửi Email Thông Báo Đơn Hàng (Gmail SMTP / Nodemailer)](#34-cấu-hình-gửi-email-thông-báo-đơn-hàng-gmail-smtp--nodemailer)
    - [3.5. Cấu Hình Facebook Pixel & Conversions API (CAPI) Chuẩn Meta](#35-cấu-hình-facebook-pixel--conversions-api-capi-chuẩn-meta)
+   - [3.6. Cấu Hình TikTok Pixel & Events API Chuẩn TikTok Ads](#36-cấu-hình-tiktok-pixel--events-api-chuẩn-tiktok-ads)
 4. [🌐 Danh Sách URL Webhook Cần Cài Đặt](#-danh-sách-url-webhook-cần-cài-đặt)
 5. [🔄 Luồng Vận Hành Tự Động Hóa 1-Chạm](#-luồng-vận-hành-tự-động-hóa-1-chạm)
 6. [📱 Thông Tin Tài Khoản Quản Trị](#-thông-tin-tài-khoản-quản-trị)
@@ -234,6 +235,58 @@ Hệ thống hỗ trợ cơ chế đo lường chuyển đổi chuẩn Meta song
 2. Hệ thống sẽ gửi một sự kiện `Purchase` mẫu qua Meta Graph API v19.0 và trả về kết quả `status: 200` kèm `fbtrace_id`.
 3. Mở tab **Thử nghiệm sự kiện** trên Facebook: Bạn sẽ thấy sự kiện xuất hiện ngay lập tức với nguồn là **Máy chủ (Server)**.
 4. **Vận hành thực tế:** Sau khi kiểm tra thành công, bạn chỉ cần xóa trống ô **"Mã Sự Kiện Thử Nghiệm"** trên web và bấm Lưu lại. Mọi đơn hàng thật của khách từ nay sẽ tự động đồng bộ sang Facebook Ads!
+
+---
+
+### 3.6. Cấu Hình TikTok Pixel & Events API Chuẩn TikTok Ads
+
+Hệ thống hỗ trợ kết nối song song chuẩn **TikTok Pixel (Client-side)** và **TikTok Events API v1.3 (Server-side)**:
+- **Client-side Pixel:** Kích hoạt `PageView`, `ViewContent`, `AddToCart`, `InitiateCheckout`, `PlaceAnOrder` trực tiếp trong trình duyệt.
+- **Server-side Events API:** Gửi dữ liệu đơn hàng kèm mã băm bảo mật SHA-256 (Email, Phone, IP, User Agent, ttclid) từ máy chủ sang TikTok Business API.
+- **Khử trùng lặp (Event Deduplication):** Sử dụng chung `event_id` độc nhất cho mỗi lượt hành động, chống trùng lặp số liệu 100%.
+
+#### 🔹 Bước 1: Tạo Pixel / Nguồn Dữ Liệu Web trên TikTok Ads Manager
+1. Truy cập: 👉 [ads.tiktok.com/i18n/event_manager](https://ads.tiktok.com/i18n/event_manager).
+2. Bấm **`[Connect data source]`** (hoặc `Get started`) $\rightarrow$ Chọn **`Web`** $\rightarrow$ Bấm **Next**.
+3. Chọn phương thức: **`Thiết lập thủ công (Manual Setup)`** $\rightarrow$ Chọn **`API Pixel và Sự kiện TikTok (Khuyến khích)`**.
+4. Đặt tên Pixel (Ví dụ: `ShopTik TikTok Pixel`) $\rightarrow$ Bấm **Tạo nên (Create)**.
+5. Sao chép **TikTok Pixel ID** (Dãy ký tự dạng chữ và số, ví dụ: `DA3SC0BC77UC1JSQM8E0`).
+
+#### 🔹 Bước 2: Bật Đối Sánh Nâng Cao & Chọn Mẫu E-commerce
+1. Tại bước *Quản lý cấu hình*, gạt bật **`Bật tính năng Đối sánh nâng cao tự động (AAM)`**.
+2. Tại bước *Thiết lập phễu kinh doanh*, chọn mẫu **`E-commerce`** (Thương mại điện tử) $\rightarrow$ Bấm **Kế tiếp**.
+
+#### 🔹 Bước 3: Tạo TikTok Events API Access Token
+1. Tại bước *Triển khai API Sự kiện*, tìm mục **1. Tạo mã truy cập** $\rightarrow$ Bấm nút màu đen: **`[Tạo mã truy cập]`** *(Generate access token)*.
+2. Sao chép chuỗi mã Access Token dài vừa hiển thị.
+3. Bấm **Kế tiếp** $\rightarrow$ Bấm **`[Hoàn thành]`**.
+
+#### 🔹 Bước 4: Nhập Cấu Hình Vào Trang Quản Trị Website
+1. Mở trang quản trị: 👉 **`https://<YOUR_DOMAIN>/admin/marketing`** $\rightarrow$ Chọn tab **`TikTok Pixel & Events API`**.
+2. Điền các thông tin:
+   - **Bật theo dõi TikTok Pixel & Events API:** Gạt sang `Đang Bật` *(màu xanh)*.
+   - **TikTok Pixel ID \*:** Dán mã Pixel ID đã lấy ở Bước 1.
+   - **TikTok Events API Access Token:** Dán mã token đã lấy ở Bước 3.
+   - **TikTok Test Event Code (Tùy chọn):** Dán mã test nếu muốn xem live trong tab Test Events của TikTok.
+3. Bấm **`[Lưu Cấu Hình Marketing & Tracking Pixel]`**.
+
+#### 🔹 Bước 5: Bắn Thử Nghiệm Sự Kiện (Live Test)
+1. Ngay bên dưới form, bấm nút màu hồng: **`[🧪 Gửi sự kiện test lên TikTok Events API]`**.
+2. Hệ thống sẽ phát sự kiện `PlaceAnOrder` mẫu sang TikTok API và trả về:
+   ```json
+   {
+     "tiktok": {
+       "success": true,
+       "status": 200,
+       "response": {
+         "code": 0,
+         "message": "OK",
+         "request_id": "2026082103334185A63293637ECFF5E252"
+       }
+     }
+   }
+   ```
+3. Mở tab **Test Events** trên TikTok Ads Manager: Bạn sẽ thấy sự kiện xuất hiện ngay lập tức với nguồn là **Server / Events API**!
 
 ---
 
