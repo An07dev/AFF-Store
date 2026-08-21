@@ -555,6 +555,27 @@ export default function MarketingPage() {
               Mã truy cập Events API tạo trong phần Cài đặt Pixel trên TikTok Ads Manager.
             </span>
           </div>
+
+          {/* Quick Test Button directly in TikTok tab */}
+          <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button
+              type="button"
+              className={styles.testActionBtn}
+              onClick={handleRunTestEvent}
+              disabled={isTesting}
+              style={{ background: '#ec4899' }}
+            >
+              <FiPlay size={16} />
+              <span>{isTesting ? 'Đang gửi sự kiện test lên TikTok...' : '🧪 Gửi sự kiện test lên TikTok Events API'}</span>
+            </button>
+
+            {testOutput && (
+              <div className={styles.inputGroup}>
+                <label className={styles.inputLabel}>Kết quả phản hồi từ TikTok Events API:</label>
+                <pre className={styles.consoleOutput}>{testOutput}</pre>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
