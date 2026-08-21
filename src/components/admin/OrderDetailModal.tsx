@@ -172,6 +172,12 @@ export default function OrderDetailModal({
                     </span>
                   </div>
                   <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>ĐVVC khách chọn:</span>
+                    <span className={styles.infoValue} style={{ color: '#38bdf8', fontWeight: 600 }}>
+                      {order.shippingCarrier || order.shippingProvider || 'Giao Hàng Nhanh'}
+                    </span>
+                  </div>
+                  <div className={styles.infoRow}>
                     <span className={styles.infoLabel}>Thanh toán:</span>
                     <select
                       className={styles.statusSelect}

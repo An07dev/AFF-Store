@@ -297,6 +297,9 @@ export default function OrdersPage() {
                       </td>
                       <td className={styles.bold} style={{ color: 'var(--primary, #3b82f6)' }}>
                         {formatPrice(o.totalAmount)}
+                        <div style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--text-dim, #94a3b8)' }}>
+                          {o.shippingFee > 0 ? `Ship: +${formatPrice(o.shippingFee)}` : 'Freeship 0₫'}
+                        </div>
                       </td>
                       <td>
                         <span
@@ -310,6 +313,10 @@ export default function OrdersPage() {
                         </span>
                         <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim, #64748b)' }}>
                           {o.paymentMethod === 'bank_transfer' ? 'VietQR/Chuyển khoản' : 'COD (Tiền mặt)'}
+                        </div>
+                        <div style={{ fontSize: '0.6875rem', color: '#60a5fa', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}>
+                          <FiTruck size={10} />
+                          <span>{o.shippingCarrier || (o.shippingProvider ? o.shippingProvider.toUpperCase() : 'GHN')}</span>
                         </div>
                       </td>
                       <td>

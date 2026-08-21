@@ -88,7 +88,13 @@ export default function ShipOrderModal({ order, onClose, onSuccess }: ShipOrderM
           });
 
           setActiveCarriers(filtered);
-          if (filtered.length > 0) {
+
+          // Auto-select the carrier that customer chose at checkout if available
+          const customerChoice = order?.shippingProvider?.toLowerCase();
+          const matchedCarrier = filtered.find((c) => c.key === customerChoice);
+          if (matchedCarrier) {
+            setSelectedCarrier(matchedCarrier.key);
+          } else if (filtered.length > 0) {
             setSelectedCarrier(filtered[0].key);
           }
         }
@@ -99,7 +105,7 @@ export default function ShipOrderModal({ order, onClose, onSuccess }: ShipOrderM
       }
     }
     loadCarrierConfig();
-  }, []);
+  }, [order?.shippingProvider]);
 
   if (!order) return null;
 
@@ -221,6 +227,13 @@ export default function ShipOrderModal({ order, onClose, onSuccess }: ShipOrderM
               <span className={styles.summaryVal}>{order.customer?.address || 'Chưa cập nhật'}</span>
             </div>
             <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>ĐVVC khách đã chọn:</span>
+              <span className={styles.summaryVal} style={{ color: '#38bdf8', fontWeight: 700 }}>
+                {order.shippingCarrier || order.shippingProvider?.toUpperCase() || 'GHN Express'}
+                {typeof order.shippingFee === 'number' && ` (Phí ship: ${order.shippingFee === 0 ? 'Freeship 0 ₫' : formatPrice(order.shippingFee)})`}
+              </span>
+            </div>
+            <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>Hình thức thanh toán:</span>
               <span className={styles.summaryVal}>
                 {order.paymentMethod === 'bank_transfer' ? 'Chuyển khoản VietQR' : 'Thu tiền tận nơi (COD)'}
@@ -238,7 +251,7 @@ export default function ShipOrderModal({ order, onClose, onSuccess }: ShipOrderM
           <div>
             <label className={styles.sectionLabel}>
               <FiPackage style={{ color: 'var(--primary, #3b82f6)' }} />
-              1. Chọn đơn vị vận chuyển phụ trách:
+              1. Đơn vị vận chuyển (Tự động chọn theo lựa chọn của khách):
             </label>
 
             <div className={styles.carrierGrid}>

@@ -24,11 +24,16 @@ import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
 interface CarrierOption {
+  id: string;
   carrier: string;
   name: string;
+  shortName: string;
   fee: number;
+  originalFee?: number;
+  isFree?: boolean;
   estimatedDays: string;
-  description: string;
+  tag?: string;
+  description?: string;
 }
 
 // Helper to sanitize any previously corrupted accumulated addresses
@@ -131,6 +136,13 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<'bank_transfer' | 'cod'>('bank_transfer');
   const [submitting, setSubmitting] = useState(false);
 
+  // Shipping carriers state
+  const [carriers, setCarriers] = useState<CarrierOption[]>([]);
+  const [selectedCarrierKey, setSelectedCarrierKey] = useState<string>('ghn');
+  const [loadingShipping, setLoadingShipping] = useState(false);
+  const [isFreeShipping, setIsFreeShipping] = useState(false);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(500000);
+
   // Fetch payment config to show only enabled payment methods
   useEffect(() => {
     async function fetchPaymentConfig() {
@@ -160,9 +172,53 @@ export default function CheckoutPage() {
     return acc + getCartItemPrice(item) * item.quantity;
   }, 0);
 
-  // Free shipping policy (0đ)
-  const dynamicShippingFee = 0;
-  const finalTotalAmount = checkoutSubtotal;
+  // Fetch dynamic shipping options based on customer province & order subtotal
+  useEffect(() => {
+    async function fetchShippingRates() {
+      try {
+        setLoadingShipping(true);
+        const res = await apiFetch('/api/shipping/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            province: customer.province || 'Hà Nội',
+            district: customer.district || '',
+            weight: 500,
+            orderValue: checkoutSubtotal,
+          }),
+        });
+        const data = await res.json();
+        if (data.success && data.data?.carriers) {
+          const list: CarrierOption[] = data.data.carriers;
+          setCarriers(list);
+          setIsFreeShipping(!!data.data.isFreeShipping);
+          if (data.data.freeShippingThreshold) {
+            setFreeShippingThreshold(data.data.freeShippingThreshold);
+          }
+
+          // If current selected carrier is not in list, pick the first available
+          if (list.length > 0) {
+            setSelectedCarrierKey((prev) => {
+              const exists = list.some((c) => c.carrier === prev || c.id === prev);
+              return exists ? prev : list[0].carrier;
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Error calculating shipping fees in checkout:', err);
+      } finally {
+        setLoadingShipping(false);
+      }
+    }
+
+    fetchShippingRates();
+  }, [customer.province, customer.district, checkoutSubtotal]);
+
+  // Selected carrier & dynamic shipping fee calculation
+  const selectedCarrierObj =
+    carriers.find((c) => c.carrier === selectedCarrierKey || c.id === selectedCarrierKey) || carriers[0];
+  const dynamicShippingFee = selectedCarrierObj ? selectedCarrierObj.fee : 0;
+  const finalTotalAmount = Math.max(0, checkoutSubtotal + dynamicShippingFee);
 
   // Address selectors logic
   const selectedProvinceData = vietnamProvinces.find((p) => p.name === customer.province) || vietnamProvinces[0];
@@ -247,12 +303,12 @@ export default function CheckoutPage() {
           variant: i.variant,
         })),
         subtotal: checkoutSubtotal,
-        shippingFee: 0,
+        shippingFee: dynamicShippingFee,
         discountAmount: 0,
         totalAmount: finalTotalAmount,
         paymentMethod,
-        shippingProvider: 'standard',
-        shippingCarrier: 'Giao hàng tiêu chuẩn (Freeship)',
+        shippingProvider: selectedCarrierObj ? selectedCarrierObj.carrier : 'ghn',
+        shippingCarrier: selectedCarrierObj ? selectedCarrierObj.name : 'Giao Hàng Nhanh (GHN)',
         notes: customer.notes.trim() || undefined,
       };
 
@@ -281,6 +337,7 @@ export default function CheckoutPage() {
                   order_id: data.data.orderCode || data.data._id,
                   num_items: activeItems.reduce((s, i) => s + i.quantity, 0),
                   content_ids: activeItems.map((i) => i.productId),
+                  shipping_fee: dynamicShippingFee,
                 },
                 userData: {
                   email: customer.email.trim() || undefined,
@@ -592,19 +649,82 @@ export default function CheckoutPage() {
           })}
         </div>
 
-        {/* 3. FREE SHIPPING BANNER (MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC) */}
+        {/* 3. SHIPPING METHOD SELECTOR (ACTIVE CARRIERS WITH DYNAMIC FEES) */}
         <div className={styles.shippingCard}>
-          <div className={styles.cardHeader}>
-            <FiTruck size={15} color="var(--primary, #3b82f6)" />
-            <span>Vận Chuyển Toàn Quốc</span>
-            <span style={{ fontSize: 11, color: '#10b981', marginLeft: 'auto', fontWeight: 700 }}>
-              ✓ MIỄN PHÍ VẬN CHUYỂN
-            </span>
+          <div className={styles.shippingHeaderWrap}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 800, color: 'var(--text-main, #f8fafc)' }}>
+              <FiTruck size={15} color="var(--primary, #3b82f6)" />
+              <span>Phương Thức Vận Chuyển</span>
+            </div>
+            {isFreeShipping && (
+              <span style={{ fontSize: 11, color: '#10b981', fontWeight: 700 }}>
+                ✓ MIỄN PHÍ GIAO HÀNG
+              </span>
+            )}
           </div>
 
-          <div style={{ padding: '6px 0 2px 0', fontSize: 13, color: 'var(--text-muted, #94a3b8)', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span>🚚 Đơn hàng của bạn được áp dụng chính sách Freeship 0đ toàn quốc.</span>
-          </div>
+          {isFreeShipping && (
+            <div className={styles.freeShipBanner}>
+              <span>🎉 Đơn hàng trên {formatPrice(freeShippingThreshold)} được áp dụng Freeship 0đ toàn quốc!</span>
+            </div>
+          )}
+
+          {loadingShipping && carriers.length === 0 ? (
+            <div style={{ padding: '10px 0', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
+              Đang tính phí vận chuyển theo địa chỉ...
+            </div>
+          ) : (
+            <div className={styles.carrierList}>
+              {carriers.map((c) => {
+                const isSelected = (selectedCarrierObj?.carrier === c.carrier) || (selectedCarrierObj?.id === c.id);
+                const tagStyle =
+                  c.carrier === 'ghn'
+                    ? styles.tagGHN
+                    : c.carrier === 'ghtk'
+                    ? styles.tagGHTK
+                    : c.carrier === 'viettelpost'
+                    ? styles.tagVTP
+                    : styles.tagStandard;
+
+                return (
+                  <div
+                    key={c.id || c.carrier}
+                    className={`${styles.carrierItem} ${isSelected ? styles.carrierActive : ''}`}
+                    onClick={() => setSelectedCarrierKey(c.carrier || c.id)}
+                  >
+                    <div className={styles.carrierLeft}>
+                      <input
+                        type="radio"
+                        name="checkout_shipping_carrier"
+                        className={styles.carrierRadio}
+                        checked={isSelected}
+                        onChange={() => setSelectedCarrierKey(c.carrier || c.id)}
+                      />
+                      <div className={styles.carrierInfo}>
+                        <div className={styles.carrierHeaderRow}>
+                          <span className={styles.carrierName}>{c.name}</span>
+                          {c.tag && <span className={`${styles.carrierTag} ${tagStyle}`}>{c.tag}</span>}
+                        </div>
+                        <span className={styles.carrierEstimated}>
+                          <FiTruck size={11} style={{ opacity: 0.7 }} />
+                          {c.estimatedDays} • {c.description || 'Giao hàng tận nơi'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.carrierFeeCol}>
+                      <span className={`${styles.carrierFee} ${c.fee === 0 ? styles.carrierFeeFree : ''}`}>
+                        {c.fee === 0 ? 'Miễn phí' : formatPrice(c.fee)}
+                      </span>
+                      {c.isFree && c.originalFee && c.originalFee > 0 && (
+                        <span className={styles.carrierOriginalFee}>{formatPrice(c.originalFee)}</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* 4. PAYMENT METHOD SELECTOR */}
@@ -685,9 +805,15 @@ export default function CheckoutPage() {
             <span className={styles.billVal}>{formatPrice(checkoutSubtotal)}</span>
           </div>
           <div className={styles.billRow}>
-            <span>Phí vận chuyển</span>
-            <span className={styles.billVal} style={{ color: '#10b981', fontWeight: 700 }}>
-              Miễn phí (0 ₫)
+            <span>Phí vận chuyển ({selectedCarrierObj?.shortName || 'Vận chuyển'})</span>
+            <span
+              className={styles.billVal}
+              style={{
+                color: dynamicShippingFee === 0 ? '#10b981' : 'var(--text-main, #fff)',
+                fontWeight: dynamicShippingFee === 0 ? 700 : 600,
+              }}
+            >
+              {dynamicShippingFee === 0 ? 'Miễn phí (0 ₫)' : formatPrice(dynamicShippingFee)}
             </span>
           </div>
         </div>
