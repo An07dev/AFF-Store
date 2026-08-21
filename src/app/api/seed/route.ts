@@ -58,10 +58,15 @@ export async function POST() {
         soldCount: 85,
         isFeatured: true,
         description: 'Chất liệu vải cá sấu cotton 4 chiều mềm mịn, co giãn thấm hút mồ hôi cực tốt.',
+        options: [
+          { name: 'Màu sắc', values: ['Đen Titan', 'Trắng Basic', 'Xanh Navy'] },
+          { name: 'Kích cỡ', values: ['M (55-65kg)', 'L (65-75kg)', 'XL (75-85kg)'] },
+        ],
         variants: [
-          { color: 'Đen', size: 'L', stock: 40, price: 189000 },
-          { color: 'Trắng', size: 'XL', stock: 40, price: 189000 },
-          { color: 'Xanh Navy', size: 'L', stock: 40, price: 189000 },
+          { sku: 'POLO-BLK-M', title: 'Đen Titan / M (55-65kg)', name: 'Đen Titan / M (55-65kg)', color: 'Đen Titan', size: 'M', attributes: { 'Màu sắc': 'Đen Titan', 'Kích cỡ': 'M (55-65kg)' }, stock: 30, price: 250000, salePrice: 189000 },
+          { sku: 'POLO-BLK-L', title: 'Đen Titan / L (65-75kg)', name: 'Đen Titan / L (65-75kg)', color: 'Đen Titan', size: 'L', attributes: { 'Màu sắc': 'Đen Titan', 'Kích cỡ': 'L (65-75kg)' }, stock: 30, price: 250000, salePrice: 189000 },
+          { sku: 'POLO-WHT-M', title: 'Trắng Basic / M (55-65kg)', name: 'Trắng Basic / M (55-65kg)', color: 'Trắng Basic', size: 'M', attributes: { 'Màu sắc': 'Trắng Basic', 'Kích cỡ': 'M (55-65kg)' }, stock: 30, price: 250000, salePrice: 189000 },
+          { sku: 'POLO-NVY-L', title: 'Xanh Navy / L (65-75kg)', name: 'Xanh Navy / L (65-75kg)', color: 'Xanh Navy', size: 'L', attributes: { 'Màu sắc': 'Xanh Navy', 'Kích cỡ': 'L (65-75kg)' }, stock: 30, price: 250000, salePrice: 189000 },
         ],
       },
       {
@@ -75,9 +80,12 @@ export async function POST() {
         soldCount: 42,
         isFeatured: true,
         description: 'Form dáng tôn dáng chuẩn Hàn Quốc, co giãn nhẹ nhàng hoạt động cả ngày không gò bó.',
+        options: [{ name: 'Kích cỡ', values: ['29 (50-57kg)', '30 (58-64kg)', '31 (65-70kg)', '32 (71-77kg)'] }],
         variants: [
-          { color: 'Xanh Đậm', size: '30', stock: 30, price: 349000 },
-          { color: 'Xanh Nhạt', size: '32', stock: 50, price: 349000 },
+          { sku: 'JEAN-29', title: 'Size 29 (50-57kg)', name: 'Size 29 (50-57kg)', size: '29', attributes: { 'Kích cỡ': '29 (50-57kg)' }, stock: 20, price: 450000, salePrice: 349000 },
+          { sku: 'JEAN-30', title: 'Size 30 (58-64kg)', name: 'Size 30 (58-64kg)', size: '30', attributes: { 'Kích cỡ': '30 (58-64kg)' }, stock: 30, price: 450000, salePrice: 349000 },
+          { sku: 'JEAN-31', title: 'Size 31 (65-70kg)', name: 'Size 31 (65-70kg)', size: '31', attributes: { 'Kích cỡ': '31 (65-70kg)' }, stock: 20, price: 450000, salePrice: 349000 },
+          { sku: 'JEAN-32', title: 'Size 32 (71-77kg)', name: 'Size 32 (71-77kg)', size: '32', attributes: { 'Kích cỡ': '32 (71-77kg)' }, stock: 20, price: 450000, salePrice: 349000 },
         ],
       },
       {
@@ -91,9 +99,14 @@ export async function POST() {
         soldCount: 65,
         isFeatured: true,
         description: 'Thiết kế sang trọng, chất voan tơ 2 lớp bồng bềnh, đường may tinh tế.',
+        options: [
+          { name: 'Màu sắc', values: ['Trắng Kem', 'Đỏ Đô', 'Đen Quyến Rũ'] },
+          { name: 'Kích cỡ', values: ['S (40-48kg)', 'M (48-55kg)', 'L (55-62kg)'] },
+        ],
         variants: [
-          { color: 'Trắng Kem', size: 'S', stock: 20, price: 399000 },
-          { color: 'Đỏ Đô', size: 'M', stock: 30, price: 399000 },
+          { sku: 'DAM-WHT-S', title: 'Trắng Kem / S (40-48kg)', name: 'Trắng Kem / S (40-48kg)', color: 'Trắng Kem', size: 'S', attributes: { 'Màu sắc': 'Trắng Kem', 'Kích cỡ': 'S (40-48kg)' }, stock: 15, price: 520000, salePrice: 399000 },
+          { sku: 'DAM-RED-M', title: 'Đỏ Đô / M (48-55kg)', name: 'Đỏ Đô / M (48-55kg)', color: 'Đỏ Đô', size: 'M', attributes: { 'Màu sắc': 'Đỏ Đô', 'Kích cỡ': 'M (48-55kg)' }, stock: 20, price: 520000, salePrice: 399000 },
+          { sku: 'DAM-BLK-L', title: 'Đen Quyến Rũ / L (55-62kg)', name: 'Đen Quyến Rũ / L (55-62kg)', color: 'Đen Quyến Rũ', size: 'L', attributes: { 'Màu sắc': 'Đen Quyến Rũ', 'Kích cỡ': 'L (55-62kg)' }, stock: 15, price: 520000, salePrice: 399000 },
         ],
       },
       {
@@ -107,9 +120,10 @@ export async function POST() {
         soldCount: 120,
         isFeatured: true,
         description: 'Âm bass mạnh mẽ, chống ồn chủ động ANC, pin trâu lên đến 28 giờ kèm hộp sạc.',
+        options: [{ name: 'Màu sắc', values: ['Đen Nhám (Matte Black)', 'Trắng Tinh Khôi (Pure White)'] }],
         variants: [
-          { color: 'Đen Nhám', stock: 45, price: 429000 },
-          { color: 'Trắng Tinh Khôi', stock: 45, price: 429000 },
+          { sku: 'TWSPRO-BLK', title: 'Đen Nhám (Matte Black)', name: 'Đen Nhám (Matte Black)', color: 'Đen Nhám (Matte Black)', attributes: { 'Màu sắc': 'Đen Nhám (Matte Black)' }, stock: 45, price: 650000, salePrice: 429000 },
+          { sku: 'TWSPRO-WHT', title: 'Trắng Tinh Khôi (Pure White)', name: 'Trắng Tinh Khôi (Pure White)', color: 'Trắng Tinh Khôi (Pure White)', attributes: { 'Màu sắc': 'Trắng Tinh Khôi (Pure White)' }, stock: 45, price: 650000, salePrice: 429000 },
         ],
       },
     ];
