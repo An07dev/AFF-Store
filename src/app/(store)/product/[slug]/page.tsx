@@ -501,7 +501,8 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = () => {
     if (!validateSelection()) return;
-    addToCart(product, quantity, matchedVariant || undefined);
+    const boughtItem = buyNow(product, quantity, matchedVariant || undefined);
+    if (!boughtItem) return;
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(

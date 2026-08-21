@@ -8,7 +8,7 @@ import { formatPrice } from '@/lib/utils';
 import styles from './CartDrawer.module.css';
 
 export default function CartDrawer() {
-  const { isDrawerOpen, closeDrawer, items, updateQuantity, removeFromCart, totalAmount } = useCart();
+  const { isDrawerOpen, closeDrawer, items, updateQuantity, removeFromCart, totalAmount, setCheckoutItems } = useCart();
 
   if (!isDrawerOpen) return null;
 
@@ -79,7 +79,14 @@ export default function CartDrawer() {
               <span>Tổng tiền tạm tính:</span>
               <span className={styles.totalPrice}>{formatPrice(totalAmount)}</span>
             </div>
-            <Link href="/checkout" className={styles.checkoutBtn} onClick={closeDrawer}>
+            <Link
+              href="/checkout"
+              className={styles.checkoutBtn}
+              onClick={() => {
+                setCheckoutItems(items);
+                closeDrawer();
+              }}
+            >
               Tiến hành thanh toán
             </Link>
             <Link href="/cart" className={styles.viewCartBtn} onClick={closeDrawer}>
