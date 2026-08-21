@@ -372,7 +372,7 @@ export default function OrdersPage() {
                               <button
                                 type="button"
                                 className={styles.actionBtn}
-                                title="Chọn đơn vị giao hàng"
+                                title={`Xuất đơn giao hàng (${o.shippingCarrier || 'ĐVVC khách chọn'})`}
                                 style={{ color: '#ea580c' }}
                                 onClick={() => setShippingTargetOrder(o)}
                               >
@@ -385,7 +385,7 @@ export default function OrdersPage() {
                             <button
                               type="button"
                               className={styles.actionBtn}
-                              title="Chọn đơn vị giao hàng"
+                              title={`Xuất đơn giao hàng (${o.shippingCarrier || 'ĐVVC khách chọn'})`}
                               style={{ color: 'var(--primary, #3b82f6)' }}
                               onClick={() => setShippingTargetOrder(o)}
                             >

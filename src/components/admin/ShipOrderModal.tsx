@@ -65,6 +65,7 @@ export default function ShipOrderModal({ order, onClose, onSuccess }: ShipOrderM
   const [shippingNote, setShippingNote] = useState<string>('Cho xem hàng không cho thử');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingConfig, setLoadingConfig] = useState(false);
+  const [showChangeCarrier, setShowChangeCarrier] = useState(false);
 
   // Load Shipping Carrier Settings from DB (only show carriers that are ON)
   React.useEffect(() => {
@@ -207,7 +208,7 @@ export default function ShipOrderModal({ order, onClose, onSuccess }: ShipOrderM
           <div className={styles.titleArea}>
             <h2 className={styles.title}>
               <FiTruck style={{ color: 'var(--primary, #3b82f6)' }} />
-              Chọn Đơn Vị Giao Hàng
+              Xác Nhận Xuất Đơn Giao Hàng
             </h2>
             <p className={styles.subtitle}>
               Đơn hàng #{order.orderCode} • Khách hàng: <strong>{order.customer?.name}</strong> ({order.customer?.phone})
@@ -223,7 +224,7 @@ export default function ShipOrderModal({ order, onClose, onSuccess }: ShipOrderM
           {/* Order Quick Summary */}
           <div className={styles.orderSummaryBox}>
             <div className={styles.summaryRow}>
-              <span className={styles.summaryLabel}>Địa chỉ giao hàng:</span>
+              <span className={styles.summaryLabel}>Địa chỉ nhận hàng:</span>
               <span className={styles.summaryVal}>{order.customer?.address || 'Chưa cập nhật'}</span>
             </div>
             <div className={styles.summaryRow}>
@@ -247,41 +248,100 @@ export default function ShipOrderModal({ order, onClose, onSuccess }: ShipOrderM
             </div>
           </div>
 
-          {/* 1. Carrier Selector Grid */}
-          <div>
-            <label className={styles.sectionLabel}>
-              <FiPackage style={{ color: 'var(--primary, #3b82f6)' }} />
-              1. Đơn vị vận chuyển (Tự động chọn theo lựa chọn của khách):
-            </label>
-
-            <div className={styles.carrierGrid}>
-              {activeCarriers.map((c) => {
-                const isSelected = selectedCarrier === c.key;
-                return (
-                  <div
-                    key={c.key}
-                    className={`${styles.carrierCard} ${isSelected ? styles.carrierSelected : ''}`}
-                    onClick={() => setSelectedCarrier(c.key)}
-                  >
-                    <input
-                      type="radio"
-                      name="ship_carrier"
-                      className={styles.carrierRadio}
-                      checked={isSelected}
-                      onChange={() => setSelectedCarrier(c.key)}
-                    />
-                    <div className={styles.carrierContent}>
-                      <div className={styles.carrierHeader}>
-                        <span className={styles.carrierName}>{c.shortName}</span>
-                        <span className={`${styles.carrierTag} ${c.tagClass}`}>{c.tagText}</span>
-                      </div>
-                      <span className={styles.carrierDesc}>{c.desc}</span>
-                    </div>
-                  </div>
-                );
-              })}
+          {/* Customer Chosen Carrier Highlight Banner */}
+          <div
+            style={{
+              padding: '12px 16px',
+              borderRadius: '10px',
+              background: 'rgba(59, 130, 246, 0.08)',
+              border: '1.5px solid rgba(59, 130, 246, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  background: 'rgba(59, 130, 246, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#60a5fa',
+                  fontSize: 18,
+                }}
+              >
+                <FiTruck />
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main, #fff)' }}>
+                  Giao qua: {selectedCarrierObj.name}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
+                  {selectedCarrierObj.desc}
+                </div>
+              </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setShowChangeCarrier(!showChangeCarrier)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#60a5fa',
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                padding: '4px 8px',
+              }}
+            >
+              {showChangeCarrier ? 'Ẩn đổi hãng' : 'Đổi hãng khác'}
+            </button>
           </div>
+
+          {/* 1. Carrier Selector Grid (Optional Override) */}
+          {showChangeCarrier && (
+            <div>
+              <label className={styles.sectionLabel}>
+                <FiPackage style={{ color: 'var(--primary, #3b82f6)' }} />
+                Chọn hãng vận chuyển thay thế:
+              </label>
+
+              <div className={styles.carrierGrid}>
+                {activeCarriers.map((c) => {
+                  const isSelected = selectedCarrier === c.key;
+                  return (
+                    <div
+                      key={c.key}
+                      className={`${styles.carrierCard} ${isSelected ? styles.carrierSelected : ''}`}
+                      onClick={() => setSelectedCarrier(c.key)}
+                    >
+                      <input
+                        type="radio"
+                        name="ship_carrier"
+                        className={styles.carrierRadio}
+                        checked={isSelected}
+                        onChange={() => setSelectedCarrier(c.key)}
+                      />
+                      <div className={styles.carrierContent}>
+                        <div className={styles.carrierHeader}>
+                          <span className={styles.carrierName}>{c.shortName}</span>
+                          <span className={`${styles.carrierTag} ${c.tagClass}`}>{c.tagText}</span>
+                        </div>
+                        <span className={styles.carrierDesc}>{c.desc}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* 2. Dispatch Mode Toggle */}
           {selectedCarrier !== 'internal' && (
