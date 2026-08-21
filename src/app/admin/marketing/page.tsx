@@ -464,6 +464,27 @@ export default function MarketingPage() {
               <strong>Lợi ích của Conversions API (CAPI):</strong> Dữ liệu đơn hàng (`Purchase`, `AddToCart`) được gửi trực tiếp từ máy chủ đến Facebook kèm mã `event_id` giúp tối ưu hóa giá thầu quảng cáo chính xác và chống chặn quảng cáo từ trình duyệt.
             </div>
           </div>
+
+          {/* Quick Test Button directly in Facebook tab */}
+          <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button
+              type="button"
+              className={styles.testActionBtn}
+              onClick={handleRunTestEvent}
+              disabled={isTesting}
+              style={{ background: '#3b82f6' }}
+            >
+              <FiPlay size={16} />
+              <span>{isTesting ? 'Đang gửi sự kiện test lên Meta...' : '🧪 Gửi sự kiện test lên Facebook CAPI'}</span>
+            </button>
+
+            {testOutput && (
+              <div className={styles.inputGroup}>
+                <label className={styles.inputLabel}>Kết quả phản hồi từ Meta Graph API:</label>
+                <pre className={styles.consoleOutput}>{testOutput}</pre>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
