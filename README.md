@@ -24,11 +24,12 @@
 
 1. [✨ Tính Năng Nổi Bật](#-tính-năng-nổi-bật)
 2. [🚀 Khởi Chạy Dự Án](#-khởi-chạy-dự-án)
-3. [📦 HƯỚNG DẪN CẤU HÌNH VẬN CHUYỂN, THANH TOÁN & EMAIL](#-hướng-dẫn-cấu-hình-vận-chuyển--thanh-toán)
+3. [📦 HƯỚNG DẪN CẤU HÌNH VẬN CHUYỂN, THANH TOÁN, MARKETING & EMAIL](#-hướng-dẫn-cấu-hình-vận-chuyển--thanh-toán)
    - [3.1. Cấu Hình Giao Hàng Nhanh (GHN)](#31-cấu-hình-giao-hàng-nhanh-ghn)
    - [3.2. Cấu Hình Giao Hàng Tiết Kiệm (GHTK)](#32-cấu-hình-giao-hàng-tiết-kiệm-ghtk)
    - [3.3. Cấu Hình Thanh Toán Tự Động SePay (VietQR)](#33-cấu-hình-thanh-toán-tự-động-sepay-vietqr)
    - [3.4. Cấu Hình Gửi Email Thông Báo Đơn Hàng (Gmail SMTP / Nodemailer)](#34-cấu-hình-gửi-email-thông-báo-đơn-hàng-gmail-smtp--nodemailer)
+   - [3.5. Cấu Hình Facebook Pixel & Conversions API (CAPI) Chuẩn Meta](#35-cấu-hình-facebook-pixel--conversions-api-capi-chuẩn-meta)
 4. [🌐 Danh Sách URL Webhook Cần Cài Đặt](#-danh-sách-url-webhook-cần-cài-đặt)
 5. [🔄 Luồng Vận Hành Tự Động Hóa 1-Chạm](#-luồng-vận-hành-tự-động-hóa-1-chạm)
 6. [📱 Thông Tin Tài Khoản Quản Trị](#-thông-tin-tài-khoản-quản-trị)
@@ -188,6 +189,51 @@ SMTP_PASS=abcdefghijklmnop
 SMTP_SENDER_NAME="ShopTik Store"
 ADMIN_NOTIFICATION_EMAIL=admin@shoptik.vn
 ```
+
+---
+
+### 3.5. Cấu Hình Facebook Pixel & Conversions API (CAPI) Chuẩn Meta
+
+Hệ thống hỗ trợ cơ chế đo lường chuyển đổi chuẩn Meta song song:
+- **Client-side Pixel (Trình duyệt):** Ghi nhận `PageView`, `ViewContent`, `AddToCart`, `InitiateCheckout`, `Purchase`.
+- **Server-side CAPI (Máy chủ):** Tự động gửi dữ liệu đơn hàng kèm mã băm SHA-256 (Email, Số điện thoại, IP, User Agent) trực tiếp từ máy chủ sang Meta Graph API v19.0.
+- **Khử trùng lặp (Event Deduplication):** Sử dụng chung mã `event_id` độc nhất giúp Facebook tự động gộp sự kiện, chống trùng lặp số liệu 100%.
+- **Chống AdBlock & iOS 14.5+:** Đảm bảo không bị thất thoát 30-40% số liệu đơn hàng khi chạy quảng cáo Facebook Ads.
+
+#### 🔹 Bước 1: Tạo Pixel / Tập dữ liệu (Dataset) trên Meta Business Suite
+1. Truy cập trang Cài đặt doanh nghiệp: 👉 [business.facebook.com/latest/settings/events_dataset_and_pixel](https://business.facebook.com/latest/settings/events_dataset_and_pixel) (hoặc [Meta Events Manager](https://adsmanager.facebook.com/events_manager2)).
+2. Tại mục **Tập dữ liệu và pixel** $\rightarrow$ Bấm **`[+ Thêm]`**.
+3. Đặt tên cho Pixel (Ví dụ: `ShopTik Pixel`) $\rightarrow$ Bấm **Tạo (Create)**.
+4. **Gán quyền Quản trị viên (Bắt buộc):**
+   - Tích chọn tên tài khoản Facebook của bạn.
+   - Bật công tắc **`Toàn quyền kiểm soát (Quản lý tập dữ liệu)`** $\rightarrow$ Bấm **Chỉ định (Assign)**.
+5. Sao chép **ID tập dữ liệu (Pixel ID)** *(Dãy số 15-16 chữ số, ví dụ: `1704901287459412`)*.
+
+#### 🔹 Bước 2: Tạo Conversions API Access Token (CAPI Token)
+1. Trong trang quản lý tập dữ liệu đó, bấm **`[Mở trong Trình quản lý sự kiện]`** (hoặc truy cập trực tiếp [Events Manager](https://adsmanager.facebook.com/events_manager2)).
+2. Chọn tab **Cài đặt (Settings)** $\rightarrow$ Cuộn xuống mục **API chuyển đổi (Conversions API)**.
+3. Tại phần **Thiết lập tiện ích tích hợp trực tiếp / Thiết lập thủ công** $\rightarrow$ Bấm nút **`[Tạo mã truy cập]`** *(Generate access token)*.
+4. Sao chép chuỗi mã token dài bắt đầu bằng **`EAAB...`** hoặc **`EAA...`**.
+
+#### 🔹 Bước 3: Lấy Mã Sự Kiện Thử Nghiệm (Test Event Code - Dùng khi test)
+1. Trong Events Manager, chuyển sang tab **Thử nghiệm sự kiện (Test events)**.
+2. Bấm mở mục **"Xác nhận rằng sự kiện của máy chủ được thiết lập đúng cách"**.
+3. Copy mã kiểm tra ngắn dạng **`TESTxxxxx`** *(Ví dụ: `TEST64218`)*.
+
+#### 🔹 Bước 4: Nhập Cấu Hình Vào Trang Quản Trị Website
+1. Mở trang quản trị: 👉 **`https://<YOUR_DOMAIN>/admin/marketing`** $\rightarrow$ Chọn tab **`Facebook Pixel & CAPI`**.
+2. Điền các thông tin:
+   - **Bật theo dõi Facebook Pixel & CAPI:** Gạt sang `Đang Bật` *(màu xanh)*.
+   - **Facebook Pixel ID \*:** Dán dãy số Pixel ID đã lấy ở Bước 1.
+   - **Conversions API Access Token:** Dán mã token `EAAB...` đã lấy ở Bước 2.
+   - **Mã Sự Kiện Thử Nghiệm (Test Event Code):** Dán mã `TESTxxxxx` đã lấy ở Bước 3.
+3. Bấm **`[Lưu Cấu Hình Marketing & Tracking Pixel]`**.
+
+#### 🔹 Bước 5: Bắn Thử Nghiệm Sự Kiện (Live Test)
+1. Ngay bên dưới form, bấm nút: **`[🧪 Gửi sự kiện test lên Facebook CAPI]`**.
+2. Hệ thống sẽ gửi một sự kiện `Purchase` mẫu qua Meta Graph API v19.0 và trả về kết quả `status: 200` kèm `fbtrace_id`.
+3. Mở tab **Thử nghiệm sự kiện** trên Facebook: Bạn sẽ thấy sự kiện xuất hiện ngay lập tức với nguồn là **Máy chủ (Server)**.
+4. **Vận hành thực tế:** Sau khi kiểm tra thành công, bạn chỉ cần xóa trống ô **"Mã Sự Kiện Thử Nghiệm"** trên web và bấm Lưu lại. Mọi đơn hàng thật của khách từ nay sẽ tự động đồng bộ sang Facebook Ads!
 
 ---
 
