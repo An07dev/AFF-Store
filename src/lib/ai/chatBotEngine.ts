@@ -28,7 +28,7 @@ export async function getChatBotConfig() {
         botName: setting.value.botName || 'AI Trợ Lý ShopTik',
         welcomeMessage:
           setting.value.welcomeMessage ||
-          'Dạ chào bạn! Em là Trợ lý AI của shop. Em có thể giúp bạn tư vấn chọn size chuẩn xác, tra cứu đơn hàng hoặc giải đáp chính sách cửa hàng 24/7 ạ!',
+          'Dạ chào bạn! Em là Trợ lý AI của shop. Em có thể giúp bạn tư vấn chọn size chuẩn xác, tìm kiếm sản phẩm, tra cứu đơn hàng hoặc giải đáp chính sách cửa hàng 24/7 ạ!',
         geminiApiKey: setting.value.geminiApiKey || process.env.GEMINI_API_KEY || '',
       };
     }
@@ -40,7 +40,7 @@ export async function getChatBotConfig() {
     enabled: true,
     botName: 'AI Trợ Lý ShopTik',
     welcomeMessage:
-      'Dạ chào bạn! Em là Trợ lý AI của shop. Em có thể giúp bạn tư vấn chọn size chuẩn xác, tra cứu đơn hàng hoặc giải đáp chính sách cửa hàng 24/7 ạ!',
+      'Dạ chào bạn! Em là Trợ lý AI của shop. Em có thể giúp bạn tư vấn chọn size chuẩn xác, tìm kiếm sản phẩm, tra cứu đơn hàng hoặc giải đáp chính sách cửa hàng 24/7 ạ!',
     geminiApiKey: process.env.GEMINI_API_KEY || '',
   };
 }
@@ -190,7 +190,62 @@ function calculateRecommendedSize(
   };
 }
 
-// 4. Main AI Bot Response Generator
+// 4. Helper: Intelligent Local Product Search (Zero-cost RAG with Smart Scoring)
+async function searchStoreProducts(query: string) {
+  try {
+    await connectToDatabase();
+    const clean = query
+      .toLowerCase()
+      .replace(/(?:shop\s+)?(?:có\s+)?(?:tìm\s+)?(?:mẫu\s+)?(?:sản\s+phẩm\s+)?(?:không\s+ạ\??|không\??|ko\??|ạ\??)/gi, '')
+      .trim();
+
+    if (!clean || clean.length < 2) return [];
+
+    const stopWords = ['này', 'cho', 'mình', 'với', 'giúp', 'của', 'ở', 'được', 'gì', 'các', 'những'];
+    const keywords = clean.split(/\s+/).filter((k) => k.length > 1 && !stopWords.includes(k));
+
+    const allProducts = await Product.find({ status: 'active' })
+      .select('name slug price salePrice images isFeatured stock')
+      .lean();
+
+    // Score products based on matching keywords & category intent
+    const scored = allProducts.map((p) => {
+      const pName = (p.name || '').toLowerCase();
+      let score = 0;
+
+      // Exact brand / specific token matches (e.g. akka, jgbl, kaiwin, hà nội, real, polo)
+      keywords.forEach((kw) => {
+        if (pName.includes(kw)) {
+          score += 5;
+        }
+      });
+
+      // Category matching
+      if (clean.includes('giày') && pName.includes('giày')) score += 10;
+      if (clean.includes('áo') && (pName.includes('áo') || pName.includes('set'))) score += 8;
+      if (clean.includes('balo') && pName.includes('balo')) score += 10;
+      if (clean.includes('đầm') && pName.includes('đầm')) score += 10;
+      if (clean.includes('salonpas') && pName.includes('salonpas')) score += 10;
+      if (clean.includes('quần') && pName.includes('quần')) score += 10;
+      if (clean.includes('bóng') && !clean.includes('giày') && !clean.includes('áo') && pName.includes('bóng')) score += 10;
+
+      return { product: p, score };
+    });
+
+    const results = scored
+      .filter((s) => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map((s) => s.product);
+
+    return results;
+  } catch (err) {
+    console.error('Error searching store products:', err);
+    return [];
+  }
+}
+
+// 5. Main AI Bot Response Generator (Advanced Hybrid Engine)
 export async function generateBotResponse(params: {
   text: string;
   conversationId: string;
@@ -306,7 +361,65 @@ export async function generateBotResponse(params: {
     }
   }
 
-  // CASE 3: STORE POLICIES (Freeship, Shipping time, Return, Payment)
+  // CASE 3: PRODUCT SEARCH & RECOMMENDATION (Tìm kiếm sản phẩm thông minh)
+  const isSearchIntent =
+    lowerText.includes('có') ||
+    lowerText.includes('tìm') ||
+    lowerText.includes('áo') ||
+    lowerText.includes('giày') ||
+    lowerText.includes('bóng') ||
+    lowerText.includes('balo') ||
+    lowerText.includes('quần') ||
+    lowerText.includes('đầm') ||
+    lowerText.includes('mẫu nào') ||
+    lowerText.includes('mua');
+
+  if (isSearchIntent && !lowerText.includes('đơn hàng') && !lowerText.includes('phí ship')) {
+    const matchedProducts = await searchStoreProducts(userText);
+    if (matchedProducts.length > 0) {
+      let reply = `Dạ bên shop có mẫu này đang có sẵn hàng và cực kỳ hot, đúng nhu cầu của bạn ạ:\n\n`;
+      matchedProducts.forEach((p: any) => {
+        const pPrice = (p.salePrice || p.price || 0).toLocaleString('vi-VN') + ' ₫';
+        const oldPrice = p.salePrice && p.price > p.salePrice ? ` ~${p.price.toLocaleString('vi-VN')} ₫~` : '';
+        reply += `🌟 **${p.name}**\n💰 Giá ưu đãi: **${pPrice}**${oldPrice}\n👉 [Bấm vào đây để xem chi tiết & chọn size](/product/${p.slug})\n\n`;
+      });
+      reply += `Bạn cần em tư vấn thêm màu sắc, bảng size hay quà tặng kèm của mẫu nào cứ nhắn em nhé! 😊`;
+
+      return {
+        shouldReply: true,
+        replyText: reply,
+        senderName: botName,
+      };
+    }
+  }
+
+  // CASE 4: BUYING & ORDERING INTENT (Hỗ trợ chốt đơn)
+  if (lowerText.includes('mua ngay') || lowerText.includes('đặt hàng') || lowerText.includes('chốt đơn') || lowerText.includes('cách mua')) {
+    return {
+      shouldReply: true,
+      replyText: `🚀 **Cách Đặt Hàng Nhanh Chóng Tại ShopTik:**\n\n` +
+        `1. Bạn có thể bấm nút **"Mua Ngay"** trên trang sản phẩm để chọn size, điền địa chỉ nhận hàng và đặt đơn trong 30 giây.\n` +
+        `2. Hoặc bạn có thể **nhắn tin SĐT + Địa chỉ** ngay tại đây, nhân viên CSKH của shop sẽ gọi điện xác nhận và gửi hàng nhanh cho bạn nhé!\n\n` +
+        `🎁 Đơn hàng từ 500k được **Freeship toàn quốc** và kiểm tra hàng trước khi thanh toán ạ!`,
+      senderName: botName,
+    };
+  }
+
+  // CASE 5: DISCOUNTS & PROMOTIONS (Ưu đãi / Voucher)
+  if (lowerText.includes('khuyến mãi') || lowerText.includes('voucher') || lowerText.includes('giảm giá') || lowerText.includes('ưu đãi') || lowerText.includes('mã giảm')) {
+    return {
+      shouldReply: true,
+      replyText: `🎁 **Chương Trình Khuyến Mãi & Ưu Đãi Hôm Nay:**\n\n` +
+        `• 🔥 **Giảm trực tiếp 15% - 35%** trên toàn bộ sản phẩm (đã áp dụng giá sale trên web).\n` +
+        `• 🚚 **Freeship toàn quốc** cho đơn hàng từ 500.000₫.\n` +
+        `• ⚽ **Quà tặng kèm:** Tặng 01 kim bơm chống gỉ + túi lưới khi mua Quả bóng đá.\n` +
+        `• 🛡️ **Bảo hành 1 đổi 1** và đổi size miễn phí trong 7 ngày!\n\n` +
+        `Bạn đang quan tâm mẫu nào để em báo giá tốt nhất cho bạn nhé ạ?`,
+      senderName: botName,
+    };
+  }
+
+  // CASE 6: STORE POLICIES (Freeship, Shipping time, Return, Payment)
   if (lowerText.includes('freeship') || lowerText.includes('phí ship') || lowerText.includes('vận chuyển') || lowerText.includes('giao hàng')) {
     return {
       shouldReply: true,
@@ -347,12 +460,12 @@ export async function generateBotResponse(params: {
       : '';
     return {
       shouldReply: true,
-      replyText: `Dạ chào bạn! Rất vui được hỗ trợ bạn hôm nay ạ.${prodGreeting} Bạn cần em tư vấn chọn size, xem sản phẩm hay kiểm tra đơn hàng cứ nhắn cho em nhé! 🌟`,
+      replyText: `Dạ chào bạn! Rất vui được hỗ trợ bạn hôm nay ạ.${prodGreeting} Bạn cần em tư vấn chọn size, tìm sản phẩm hay kiểm tra đơn hàng cứ nhắn cho em nhé! 🌟`,
       senderName: botName,
     };
   }
 
-  // CASE 4: CALL GOOGLE GEMINI AI IF API KEY AVAILABLE
+  // CASE 7: CALL GOOGLE GEMINI AI IF API KEY AVAILABLE (100% FREE FROM GOOGLE AI STUDIO)
   if (config.geminiApiKey) {
     try {
       const prompt = `Bạn là Trợ lý Ảo AI CSKH thông minh, thân thiện, duyên dáng và chuyên nghiệp của cửa hàng thời trang & đồ thể thao "ShopTik Store".
@@ -396,7 +509,7 @@ Quy tắc trả lời:
   // DEFAULT SMART BOT FALLBACK
   return {
     shouldReply: true,
-    replyText: `Dạ em đã ghi nhận tin nhắn của bạn! Em là AI Trợ Lý của shop. Bạn có thể cho em biết thêm thông tin (chiều cao, cân nặng để tư vấn size hoặc mã đơn #ST... để kiểm tra đơn) để em hỗ trợ bạn nhanh nhất nhé ạ! Nhân viên CSKH của shop cũng sẽ hỗ trợ thêm cho bạn ngay ạ. 😊`,
+    replyText: `Dạ em đã ghi nhận tin nhắn của bạn! Em là AI Trợ Lý của shop. Bạn có thể cho em biết thêm thông tin (chiều cao, cân nặng để tư vấn size, tên mẫu bạn cần tìm hoặc mã đơn #ST... để kiểm tra đơn) để em hỗ trợ bạn nhanh nhất nhé ạ! 😊`,
     senderName: botName,
   };
 }
