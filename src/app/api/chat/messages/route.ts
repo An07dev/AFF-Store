@@ -98,6 +98,49 @@ export async function POST(request: Request) {
       { upsert: true, new: true }
     );
 
+    // 2. TRIGGER AI BOT AUTO-REPLY IF SENDER IS USER
+    let botReplyMsg: any = null;
+    if (isUser && newMsg.text?.trim()) {
+      try {
+        const { generateBotResponse } = await import('@/lib/ai/chatBotEngine');
+        const botResult = await generateBotResponse({
+          text: newMsg.text,
+          conversationId,
+          customerName: newMsg.customerName,
+          productContext: product,
+        });
+
+        if (botResult.shouldReply && botResult.replyText) {
+          botReplyMsg = await ChatMessage.create({
+            conversationId,
+            sender: 'bot',
+            senderName: botResult.senderName || 'AI Trợ Lý ShopTik',
+            customerName: customerName || 'Khách hàng',
+            customerPhone: customerPhone || '',
+            text: botResult.replyText,
+            isRead: false,
+          });
+
+          // Update conversation last message with bot reply
+          await Conversation.findOneAndUpdate(
+            { conversationId },
+            {
+              $set: {
+                lastMessage: {
+                  text: botReplyMsg.text,
+                  sender: 'bot',
+                  createdAt: botReplyMsg.createdAt,
+                },
+                lastActive: new Date(),
+              },
+            }
+          );
+        }
+      } catch (botErr) {
+        console.error('Error in AI bot auto-reply:', botErr);
+      }
+    }
+
     const dataObj = (newMsg as any).toObject ? (newMsg as any).toObject() : newMsg;
     if (clientMsgId) {
       dataObj.clientMsgId = clientMsgId;
@@ -106,6 +149,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       data: dataObj,
+      botReply: botReplyMsg ? ((botReplyMsg as any).toObject ? (botReplyMsg as any).toObject() : botReplyMsg) : null,
     });
   } catch (error: any) {
     return NextResponse.json(

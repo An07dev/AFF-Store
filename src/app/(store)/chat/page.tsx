@@ -37,6 +37,72 @@ interface Message {
   time?: string;
 }
 
+// Helper for rendering Markdown text, bold **text**, and clickable links
+function FormattedMessageText({ text }: { text: string }) {
+  if (!text) return null;
+  const lines = text.split('\n');
+
+  return (
+    <div style={{ wordBreak: 'break-word', lineHeight: 1.55 }}>
+      {lines.map((line, lIdx) => {
+        const linkRegex = /\[(.*?)\]\((.*?)\)/g;
+        let lastIndex = 0;
+        const elements: any[] = [];
+        let match;
+
+        while ((match = linkRegex.exec(line)) !== null) {
+          if (match.index > lastIndex) {
+            elements.push(...parseBoldText(line.substring(lastIndex, match.index), `txt-${lIdx}-${lastIndex}`));
+          }
+          const label = match[1];
+          const url = match[2];
+          elements.push(
+            <a
+              key={`link-${lIdx}-${match.index}`}
+              href={url}
+              target={url.startsWith('http') ? '_blank' : '_self'}
+              rel="noopener noreferrer"
+              style={{
+                color: '#60a5fa',
+                textDecoration: 'underline',
+                fontWeight: 700,
+                padding: '0 2px',
+              }}
+            >
+              {label}
+            </a>
+          );
+          lastIndex = match.index + match[0].length;
+        }
+
+        if (lastIndex < line.length) {
+          elements.push(...parseBoldText(line.substring(lastIndex), `txt-${lIdx}-${lastIndex}`));
+        }
+
+        return (
+          <div key={lIdx} style={{ minHeight: line.trim() ? undefined : '0.6em' }}>
+            {elements.length > 0 ? elements : <span>&nbsp;</span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function parseBoldText(str: string, keyPrefix: string) {
+  const parts = str.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, pIdx) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+      return (
+        <strong key={`${keyPrefix}-b-${pIdx}`} style={{ color: 'var(--text-main, #fff)', fontWeight: 800 }}>
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return <span key={`${keyPrefix}-s-${pIdx}`}>{part}</span>;
+  });
+}
+
 function ChatContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -354,6 +420,18 @@ function ChatContent() {
                 : m
             )
           );
+
+          if (data.botReply) {
+            setIsAdminTyping(true);
+            setTimeout(() => {
+              setIsAdminTyping(false);
+              setMessages((prev) => {
+                if (prev.some((m) => m._id === data.botReply._id)) return prev;
+                return [...prev, data.botReply];
+              });
+              playNotificationSound();
+            }, 350);
+          }
         }
       } catch (err) {
         console.error(err);
@@ -435,7 +513,7 @@ function ChatContent() {
     // Also REST update
     try {
       await apiFetch('/api/chat/conversations', {
-        method: 'PATCH',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           conversationId,
@@ -444,58 +522,68 @@ function ChatContent() {
           status: 'has_phone',
         }),
       });
-    } catch (e) {}
-
-    toast.success('Đã lưu thông tin liên hệ!');
-    handleSend(`Thông tin liên hệ của mình: ${cleanName} - SĐT: ${cleanPhone}`);
+      handleSend(`SĐT của tôi: ${cleanPhone}`);
+      toast.success('Đã lưu thông tin liên hệ!');
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
     <div className={styles.page}>
-      {/* ===== FIXED TOP NAVIGATION ===== */}
-      <nav className={styles.topNav}>
-        <div className={styles.navLeft}>
-          <button
-            className={styles.backBtn}
-            onClick={() => router.back()}
-            aria-label="Quay lại"
-          >
-            <FiChevronLeft size={22} />
-          </button>
+      {/* ===== TOP NAVBAR ===== */}
+      <header className={styles.topNav}>
+        <button
+          className={styles.backBtn}
+          onClick={() => router.back()}
+          aria-label="Quay lại"
+        >
+          <FiChevronLeft size={22} />
+        </button>
 
-          <div className={styles.shopInfo}>
-            <div className={styles.shopNameRow}>
-              <span className={styles.shopName}>{shopName}</span>
-              <span className={styles.onlineBadge} title="Đang trực tuyến" />
-            </div>
-            <span className={styles.statusText}>CSKH trực tuyến 24/7 (Realtime)</span>
+        <div className={styles.navShopInfo}>
+          <div className={styles.shopAvatar}>
+            {theme?.pageTitles?.logoUrl ? (
+              <img
+                src={theme.pageTitles.logoUrl}
+                alt="Logo"
+                style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'contain' }}
+              />
+            ) : (
+              avatarInitials
+            )}
+            <span className={styles.onlineDot} />
+          </div>
+
+          <div className={styles.shopText}>
+            <span className={styles.shopName}>{shopName}</span>
+            <span className={styles.onlineStatus}>🤖 AI Trợ Lý 24/7 & CSKH</span>
           </div>
         </div>
 
-        <div className={styles.navRight}>
+        <div className={styles.navActions}>
           <button
             type="button"
-            className={styles.phoneBtn}
+            className={styles.actionBtn}
             onClick={() => setShowPhoneModal(true)}
-            title="Cung cấp số điện thoại tư vấn"
+            title="Cập nhật SĐT"
           >
-            <FiPhone size={13} />
-            <span>{customerInfo.phone ? 'Đã có SĐT' : 'Để lại SĐT'}</span>
+            <FiPhoneCall size={18} />
           </button>
         </div>
-      </nav>
+      </header>
 
-      {/* ===== PRODUCT PINNED BANNER (IF NAVIGATED FROM PRODUCT DETAIL) ===== */}
+      {/* ===== PINNED INQUIRY PRODUCT CARD ===== */}
       {pinnedProduct && (
-        <div className={styles.productPinnedCard}>
+        <div className={styles.pinnedProductCard}>
           <img
-            src={pinnedProduct.images?.[0] || pinnedProduct.image || 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=100'}
+            src={pinnedProduct.images?.[0] || pinnedProduct.image || '/file.svg'}
             alt={pinnedProduct.name}
-            className={styles.productPinnedImg}
+            className={styles.pinnedProductImg}
           />
-          <div className={styles.productPinnedInfo}>
-            <span className={styles.productPinnedTitle}>{pinnedProduct.name}</span>
-            <span className={styles.productPinnedPrice}>
+          <div className={styles.pinnedProductDetails}>
+            <span className={styles.pinnedProductName}>{pinnedProduct.name}</span>
+            <span className={styles.pinnedProductPrice}>
               {formatPrice(pinnedProduct.salePrice || pinnedProduct.price)}
             </span>
           </div>
@@ -513,28 +601,9 @@ function ChatContent() {
       <div className={styles.chatArea}>
         <div className={styles.timeDivider}>Hôm nay</div>
 
-        {/* Guest info reminder badge */}
-        {!customerInfo.phone && (
-          <div className={styles.leadPromptCard}>
-            <div className={styles.leadPromptHeader}>
-              <FiPhone size={16} />
-              <span>Nhận hỗ trợ qua Zalo & cuộc gọi:</span>
-            </div>
-            <p className={styles.leadPromptDesc}>
-              Để lại số điện thoại để chuyên viên của {shopName} gọi lại tư vấn và gửi ảnh thực tế nhanh nhất.
-            </p>
-            <button
-              type="button"
-              className={styles.leadPromptBtn}
-              onClick={() => setShowPhoneModal(true)}
-            >
-              + Thêm Số Điện Thoại
-            </button>
-          </div>
-        )}
-
         {messages.map((msg, idx) => {
           const isUser = msg.sender === 'user';
+          const isBot = msg.sender === 'bot';
           const timeStr = msg.createdAt
             ? new Date(msg.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
             : msg.time || 'Vừa xong';
@@ -554,6 +623,22 @@ function ChatContent() {
                   )}
                 </div>
                 <div className={styles.shopBubble}>
+                  {isBot && (
+                    <div
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 800,
+                        color: '#38bdf8',
+                        marginBottom: 4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                      }}
+                    >
+                      <span>🤖 {msg.senderName || 'AI Trợ Lý'}</span>
+                    </div>
+                  )}
+
                   {msg.product && (
                     <div className={styles.msgProductCard}>
                       <img
@@ -568,13 +653,7 @@ function ChatContent() {
                     </div>
                   )}
 
-                  {msg.text && (
-                    <div>
-                      {msg.text.split('\n').map((line, i) => (
-                        <div key={i}>{line}</div>
-                      ))}
-                    </div>
-                  )}
+                  {msg.text && <FormattedMessageText text={msg.text} />}
 
                   {msg.image && (
                     <img
@@ -602,21 +681,13 @@ function ChatContent() {
                       className={styles.msgProductImg}
                     />
                     <div className={styles.msgProductInfo}>
-                      <span className={styles.msgProductName} style={{ color: '#fff' }}>
-                        {msg.product.name}
-                      </span>
+                      <span className={styles.msgProductName}>{msg.product.name}</span>
                       <span className={styles.msgProductPrice}>{formatPrice(msg.product.price)}</span>
                     </div>
                   </div>
                 )}
 
-                {msg.text && (
-                  <div>
-                    {msg.text.split('\n').map((line, i) => (
-                      <div key={i}>{line}</div>
-                    ))}
-                  </div>
-                )}
+                {msg.text && <div>{msg.text}</div>}
 
                 {msg.image && (
                   <img
@@ -627,58 +698,53 @@ function ChatContent() {
                   />
                 )}
 
-                <span className={styles.msgTime}>{timeStr}</span>
+                <span className={styles.userMsgTime}>
+                  {timeStr} <FiCheckCircle size={10} style={{ display: 'inline', marginLeft: 2 }} />
+                </span>
               </div>
             </div>
           );
         })}
 
         {isAdminTyping && (
-          <div className={styles.typingBox}>
-            <div className={styles.typingDots}>
-              <span />
-              <span />
-              <span />
+          <div className={styles.typingRow}>
+            <div className={styles.typingBubble}>
+              <span>🤖 AI Trợ Lý đang soạn tin nhắn...</span>
             </div>
-            <span>Admin CSKH đang soạn tin nhắn...</span>
-          </div>
-        )}
-
-        {/* Quick Suggestion Chips */}
-        {messages.length <= 4 && (
-          <div className={styles.quickChipsWrap}>
-            <button
-              type="button"
-              className={styles.quickChip}
-              onClick={() => handleQuickPrompt('Shop ơi, tư vấn giúp mình cách chọn size chuẩn với ạ!')}
-            >
-              👕 Tư vấn chọn size chuẩn
-            </button>
-            <button
-              type="button"
-              className={styles.quickChip}
-              onClick={() => handleQuickPrompt('Thời gian và phí giao hàng như thế nào vậy Shop?')}
-            >
-              🚚 Thời gian & Phí giao hàng
-            </button>
-            <button
-              type="button"
-              className={styles.quickChip}
-              onClick={() => handleQuickPrompt('Chính sách đổi trả và bảo hành như thế nào ạ?')}
-            >
-              🔄 Chính sách đổi trả hàng
-            </button>
-            <button
-              type="button"
-              className={styles.quickChip}
-              onClick={() => handleQuickPrompt('Shop ơi, có mã giảm giá hay voucher nào không?')}
-            >
-              🎁 Ưu đãi & Voucher hôm nay
-            </button>
           </div>
         )}
 
         <div ref={chatEndRef} />
+      </div>
+
+      {/* ===== QUICK PROMPTS ROW ===== */}
+      <div
+        style={{
+          padding: '6px 12px',
+          display: 'flex',
+          gap: 6,
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          background: 'var(--bg-main, #090a0f)',
+          borderTop: '1px solid var(--border-color, #232838)',
+        }}
+      >
+        {[
+          { label: '📏 Tư vấn size', prompt: 'Shop tư vấn chọn size giúp mình với ạ' },
+          { label: '🔍 Tra cứu đơn #ST...', prompt: 'Kiểm tra đơn hàng giúp mình' },
+          { label: '🚚 Phí ship & Freeship', prompt: 'Chính sách freeship và thời gian giao hàng thế nào ạ?' },
+          { label: '🛡️ Đổi trả 7 ngày', prompt: 'Chính sách đổi trả hàng như thế nào ạ?' },
+        ].map((chip, cIdx) => (
+          <button
+            key={cIdx}
+            type="button"
+            className={styles.quickPromptChip}
+            style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+            onClick={() => handleQuickPrompt(chip.prompt)}
+          >
+            {chip.label}
+          </button>
+        ))}
       </div>
 
       {/* ===== FIXED BOTTOM INPUT BAR ===== */}

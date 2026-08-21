@@ -13,6 +13,7 @@ import {
 import { useTheme } from '@/contexts/ThemeContext';
 import { getSocket, initSocket } from '@/lib/socket';
 import { apiFetch } from '@/lib/api';
+import toast from 'react-hot-toast';
 import styles from './ChatFloatingWidget.module.css';
 
 interface MiniMessage {
@@ -377,6 +378,72 @@ export default function ChatFloatingWidget() {
     };
   }, [isDragging]);
 
+  // Helper for rendering Markdown text, bold **text**, and clickable links
+function FormattedMessageText({ text }: { text: string }) {
+  if (!text) return null;
+  const lines = text.split('\n');
+
+  return (
+    <div style={{ wordBreak: 'break-word', lineHeight: 1.55 }}>
+      {lines.map((line, lIdx) => {
+        const linkRegex = /\[(.*?)\]\((.*?)\)/g;
+        let lastIndex = 0;
+        const elements: any[] = [];
+        let match;
+
+        while ((match = linkRegex.exec(line)) !== null) {
+          if (match.index > lastIndex) {
+            elements.push(...parseBoldText(line.substring(lastIndex, match.index), `txt-${lIdx}-${lastIndex}`));
+          }
+          const label = match[1];
+          const url = match[2];
+          elements.push(
+            <a
+              key={`link-${lIdx}-${match.index}`}
+              href={url}
+              target={url.startsWith('http') ? '_blank' : '_self'}
+              rel="noopener noreferrer"
+              style={{
+                color: '#60a5fa',
+                textDecoration: 'underline',
+                fontWeight: 700,
+                padding: '0 2px',
+              }}
+            >
+              {label}
+            </a>
+          );
+          lastIndex = match.index + match[0].length;
+        }
+
+        if (lastIndex < line.length) {
+          elements.push(...parseBoldText(line.substring(lastIndex), `txt-${lIdx}-${lastIndex}`));
+        }
+
+        return (
+          <div key={lIdx} style={{ minHeight: line.trim() ? undefined : '0.6em' }}>
+            {elements.length > 0 ? elements : <span>&nbsp;</span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function parseBoldText(str: string, keyPrefix: string) {
+  const parts = str.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, pIdx) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+      return (
+        <strong key={`${keyPrefix}-b-${pIdx}`} style={{ color: 'var(--text-main, #fff)', fontWeight: 800 }}>
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return <span key={`${keyPrefix}-s-${pIdx}`}>{part}</span>;
+  });
+}
+
   // Click Trigger
   const handleButtonClick = (e: React.MouseEvent) => {
     if (dragStartRef.current.hasMoved) {
@@ -449,6 +516,19 @@ export default function ChatFloatingWidget() {
                 : m
             )
           );
+
+          // Immediate AI Bot reply with human-like micro-delay
+          if (data.botReply) {
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              setMessages((prev) => {
+                if (prev.some((m) => m._id === data.botReply._id)) return prev;
+                return [...prev, data.botReply];
+              });
+              playNotificationSound();
+            }, 350);
+          }
         }
       } catch (e) {
         console.error(e);
@@ -482,76 +562,69 @@ export default function ChatFloatingWidget() {
     }
   };
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  // Submit phone
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerPhone.trim() || !conversationId) return;
 
-    setPhoneSubmitted(true);
-    const socket = getSocket();
-    socket?.emit('update_conversation', {
-      conversationId,
-      customerPhone: customerPhone.trim(),
-      status: 'has_phone',
-    });
+    try {
+      await apiFetch('/api/chat/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId,
+          customerPhone: customerPhone.trim(),
+          status: 'has_phone',
+        }),
+      });
 
-    handleSend(`Số điện thoại liên hệ của mình là: ${customerPhone.trim()}`);
+      handleSend(`SĐT của tôi: ${customerPhone.trim()}`);
+      setPhoneSubmitted(true);
+      toast.success('Đã lưu SĐT! Shop sẽ liên hệ tư vấn qua Zalo cho bạn.');
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  // Hide widget on dedicated full-screen pages
+  // Don't render on Admin pages or Checkout/Tracking if excluded
   if (
-    pathname === '/chat' ||
     pathname.startsWith('/admin') ||
-    pathname === '/checkout' ||
-    pathname === '/payment' ||
-    pathname === '/order-success'
+    pathname === '/chat'
   ) {
     return null;
   }
 
-  // Calculate smart orientation for mini popup based on bubble position
-  const isPopupAbove = position ? position.y > 320 : true;
-  const isPopupAlignRight = position ? position.x > 120 : true;
-
-  const wrapperStyle: React.CSSProperties = position
-    ? {
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-      }
-    : {
-        bottom: '68px',
-        right: '14px',
-      };
+  const isLeft = position && position.x < 150;
 
   return (
     <div
       ref={wrapperRef}
       className={`${styles.floatingWrapper} ${isDragging ? styles.dragging : ''}`}
-      style={wrapperStyle}
+      style={{
+        transform: position
+          ? `translate3d(${position.x}px, ${position.y}px, 0)`
+          : undefined,
+        right: position ? 'auto' : '16px',
+        bottom: position ? 'auto' : '72px',
+      }}
     >
-      {/* Mini Chat Popup Window */}
+      {/* 1. Mini Popup Window */}
       {isOpen && (
         <div
           className={`${styles.miniPopup} ${
-            isPopupAbove ? styles.popupAbove : styles.popupBelow
-          } ${isPopupAlignRight ? styles.popupAlignRight : styles.popupAlignLeft}`}
+            position && position.y < 460 ? styles.popupBelow : styles.popupAbove
+          } ${isLeft ? styles.popupLeft : styles.popupRight}`}
         >
           <div className={styles.popupHeader}>
-            <div className={styles.headerLeft}>
-              <div className={styles.shopAvatar}>
-                {theme?.pageTitles?.logoUrl ? (
-                  <img
-                    src={theme.pageTitles.logoUrl}
-                    alt="Logo"
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                  />
-                ) : (
-                  avatarInitials
-                )}
+            <div className={styles.shopInfoRow}>
+              <div className={styles.avatarWrap}>
+                {avatarInitials}
+                <span className={styles.onlineBadge} />
               </div>
               <div className={styles.shopDetails}>
                 <span className={styles.shopTitle}>{shopName}</span>
                 <span className={styles.shopStatus}>
-                  <span className={styles.onlineDot} /> Đang trực tuyến
+                  <span className={styles.onlineDot} /> AI Trợ Lý 24/7 & CSKH
                 </span>
               </div>
             </div>
@@ -582,6 +655,7 @@ export default function ChatFloatingWidget() {
           <div className={styles.popupBody}>
             {messages.map((m, idx) => {
               const isUser = m.sender === 'user';
+              const isBot = m.sender === 'bot';
               const timeStr = m.createdAt
                 ? new Date(m.createdAt).toLocaleTimeString('vi-VN', {
                     hour: '2-digit',
@@ -601,7 +675,22 @@ export default function ChatFloatingWidget() {
                       isUser ? styles.msgUserBubble : styles.msgShopBubble
                     }`}
                   >
-                    {m.text}
+                    {isBot && (
+                      <div
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 800,
+                          color: '#38bdf8',
+                          marginBottom: 4,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}
+                      >
+                        <span>🤖 {m.senderName || 'AI Trợ Lý'}</span>
+                      </div>
+                    )}
+                    <FormattedMessageText text={m.text} />
                     {m.image && (
                       <img
                         src={m.image}
@@ -618,7 +707,7 @@ export default function ChatFloatingWidget() {
 
             {isTyping && (
               <div className={styles.typingIndicator}>
-                <span>Admin đang gõ tin nhắn...</span>
+                <span>🤖 AI Trợ Lý đang soạn phản hồi...</span>
               </div>
             )}
 
@@ -672,10 +761,10 @@ export default function ChatFloatingWidget() {
                       background: 'var(--primary, #3b82f6)',
                       color: 'var(--primary-text, #fff)',
                       border: 'none',
-                      padding: '5px 12px',
+                      padding: '5px 10px',
                       borderRadius: 6,
-                      fontSize: 12,
-                      fontWeight: 600,
+                      fontSize: 11,
+                      fontWeight: 700,
                       cursor: 'pointer',
                     }}
                   >
@@ -685,70 +774,82 @@ export default function ChatFloatingWidget() {
               </div>
             )}
 
-            {/* Quick action chips */}
-            {messages.length <= 2 && (
-              <div className={styles.quickChips}>
-                <button
-                  type="button"
-                  className={styles.chipBtn}
-                  onClick={() => handleSend('Shop tư vấn size giúp mình với!')}
-                >
-                  👕 Tư vấn chọn size
-                </button>
-                <button
-                  type="button"
-                  className={styles.chipBtn}
-                  onClick={() => handleSend('Phí ship và thời gian giao hàng thế nào?')}
-                >
-                  🚚 Phí giao hàng
-                </button>
-              </div>
-            )}
-
             <div ref={messagesEndRef} />
           </div>
 
-          <form
-            className={styles.popupFooter}
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSend();
+          {/* Quick Action Chips */}
+          <div
+            style={{
+              padding: '6px 8px',
+              display: 'flex',
+              gap: 5,
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+              background: 'var(--bg-card, #13161f)',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
             }}
           >
+            {[
+              { label: '📏 Tư vấn size', prompt: 'Shop tư vấn chọn size giúp mình với ạ' },
+              { label: '🔍 Tra cứu đơn #ST...', prompt: 'Kiểm tra đơn hàng giúp mình' },
+              { label: '🚚 Phí ship & Freeship', prompt: 'Chính sách freeship và thời gian giao hàng thế nào ạ?' },
+              { label: '🛡️ Đổi trả 7 ngày', prompt: 'Chính sách đổi trả hàng như thế nào ạ?' },
+            ].map((chip, cIdx) => (
+              <button
+                key={cIdx}
+                type="button"
+                className={styles.chipBtn}
+                style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                onClick={() => handleSend(chip.prompt)}
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Footer Input */}
+          <div className={styles.popupFooter}>
             <button
               type="button"
-              className={styles.actionBtn}
-              style={{ color: 'var(--text-muted, #94a3b8)', background: 'transparent' }}
-              title="Gửi ảnh"
+              className={styles.uploadBtn}
+              title="Gửi hình ảnh"
               onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
             >
-              <FiImage size={17} />
+              <FiImage size={16} />
             </button>
             <input
               type="file"
               ref={fileInputRef}
-              style={{ display: 'none' }}
               accept="image/*"
+              style={{ display: 'none' }}
               onChange={handleImageUpload}
             />
 
             <input
               type="text"
               className={styles.popupInput}
-              placeholder={isUploading ? 'Đang tải ảnh...' : 'Nhập tin nhắn...'}
+              placeholder="Nhập tin nhắn..."
               value={inputText}
-              disabled={isUploading}
               onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
             />
+
             <button
-              type="submit"
+              type="button"
               className={styles.popupSendBtn}
-              disabled={!inputText.trim() && !isUploading}
+              onClick={() => handleSend()}
+              disabled={!inputText.trim()}
               title="Gửi"
             >
-              <FiSend size={14} />
+              <FiSend size={13} />
             </button>
-          </form>
+          </div>
         </div>
       )}
 
