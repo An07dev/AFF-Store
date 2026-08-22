@@ -606,100 +606,103 @@ function HomePageContent() {
               </button>
             </div>
 
-            {/* 4. SHOPEE FLASH SALE WITH LIVE COUNTDOWN & SLOTS */}
-            <div ref={flashSaleRef} className={styles.flashSaleSection}>
-              <div className={styles.flashHeader}>
-                <div className={styles.flashTitleWrap}>
-                  <span className={styles.flashLogo}>⚡ FLASH SALE</span>
-                  
-                  {/* Digital Countdown Timer */}
-                  <div className={styles.flashCountdownBox}>
-                    <span className={styles.countdownDigit}>{countdown.hours}</span>
-                    <span className={styles.countdownColon}>:</span>
-                    <span className={styles.countdownDigit}>{countdown.minutes}</span>
-                    <span className={styles.countdownColon}>:</span>
-                    <span className={styles.countdownDigit}>{countdown.seconds}</span>
+            {/* 4. SHOPEE FLASH SALE WITH LIVE COUNTDOWN & SLOTS (HIDDEN IF NO FLASH SALE) */}
+            {Boolean(
+              flashSaleConfig &&
+              flashSaleConfig.isActive &&
+              (
+                (flashSaleConfig.slots && flashSaleConfig.slots.some((s: any) => s.items && s.items.length > 0)) ||
+                (flashSaleConfig.items && flashSaleConfig.items.length > 0)
+              )
+            ) && (
+              <div ref={flashSaleRef} className={styles.flashSaleSection}>
+                <div className={styles.flashHeader}>
+                  <div className={styles.flashTitleWrap}>
+                    <span className={styles.flashLogo}>⚡ FLASH SALE</span>
+                    
+                    {/* Digital Countdown Timer */}
+                    <div className={styles.flashCountdownBox}>
+                      <span className={styles.countdownDigit}>{countdown.hours}</span>
+                      <span className={styles.countdownColon}>:</span>
+                      <span className={styles.countdownDigit}>{countdown.minutes}</span>
+                      <span className={styles.countdownColon}>:</span>
+                      <span className={styles.countdownDigit}>{countdown.seconds}</span>
+                    </div>
                   </div>
+
+                  <button
+                    type="button"
+                    className={styles.seeAllBtn}
+                    onClick={() => {
+                      setActiveTab(1);
+                      setActiveFilter(1);
+                      router.push('/?tab=products&filter=flash-sale');
+                      fetchProductsByParams(1, priceSortAsc, searchQuery, selectedCategory);
+                    }}
+                  >
+                    Xem tất cả <FiChevronRight size={13} />
+                  </button>
                 </div>
 
-                <button
-                  type="button"
-                  className={styles.seeAllBtn}
-                  onClick={() => {
-                    setActiveTab(1);
-                    setActiveFilter(1);
-                    router.push('/?tab=products&filter=flash-sale');
-                    fetchProductsByParams(1, priceSortAsc, searchQuery, selectedCategory);
-                  }}
-                >
-                  Xem tất cả <FiChevronRight size={13} />
-                </button>
-              </div>
+                {/* Time Slots Selector Tabs (Shopee Style) */}
+                {flashSaleConfig?.slots && flashSaleConfig.slots.length > 0 && (
+                  <div className={styles.flashSlotTabs}>
+                    {flashSaleConfig.slots.map((slot: any) => {
+                      const isSelected = selectedSlotId === slot.id;
+                      const isLive = slot.status === 'live' || flashSaleConfig.activeSlot?.id === slot.id;
+                      const statusText = isLive
+                        ? '🔥 Đang diễn ra'
+                        : slot.status === 'passed'
+                        ? 'Đã qua'
+                        : 'Sắp diễn ra';
 
-              {/* Time Slots Selector Tabs (Shopee Style) */}
-              {flashSaleConfig?.slots && flashSaleConfig.slots.length > 0 && (
-                <div className={styles.flashSlotTabs}>
-                  {flashSaleConfig.slots.map((slot: any) => {
-                    const isSelected = selectedSlotId === slot.id;
-                    const isLive = slot.status === 'live' || flashSaleConfig.activeSlot?.id === slot.id;
-                    const statusText = isLive
-                      ? '🔥 Đang diễn ra'
-                      : slot.status === 'passed'
-                      ? 'Đã qua'
-                      : 'Sắp diễn ra';
+                      return (
+                        <div
+                          key={slot.id}
+                          className={`${styles.flashSlotTab} ${
+                            isSelected ? styles.flashSlotTabActive : ''
+                          }`}
+                          onClick={() => setSelectedSlotId(slot.id)}
+                        >
+                          <span className={styles.slotTime}>
+                            {slot.startTime || '12:00'} - {slot.endTime || '18:00'}
+                          </span>
+                          <span className={styles.slotStatus}>
+                            {statusText}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
-                    return (
-                      <div
-                        key={slot.id}
-                        className={`${styles.flashSlotTab} ${
-                          isSelected ? styles.flashSlotTabActive : ''
-                        }`}
-                        onClick={() => setSelectedSlotId(slot.id)}
-                      >
-                        <span className={styles.slotTime}>
-                          {slot.startTime || '12:00'} - {slot.endTime || '18:00'}
-                        </span>
-                        <span className={styles.slotStatus}>
-                          {statusText}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                {/* Flash Products Carousel */}
+                <div className={styles.flashCarousel}>
+                  {(() => {
+                    const selectedSlot = flashSaleConfig?.slots?.find((s: any) => s.id === selectedSlotId);
+                    const itemsToRender =
+                      selectedSlot && selectedSlot.items && selectedSlot.items.length > 0
+                        ? selectedSlot.items
+                        : flashSaleConfig?.items && flashSaleConfig.items.length > 0
+                        ? flashSaleConfig.items
+                        : [];
 
-              {/* Flash Products Carousel */}
-              <div className={styles.flashCarousel}>
-                {(() => {
-                  const selectedSlot = flashSaleConfig?.slots?.find((s: any) => s.id === selectedSlotId);
-                  const itemsToRender =
-                    selectedSlot && selectedSlot.items && selectedSlot.items.length > 0
-                      ? selectedSlot.items
-                      : flashSaleConfig?.items && flashSaleConfig.items.length > 0
-                      ? flashSaleConfig.items
-                      : flashSaleProducts.length > 0
-                      ? flashSaleProducts
-                      : products.slice(0, 6);
+                    return itemsToRender.map((item: any, i: number) => {
+                      const originalPrice = item.originalPrice || item.price || 0;
+                      const salePrice = item.flashPrice || item.salePrice || item.price || 0;
+                      const discount =
+                        item.discountPercent ||
+                        (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
+                      const soldPercent = item.soldPercent || Math.min(95, Math.max(25, ((i + 3) * 18) % 100));
+                      const soldText = item.soldCount ? `Đã bán ${item.soldCount}` : 'Đang bán chạy';
 
-                  return (loading ? [1, 2, 3, 4] : itemsToRender).map((item: any, i: number) => {
-                    const originalPrice = item.originalPrice || item.price || 0;
-                    const salePrice = item.flashPrice || item.salePrice || item.price || 0;
-                    const discount =
-                      item.discountPercent ||
-                      (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
-                    const soldPercent = item.soldPercent || Math.min(95, Math.max(25, ((i + 3) * 18) % 100));
-                    const soldText = item.soldCount ? `Đã bán ${item.soldCount}` : 'Đang bán chạy';
-
-                    return (
-                      <Link
-                        href={loading ? '#' : `/product/${item.slug}`}
-                        key={item._id || i}
-                        className={styles.flashCard}
-                      >
-                        <div className={styles.flashImgWrap}>
-                          {loading ? (
-                            <div className={styles.skeleton} />
-                          ) : (
+                      return (
+                        <Link
+                          href={`/product/${item.slug}`}
+                          key={item._id || i}
+                          className={styles.flashCard}
+                        >
+                          <div className={styles.flashImgWrap}>
                             <img
                               src={
                                 item.image ||
@@ -709,38 +712,38 @@ function HomePageContent() {
                               alt={item.name || ''}
                               className={styles.flashImg}
                             />
-                          )}
-                          {discount > 0 && (
-                            <div className={styles.shopeeDiscountFlag}>
-                              -{discount}%
-                            </div>
-                          )}
-                        </div>
-                        <div className={styles.flashInfo}>
-                          <div className={styles.flashPrice} style={{ color: '#f97316' }}>
-                            {loading ? '...' : formatPrice(salePrice)}
+                            {discount > 0 && (
+                              <div className={styles.shopeeDiscountFlag}>
+                                -{discount}%
+                              </div>
+                            )}
                           </div>
-                          {originalPrice > salePrice && (
-                            <div className={styles.flashOldPrice}>
-                              {formatPrice(originalPrice)}
+                          <div className={styles.flashInfo}>
+                            <div className={styles.flashPrice} style={{ color: '#f97316' }}>
+                              {formatPrice(salePrice)}
                             </div>
-                          )}
-                          <div className={styles.fireProgressBar}>
-                            <div
-                              className={styles.fireFill}
-                              style={{ width: `${soldPercent}%` }}
-                            />
-                            <span className={styles.fireText}>
-                              🔥 {soldText}
-                            </span>
+                            {originalPrice > salePrice && (
+                              <div className={styles.flashOldPrice}>
+                                {formatPrice(originalPrice)}
+                              </div>
+                            )}
+                            <div className={styles.fireProgressBar}>
+                              <div
+                                className={styles.fireFill}
+                                style={{ width: `${soldPercent}%` }}
+                              />
+                              <span className={styles.fireText}>
+                                🔥 {soldText}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    );
-                  });
-                })()}
+                        </Link>
+                      );
+                    });
+                  })()}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* 5. SHOPEE MALL / TRUST COMMITMENTS */}
             <div className={styles.trustBar}>
