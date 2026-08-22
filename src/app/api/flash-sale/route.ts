@@ -97,41 +97,44 @@ export async function GET() {
       }
     }
 
-    // Determine products to show: use activeSlot.items if available, or fallback to flashSale.items
-    const rawItems =
-      activeSlot && activeSlot.items && activeSlot.items.length > 0
-        ? activeSlot.items
-        : flashSale.items || [];
+    // Determine products to show: ONLY return active Flash Sale items when slot is actively LIVE!
+    let activeItems: any[] = [];
+    if (isLive && activeSlot) {
+      const rawItems =
+        activeSlot.items && activeSlot.items.length > 0
+          ? activeSlot.items
+          : flashSale.items || [];
 
-    const activeItems = rawItems
-      .filter((item: any) => item.isActive && item.productId && item.productId.status !== 'hidden')
-      .map((item: any) => {
-        const product = item.productId;
-        const origPrice = item.originalPrice || product.price || 0;
-        const fPrice = item.flashPrice || Math.round(origPrice * 0.7);
-        const discountPct =
-          item.discountPercent ||
-          (origPrice > 0 ? Math.round(((origPrice - fPrice) / origPrice) * 100) : 0);
+      activeItems = rawItems
+        .filter((item: any) => item.isActive && item.productId && item.productId.status !== 'hidden')
+        .map((item: any) => {
+          const product = item.productId;
+          const origPrice = item.originalPrice || product.price || 0;
+          const fPrice = item.flashPrice || Math.round(origPrice * 0.7);
+          const discountPct =
+            item.discountPercent ||
+            (origPrice > 0 ? Math.round(((origPrice - fPrice) / origPrice) * 100) : 0);
 
-        const stock = item.flashStock || 50;
-        const sold = Math.min(stock, item.soldCount || 0);
-        const soldPercent = stock > 0 ? Math.min(98, Math.round((sold / stock) * 100)) : 0;
+          const stock = item.flashStock || 50;
+          const sold = Math.min(stock, item.soldCount || 0);
+          const soldPercent = stock > 0 ? Math.min(98, Math.round((sold / stock) * 100)) : 0;
 
-        return {
-          _id: item._id,
-          productId: product._id,
-          name: product.name,
-          slug: product.slug,
-          image: product.images?.[0] || '',
-          images: product.images || [],
-          originalPrice: origPrice,
-          flashPrice: fPrice,
-          discountPercent: discountPct,
-          flashStock: stock,
-          soldCount: sold,
-          soldPercent: Math.max(15, soldPercent),
-        };
-      });
+          return {
+            _id: item._id,
+            productId: product._id,
+            name: product.name,
+            slug: product.slug,
+            image: product.images?.[0] || '',
+            images: product.images || [],
+            originalPrice: origPrice,
+            flashPrice: fPrice,
+            discountPercent: discountPct,
+            flashStock: stock,
+            soldCount: sold,
+            soldPercent: Math.max(15, soldPercent),
+          };
+        });
+    }
 
     // Format all slots for frontend timeline navigation
     const formattedSlots = enabledSlots.map((s) => {

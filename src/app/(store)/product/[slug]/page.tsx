@@ -296,7 +296,7 @@ export default function ProductDetailPage() {
       try {
         const res = await apiFetch('/api/flash-sale');
         const data = await res.json();
-        if (data.success && data.data && data.data.isActive) {
+        if (data.success && data.data && data.data.isActive && data.data.isLive) {
           setFomoSettings(data.data.fomoSettings);
           const matched = (data.data.items || []).find(
             (it: any) =>
@@ -305,7 +305,11 @@ export default function ProductDetailPage() {
           );
           if (matched) {
             setFlashSaleItem(matched);
+          } else {
+            setFlashSaleItem(null);
           }
+        } else {
+          setFlashSaleItem(null);
         }
       } catch (e) {
         console.error('Error checking product flash sale:', e);

@@ -693,102 +693,98 @@ function HomePageContent() {
                       ? flashSaleConfig.items
                       : [];
 
+                  if (isUpcomingSlot) {
+                    return (
+                      <div className={styles.upcomingSlotBox}>
+                        <div className={styles.upcomingIconCircle}>
+                          <FiClock />
+                        </div>
+                        <h4 className={styles.upcomingTitle}>
+                          Khung Giờ: {selectedSlot?.startTime} - {selectedSlot?.endTime}
+                        </h4>
+                        <p className={styles.upcomingDesc}>
+                          Khung giờ này sắp diễn ra, vui lòng chờ đến giờ vàng để săn Flash Sale với giá ưu đãi cực sốc!
+                        </p>
+                        <span className={styles.upcomingTagBadge}>
+                          ⏰ Chưa mở bán • Giữ nguyên giá gốc
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  if (isPassedSlot) {
+                    return (
+                      <div className={styles.slotPassedNotice}>
+                        ⌛ Khung giờ {selectedSlot?.startTime} - {selectedSlot?.endTime} đã kết thúc. Vui lòng chọn khung giờ đang diễn ra để săn deal!
+                      </div>
+                    );
+                  }
+
+                  // LIVE SLOT: Render products with Flash Price & Fire progress bar
+                  if (itemsToRender.length === 0) {
+                    return (
+                      <div className={styles.emptySlotNotice}>
+                        <FiClock size={24} style={{ color: '#f97316' }} />
+                        <div>Khung giờ đang diễn ra chưa có sản phẩm nào.</div>
+                      </div>
+                    );
+                  }
+
                   return (
-                    <div>
-                      {/* Upcoming Slot Announcement Notice */}
-                      {isUpcomingSlot && (
-                        <div className={styles.slotUpcomingNotice}>
-                          <FiClock className={styles.upcomingNoticeIcon} />
-                          <div>
-                            <div>
-                              <strong>
-                                Khung giờ {selectedSlot.startTime} - {selectedSlot.endTime} sắp diễn ra!
-                              </strong>
-                            </div>
-                            <div style={{ fontSize: '10.5px', opacity: 0.85 }}>
-                              Vui lòng chờ đến giờ để săn deal với giá ưu đãi cực sốc.
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                    <div className={styles.flashCarousel}>
+                      {itemsToRender.map((item: any, i: number) => {
+                        const originalPrice = item.originalPrice || item.price || 0;
+                        const salePrice = item.flashPrice || item.salePrice || item.price || 0;
+                        const discount =
+                          item.discountPercent ||
+                          (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
+                        const soldPercent = item.soldPercent || Math.min(95, Math.max(25, ((i + 3) * 18) % 100));
+                        const soldText = item.soldCount ? `Đã bán ${item.soldCount}` : 'Đang bán chạy';
 
-                      {/* Passed Slot Announcement Notice */}
-                      {isPassedSlot && (
-                        <div className={styles.slotPassedNotice}>
-                          ⌛ Khung giờ {selectedSlot?.startTime} - {selectedSlot?.endTime} đã kết thúc. Vui lòng chọn khung giờ đang diễn ra để săn deal!
-                        </div>
-                      )}
-
-                      {/* If no items in slot */}
-                      {itemsToRender.length === 0 ? (
-                        <div className={styles.emptySlotNotice}>
-                          <FiClock size={24} style={{ color: '#38bdf8' }} />
-                          <div>Khung giờ sắp diễn ra, vui lòng chờ!</div>
-                        </div>
-                      ) : (
-                        <div className={styles.flashCarousel}>
-                          {itemsToRender.map((item: any, i: number) => {
-                            const originalPrice = item.originalPrice || item.price || 0;
-                            const salePrice = item.flashPrice || item.salePrice || item.price || 0;
-                            const discount =
-                              item.discountPercent ||
-                              (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
-                            const soldPercent = item.soldPercent || Math.min(95, Math.max(25, ((i + 3) * 18) % 100));
-                            const soldText = item.soldCount ? `Đã bán ${item.soldCount}` : 'Đang bán chạy';
-
-                            return (
-                              <Link
-                                href={`/product/${item.slug}`}
-                                key={item._id || i}
-                                className={styles.flashCard}
-                              >
-                                <div className={styles.flashImgWrap}>
-                                  <img
-                                    src={
-                                      item.image ||
-                                      item.images?.[0] ||
-                                      'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
-                                    }
-                                    alt={item.name || ''}
-                                    className={styles.flashImg}
-                                  />
-                                  {discount > 0 && (
-                                    <div className={styles.shopeeDiscountFlag}>
-                                      -{discount}%
-                                    </div>
-                                  )}
+                        return (
+                          <Link
+                            href={`/product/${item.slug}`}
+                            key={item._id || i}
+                            className={styles.flashCard}
+                          >
+                            <div className={styles.flashImgWrap}>
+                              <img
+                                src={
+                                  item.image ||
+                                  item.images?.[0] ||
+                                  'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
+                                }
+                                alt={item.name || ''}
+                                className={styles.flashImg}
+                              />
+                              {discount > 0 && (
+                                <div className={styles.shopeeDiscountFlag}>
+                                  -{discount}%
                                 </div>
-                                <div className={styles.flashInfo}>
-                                  <div className={styles.flashPrice} style={{ color: isUpcomingSlot ? '#38bdf8' : '#f97316' }}>
-                                    {formatPrice(salePrice)}
-                                  </div>
-                                  {originalPrice > salePrice && (
-                                    <div className={styles.flashOldPrice}>
-                                      {formatPrice(originalPrice)}
-                                    </div>
-                                  )}
-
-                                  {isUpcomingSlot ? (
-                                    <div className={styles.upcomingTag}>
-                                      ⏰ Sắp mở bán
-                                    </div>
-                                  ) : (
-                                    <div className={styles.fireProgressBar}>
-                                      <div
-                                        className={styles.fireFill}
-                                        style={{ width: `${soldPercent}%` }}
-                                      />
-                                      <span className={styles.fireText}>
-                                        🔥 {soldText}
-                                      </span>
-                                    </div>
-                                  )}
+                              )}
+                            </div>
+                            <div className={styles.flashInfo}>
+                              <div className={styles.flashPrice} style={{ color: '#f97316' }}>
+                                {formatPrice(salePrice)}
+                              </div>
+                              {originalPrice > salePrice && (
+                                <div className={styles.flashOldPrice}>
+                                  {formatPrice(originalPrice)}
                                 </div>
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
+                              )}
+                              <div className={styles.fireProgressBar}>
+                                <div
+                                  className={styles.fireFill}
+                                  style={{ width: `${soldPercent}%` }}
+                                />
+                                <span className={styles.fireText}>
+                                  🔥 {soldText}
+                                </span>
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      })}
                     </div>
                   );
                 })()}
