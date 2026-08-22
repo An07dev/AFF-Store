@@ -49,6 +49,8 @@ export interface IOrder extends Document {
   paidAt?: Date;
   transactionId?: string;
   shippingLogs?: IShippingLog[];
+  voucherCode?: string;
+  voucherDiscount?: number;
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -102,6 +104,8 @@ const OrderSchema = new Schema<IOrder>(
     shippingStatus: { type: String },
     paidAt: { type: Date },
     transactionId: { type: String },
+    voucherCode: { type: String },
+    voucherDiscount: { type: Number, default: 0 },
     shippingLogs: [
       {
         time: { type: String },

@@ -30,6 +30,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import StoreLoading from '@/components/store/StoreLoading';
 import BannerNotice from '@/components/common/BannerNotice';
+import VoucherCollectionBar from '@/components/store/VoucherCollectionBar';
 import { apiFetch } from '@/lib/api';
 import {
   IProductOption,
@@ -779,6 +780,9 @@ export default function ProductDetailPage() {
             </div>
           )}
         </div>
+
+        {/* 2.5 SHOP VOUCHERS WALLET / COLLECTION */}
+        <VoucherCollectionBar />
 
         {/* 3. DYNAMIC MULTI-DIMENSIONAL VARIANT SELECTION CARD */}
         {(options.length > 0 || (variants.length > 0 && options.length === 0)) && (

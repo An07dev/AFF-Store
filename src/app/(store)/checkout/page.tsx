@@ -15,6 +15,7 @@ import {
   FiCheck,
   FiChevronRight,
   FiClock,
+  FiTag,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useCart, CartItem, getCartItemPrice, getCartItemOriginalPrice } from '@/contexts/CartContext';
@@ -22,6 +23,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { formatPrice } from '@/lib/utils';
 import { vietnamProvinces } from '@/lib/vietnamLocations';
 import { apiFetch } from '@/lib/api';
+import CheckoutVoucherModal, { IVoucherOption } from '@/components/store/CheckoutVoucherModal';
 import styles from './page.module.css';
 
 interface CarrierOption {
@@ -160,6 +162,8 @@ export default function CheckoutPage() {
   const [paymentConfig, setPaymentConfig] = useState({ codEnabled: true, bankTransferEnabled: true });
   const [paymentMethod, setPaymentMethod] = useState<'bank_transfer' | 'cod'>('bank_transfer');
   const [submitting, setSubmitting] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState<IVoucherOption | null>(null);
+  const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
 
   // Fetch payment config to show only enabled payment methods
   useEffect(() => {
@@ -190,9 +194,23 @@ export default function CheckoutPage() {
     return acc + getCartItemPrice(item) * item.quantity;
   }, 0);
 
+  // Calculate voucher discount amount
+  const voucherDiscountAmount = selectedVoucher
+    ? (selectedVoucher.discountAmount !== undefined
+        ? selectedVoucher.discountAmount
+        : selectedVoucher.discountType === 'fixed'
+        ? Math.min(selectedVoucher.discountValue, checkoutSubtotal)
+        : Math.min(
+            Math.round((checkoutSubtotal * selectedVoucher.discountValue) / 100),
+            selectedVoucher.maxDiscountAmount && selectedVoucher.maxDiscountAmount > 0
+              ? selectedVoucher.maxDiscountAmount
+              : checkoutSubtotal
+          ))
+    : 0;
+
   // Free shipping policy (0đ)
   const dynamicShippingFee = 0;
-  const finalTotalAmount = checkoutSubtotal;
+  const finalTotalAmount = Math.max(0, checkoutSubtotal + dynamicShippingFee - voucherDiscountAmount);
 
   // Address selectors logic
   const selectedProvinceData = vietnamProvinces.find((p) => p.name === customer.province) || vietnamProvinces[0];
@@ -278,7 +296,8 @@ export default function CheckoutPage() {
         })),
         subtotal: checkoutSubtotal,
         shippingFee: 0,
-        discountAmount: 0,
+        discountAmount: voucherDiscountAmount,
+        voucherCode: selectedVoucher ? selectedVoucher.code : undefined,
         totalAmount: finalTotalAmount,
         paymentMethod,
         shippingProvider: 'standard',
@@ -637,6 +656,31 @@ export default function CheckoutPage() {
           })}
         </div>
 
+        {/* 2.5 SHOP VOUCHER SELECTION CARD */}
+        <div className={styles.voucherCard} onClick={() => setIsVoucherModalOpen(true)}>
+          <div className={styles.voucherLeft}>
+            <FiTag size={18} style={{ color: 'var(--primary, #f97316)' }} />
+            <div className={styles.voucherTitleWrap}>
+              <span className={styles.voucherLabel}>Shop Voucher</span>
+              {selectedVoucher ? (
+                <span className={styles.voucherSelectedBadge}>
+                  ✓ {selectedVoucher.name || selectedVoucher.code} (-{formatPrice(voucherDiscountAmount)})
+                </span>
+              ) : (
+                <span className={styles.voucherHint}>
+                  Chọn hoặc nhập mã giảm giá
+                </span>
+              )}
+            </div>
+          </div>
+          <div className={styles.voucherRight}>
+            <span className={styles.voucherActionText}>
+              {selectedVoucher ? 'Đổi mã' : 'Chọn mã'}
+            </span>
+            <FiChevronRight size={14} />
+          </div>
+        </div>
+
         {/* 3. FREE SHIPPING BANNER (MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC) */}
         <div className={styles.shippingCard}>
           <div className={styles.cardHeader}>
@@ -729,6 +773,14 @@ export default function CheckoutPage() {
             <span>Tổng tiền hàng</span>
             <span className={styles.billVal}>{formatPrice(checkoutSubtotal)}</span>
           </div>
+          {voucherDiscountAmount > 0 && (
+            <div className={styles.billRow}>
+              <span>Giảm giá Voucher ({selectedVoucher?.code})</span>
+              <span className={styles.billVal} style={{ color: '#ef4444', fontWeight: 700 }}>
+                -{formatPrice(voucherDiscountAmount)}
+              </span>
+            </div>
+          )}
           <div className={styles.billRow}>
             <span>Phí vận chuyển</span>
             <span className={styles.billVal} style={{ color: '#10b981', fontWeight: 700 }}>
@@ -754,6 +806,16 @@ export default function CheckoutPage() {
           {submitting ? 'Đang Xử Lý...' : 'Đặt Hàng Ngay'}
         </button>
       </div>
+
+      {/* ===== VOUCHER SELECTION MODAL ===== */}
+      <CheckoutVoucherModal
+        isOpen={isVoucherModalOpen}
+        onClose={() => setIsVoucherModalOpen(false)}
+        orderSubtotal={checkoutSubtotal}
+        customerPhone={customer.phone}
+        selectedVoucher={selectedVoucher}
+        onSelectVoucher={(v) => setSelectedVoucher(v)}
+      />
     </div>
   );
 }

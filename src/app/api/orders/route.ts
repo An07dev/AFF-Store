@@ -3,6 +3,7 @@ import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Customer from '@/models/Customer';
 import Product from '@/models/Product';
+import Voucher from '@/models/Voucher';
 import { generateOrderCode } from '@/lib/utils';
 import { sendOrderEmails } from '@/lib/email';
 
@@ -103,6 +104,7 @@ export async function POST(request: Request) {
     const subtotal = body.items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
     const shippingFee = body.shippingFee || 0;
     const discountAmount = body.discountAmount || 0;
+    const voucherCode = body.voucherCode ? body.voucherCode.trim().toUpperCase() : undefined;
     const totalAmount = body.totalAmount || Math.max(0, subtotal + shippingFee - discountAmount);
 
     const newOrder = await Order.create({
@@ -118,8 +120,18 @@ export async function POST(request: Request) {
       status: body.status || 'pending',
       shippingProvider: body.shippingProvider || 'ghn',
       shippingCarrier: body.shippingCarrier || 'Giao Hàng Nhanh (GHN)',
+      voucherCode,
+      voucherDiscount: discountAmount,
       notes: body.notes,
     });
+
+    // If voucher was used, increment its usage count
+    if (voucherCode) {
+      Voucher.findOneAndUpdate(
+        { code: voucherCode },
+        { $inc: { usedCount: 1 } }
+      ).catch((err) => console.error('Error updating voucher usedCount:', err));
+    }
 
     // Update customer stats
     const phone = body.customer.phone.trim();

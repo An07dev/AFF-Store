@@ -29,6 +29,7 @@ import { useTheme, defaultBanners } from '@/contexts/ThemeContext';
 import StoreLoading from '@/components/store/StoreLoading';
 import ProductDetailModal from '@/components/store/ProductDetailModal';
 import BannerNotice from '@/components/common/BannerNotice';
+import VoucherCollectionBar from '@/components/store/VoucherCollectionBar';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -855,6 +856,9 @@ function HomePageContent() {
                 })()}
               </div>
             )}
+
+            {/* 4.5 VOUCHER COLLECTION BAR (SHOPEE COUPON WALLET) */}
+            <VoucherCollectionBar />
 
             {/* 5. SHOPEE MALL / TRUST COMMITMENTS */}
             <div className={styles.trustBar}>
