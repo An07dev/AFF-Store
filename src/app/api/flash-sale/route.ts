@@ -4,15 +4,36 @@ import FlashSale from '@/models/FlashSale';
 
 export const dynamic = 'force-dynamic';
 
+function parseTimeToMinutes(timeStr: string = '00:00'): number {
+  if (!timeStr) return 0;
+  const parts = timeStr.split(':').map((p) => parseInt(p, 10) || 0);
+  return parts[0] * 60 + (parts[1] || 0);
+}
+
+function getVietnamDateString(date: Date = new Date()): string {
+  const vnOffset = 7 * 60; // in minutes
+  const localOffset = date.getTimezoneOffset();
+  const vnTime = new Date(date.getTime() + (vnOffset + localOffset) * 60 * 1000);
+  const y = vnTime.getFullYear();
+  const m = String(vnTime.getMonth() + 1).padStart(2, '0');
+  const d = String(vnTime.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 // GET /api/flash-sale - Lấy dữ liệu Flash Sale public cho Storefront
 export async function GET() {
   try {
     await connectToDatabase();
 
-    const flashSale = await FlashSale.findOne({ isActive: true }).populate({
-      path: 'items.productId',
-      select: 'name slug price salePrice images stock soldCount category status',
-    });
+    const flashSale = await FlashSale.findOne({ isActive: true })
+      .populate({
+        path: 'items.productId',
+        select: 'name slug price salePrice images stock soldCount category status',
+      })
+      .populate({
+        path: 'slots.items.productId',
+        select: 'name slug price salePrice images stock soldCount category status',
+      });
 
     if (!flashSale) {
       return NextResponse.json({
@@ -22,67 +43,67 @@ export async function GET() {
     }
 
     const now = new Date();
-    // Get Vietnam Time (UTC+7)
-    const vnOffset = 7 * 60; // in minutes
-    const localOffset = now.getTimezoneOffset(); // in minutes
+    const vnOffset = 7 * 60;
+    const localOffset = now.getTimezoneOffset();
     const vnTime = new Date(now.getTime() + (vnOffset + localOffset) * 60 * 1000);
+    const todayStr = getVietnamDateString(now);
     const currentHour = vnTime.getHours();
     const currentMinute = vnTime.getMinutes();
     const currentSecond = vnTime.getSeconds();
+    const currentTotalMinutes = currentHour * 60 + currentMinute;
 
     let isLive = false;
     let activeSlot: any = null;
-    let targetEndTime: Date | null = null;
     let timeRemainingSeconds = 0;
 
-    if (flashSale.type === 'custom_range') {
-      if (flashSale.startTime && flashSale.endTime) {
-        const start = new Date(flashSale.startTime).getTime();
-        const end = new Date(flashSale.endTime).getTime();
-        const currentMs = now.getTime();
+    const enabledSlots = (flashSale.slots || []).filter((s) => s.enabled);
 
-        if (currentMs >= start && currentMs <= end) {
-          isLive = true;
-          targetEndTime = flashSale.endTime;
-          timeRemainingSeconds = Math.max(0, Math.floor((end - currentMs) / 1000));
-        }
-      }
-    } else {
-      // Daily slots mode
-      const enabledSlots = (flashSale.slots || []).filter((s) => s.enabled);
-
-      for (const slot of enabledSlots) {
-        const slotStartMinutes = slot.startHour * 60 + (slot.startMinute || 0);
-        const slotEndMinutes = slot.endHour * 60 + (slot.endMinute || 0);
-        const currentTotalMinutes = currentHour * 60 + currentMinute;
-
-        if (currentTotalMinutes >= slotStartMinutes && currentTotalMinutes < slotEndMinutes) {
-          isLive = true;
-          activeSlot = slot;
-
-          // Calculate remaining seconds till slot ends today
-          const secondsRemainingInSlot =
-            (slotEndMinutes - currentTotalMinutes) * 60 - currentSecond;
-          timeRemainingSeconds = Math.max(0, secondsRemainingInSlot);
-
-          const endSlotDate = new Date(vnTime);
-          endSlotDate.setHours(slot.endHour, slot.endMinute || 0, 0, 0);
-          targetEndTime = endSlotDate;
-          break;
-        }
+    // 1. Find the active live slot right now
+    for (const slot of enabledSlots) {
+      // Check date matching
+      let isDateMatch = true;
+      if (slot.dateType === 'specific_date' && slot.specificDate) {
+        isDateMatch = todayStr === slot.specificDate;
+      } else if (slot.dateType === 'date_range') {
+        if (slot.startDate && todayStr < slot.startDate) isDateMatch = false;
+        if (slot.endDate && todayStr > slot.endDate) isDateMatch = false;
       }
 
-      // If no slot matched currently, pick the next upcoming slot or default slot
-      if (!isLive && enabledSlots.length > 0) {
-        // Find next slot today
-        const currentTotalMinutes = currentHour * 60 + currentMinute;
-        const upcomingSlot = enabledSlots.find((s) => s.startHour * 60 + (s.startMinute || 0) > currentTotalMinutes);
-        activeSlot = upcomingSlot || enabledSlots[0];
+      if (!isDateMatch) continue;
+
+      const startMin = parseTimeToMinutes(slot.startTime);
+      const endMin = parseTimeToMinutes(slot.endTime);
+
+      if (currentTotalMinutes >= startMin && currentTotalMinutes < endMin) {
+        isLive = true;
+        activeSlot = slot;
+        timeRemainingSeconds = Math.max(0, (endMin - currentTotalMinutes) * 60 - currentSecond);
+        break;
       }
     }
 
-    // Filter active items and active products only
-    const activeItems = (flashSale.items || [])
+    // 2. If no live slot, find the upcoming slot today
+    if (!isLive && enabledSlots.length > 0) {
+      for (const slot of enabledSlots) {
+        const startMin = parseTimeToMinutes(slot.startTime);
+        if (startMin > currentTotalMinutes) {
+          activeSlot = slot;
+          timeRemainingSeconds = Math.max(0, (startMin - currentTotalMinutes) * 60 - currentSecond);
+          break;
+        }
+      }
+      if (!activeSlot) {
+        activeSlot = enabledSlots[0];
+      }
+    }
+
+    // Determine products to show: use activeSlot.items if available, or fallback to flashSale.items
+    const rawItems =
+      activeSlot && activeSlot.items && activeSlot.items.length > 0
+        ? activeSlot.items
+        : flashSale.items || [];
+
+    const activeItems = rawItems
       .filter((item: any) => item.isActive && item.productId && item.productId.status !== 'hidden')
       .map((item: any) => {
         const product = item.productId;
@@ -112,6 +133,50 @@ export async function GET() {
         };
       });
 
+    // Format all slots for frontend timeline navigation
+    const formattedSlots = enabledSlots.map((s) => {
+      const startMin = parseTimeToMinutes(s.startTime);
+      const endMin = parseTimeToMinutes(s.endTime);
+      let status: 'passed' | 'live' | 'upcoming' = 'upcoming';
+
+      if (currentTotalMinutes >= endMin) {
+        status = 'passed';
+      } else if (currentTotalMinutes >= startMin && currentTotalMinutes < endMin) {
+        status = 'live';
+      }
+
+      // Slot items preview
+      const slotItemCount = s.items?.filter((it: any) => it.isActive)?.length || 0;
+
+      return {
+        id: s.id,
+        name: s.name || `${s.startTime} - ${s.endTime}`,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        dateType: s.dateType,
+        specificDate: s.specificDate,
+        startDate: s.startDate,
+        endDate: s.endDate,
+        status,
+        itemCount: slotItemCount,
+        items: (s.items || [])
+          .filter((it: any) => it.isActive && it.productId)
+          .map((it: any) => ({
+            _id: it._id,
+            productId: it.productId._id || it.productId,
+            name: it.productId.name,
+            slug: it.productId.slug,
+            image: it.productId.images?.[0] || '',
+            originalPrice: it.originalPrice || it.productId.price || 0,
+            flashPrice: it.flashPrice,
+            discountPercent: it.discountPercent,
+            flashStock: it.flashStock,
+            soldCount: it.soldCount,
+            soldPercent: it.flashStock > 0 ? Math.min(98, Math.round(((it.soldCount || 0) / it.flashStock) * 100)) : 20,
+          })),
+      };
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -119,11 +184,9 @@ export async function GET() {
         title: flashSale.title,
         subtitle: flashSale.subtitle,
         isActive: flashSale.isActive,
-        type: flashSale.type,
         isLive,
         activeSlot,
-        slots: flashSale.slots || [],
-        targetEndTime,
+        slots: formattedSlots,
         timeRemainingSeconds,
         items: activeItems,
         fomoSettings: flashSale.fomoSettings,

@@ -1,6 +1,6 @@
 .container {
   padding: 24px;
-  max-width: 1280px;
+  max-width: 1320px;
   margin: 0 auto;
   color: var(--admin-text, #f3f4f6);
 }
@@ -247,6 +247,18 @@
   border-color: var(--primary, #3b82f6);
 }
 
+.select {
+  background: var(--admin-bg, #111318);
+  border: 1px solid var(--admin-border, #2d3343);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Switch Toggle */
 .toggleWrapper {
   display: flex;
   align-items: center;
@@ -299,49 +311,160 @@ input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* Slots Grid */
-.slotsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-  margin-top: 8px;
+/* =========================================================
+   SLOT MANAGER TABS & CARDS
+   ========================================================= */
+.slotTabsBar {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--admin-border, #2d3343);
+  margin-bottom: 20px;
+  align-items: center;
 }
 
-.slotCard {
+.slotTab {
+  flex-shrink: 0;
   background: var(--admin-bg, #111318);
   border: 1px solid var(--admin-border, #2d3343);
   border-radius: 10px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 10px 16px;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--admin-text-muted, #9ca3af);
 }
 
-.slotCardActive {
+.slotTabActive {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.2), rgba(249, 115, 22, 0.08));
   border-color: #f97316;
-  background: rgba(249, 115, 22, 0.08);
-}
-
-.slotLabel {
-  font-weight: 700;
-  font-size: 0.875rem;
   color: #fff;
 }
 
-.slotSub {
-  font-size: 0.75rem;
-  color: var(--admin-text-muted, #9ca3af);
-  margin-top: 2px;
+.slotTabName {
+  font-weight: 700;
+  font-size: 0.875rem;
 }
 
-/* Product Table */
+.slotTabTime {
+  font-size: 0.75rem;
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.slotTabBadge {
+  font-size: 0.6875rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.badgeLive {
+  background: rgba(234, 88, 12, 0.3);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.5);
+}
+
+.badgeDisabled {
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+}
+
+.btnAddSlot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px dashed var(--primary, #3b82f6);
+  color: var(--primary, #3b82f6);
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.btnAddSlot:hover {
+  background: var(--primary, #3b82f6);
+  color: #fff;
+}
+
+/* Active Slot Editor Box */
+.slotEditorBox {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--admin-border, #2d3343);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.slotEditorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.slotEditorTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f97316;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slotEditorActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnDeleteSlot {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.btnDeleteSlot:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.slotFormGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* =========================================================
+   PRODUCT TABLE PER SLOT
+   ========================================================= */
 .btnAddProduct {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--primary, #3b82f6);
+  background: linear-gradient(135deg, #0284c7, #2563eb);
   color: #fff;
   border: none;
   padding: 8px 16px;
@@ -350,10 +473,12 @@ input:checked + .slider:before {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .btnAddProduct:hover {
-  background: #2563eb;
+  background: linear-gradient(135deg, #0369a1, #1d4ed8);
+  transform: translateY(-1px);
 }
 
 .tableResponsive {

@@ -163,14 +163,20 @@ function HomePageContent() {
       const curHour = now.getHours();
       const curMin = now.getMinutes();
       const curSec = now.getSeconds();
-      const totalMinutes = curHour * 60 + curMin;
+      const currentTotalMinutes = curHour * 60 + curMin;
 
-      const activeSlot = (flashSaleConfig.slots || []).find(
-        (s: any) => s.enabled && totalMinutes >= s.startHour * 60 && totalMinutes < s.endHour * 60
-      );
+      const activeSlot = (flashSaleConfig.slots || []).find((s: any) => {
+        if (!s.startTime || !s.endTime) return false;
+        const [sh, sm] = s.startTime.split(':').map((n: string) => parseInt(n, 10) || 0);
+        const [eh, em] = s.endTime.split(':').map((n: string) => parseInt(n, 10) || 0);
+        const startTotal = sh * 60 + (sm || 0);
+        const endTotal = eh * 60 + (em || 0);
+        return currentTotalMinutes >= startTotal && currentTotalMinutes < endTotal;
+      });
 
       if (activeSlot) {
-        const endTotalSeconds = activeSlot.endHour * 3600 + (activeSlot.endMinute || 0) * 60;
+        const [eh, em] = activeSlot.endTime.split(':').map((n: string) => parseInt(n, 10) || 0);
+        const endTotalSeconds = eh * 3600 + (em || 0) * 60;
         const curTotalSeconds = curHour * 3600 + curMin * 60 + curSec;
         const diffSeconds = Math.max(0, endTotalSeconds - curTotalSeconds);
 
@@ -633,97 +639,106 @@ function HomePageContent() {
               {/* Time Slots Selector Tabs (Shopee Style) */}
               {flashSaleConfig?.slots && flashSaleConfig.slots.length > 0 && (
                 <div className={styles.flashSlotTabs}>
-                  {flashSaleConfig.slots
-                    .filter((s: any) => s.enabled)
-                    .map((slot: any) => {
-                      const isActiveSlot = flashSaleConfig.activeSlot?.id === slot.id;
-                      const isSelected = selectedSlotId === slot.id;
-                      return (
-                        <div
-                          key={slot.id}
-                          className={`${styles.flashSlotTab} ${
-                            isSelected ? styles.flashSlotTabActive : ''
-                          }`}
-                          onClick={() => setSelectedSlotId(slot.id)}
-                        >
-                          <span className={styles.slotTime}>
-                            {String(slot.startHour).padStart(2, '0')}:00
-                          </span>
-                          <span className={styles.slotStatus}>
-                            {isActiveSlot ? 'Đang diễn ra' : 'Sắp diễn ra'}
-                          </span>
-                        </div>
-                      );
-                    })}
+                  {flashSaleConfig.slots.map((slot: any) => {
+                    const isSelected = selectedSlotId === slot.id;
+                    const isLive = slot.status === 'live' || flashSaleConfig.activeSlot?.id === slot.id;
+                    const statusText = isLive
+                      ? '🔥 Đang diễn ra'
+                      : slot.status === 'passed'
+                      ? 'Đã qua'
+                      : 'Sắp diễn ra';
+
+                    return (
+                      <div
+                        key={slot.id}
+                        className={`${styles.flashSlotTab} ${
+                          isSelected ? styles.flashSlotTabActive : ''
+                        }`}
+                        onClick={() => setSelectedSlotId(slot.id)}
+                      >
+                        <span className={styles.slotTime}>
+                          {slot.startTime || '12:00'} - {slot.endTime || '18:00'}
+                        </span>
+                        <span className={styles.slotStatus}>
+                          {statusText}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
               {/* Flash Products Carousel */}
               <div className={styles.flashCarousel}>
-                {(loading
-                  ? [1, 2, 3, 4]
-                  : (flashSaleConfig?.items && flashSaleConfig.items.length > 0
+                {(() => {
+                  const selectedSlot = flashSaleConfig?.slots?.find((s: any) => s.id === selectedSlotId);
+                  const itemsToRender =
+                    selectedSlot && selectedSlot.items && selectedSlot.items.length > 0
+                      ? selectedSlot.items
+                      : flashSaleConfig?.items && flashSaleConfig.items.length > 0
                       ? flashSaleConfig.items
                       : flashSaleProducts.length > 0
                       ? flashSaleProducts
-                      : products.slice(0, 6))
-                ).map((item: any, i: number) => {
-                  const originalPrice = item.originalPrice || item.price || 0;
-                  const salePrice = item.flashPrice || item.salePrice || item.price || 0;
-                  const discount =
-                    item.discountPercent ||
-                    (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
-                  const soldPercent = item.soldPercent || Math.min(95, Math.max(25, ((i + 3) * 18) % 100));
-                  const soldText = item.soldCount ? `Đã bán ${item.soldCount}` : 'Đang bán chạy';
+                      : products.slice(0, 6);
 
-                  return (
-                    <Link
-                      href={loading ? '#' : `/product/${item.slug}`}
-                      key={item._id || i}
-                      className={styles.flashCard}
-                    >
-                      <div className={styles.flashImgWrap}>
-                        {loading ? (
-                          <div className={styles.skeleton} />
-                        ) : (
-                          <img
-                            src={
-                              item.image ||
-                              item.images?.[0] ||
-                              'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
-                            }
-                            alt={item.name || ''}
-                            className={styles.flashImg}
-                          />
-                        )}
-                        {discount > 0 && (
-                          <div className={styles.shopeeDiscountFlag}>
-                            -{discount}%
-                          </div>
-                        )}
-                      </div>
-                      <div className={styles.flashInfo}>
-                        <div className={styles.flashPrice} style={{ color: '#f97316' }}>
-                          {loading ? '...' : formatPrice(salePrice)}
+                  return (loading ? [1, 2, 3, 4] : itemsToRender).map((item: any, i: number) => {
+                    const originalPrice = item.originalPrice || item.price || 0;
+                    const salePrice = item.flashPrice || item.salePrice || item.price || 0;
+                    const discount =
+                      item.discountPercent ||
+                      (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
+                    const soldPercent = item.soldPercent || Math.min(95, Math.max(25, ((i + 3) * 18) % 100));
+                    const soldText = item.soldCount ? `Đã bán ${item.soldCount}` : 'Đang bán chạy';
+
+                    return (
+                      <Link
+                        href={loading ? '#' : `/product/${item.slug}`}
+                        key={item._id || i}
+                        className={styles.flashCard}
+                      >
+                        <div className={styles.flashImgWrap}>
+                          {loading ? (
+                            <div className={styles.skeleton} />
+                          ) : (
+                            <img
+                              src={
+                                item.image ||
+                                item.images?.[0] ||
+                                'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
+                              }
+                              alt={item.name || ''}
+                              className={styles.flashImg}
+                            />
+                          )}
+                          {discount > 0 && (
+                            <div className={styles.shopeeDiscountFlag}>
+                              -{discount}%
+                            </div>
+                          )}
                         </div>
-                        {originalPrice > salePrice && (
-                          <div className={styles.flashOldPrice}>
-                            {formatPrice(originalPrice)}
+                        <div className={styles.flashInfo}>
+                          <div className={styles.flashPrice} style={{ color: '#f97316' }}>
+                            {loading ? '...' : formatPrice(salePrice)}
                           </div>
-                        )}
-                        <div className={styles.fireProgressBar}>
-                          <div
-                            className={styles.fireFill}
-                            style={{ width: `${soldPercent}%` }}
-                          />
-                          <span className={styles.fireText}>
-                            🔥 {soldText}
-                          </span>
+                          {originalPrice > salePrice && (
+                            <div className={styles.flashOldPrice}>
+                              {formatPrice(originalPrice)}
+                            </div>
+                          )}
+                          <div className={styles.fireProgressBar}>
+                            <div
+                              className={styles.fireFill}
+                              style={{ width: `${soldPercent}%` }}
+                            />
+                            <span className={styles.fireText}>
+                              🔥 {soldText}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  );
-                })}
+                      </Link>
+                    );
+                  });
+                })()}
               </div>
             </div>
 
