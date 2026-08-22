@@ -647,8 +647,9 @@ function parseBoldText(str: string, keyPrefix: string) {
               </div>
               <div className={styles.shopDetails}>
                 <span className={styles.shopTitle}>{shopName}</span>
+                <span className={styles.shopDivider}>•</span>
                 <span className={styles.shopStatus}>
-                  <span className={styles.onlineDot} /> AI Trợ Lý 24/7 & CSKH
+                  <span className={styles.onlineDot} /> AI Trợ Lý 24/7
                 </span>
               </div>
             </div>
