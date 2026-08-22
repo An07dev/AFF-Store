@@ -542,7 +542,15 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!validateSelection()) return;
-    addToCart(product, quantity, matchedVariant || undefined);
+    const productToAdd = flashSaleItem
+      ? {
+          ...product,
+          flashPrice: flashSaleItem.flashPrice,
+          salePrice: flashSaleItem.flashPrice,
+          originalPrice: flashSaleItem.originalPrice || product.price,
+        }
+      : product;
+    addToCart(productToAdd, quantity, matchedVariant || undefined);
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
@@ -553,7 +561,7 @@ export default function ProductDetailPage() {
               content_name: product.name,
               content_ids: [product._id || product.slug],
               content_type: 'product',
-              value: (matchedVariant?.price || product.salePrice || product.price) * quantity,
+              value: currentPrice * quantity,
               currency: 'VND',
               num_items: quantity,
             },
@@ -565,7 +573,15 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = () => {
     if (!validateSelection()) return;
-    const boughtItem = buyNow(product, quantity, matchedVariant || undefined);
+    const productToBuy = flashSaleItem
+      ? {
+          ...product,
+          flashPrice: flashSaleItem.flashPrice,
+          salePrice: flashSaleItem.flashPrice,
+          originalPrice: flashSaleItem.originalPrice || product.price,
+        }
+      : product;
+    const boughtItem = buyNow(productToBuy, quantity, matchedVariant || undefined);
     if (!boughtItem) return;
 
     if (typeof window !== 'undefined') {
@@ -577,7 +593,7 @@ export default function ProductDetailPage() {
               content_name: product.name,
               content_ids: [product._id || product.slug],
               content_type: 'product',
-              value: (matchedVariant?.price || product.salePrice || product.price) * quantity,
+              value: currentPrice * quantity,
               currency: 'VND',
               num_items: quantity,
             },

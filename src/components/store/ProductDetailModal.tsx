@@ -219,13 +219,25 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
 
   const handleAddToCart = () => {
     if (!validateSelection()) return;
-    addToCart(product, quantity, matchedVariant || undefined);
+    const productToAdd = {
+      ...product,
+      price: originalPrice,
+      salePrice: currentPrice,
+      flashPrice: product.flashPrice || currentPrice,
+    };
+    addToCart(productToAdd, quantity, matchedVariant || undefined);
     onClose();
   };
 
   const handleBuyNow = () => {
     if (!validateSelection()) return;
-    buyNow(product, quantity, matchedVariant || undefined);
+    const productToBuy = {
+      ...product,
+      price: originalPrice,
+      salePrice: currentPrice,
+      flashPrice: product.flashPrice || currentPrice,
+    };
+    buyNow(productToBuy, quantity, matchedVariant || undefined);
     onClose();
     router.push('/checkout');
   };

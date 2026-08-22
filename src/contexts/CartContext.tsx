@@ -147,8 +147,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         ? `${variant.color} - ${variant.size}`
         : variant?.color || variant?.size || '');
 
+    const flashPrice =
+      product?.flashPrice !== undefined && product?.flashPrice !== null && Number(product.flashPrice) > 0
+        ? Number(product.flashPrice)
+        : undefined;
+
     const effectivePrice =
-      variant?.salePrice !== undefined && variant.salePrice !== null && Number(variant.salePrice) > 0
+      flashPrice !== undefined
+        ? flashPrice
+        : variant?.salePrice !== undefined && variant.salePrice !== null && Number(variant.salePrice) > 0
         ? Number(variant.salePrice)
         : (variant?.price !== undefined && variant.price !== null && Number(variant.price) > 0
           ? Number(variant.price)
@@ -157,7 +164,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const originalPrice =
       variant?.price !== undefined && variant.price !== null && Number(variant.price) > 0
         ? Number(variant.price)
-        : (Number(product.price) || effectivePrice);
+        : (Number(product.originalPrice) || Number(product.price) || effectivePrice);
 
     const availableStock =
       variant?.stock !== undefined && variant?.stock !== null
@@ -193,7 +200,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const newQty = Math.min(availableStock, currentQty + quantity);
         return prevItems.map((item, idx) =>
           idx === existingIndex
-            ? { ...item, quantity: newQty, stock: availableStock, variant: item.variant ? { ...item.variant, stock: availableStock } : undefined }
+            ? { ...item, price: effectivePrice, originalPrice, quantity: newQty, stock: availableStock, variant: item.variant ? { ...item.variant, price: originalPrice, salePrice: effectivePrice, stock: availableStock } : undefined }
             : item
         );
       } else {
@@ -236,8 +243,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         ? `${variant.color} - ${variant.size}`
         : variant?.color || variant?.size || '');
 
+    const flashPrice =
+      product?.flashPrice !== undefined && product?.flashPrice !== null && Number(product.flashPrice) > 0
+        ? Number(product.flashPrice)
+        : undefined;
+
     const effectivePrice =
-      variant?.salePrice !== undefined && variant.salePrice !== null && Number(variant.salePrice) > 0
+      flashPrice !== undefined
+        ? flashPrice
+        : variant?.salePrice !== undefined && variant.salePrice !== null && Number(variant.salePrice) > 0
         ? Number(variant.salePrice)
         : (variant?.price !== undefined && variant.price !== null && Number(variant.price) > 0
           ? Number(variant.price)
@@ -246,7 +260,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const originalPrice =
       variant?.price !== undefined && variant.price !== null && Number(variant.price) > 0
         ? Number(variant.price)
-        : (Number(product.price) || effectivePrice);
+        : (Number(product.originalPrice) || Number(product.price) || effectivePrice);
 
     const availableStock =
       variant?.stock !== undefined && variant?.stock !== null
