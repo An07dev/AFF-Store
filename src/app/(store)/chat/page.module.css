@@ -21,43 +21,70 @@
   background: var(--navbar-bg, #090a0f);
   border-bottom: 1px solid var(--border-color, #232838);
   z-index: 40;
-}
-
-.navLeft {
-  display: flex;
-  align-items: center;
   gap: 8px;
-  min-width: 0;
 }
 
 .backBtn {
   background: none;
   border: none;
   color: var(--text-main, #f8fafc);
-  padding: 3px;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   border-radius: 50%;
   transition: color 0.15s;
+  flex-shrink: 0;
 }
 
 .backBtn:hover {
   color: var(--primary, #3b82f6);
 }
 
-.shopInfo {
+.navShopInfo {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
   min-width: 0;
 }
 
-.shopNameRow {
+.shopAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--primary, #3b82f6);
+  color: var(--primary-text, #ffffff);
   display: flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.onlineDot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 1.5px solid var(--bg-main, #090a0f);
+  box-shadow: 0 0 4px #10b981;
+}
+
+.shopText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .shopName {
@@ -65,49 +92,49 @@
   font-weight: 700;
   color: var(--text-main, #f8fafc);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1;
 }
 
-.onlineBadge {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 5px #10b981;
+.shopDivider {
+  font-size: 9px;
+  color: var(--text-dim, #64748b);
+  opacity: 0.7;
+  flex-shrink: 0;
 }
 
-.statusText {
-  font-size: 9.5px;
+.onlineStatus {
+  font-size: 10px;
   color: var(--text-muted, #94a3b8);
+  display: flex;
+  align-items: center;
+  gap: 3px;
   white-space: nowrap;
+  line-height: 1;
 }
 
-.navRight {
+.navActions {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
 }
 
-.phoneBtn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.actionBtn {
   background: var(--bg-card, #13161f);
   border: 1px solid var(--border-color, #232838);
   color: var(--primary, #3b82f6);
-  padding: 4px 8px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 600;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.15s;
 }
 
-.phoneBtn:hover {
+.actionBtn:hover {
   background: var(--bg-card-hover, #1a1e2b);
-  border-color: var(--primary, #3b82f6);
 }
 
 /* ===== PRODUCT PINNED BANNER ===== */
