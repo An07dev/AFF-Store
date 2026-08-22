@@ -226,20 +226,28 @@
   flex: 1;
   padding: 12px;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--bg-main, #090a0f);
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .msgRow {
   display: flex;
   gap: 8px;
-  max-width: 88%;
+  max-width: 90%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .msgRowShop {
   align-self: flex-start;
+  width: 100%;
 }
 
 .msgRowUser {
@@ -251,8 +259,12 @@
   padding: 8px 12px;
   border-radius: 14px;
   font-size: 12px;
-  line-height: 1.45;
+  line-height: 1.5;
   word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .msgShopBubble {
@@ -260,6 +272,7 @@
   border: 1px solid var(--border-color, #232838);
   color: var(--text-main, #f8fafc);
   border-bottom-left-radius: 3px;
+  flex: 1;
 }
 
 .msgUserBubble {
