@@ -118,6 +118,7 @@ export async function POST(request: Request) {
             customerName: customerName || 'Khách hàng',
             customerPhone: customerPhone || '',
             text: botResult.replyText,
+            suggestedProducts: botResult.suggestedProducts || [],
             isRead: false,
           });
 

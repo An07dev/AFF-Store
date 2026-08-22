@@ -33,6 +33,13 @@ interface Message {
     image: string;
     slug: string;
   };
+  suggestedProducts?: Array<{
+    name: string;
+    price: number;
+    salePrice?: number;
+    image?: string;
+    slug: string;
+  }>;
   createdAt?: string;
   time?: string;
 }
@@ -657,6 +664,68 @@ function ChatContent() {
                   )}
 
                   {msg.text && <FormattedMessageText text={msg.text} />}
+
+                  {msg.suggestedProducts && msg.suggestedProducts.length > 0 && (
+                    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {msg.suggestedProducts.map((sp, spIdx) => {
+                        const spPrice = (sp.salePrice || sp.price || 0).toLocaleString('vi-VN') + '₫';
+                        const spOrig = sp.salePrice && sp.price > sp.salePrice ? `${sp.price.toLocaleString('vi-VN')}₫` : '';
+                        return (
+                          <div
+                            key={spIdx}
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              borderRadius: 10,
+                              padding: '6px 8px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                            }}
+                          >
+                            {sp.image && (
+                              <img
+                                src={sp.image}
+                                alt={sp.name}
+                                style={{ width: 44, height: 44, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }}
+                              />
+                            )}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-main, #fff)' }}>
+                                {sp.name}
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                                <span style={{ fontSize: 12, fontWeight: 800, color: '#ef4444' }}>{spPrice}</span>
+                                {spOrig && (
+                                  <span style={{ fontSize: 10, textDecoration: 'line-through', opacity: 0.6, color: '#94a3b8' }}>{spOrig}</span>
+                                )}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                router.push(`/product/${sp.slug}`);
+                              }}
+                              style={{
+                                background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: 6,
+                                padding: '5px 10px',
+                                fontSize: 11,
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0,
+                              }}
+                            >
+                              ⚡ Mua ngay
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   {msg.image && (
                     <img

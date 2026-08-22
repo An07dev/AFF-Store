@@ -14,6 +14,13 @@ export interface IChatMessage extends Document {
     image: string;
     slug: string;
   };
+  suggestedProducts?: Array<{
+    name: string;
+    price: number;
+    salePrice?: number;
+    image?: string;
+    slug: string;
+  }>;
   isRead: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -34,6 +41,15 @@ const ChatMessageSchema = new Schema<IChatMessage>(
       image: { type: String },
       slug: { type: String },
     },
+    suggestedProducts: [
+      {
+        name: { type: String },
+        price: { type: Number },
+        salePrice: { type: Number },
+        image: { type: String },
+        slug: { type: String },
+      },
+    ],
     isRead: { type: Boolean, default: false },
   },
   { timestamps: true }
