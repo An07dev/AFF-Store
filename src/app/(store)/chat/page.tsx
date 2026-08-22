@@ -567,6 +567,7 @@ function ChatContent() {
 
           <div className={styles.shopText}>
             <span className={styles.shopName}>{shopName}</span>
+            <span className={styles.shopDivider}>•</span>
             <span className={styles.onlineStatus}>🤖 AI Trợ Lý 24/7 & CSKH</span>
           </div>
         </div>
