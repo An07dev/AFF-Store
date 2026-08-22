@@ -316,16 +316,77 @@ export async function generateBotResponse(params: {
     }
   }
 
-  // CASE 2: SIZE & MEASUREMENT ADVICE (Tư vấn chọn size)
+  // CASE 2: GOOGLE GEMINI GENERATIVE AI (Khi có API Key)
+  if (config.geminiApiKey) {
+    try {
+      const prompt = `Bạn là Trợ lý Ảo AI CSKH thông minh, thân thiện, duyên dáng và chuyên nghiệp của cửa hàng thời trang & đồ thể thao "ShopTik Store".
+Thông tin cửa hàng & chính sách:
+- Cửa hàng chuyên: Áo bóng đá CLB & Đội tuyển (Real, Barca, MU, Tây Ban Nha, ĐT Việt Nam...), Giày bóng đá đinh TF sân cỏ nhân tạo (Akka, JGBL...), Quả bóng đá FIFA (Động Lực UHV, UCV, Adidas...), Balo thể thao (Kaiwin...), Salonpas y tế, Áo Polo và Thời trang nữ.
+- Chính sách: Freeship toàn quốc từ 500k, Hỗ trợ đổi size 7 ngày miễn phí, Bảo hành 1 đổi 1 nếu lỗi sản xuất, Được kiểm tra hàng trước khi thanh toán COD hoặc Quét mã VietQR SePay tự động.
+- Khách hàng: ${params.customerName || 'Khách hàng'}
+- Sản phẩm khách đang xem: ${params.productContext?.name || 'Không có'} (Giá: ${params.productContext?.price ? params.productContext.price.toLocaleString('vi-VN') + 'đ' : 'N/A'})
+- Tin nhắn khách gửi: "${userText}"
+
+Quy tắc trả lời:
+1. Xưng hô "em" và gọi khách là "bạn" hoặc "anh/chị", giọng điệu nhiệt tình, lịch sự, thân thiện, dùng emoji sinh động.
+2. Trả lời súc tích, tự nhiên, truyền cảm hứng và giải đáp thắc mắc của khách một cách hữu ích nhất.
+3. Nếu khách hỏi size mà chưa có chiều cao/cân nặng, hãy nhẹ nhàng hỏi thêm chiều cao & cân nặng.
+4. Giới hạn độ dài trong khoảng 2 - 4 đoạn ngắn, dễ đọc trên điện thoại.`;
+
+      const supportedModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
+      let generatedText = '';
+
+      for (const model of supportedModels) {
+        try {
+          const geminiRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${config.geminiApiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { maxOutputTokens: 650, temperature: 0.7 },
+              }),
+            }
+          );
+
+          if (geminiRes.ok) {
+            const geminiData = await geminiRes.json();
+            const text = geminiData.candidates?.[0]?.content?.parts
+              ?.filter((p: any) => p.text && !p.thought)
+              ?.map((p: any) => p.text)
+              ?.join('\n');
+
+            if (text?.trim()) {
+              generatedText = text.trim();
+              break;
+            }
+          }
+        } catch (mErr) {
+          // continue to next model
+        }
+      }
+
+      if (generatedText) {
+        return {
+          shouldReply: true,
+          replyText: generatedText,
+          senderName: botName,
+        };
+      }
+    } catch (geminiErr: any) {
+      console.warn('Gemini API call failed, falling back to smart local NLP:', geminiErr?.message || geminiErr);
+    }
+  }
+
+  // CASE 3: LOCAL SIZE ADVISOR (FALLBACK KHI KHÔNG CÓ GEMINI HOẶC GEMINI LỖI)
   const measurements = parseBodyMeasurements(userText);
   const isAskingSize =
     lowerText.includes('size') ||
     lowerText.includes('kích cỡ') ||
     lowerText.includes('mặc vừa') ||
     lowerText.includes('vừa không') ||
-    lowerText.includes('tư vấn') ||
-    lowerText.includes('chiều cao') ||
-    lowerText.includes('cân nặng') ||
+    (lowerText.includes('tư vấn') && (lowerText.includes('áo') || lowerText.includes('quần') || lowerText.includes('giày') || lowerText.includes('đầm'))) ||
     (measurements.height !== undefined && measurements.weight !== undefined);
 
   if (isAskingSize) {
@@ -352,29 +413,23 @@ export async function generateBotResponse(params: {
         replyText: reply,
         senderName: botName,
       };
-    } else {
-      return {
-        shouldReply: true,
-        replyText: `Dạ để em tư vấn size chuẩn xác nhất cho bạn, bạn vui lòng cho em biết **Chiều cao (cm)** và **Cân nặng (kg)** (hoặc chiều dài chân nếu mua giày) của bạn nhé ạ! 😊`,
-        senderName: botName,
-      };
     }
   }
 
-  // CASE 3: PRODUCT SEARCH & RECOMMENDATION (Tìm kiếm sản phẩm thông minh)
-  const isSearchIntent =
-    lowerText.includes('có') ||
-    lowerText.includes('tìm') ||
-    lowerText.includes('áo') ||
-    lowerText.includes('giày') ||
-    lowerText.includes('bóng') ||
-    lowerText.includes('balo') ||
-    lowerText.includes('quần') ||
-    lowerText.includes('đầm') ||
-    lowerText.includes('mẫu nào') ||
-    lowerText.includes('mua');
+  // CASE 4: LOCAL PRODUCT SEARCH
+  const isExplicitSearch =
+    lowerText.startsWith('tìm') ||
+    lowerText.startsWith('có mẫu') ||
+    lowerText.includes('có bán') ||
+    lowerText.includes('có áo') ||
+    lowerText.includes('có giày') ||
+    lowerText.includes('có bóng') ||
+    lowerText.includes('có balo') ||
+    lowerText.includes('mẫu áo') ||
+    lowerText.includes('mẫu giày') ||
+    lowerText.includes('mẫu bóng');
 
-  if (isSearchIntent && !lowerText.includes('đơn hàng') && !lowerText.includes('phí ship')) {
+  if (isExplicitSearch) {
     const matchedProducts = await searchStoreProducts(userText);
     if (matchedProducts.length > 0) {
       let reply = `Dạ bên shop có mẫu này đang có sẵn hàng và cực kỳ hot, đúng nhu cầu của bạn ạ:\n\n`;
@@ -393,7 +448,7 @@ export async function generateBotResponse(params: {
     }
   }
 
-  // CASE 4: BUYING & ORDERING INTENT (Hỗ trợ chốt đơn)
+  // CASE 5: BUYING & ORDERING INTENT
   if (lowerText.includes('mua ngay') || lowerText.includes('đặt hàng') || lowerText.includes('chốt đơn') || lowerText.includes('cách mua')) {
     return {
       shouldReply: true,
@@ -405,7 +460,7 @@ export async function generateBotResponse(params: {
     };
   }
 
-  // CASE 5: DISCOUNTS & PROMOTIONS (Ưu đãi / Voucher)
+  // CASE 6: DISCOUNTS & PROMOTIONS
   if (lowerText.includes('khuyến mãi') || lowerText.includes('voucher') || lowerText.includes('giảm giá') || lowerText.includes('ưu đãi') || lowerText.includes('mã giảm')) {
     return {
       shouldReply: true,
@@ -419,7 +474,7 @@ export async function generateBotResponse(params: {
     };
   }
 
-  // CASE 6: STORE POLICIES (Freeship, Shipping time, Return, Payment)
+  // CASE 7: STORE POLICIES
   if (lowerText.includes('freeship') || lowerText.includes('phí ship') || lowerText.includes('vận chuyển') || lowerText.includes('giao hàng')) {
     return {
       shouldReply: true,
@@ -463,47 +518,6 @@ export async function generateBotResponse(params: {
       replyText: `Dạ chào bạn! Rất vui được hỗ trợ bạn hôm nay ạ.${prodGreeting} Bạn cần em tư vấn chọn size, tìm sản phẩm hay kiểm tra đơn hàng cứ nhắn cho em nhé! 🌟`,
       senderName: botName,
     };
-  }
-
-  // CASE 7: CALL GOOGLE GEMINI AI IF API KEY AVAILABLE (100% FREE FROM GOOGLE AI STUDIO)
-  if (config.geminiApiKey) {
-    try {
-      const prompt = `Bạn là Trợ lý Ảo AI CSKH thông minh, thân thiện, duyên dáng và chuyên nghiệp của cửa hàng thời trang & đồ thể thao "ShopTik Store".
-Thông tin ngữ cảnh:
-- Tên khách hàng: ${params.customerName || 'Khách hàng'}
-- Sản phẩm khách đang xem: ${params.productContext?.name || 'Không có'} (Giá: ${params.productContext?.price || 0}đ)
-- Tin nhắn khách gửi: "${userText}"
-
-Quy tắc trả lời:
-1. Xưng hô "em" và gọi khách là "bạn" hoặc "anh/chị", giọng điệu nhiệt tình, lịch sự, thân thiện, dùng emoji phù hợp.
-2. Trả lời ngắn gọn, súc tích (dưới 4 câu), tập trung giải đáp thắc mắc hoặc gợi ý chọn size, tư vấn mua hàng.
-3. Nếu khách hỏi size mà chưa đủ chiều cao/cân nặng, hãy hỏi thêm chiều cao & cân nặng.
-4. Nhấn mạnh chính sách kiểm tra hàng trước khi thanh toán và đổi size 7 ngày.`;
-
-      const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${config.geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: 250, temperature: 0.7 },
-          }),
-        }
-      );
-
-      const geminiData = await geminiRes.json();
-      const generatedText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (generatedText?.trim()) {
-        return {
-          shouldReply: true,
-          replyText: generatedText.trim(),
-          senderName: botName,
-        };
-      }
-    } catch (geminiErr) {
-      console.warn('Gemini API call failed, falling back to smart default:', geminiErr);
-    }
   }
 
   // DEFAULT SMART BOT FALLBACK
