@@ -659,10 +659,24 @@ function HomePageContent() {
             ) && (
               <div ref={flashSaleRef} className={styles.flashSaleSection}>
                 <div className={styles.flashHeader}>
+                  {/* Top Bar: Brand Logo + Countdown Clock + "Xem tất cả" Pill Button */}
                   <div className={styles.flashHeaderTop}>
-                    <span className={styles.flashLogo}>
-                      {flashSaleConfig.title || '⚡ FLASH SALE'}
-                    </span>
+                    <div className={styles.flashTitleGroup}>
+                      <span className={styles.flashLogo}>
+                        ⚡ FLASH SALE
+                      </span>
+
+                      {/* Digital Flip Countdown */}
+                      <div className={styles.flashCountdownBox}>
+                        <div className={styles.countdownTimer}>
+                          <span className={styles.countdownDigit}>{countdown.hours}</span>
+                          <span className={styles.countdownColon}>:</span>
+                          <span className={styles.countdownDigit}>{countdown.minutes}</span>
+                          <span className={styles.countdownColon}>:</span>
+                          <span className={styles.countdownDigit}>{countdown.seconds}</span>
+                        </div>
+                      </div>
+                    </div>
 
                     <button
                       type="button"
@@ -674,29 +688,26 @@ function HomePageContent() {
                         fetchProductsByParams(1, priceSortAsc, searchQuery, selectedCategory);
                       }}
                     >
-                      Xem tất cả <FiChevronRight size={13} />
+                      <span>Xem tất cả</span>
+                      <FiChevronRight size={12} />
                     </button>
                   </div>
 
-                  <div className={styles.flashHeaderBottom}>
-                    {/* Digital Countdown Timer */}
-                    <div className={styles.flashCountdownBox}>
-                      <span className={styles.countdownLabel}>Kết thúc trong</span>
-                      <div className={styles.countdownTimer}>
-                        <span className={styles.countdownDigit}>{countdown.hours}</span>
-                        <span className={styles.countdownColon}>:</span>
-                        <span className={styles.countdownDigit}>{countdown.minutes}</span>
-                        <span className={styles.countdownColon}>:</span>
-                        <span className={styles.countdownDigit}>{countdown.seconds}</span>
-                      </div>
+                  {/* Campaign Tagline / Subtitle Banner (Customized from Admin) */}
+                  {(flashSaleConfig.title || flashSaleConfig.subtitle) && (
+                    <div className={styles.flashCampaignBanner}>
+                      {flashSaleConfig.title && (
+                        <span className={styles.flashCampaignTitle}>
+                          {flashSaleConfig.title}
+                        </span>
+                      )}
+                      {flashSaleConfig.subtitle && (
+                        <span className={styles.flashCampaignSubtitle}>
+                          {flashSaleConfig.title ? '• ' : ''}{flashSaleConfig.subtitle}
+                        </span>
+                      )}
                     </div>
-
-                    {flashSaleConfig.subtitle && (
-                      <span className={styles.flashSubtitleText}>
-                        • {flashSaleConfig.subtitle}
-                      </span>
-                    )}
-                  </div>
+                  )}
                 </div>
 
                 {/* Time Slots Selector Tabs (Shopee Style) */}
