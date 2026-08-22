@@ -235,7 +235,7 @@ async function searchStoreProducts(query: string) {
     const results = scored
       .filter((s) => s.score > 0)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
+      .slice(0, 4)
       .map((s) => s.product);
 
     return results;
@@ -245,7 +245,40 @@ async function searchStoreProducts(query: string) {
   }
 }
 
-// 5. Main AI Bot Response Generator (Advanced Hybrid Engine)
+// 5. Helper: Real-time Catalog Digest Generator for AI (Catalog RAG)
+async function getCatalogDigestForAI(userQuery: string): Promise<string> {
+  try {
+    await connectToDatabase();
+    const matched = await searchStoreProducts(userQuery);
+    const featured = await Product.find({ status: 'active' })
+      .select('name slug price salePrice stock')
+      .limit(6)
+      .lean();
+
+    const combined: any[] = [...matched];
+    for (const f of featured) {
+      if (!combined.some((c) => c.slug === (f as any).slug)) {
+        combined.push(f);
+      }
+    }
+
+    if (combined.length === 0) return '';
+
+    let digest = 'DANH SÁCH SẢN PHẨM THỰC TẾ TRONG KHO (DÙNG ĐỂ TƯ VẤN, BÁO GIÁ VÀ GỬI LINK):\n';
+    combined.slice(0, 6).forEach((p: any, idx: number) => {
+      const priceStr = (p.salePrice || p.price || 0).toLocaleString('vi-VN') + '₫';
+      const origStr = p.salePrice && p.price > p.salePrice ? ` (Giá gốc: ${p.price.toLocaleString('vi-VN')}₫)` : '';
+      digest += `${idx + 1}. **${p.name}** | Giá sale: ${priceStr}${origStr} | Link: /product/${p.slug} | Tồn kho: ${p.stock || 'Sẵn hàng'}\n`;
+    });
+
+    return digest;
+  } catch (err) {
+    console.error('Error creating catalog digest:', err);
+    return '';
+  }
+}
+
+// 6. Main AI Bot Response Generator (Advanced Hybrid Engine)
 export async function generateBotResponse(params: {
   text: string;
   conversationId: string;
@@ -319,7 +352,12 @@ export async function generateBotResponse(params: {
   // CASE 2: GOOGLE GEMINI GENERATIVE AI (Khi có API Key)
   if (config.geminiApiKey) {
     try {
+      const catalogDigest = await getCatalogDigestForAI(userText);
+
       const prompt = `Bạn là Trợ lý Ảo AI CSKH thông minh, thân thiện, duyên dáng và chuyên nghiệp của cửa hàng thời trang & đồ thể thao "ShopTik Store".
+
+${catalogDigest}
+
 Thông tin cửa hàng & chính sách:
 - Cửa hàng chuyên: Áo bóng đá CLB & Đội tuyển (Real, Barca, MU, Tây Ban Nha, ĐT Việt Nam...), Giày bóng đá đinh TF sân cỏ nhân tạo (Akka, JGBL...), Quả bóng đá FIFA (Động Lực UHV, UCV, Adidas...), Balo thể thao (Kaiwin...), Salonpas y tế, Áo Polo và Thời trang nữ.
 - Chính sách: Freeship toàn quốc từ 500k, Hỗ trợ đổi size 7 ngày miễn phí, Bảo hành 1 đổi 1 nếu lỗi sản xuất, Được kiểm tra hàng trước khi thanh toán COD hoặc Quét mã VietQR SePay tự động.
@@ -329,7 +367,7 @@ Thông tin cửa hàng & chính sách:
 
 Quy tắc trả lời:
 1. Xưng hô "em" và gọi khách là "bạn" hoặc "anh/chị", giọng điệu nhiệt tình, lịch sự, thân thiện, dùng emoji sinh động.
-2. Trả lời súc tích, tự nhiên, truyền cảm hứng và giải đáp thắc mắc của khách một cách hữu ích nhất.
+2. DỰA VÀO DANH SÁCH SẢN PHẨM Ở TRÊN để tư vấn chính xác tên sản phẩm, giá bán và CHÈN ĐƯỜNG LINK CLICKABLE dạng [Xem chi tiết & đặt mua](/product/slug) để khách bấm vào xem ngay!
 3. Nếu khách hỏi size mà chưa có chiều cao/cân nặng, hãy nhẹ nhàng hỏi thêm chiều cao & cân nặng.
 4. Giới hạn độ dài trong khoảng 2 - 4 đoạn ngắn, dễ đọc trên điện thoại.`;
 
