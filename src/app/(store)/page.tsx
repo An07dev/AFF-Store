@@ -660,7 +660,9 @@ function HomePageContent() {
               <div ref={flashSaleRef} className={styles.flashSaleSection}>
                 <div className={styles.flashHeader}>
                   <div className={styles.flashTitleWrap}>
-                    <span className={styles.flashLogo}>⚡ FLASH SALE</span>
+                    <span className={styles.flashLogo}>
+                      {flashSaleConfig.title || '⚡ FLASH SALE'}
+                    </span>
                     
                     {/* Digital Countdown Timer */}
                     <div className={styles.flashCountdownBox}>
@@ -685,6 +687,12 @@ function HomePageContent() {
                     Xem tất cả <FiChevronRight size={13} />
                   </button>
                 </div>
+
+                {flashSaleConfig.subtitle && (
+                  <div className={styles.flashSubtitleText}>
+                    {flashSaleConfig.subtitle}
+                  </div>
+                )}
 
                 {/* Time Slots Selector Tabs (Shopee Style) */}
                 {flashSaleConfig?.slots && flashSaleConfig.slots.length > 0 && (
