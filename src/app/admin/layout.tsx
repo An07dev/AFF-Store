@@ -123,10 +123,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <nav className={styles.sidebarNav}>
           {menuItems.map((item) => {
+            const isExactMatch = pathname === item.path;
+            const isChildMatch = pathname.startsWith(item.path + '/');
+            
+            // Check if there is another menu item that has a more specific path match
+            const hasMoreSpecificMatch = menuItems.some(
+              (other) =>
+                other.path !== item.path &&
+                other.path.startsWith(item.path + '/') &&
+                (pathname === other.path || pathname.startsWith(other.path + '/'))
+            );
+
             const isActive =
               item.path === '/admin'
                 ? pathname === '/admin'
-                : pathname === item.path || pathname.startsWith(item.path + '/');
+                : isExactMatch || (isChildMatch && !hasMoreSpecificMatch);
+
             return (
               <Link
                 key={item.path}
