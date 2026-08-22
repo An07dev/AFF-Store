@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FiX, FiUser, FiTruck, FiPackage, FiCreditCard, FiExternalLink } from 'react-icons/fi';
+import { FiX, FiUser, FiTruck, FiPackage, FiCreditCard, FiExternalLink, FiPrinter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
 import LazyImage from '@/components/common/LazyImage';
 import Skeleton from '@/components/common/Skeleton';
 import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
 import ShipOrderModal from '@/components/admin/ShipOrderModal';
+import OrderPackingSlipModal from '@/components/admin/OrderPackingSlipModal';
 import { apiFetch } from '@/lib/api';
 import styles from './OrderDetailModal.module.css';
 
@@ -27,6 +28,7 @@ export default function OrderDetailModal({
   const [loading, setLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isShipModalOpen, setIsShipModalOpen] = useState(false);
+  const [isSlipModalOpen, setIsSlipModalOpen] = useState(false);
 
   useEffect(() => {
     if (!orderId) {
@@ -288,9 +290,20 @@ export default function OrderDetailModal({
               </select>
             </div>
 
-            <Link href={`/admin/orders/${order._id}`} className={styles.fullDetailBtn}>
-              <FiExternalLink /> Xem trang chi tiết & Vận đơn
-            </Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className={styles.btnPrintSlip}
+                onClick={() => setIsSlipModalOpen(true)}
+                title="In phiếu đóng hàng chuẩn A6 cho đơn vị vận chuyển"
+              >
+                <FiPrinter /> In phiếu đóng hàng (A6)
+              </button>
+
+              <Link href={`/admin/orders/${order._id}`} className={styles.fullDetailBtn}>
+                <FiExternalLink /> Xem trang chi tiết
+              </Link>
+            </div>
           </div>
         )}
       </div>
@@ -304,6 +317,14 @@ export default function OrderDetailModal({
           onClose();
         }}
       />
+
+      {/* Order Packing Slip Modal */}
+      {isSlipModalOpen && order && (
+        <OrderPackingSlipModal
+          orders={[order]}
+          onClose={() => setIsSlipModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

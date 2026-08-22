@@ -20,6 +20,29 @@
 .periodFilter {
   display: flex;
   gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btnExport {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #15803d, #16a34a);
+  color: #ffffff;
+  border: 1px solid #22c55e;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.btnExport:hover {
+  background: linear-gradient(135deg, #166534, #15803d);
+  transform: translateY(-1px);
 }
 
 .periodBtn {

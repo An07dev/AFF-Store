@@ -1,0 +1,360 @@
+/* Order Packing Slip Modal Styles (Screen & Thermal Print A6) */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal {
+  background: var(--bg-card, #111827);
+  border: 1px solid var(--border-color, #1f2937);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 650px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color, #1f2937);
+  background: var(--bg-surface, #1e293b);
+}
+
+.titleArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.titleIcon {
+  font-size: 1.25rem;
+  color: var(--primary, #38bdf8);
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-main, #ffffff);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted, #9ca3af);
+  margin-top: 2px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnPrint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btnPrint:hover {
+  background: linear-gradient(135deg, #0369a1, #1d4ed8);
+  transform: translateY(-1px);
+}
+
+.btnClose {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #9ca3af);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btnClose:hover {
+  color: var(--text-main, #ffffff);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.previewContainer {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: #0f172a;
+}
+
+/* =========================================================
+   A6 PACKING SLIP LAYOUT (Black & White Thermal Optimized)
+   ========================================================= */
+
+.slipPaper {
+  background: #ffffff;
+  color: #000000;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.35;
+  border: 1px dashed #94a3b8;
+  page-break-after: always;
+  break-after: page;
+}
+
+.slipHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.brandInfo {
+  flex: 1;
+}
+
+.shopName {
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #000000;
+}
+
+.shopDetails {
+  font-size: 10px;
+  color: #333333;
+  margin-top: 2px;
+}
+
+.barcodeArea {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  max-width: 180px;
+}
+
+.barcodeSvg {
+  width: 160px;
+  height: 38px;
+}
+
+.orderDateTag {
+  font-size: 9px;
+  color: #555555;
+  margin-top: 2px;
+}
+
+.gridSenderRecipient {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  border-bottom: 1px solid #000000;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.addressBox {
+  font-size: 10.5px;
+}
+
+.boxTitle {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 2px;
+}
+
+.personName {
+  font-weight: 700;
+  font-size: 11.5px;
+}
+
+.personPhone {
+  font-weight: 800;
+  font-size: 12px;
+  color: #000000;
+}
+
+.personAddress {
+  font-size: 10px;
+  color: #111111;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.shippingCarrierBar {
+  background: #f1f5f9;
+  border: 1px solid #000000;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.carrierTag {
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 11px;
+}
+
+.itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 8px;
+  font-size: 10px;
+}
+
+.itemsTable th,
+.itemsTable td {
+  border: 1px solid #000000;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+.itemsTable th {
+  background: #e2e8f0;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 9.5px;
+}
+
+.itemsTable .textCenter {
+  text-align: center;
+}
+
+.itemsTable .textRight {
+  text-align: right;
+}
+
+.itemVariantTag {
+  display: inline-block;
+  background: #f1f5f9;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.summarySection {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 8px;
+  border-top: 1px solid #000000;
+  padding-top: 6px;
+  margin-bottom: 8px;
+}
+
+.notesBox {
+  border: 1px dashed #000000;
+  padding: 4px 6px;
+  font-size: 9.5px;
+  background: #fffbeb;
+}
+
+.notesTitle {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 9px;
+  margin-bottom: 2px;
+}
+
+.codCard {
+  border: 2px solid #000000;
+  padding: 6px 8px;
+  text-align: center;
+  background: #f8fafc;
+}
+
+.codLabel {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.codAmount {
+  font-size: 16px;
+  font-weight: 900;
+  color: #000000;
+  margin: 2px 0;
+}
+
+.paidStamp {
+  border: 2px solid #16a34a;
+  color: #16a34a;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  padding: 3px 6px;
+  display: inline-block;
+  transform: rotate(-3deg);
+  border-radius: 4px;
+}
+
+.slipFooter {
+  border-top: 1px solid #000000;
+  padding-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #333333;
+}
+
+.signatureArea {
+  text-align: center;
+  width: 140px;
+}
+
+.signatureLine {
+  margin-top: 30px;
+  border-top: 1px dotted #666666;
+  padding-top: 2px;
+  font-style: italic;
+  font-size: 8.5px;
+}

@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { FiDownload } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -39,6 +41,37 @@ export default function ReportsPage() {
   const [period, setPeriod] = useState('7days');
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportOrders = async () => {
+    try {
+      setIsExporting(true);
+      toast.loading('Đang khởi tạo file Excel báo cáo...', { id: 'report-export' });
+      const res = await apiFetch('/api/orders/export?status=all');
+      if (!res.ok) throw new Error('Lỗi tải dữ liệu');
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      const disposition = res.headers.get('content-disposition');
+      let filename = 'Bao_cao_don_hang_ShopTik.csv';
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+      }
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+
+      toast.success('Đã tải xuống file Excel báo cáo đơn hàng!', { id: 'report-export' });
+    } catch (err: any) {
+      toast.error(err.message || 'Lỗi xuất file Excel', { id: 'report-export' });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   useEffect(() => {
     async function loadReport() {
@@ -110,6 +143,16 @@ export default function ReportsPage() {
               {p.label}
             </button>
           ))}
+
+          <button
+            type="button"
+            className={styles.btnExport}
+            onClick={handleExportOrders}
+            disabled={isExporting}
+            title="Xuất toàn bộ đơn hàng sang file Excel"
+          >
+            <FiDownload /> {isExporting ? 'Đang xuất...' : 'Xuất Excel'}
+          </button>
         </div>
       </div>
 

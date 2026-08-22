@@ -302,14 +302,14 @@ function ChatContent() {
         return [...prev, msg];
       });
 
-      if (msg.sender === 'admin') {
+      if (msg.sender === 'admin' || msg.sender === 'bot') {
         playNotificationSound();
         socket.emit('mark_read', { conversationId, readBy: 'user' });
       }
     };
 
     const handleUserTyping = (data: any) => {
-      if (data.conversationId === conversationId && data.sender === 'admin') {
+      if (data.conversationId === conversationId && (data.sender === 'admin' || data.sender === 'bot')) {
         setIsAdminTyping(data.isTyping);
       }
     };

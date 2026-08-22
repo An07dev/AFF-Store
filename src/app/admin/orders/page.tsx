@@ -12,6 +12,11 @@ import {
   FiShoppingBag,
   FiCalendar,
   FiClock,
+  FiPrinter,
+  FiDownload,
+  FiCheckSquare,
+  FiSquare,
+  FiFileText,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
@@ -19,6 +24,7 @@ import Skeleton from '@/components/common/Skeleton';
 import OrderDetailModal from '@/components/admin/OrderDetailModal';
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
 import ShipOrderModal from '@/components/admin/ShipOrderModal';
+import OrderPackingSlipModal from '@/components/admin/OrderPackingSlipModal';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -33,6 +39,11 @@ export default function OrdersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
   const [isResetting, setIsResetting] = useState(false);
+
+  // Batch & Print states
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [printSlipOrders, setPrintSlipOrders] = useState<any[] | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Modal states
   const [selectedDetailOrderId, setSelectedDetailOrderId] = useState<string | null>(null);
@@ -90,6 +101,78 @@ export default function OrdersPage() {
     fetchOrders();
   }, [page, activeStatus, search, startDate, endDate]);
 
+  // Selection handlers
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedOrderIds(orders.map((o) => o._id));
+    } else {
+      setSelectedOrderIds([]);
+    }
+  };
+
+  const handleToggleOrder = (orderId: string) => {
+    setSelectedOrderIds((prev) =>
+      prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]
+    );
+  };
+
+  const handlePrintSingle = (order: any) => {
+    setPrintSlipOrders([order]);
+  };
+
+  const handlePrintSelected = () => {
+    const selected = orders.filter((o) => selectedOrderIds.includes(o._id));
+    if (selected.length === 0) {
+      toast.error('Vui lòng chọn ít nhất 1 đơn hàng để in');
+      return;
+    }
+    setPrintSlipOrders(selected);
+  };
+
+  // Export orders to Excel (CSV with UTF-8 BOM)
+  const handleExportExcel = async (type: 'all' | 'filtered' | 'selected' = 'filtered') => {
+    try {
+      setIsExporting(true);
+      let url = '/api/orders/export?';
+      if (type === 'selected' && selectedOrderIds.length > 0) {
+        url += `orderIds=${selectedOrderIds.join(',')}`;
+      } else if (type === 'all') {
+        url += `status=all`;
+      } else {
+        if (activeStatus && activeStatus !== 'all') url += `status=${activeStatus}&`;
+        if (search) url += `search=${encodeURIComponent(search)}&`;
+        if (startDate) url += `startDate=${startDate}&`;
+        if (endDate) url += `endDate=${endDate}&`;
+      }
+
+      toast.loading('Đang khởi tạo file Excel...', { id: 'exporting' });
+      const res = await apiFetch(url);
+      if (!res.ok) throw new Error('Lỗi khi tải dữ liệu đơn hàng');
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+
+      const disposition = res.headers.get('content-disposition');
+      let filename = 'Danh_sach_don_hang_ShopTik.csv';
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+      }
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+
+      toast.success('Đã xuất file Excel đơn hàng thành công!', { id: 'exporting' });
+    } catch (err: any) {
+      toast.error(err.message || 'Lỗi xuất file Excel', { id: 'exporting' });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Reset all filters & explicitly fetch API
   const handleResetFilters = async () => {
     setIsResetting(true);
@@ -98,6 +181,7 @@ export default function OrdersPage() {
     setStartDate('');
     setEndDate('');
     setPage(1);
+    setSelectedOrderIds([]);
 
     await fetchOrders({
       page: 1,
@@ -141,6 +225,7 @@ export default function OrdersPage() {
       if (data.success) {
         toast.success(`Đã xóa đơn hàng #${deleteTarget.code} thành công!`);
         setDeleteTarget(null);
+        setSelectedOrderIds((prev) => prev.filter((id) => id !== deleteTarget.id));
         fetchOrders();
       } else {
         toast.error(data.message || 'Lỗi xóa đơn hàng');
@@ -152,6 +237,8 @@ export default function OrdersPage() {
     }
   };
 
+  const isAllSelected = orders.length > 0 && orders.every((o) => selectedOrderIds.includes(o._id));
+
   return (
     <div className={styles.page}>
       {/* Header */}
@@ -161,6 +248,19 @@ export default function OrdersPage() {
           <p className={styles.subtitle}>
             Tổng số: <strong style={{ color: 'var(--text-main, #fff)' }}>{totalOrders}</strong> đơn hàng trong hệ thống
           </p>
+        </div>
+
+        {/* Global Action Buttons */}
+        <div className={styles.headerActions}>
+          <button
+            type="button"
+            className={styles.btnExport}
+            onClick={() => handleExportExcel('filtered')}
+            disabled={isExporting}
+            title="Xuất file Excel danh sách đơn hàng theo bộ lọc hiện tại"
+          >
+            <FiDownload /> {isExporting ? 'Đang xuất...' : 'Xuất Excel (.csv)'}
+          </button>
         </div>
       </div>
 
@@ -174,6 +274,7 @@ export default function OrdersPage() {
               onClick={() => {
                 setActiveStatus(tab.key);
                 setPage(1);
+                setSelectedOrderIds([]);
               }}
             >
               {tab.label}
@@ -233,6 +334,47 @@ export default function OrdersPage() {
           </button>
         </div>
 
+        {/* Sticky Batch Action Bar when orders are selected */}
+        {selectedOrderIds.length > 0 && (
+          <div className={styles.batchBar}>
+            <div className={styles.batchInfo}>
+              <FiCheckSquare style={{ color: '#38bdf8', fontSize: '1.125rem' }} />
+              <span>
+                Đã chọn <strong style={{ color: '#38bdf8', fontSize: '1rem' }}>{selectedOrderIds.length}</strong> đơn hàng
+              </span>
+            </div>
+
+            <div className={styles.batchActions}>
+              <button
+                type="button"
+                className={styles.btnBatchPrint}
+                onClick={handlePrintSelected}
+                title="In toàn bộ phiếu đóng hàng khổ A6 cho các đơn đã chọn"
+              >
+                <FiPrinter /> In {selectedOrderIds.length} phiếu đóng hàng (A6)
+              </button>
+
+              <button
+                type="button"
+                className={styles.btnExport}
+                onClick={() => handleExportExcel('selected')}
+                title="Xuất riêng các đơn hàng đã chọn ra file Excel"
+              >
+                <FiDownload /> Xuất Excel ({selectedOrderIds.length} đơn)
+              </button>
+
+              <button
+                type="button"
+                className={styles.btnClearSelection}
+                onClick={() => setSelectedOrderIds([])}
+                title="Bỏ chọn toàn bộ"
+              >
+                Bỏ chọn
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Orders Table with Skeleton */}
         {loading ? (
           <div style={{ padding: 16 }}>
@@ -243,6 +385,15 @@ export default function OrdersPage() {
             <table className={styles.table}>
               <thead>
                 <tr>
+                  <th style={{ width: 40, textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      className={styles.checkbox}
+                      checked={isAllSelected}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      title="Chọn tất cả đơn hàng trên trang này"
+                    />
+                  </th>
                   <th>Mã đơn</th>
                   <th>Khách hàng</th>
                   <th>Sản phẩm</th>
@@ -256,160 +407,185 @@ export default function OrdersPage() {
               <tbody>
                 {orders.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted, #9ca3af)', padding: 40 }}>
+                    <td colSpan={9} style={{ textAlign: 'center', color: 'var(--text-muted, #9ca3af)', padding: 40 }}>
                       Không tìm thấy đơn hàng nào phù hợp với bộ lọc
                     </td>
                   </tr>
                 ) : (
-                  orders.map((o) => (
-                    <tr key={o._id}>
-                      <td className={styles.bold}>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedDetailOrderId(o._id)}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--primary, #3b82f6)',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            padding: 0,
-                            fontSize: '0.9375rem',
-                          }}
-                        >
-                          #{o.orderCode}
-                        </button>
-                      </td>
-                      <td>
-                        <strong style={{ color: 'var(--text-main, #ffffff)' }}>{o.customer?.name}</strong>
-                        <br />
-                        <span className={styles.textMuted}>{o.customer?.phone}</span>
-                      </td>
-                      <td>
-                        <span style={{ color: 'var(--text-main, #ffffff)', fontWeight: 600 }}>
-                          {o.items?.length || 0} sản phẩm
-                        </span>
-                        {o.items?.[0] && (
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim, #64748b)', maxWidth: 180, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {o.items[0].name} {o.items.length > 1 ? `(+${o.items.length - 1})` : ''}
-                          </div>
-                        )}
-                      </td>
-                      <td className={styles.bold} style={{ color: 'var(--primary, #3b82f6)' }}>
-                        {formatPrice(o.totalAmount)}
-                      </td>
-                      <td>
-                        <span
-                          style={{
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            color: o.paymentStatus === 'paid' ? '#10b981' : '#f59e0b',
-                          }}
-                        >
-                          {o.paymentStatus === 'paid' ? '● Đã thanh toán' : '○ Chưa thanh toán'}
-                        </span>
-                        <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim, #64748b)' }}>
-                          {o.paymentMethod === 'bank_transfer' ? 'VietQR/Chuyển khoản' : 'COD (Tiền mặt)'}
-                        </div>
-                      </td>
-                      <td>
-                        <span
-                          className={`${styles.badge} ${
-                            o.status === 'delivered'
-                              ? styles.badgeDelivered
-                              : o.status === 'cancelled'
-                              ? styles.badgeCancelled
-                              : o.status === 'shipping'
-                              ? styles.badgeShipping
-                              : o.status === 'confirmed'
-                              ? styles.badgeConfirmed
-                              : styles.badgePending
-                          }`}
-                        >
-                          {o.status === 'delivered'
-                            ? 'Đã giao thành công'
-                            : o.status === 'shipping'
-                            ? 'Đang giao'
-                            : o.status === 'confirmed'
-                            ? 'Đã duyệt'
-                            : o.status === 'cancelled'
-                            ? 'Đã hủy'
-                            : 'Chờ duyệt'}
-                        </span>
-                      </td>
-                      <td style={{ color: 'var(--text-muted, #9ca3af)', fontSize: '0.8125rem' }}>
-                        {formatDate(o.createdAt)}
-                      </td>
-                      <td>
-                        <div className={styles.actions} style={{ justifyContent: 'flex-end', display: 'flex', gap: 6 }}>
+                  orders.map((o) => {
+                    const isSelected = selectedOrderIds.includes(o._id);
+
+                    return (
+                      <tr key={o._id} style={{ background: isSelected ? 'rgba(56, 189, 248, 0.06)' : undefined }}>
+                        <td style={{ textAlign: 'center' }}>
+                          <input
+                            type="checkbox"
+                            className={styles.checkbox}
+                            checked={isSelected}
+                            onChange={() => handleToggleOrder(o._id)}
+                          />
+                        </td>
+                        <td className={styles.bold}>
                           <button
                             type="button"
-                            className={styles.actionBtn}
                             onClick={() => setSelectedDetailOrderId(o._id)}
-                            title="Xem chi tiết đơn hàng"
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'var(--primary, #3b82f6)',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              padding: 0,
+                              fontSize: '0.9375rem',
+                            }}
                           >
-                            <FiEye />
+                            #{o.orderCode}
                           </button>
+                        </td>
+                        <td>
+                          <strong style={{ color: 'var(--text-main, #ffffff)' }}>{o.customer?.name}</strong>
+                          <br />
+                          <span className={styles.textMuted}>{o.customer?.phone}</span>
+                        </td>
+                        <td>
+                          <span style={{ color: 'var(--text-main, #ffffff)', fontWeight: 600 }}>
+                            {o.items?.length || 0} sản phẩm
+                          </span>
+                          {o.items?.[0] && (
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim, #64748b)', maxWidth: 180, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {o.items[0].name} {o.items.length > 1 ? `(+${o.items.length - 1})` : ''}
+                            </div>
+                          )}
+                        </td>
+                        <td className={styles.bold} style={{ color: 'var(--primary, #3b82f6)' }}>
+                          {formatPrice(o.totalAmount)}
+                        </td>
+                        <td>
+                          <span
+                            style={{
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              color: o.paymentStatus === 'paid' ? '#10b981' : '#f59e0b',
+                            }}
+                          >
+                            {o.paymentStatus === 'paid' ? '● Đã thanh toán' : '○ Chưa thanh toán'}
+                          </span>
+                          <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim, #64748b)' }}>
+                            {o.paymentMethod === 'bank_transfer' ? 'VietQR/Chuyển khoản' : 'COD (Tiền mặt)'}
+                          </div>
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.badge} ${
+                              o.status === 'delivered'
+                                ? styles.badgeDelivered
+                                : o.status === 'cancelled'
+                                ? styles.badgeCancelled
+                                : o.status === 'shipping'
+                                ? styles.badgeShipping
+                                : o.status === 'confirmed'
+                                ? styles.badgeConfirmed
+                                : styles.badgePending
+                            }`}
+                          >
+                            {o.status === 'delivered'
+                              ? 'Đã giao thành công'
+                              : o.status === 'shipping'
+                              ? 'Đang giao'
+                              : o.status === 'confirmed'
+                              ? 'Đã duyệt'
+                              : o.status === 'cancelled'
+                              ? 'Đã hủy'
+                              : 'Chờ duyệt'}
+                          </span>
+                        </td>
+                        <td style={{ color: 'var(--text-muted, #9ca3af)', fontSize: '0.8125rem' }}>
+                          {formatDate(o.createdAt)}
+                        </td>
+                        <td>
+                          <div className={styles.actions} style={{ justifyContent: 'flex-end', display: 'flex', gap: 6 }}>
+                            {/* 1. Print Packing Slip A6 */}
+                            <button
+                              type="button"
+                              className={styles.actionBtn}
+                              onClick={() => handlePrintSingle(o)}
+                              title="In phiếu đóng hàng A6"
+                              style={{ color: '#38bdf8' }}
+                            >
+                              <FiPrinter />
+                            </button>
 
-                          {o.status === 'pending' && (
-                            <>
-                              <button
-                                type="button"
-                                className={styles.actionBtn}
-                                title="Duyệt đơn hàng"
-                                style={{ color: '#10b981' }}
-                                onClick={() => handleUpdateStatus(o._id, 'confirmed')}
-                              >
-                                <FiCheck />
-                              </button>
+                            {/* 2. View Details */}
+                            <button
+                              type="button"
+                              className={styles.actionBtn}
+                              onClick={() => setSelectedDetailOrderId(o._id)}
+                              title="Xem chi tiết đơn hàng"
+                            >
+                              <FiEye />
+                            </button>
+
+                            {/* Status transitions */}
+                            {o.status === 'pending' && (
+                              <>
+                                <button
+                                  type="button"
+                                  className={styles.actionBtn}
+                                  title="Duyệt đơn hàng"
+                                  style={{ color: '#10b981' }}
+                                  onClick={() => handleUpdateStatus(o._id, 'confirmed')}
+                                >
+                                  <FiCheck />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.actionBtn}
+                                  title="Chọn đơn vị giao hàng"
+                                  style={{ color: '#ea580c' }}
+                                  onClick={() => setShippingTargetOrder(o)}
+                                >
+                                  <FiTruck />
+                                </button>
+                              </>
+                            )}
+
+                            {o.status === 'confirmed' && (
                               <button
                                 type="button"
                                 className={styles.actionBtn}
                                 title="Chọn đơn vị giao hàng"
-                                style={{ color: '#ea580c' }}
+                                style={{ color: 'var(--primary, #3b82f6)' }}
                                 onClick={() => setShippingTargetOrder(o)}
                               >
                                 <FiTruck />
                               </button>
-                            </>
-                          )}
+                            )}
 
-                          {o.status === 'confirmed' && (
+                            {o.status === 'shipping' && (
+                              <button
+                                type="button"
+                                className={styles.actionBtn}
+                                title="Hoàn thành giao hàng"
+                                style={{ color: '#10b981' }}
+                                onClick={() => handleUpdateStatus(o._id, 'delivered')}
+                              >
+                                <FiCheck />
+                              </button>
+                            )}
+
                             <button
                               type="button"
-                              className={styles.actionBtn}
-                              title="Chọn đơn vị giao hàng"
-                              style={{ color: 'var(--primary, #3b82f6)' }}
-                              onClick={() => setShippingTargetOrder(o)}
+                              className={`${styles.actionBtn} ${styles.dangerBtn}`}
+                              onClick={() => setDeleteTarget({ id: o._id, code: o.orderCode })}
+                              title="Xóa đơn hàng"
                             >
-                              <FiTruck />
+                              <FiTrash2 />
                             </button>
-                          )}
-
-                          {o.status === 'shipping' && (
-                            <button
-                              type="button"
-                              className={styles.actionBtn}
-                              title="Hoàn thành giao hàng"
-                              style={{ color: '#10b981' }}
-                              onClick={() => handleUpdateStatus(o._id, 'delivered')}
-                            >
-                              <FiCheck />
-                            </button>
-                          )}
-
-                          <button
-                            type="button"
-                            className={`${styles.actionBtn} ${styles.dangerBtn}`}
-                            onClick={() => setDeleteTarget({ id: o._id, code: o.orderCode })}
-                            title="Xóa đơn hàng"
-                          >
-                            <FiTrash2 />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -492,6 +668,14 @@ export default function OrdersPage() {
         onClose={() => setShippingTargetOrder(null)}
         onSuccess={fetchOrders}
       />
+
+      {/* Order Packing Slip Print Modal (Single or Batch) */}
+      {printSlipOrders && (
+        <OrderPackingSlipModal
+          orders={printSlipOrders}
+          onClose={() => setPrintSlipOrders(null)}
+        />
+      )}
 
       {/* Delete Confirm Modal (API 5.3) */}
       <DeleteConfirmModal
