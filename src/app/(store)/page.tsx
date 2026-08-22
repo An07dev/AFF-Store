@@ -315,11 +315,44 @@ function HomePageContent() {
       if (data.success && Array.isArray(data.data)) {
         let list = data.data;
         if (filterIndex === 1) {
-          list = [...list].sort((a: any, b: any) => {
-            const discA = a.salePrice && a.salePrice < a.price ? (a.price - a.salePrice) / a.price : 0;
-            const discB = b.salePrice && b.salePrice < b.price ? (b.price - b.salePrice) / b.price : 0;
-            return discB - discA;
-          });
+          try {
+            const fsRes = await apiFetch('/api/flash-sale');
+            const fsData = await fsRes.json();
+            if (fsData.success && fsData.data && fsData.data.isActive && fsData.data.isLive) {
+              const fsItems = fsData.data.items || [];
+              if (fsItems.length > 0) {
+                const fsMap = new Map();
+                fsItems.forEach((it: any) => {
+                  if (it.productId) fsMap.set(String(it.productId), it);
+                  if (it.slug) fsMap.set(it.slug, it);
+                });
+
+                list = list.map((p: any) => {
+                  const matched = fsMap.get(String(p._id)) || fsMap.get(p.slug);
+                  if (matched) {
+                    return {
+                      ...p,
+                      price: matched.originalPrice || p.price,
+                      salePrice: matched.flashPrice,
+                      flashPrice: matched.flashPrice,
+                      isFlashSale: true,
+                    };
+                  }
+                  return p;
+                });
+
+                list = [...list].sort((a: any, b: any) => {
+                  if (a.isFlashSale && !b.isFlashSale) return -1;
+                  if (!a.isFlashSale && b.isFlashSale) return 1;
+                  const discA = a.salePrice && a.salePrice < a.price ? (a.price - a.salePrice) / a.price : 0;
+                  const discB = b.salePrice && b.salePrice < b.price ? (b.price - b.salePrice) / b.price : 0;
+                  return discB - discA;
+                });
+              }
+            }
+          } catch (e) {
+            console.error('Error fetching flash sale products in tab:', e);
+          }
         } else if (filterIndex === 4) {
           list = [...list].sort((a: any, b: any) => {
             const pA = a.salePrice && a.salePrice > 0 ? a.salePrice : a.price;
@@ -619,16 +652,7 @@ function HomePageContent() {
               <div ref={flashSaleRef} className={styles.flashSaleSection}>
                 <div className={styles.flashHeader}>
                   <div className={styles.flashTitleWrap}>
-                    <div className={styles.flashTitleBox}>
-                      <span className={styles.flashLogo}>
-                        {flashSaleConfig.title || '⚡ FLASH SALE'}
-                      </span>
-                      {flashSaleConfig.subtitle && (
-                        <span className={styles.flashSubtitle}>
-                          {flashSaleConfig.subtitle}
-                        </span>
-                      )}
-                    </div>
+                    <span className={styles.flashLogo}>⚡ FLASH SALE</span>
                     
                     {/* Digital Countdown Timer */}
                     <div className={styles.flashCountdownBox}>

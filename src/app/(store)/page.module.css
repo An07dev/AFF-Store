@@ -324,23 +324,20 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .flashTitleWrap {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.flashTitleBox {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .flashLogo {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 900;
   color: #f97316;
   letter-spacing: -0.3px;
@@ -348,19 +345,14 @@
   align-items: center;
   gap: 4px;
   text-transform: uppercase;
-}
-
-.flashSubtitle {
-  font-size: 10px;
-  color: var(--text-muted, #94a3b8);
-  font-weight: 500;
-  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .flashCountdownBox {
   display: flex;
   align-items: center;
   gap: 2px;
+  flex-shrink: 0;
 }
 
 .countdownDigit {
@@ -378,6 +370,25 @@
 .countdownColon {
   font-weight: 900;
   font-size: 11px;
+  color: #f97316;
+}
+
+.seeAllBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.seeAllBtn:hover {
   color: #f97316;
 }
 
