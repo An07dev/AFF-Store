@@ -9,6 +9,13 @@ export interface IBotReplyResult {
   shouldReply: boolean;
   replyText?: string;
   senderName?: string;
+  suggestedProducts?: Array<{
+    name: string;
+    price: number;
+    salePrice?: number;
+    image?: string;
+    slug: string;
+  }>;
   suggestedAction?: {
     type: 'link' | 'quick_replies';
     url?: string;
@@ -353,23 +360,50 @@ export async function generateBotResponse(params: {
   if (config.geminiApiKey) {
     try {
       const catalogDigest = await getCatalogDigestForAI(userText);
+      const matchedProducts = await searchStoreProducts(userText);
 
-      const prompt = `Bạn là Trợ lý Ảo AI CSKH thông minh, thân thiện, duyên dáng và chuyên nghiệp của cửa hàng thời trang & đồ thể thao "ShopTik Store".
+      // Multi-turn Conversation History Memory (6 recent messages)
+      let historyContents: any[] = [];
+      try {
+        await connectToDatabase();
+        const recentPast = await ChatMessage.find({ conversationId: params.conversationId })
+          .sort({ createdAt: -1 })
+          .limit(6)
+          .lean();
+
+        recentPast.reverse().forEach((pm) => {
+          if (pm.text && pm.text.trim() && pm.text !== userText) {
+            historyContents.push({
+              role: pm.sender === 'user' ? 'user' : 'model',
+              parts: [{ text: pm.text.trim() }],
+            });
+          }
+        });
+      } catch (hErr) {
+        console.warn('Could not load chat history:', hErr);
+      }
+
+      const prompt = `Bạn là Chuyên Viên Tư Vấn Bán Hàng & Chuyên Gia Thể Thao Xuất Sắc của cửa hàng "ShopTik Store".
 
 ${catalogDigest}
 
-Thông tin cửa hàng & chính sách:
-- Cửa hàng chuyên: Áo bóng đá CLB & Đội tuyển (Real, Barca, MU, Tây Ban Nha, ĐT Việt Nam...), Giày bóng đá đinh TF sân cỏ nhân tạo (Akka, JGBL...), Quả bóng đá FIFA (Động Lực UHV, UCV, Adidas...), Balo thể thao (Kaiwin...), Salonpas y tế, Áo Polo và Thời trang nữ.
-- Chính sách: Freeship toàn quốc từ 500k, Hỗ trợ đổi size 7 ngày miễn phí, Bảo hành 1 đổi 1 nếu lỗi sản xuất, Được kiểm tra hàng trước khi thanh toán COD hoặc Quét mã VietQR SePay tự động.
-- Khách hàng: ${params.customerName || 'Khách hàng'}
+Thông tin ngữ cảnh:
+- Tên khách hàng: ${params.customerName || 'Khách hàng'}
 - Sản phẩm khách đang xem: ${params.productContext?.name || 'Không có'} (Giá: ${params.productContext?.price ? params.productContext.price.toLocaleString('vi-VN') + 'đ' : 'N/A'})
-- Tin nhắn khách gửi: "${userText}"
+- Câu hỏi mới nhất của khách: "${userText}"
 
-Quy tắc trả lời:
-1. Xưng hô "em" và gọi khách là "bạn" hoặc "anh/chị", giọng điệu nhiệt tình, lịch sự, thân thiện, dùng emoji sinh động.
-2. DỰA VÀO DANH SÁCH SẢN PHẨM Ở TRÊN để tư vấn chính xác tên sản phẩm, giá bán và CHÈN ĐƯỜNG LINK CLICKABLE dạng [Xem chi tiết & đặt mua](/product/slug) để khách bấm vào xem ngay!
-3. Nếu khách hỏi size mà chưa có chiều cao/cân nặng, hãy nhẹ nhàng hỏi thêm chiều cao & cân nặng.
-4. Giới hạn độ dài trong khoảng 2 - 4 đoạn ngắn, dễ đọc trên điện thoại.`;
+Quy tắc tư vấn bán hàng đỉnh cao (Elite Sales Consultant):
+1. Xưng hô "em" và gọi khách là "bạn" hoặc "anh/chị", giọng điệu nhiệt tình, am hiểu chuyên môn sâu, truyền cảm hứng và thân thiện với emoji sống động.
+2. TUYỆT ĐỐI KHÔNG LIỆT KÊ TRÀN LAN danh sách dài. Hãy chọn lọc đúng 1 ĐẾN 2 SẢN PHẨM PHÙ HỢP NHẤT từ danh mục trên, nêu rõ lý do tại sao mẫu này đáng mua (chất liệu vải thun lạnh thoáng khí, da bóng êm đầm chân, đế cao su bám sân...).
+3. Báo giá sale ưu đãi chính xác và CHÈN ĐƯỜNG LINK CLICKABLE dạng [Xem chi tiết & đặt mua](/product/slug) để khách bấm vào xem ngay!
+4. Nhấn mạnh chính sách: Freeship toàn quốc từ 500k, Đổi size miễn phí trong 7 ngày, và Kiểm tra hàng trước khi thanh toán COD.
+5. Luôn kết thúc bằng 1 câu hỏi gợi mở khéo léo (về kích thước, màu sắc, vị trí thi đấu...) để tiếp tục tương tác và giúp khách chốt đơn.
+6. Trả lời súc tích, tự nhiên trong khoảng 2 - 3 đoạn ngắn gọn.`;
+
+      historyContents.push({
+        role: 'user',
+        parts: [{ text: prompt }],
+      });
 
       const supportedModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
       let generatedText = '';
@@ -382,7 +416,7 @@ Quy tắc trả lời:
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
+                contents: historyContents,
                 generationConfig: { maxOutputTokens: 650, temperature: 0.7 },
               }),
             }
@@ -406,10 +440,19 @@ Quy tắc trả lời:
       }
 
       if (generatedText) {
+        const suggestedCards = matchedProducts.slice(0, 3).map((p: any) => ({
+          name: p.name,
+          price: p.price,
+          salePrice: p.salePrice,
+          image: p.images?.[0] || '',
+          slug: p.slug,
+        }));
+
         return {
           shouldReply: true,
           replyText: generatedText,
           senderName: botName,
+          suggestedProducts: suggestedCards.length > 0 ? suggestedCards : undefined,
         };
       }
     } catch (geminiErr: any) {
