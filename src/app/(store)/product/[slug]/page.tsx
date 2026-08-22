@@ -21,6 +21,7 @@ import {
   FiX,
   FiCamera,
   FiCheckCircle,
+  FiZap,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
@@ -51,6 +52,11 @@ export default function ProductDetailPage() {
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // Flash Sale & FOMO state
+  const [flashSaleItem, setFlashSaleItem] = useState<any | null>(null);
+  const [flashCountdown, setFlashCountdown] = useState({ hours: '00', minutes: '00', seconds: '00' });
+  const [fomoSettings, setFomoSettings] = useState<any>(null);
 
   // Reviews preview state
   const [reviewsPreview, setReviewsPreview] = useState<any[]>([]);
@@ -284,6 +290,54 @@ export default function ProductDetailPage() {
     }
   }, [params.slug]);
 
+  // Check if product is in active Flash Sale
+  useEffect(() => {
+    async function loadFlashSale() {
+      try {
+        const res = await apiFetch('/api/flash-sale');
+        const data = await res.json();
+        if (data.success && data.data && data.data.isActive) {
+          setFomoSettings(data.data.fomoSettings);
+          const matched = (data.data.items || []).find(
+            (it: any) =>
+              it.slug === params.slug ||
+              (product && (it.productId === product._id || it.name === product.name))
+          );
+          if (matched) {
+            setFlashSaleItem(matched);
+          }
+        }
+      } catch (e) {
+        console.error('Error checking product flash sale:', e);
+      }
+    }
+    if (product) {
+      loadFlashSale();
+    }
+  }, [product, params.slug]);
+
+  // Flash Countdown ticker
+  useEffect(() => {
+    if (!flashSaleItem) return;
+    const updateTimer = () => {
+      const now = new Date();
+      const curHour = now.getHours();
+      const curMin = now.getMinutes();
+      const curSec = now.getSeconds();
+
+      const endHour = curHour < 9 ? 9 : curHour < 12 ? 12 : curHour < 18 ? 18 : curHour < 21 ? 21 : 24;
+      const diffSeconds = Math.max(0, endHour * 3600 - (curHour * 3600 + curMin * 60 + curSec));
+
+      const h = String(Math.floor(diffSeconds / 3600)).padStart(2, '0');
+      const m = String(Math.floor((diffSeconds % 3600) / 60)).padStart(2, '0');
+      const s = String(diffSeconds % 60).padStart(2, '0');
+      setFlashCountdown({ hours: h, minutes: m, seconds: s });
+    };
+    updateTimer();
+    const timer = setInterval(updateTimer, 1000);
+    return () => clearInterval(timer);
+  }, [flashSaleItem]);
+
   // Extract normalized options list
   const options: IProductOption[] = useMemo(() => {
     if (!product) return [];
@@ -352,17 +406,23 @@ export default function ProductDetailPage() {
   }, [variants, selectedAttributes]);
 
   // Real-time calculated price & stock
-  const currentPrice = matchedVariant
+  const currentPrice = flashSaleItem
+    ? flashSaleItem.flashPrice
+    : matchedVariant
     ? (matchedVariant.salePrice && matchedVariant.salePrice > 0 ? matchedVariant.salePrice : matchedVariant.price)
     : (product?.salePrice && product.salePrice > 0 ? product.salePrice : (product?.price || 0));
 
-  const originalPrice = matchedVariant ? matchedVariant.price : (product?.price || 0);
+  const originalPrice = flashSaleItem
+    ? (flashSaleItem.originalPrice || product?.price || 0)
+    : matchedVariant
+    ? matchedVariant.price
+    : (product?.price || 0);
 
-  const hasDiscount = matchedVariant
-    ? (matchedVariant.salePrice !== undefined && matchedVariant.salePrice > 0 && matchedVariant.salePrice < matchedVariant.price)
-    : (product?.salePrice !== undefined && product.salePrice > 0 && product.salePrice < product.price);
+  const hasDiscount = !!flashSaleItem || (originalPrice > currentPrice && currentPrice > 0);
 
-  const discountPercent = hasDiscount && originalPrice > 0
+  const discountPercent = flashSaleItem
+    ? flashSaleItem.discountPercent
+    : hasDiscount && originalPrice > 0
     ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
     : null;
 
@@ -621,15 +681,49 @@ export default function ProductDetailPage() {
           )}
         </div>
 
+        {/* SHOPEE FLASH SALE BAR (IF PRODUCT IN ACTIVE FLASH SALE) */}
+        {flashSaleItem && (
+          <div className={styles.shopeeFlashBar}>
+            <div className={styles.flashBarLeft}>
+              <FiZap size={18} style={{ fill: '#fff' }} />
+              <span className={styles.flashBarTitle}>FLASH SALE GIÁ SỐC</span>
+            </div>
+
+            <div className={styles.flashBarRight}>
+              <span className={styles.flashBarCountdownLabel}>KẾT THÚC TRONG</span>
+              <div className={styles.flashBarCountdownTimer}>
+                <span className={styles.flashBarDigit}>{flashCountdown.hours}</span>
+                <span className={styles.flashBarColon}>:</span>
+                <span className={styles.flashBarDigit}>{flashCountdown.minutes}</span>
+                <span className={styles.flashBarColon}>:</span>
+                <span className={styles.flashBarDigit}>{flashCountdown.seconds}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 2. MAIN INFO CARD */}
         <div className={styles.mainCard}>
           <div className={styles.priceRow}>
-            <span className={styles.currentPrice}>{formatPrice(currentPrice)}</span>
+            <span
+              className={styles.currentPrice}
+              style={{ color: flashSaleItem ? '#f97316' : undefined }}
+            >
+              {formatPrice(currentPrice)}
+            </span>
             {hasDiscount && (
               <>
                 <span className={styles.oldPrice}>{formatPrice(originalPrice)}</span>
                 {discountPercent && (
-                  <span className={styles.discountBadge}>-{discountPercent}%</span>
+                  <span
+                    className={styles.discountBadge}
+                    style={{
+                      background: flashSaleItem ? '#ea580c' : undefined,
+                      color: flashSaleItem ? '#ffffff' : undefined,
+                    }}
+                  >
+                    -{discountPercent}%
+                  </span>
                 )}
               </>
             )}
@@ -657,6 +751,13 @@ export default function ProductDetailPage() {
               )}
             </span>
           </div>
+
+          {/* FOMO Real-time Viewer Notice */}
+          {fomoSettings?.enableViewerCount !== false && (
+            <div className={styles.viewerCountNotice}>
+              <FiZap /> 🔥 <strong>18 người</strong> đang cùng xem sản phẩm này
+            </div>
+          )}
         </div>
 
         {/* 3. DYNAMIC MULTI-DIMENSIONAL VARIANT SELECTION CARD */}

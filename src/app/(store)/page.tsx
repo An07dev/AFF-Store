@@ -123,12 +123,70 @@ function HomePageContent() {
   // Hero Carousel State
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Flash Sale & FOMO Realtime State
+  const [flashSaleConfig, setFlashSaleConfig] = useState<any>(null);
+  const [countdown, setCountdown] = useState({ hours: '00', minutes: '00', seconds: '00' });
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
+
   const flashSaleRef = useRef<HTMLDivElement>(null);
 
   const shopDisplayName = theme?.pageTitles?.logoText || SHOP_INFO.name;
   const avatarInitials = shopDisplayName ? shopDisplayName.substring(0, 2).toUpperCase() : 'ST';
 
   const heroBanners = theme?.banners && theme.banners.length > 0 ? theme.banners : defaultBanners;
+
+  // Fetch Public Flash Sale
+  useEffect(() => {
+    async function fetchFlashSale() {
+      try {
+        const res = await apiFetch('/api/flash-sale');
+        const data = await res.json();
+        if (data.success && data.data) {
+          setFlashSaleConfig(data.data);
+          if (data.data.activeSlot) {
+            setSelectedSlotId(data.data.activeSlot.id);
+          }
+        }
+      } catch (e) {
+        console.error('Error loading public flash sale:', e);
+      }
+    }
+    fetchFlashSale();
+  }, []);
+
+  // Live Flash Sale Countdown
+  useEffect(() => {
+    if (!flashSaleConfig) return;
+
+    const updateTimer = () => {
+      const now = new Date();
+      const curHour = now.getHours();
+      const curMin = now.getMinutes();
+      const curSec = now.getSeconds();
+      const totalMinutes = curHour * 60 + curMin;
+
+      const activeSlot = (flashSaleConfig.slots || []).find(
+        (s: any) => s.enabled && totalMinutes >= s.startHour * 60 && totalMinutes < s.endHour * 60
+      );
+
+      if (activeSlot) {
+        const endTotalSeconds = activeSlot.endHour * 3600 + (activeSlot.endMinute || 0) * 60;
+        const curTotalSeconds = curHour * 3600 + curMin * 60 + curSec;
+        const diffSeconds = Math.max(0, endTotalSeconds - curTotalSeconds);
+
+        const h = String(Math.floor(diffSeconds / 3600)).padStart(2, '0');
+        const m = String(Math.floor((diffSeconds % 3600) / 60)).padStart(2, '0');
+        const s = String(diffSeconds % 60).padStart(2, '0');
+        setCountdown({ hours: h, minutes: m, seconds: s });
+      } else {
+        setCountdown({ hours: '00', minutes: '00', seconds: '00' });
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [flashSaleConfig]);
 
   // Auto Banner Slide (4 seconds)
   useEffect(() => {
@@ -542,12 +600,22 @@ function HomePageContent() {
               </button>
             </div>
 
-            {/* 4. SHOPEE FLASH SALE */}
+            {/* 4. SHOPEE FLASH SALE WITH LIVE COUNTDOWN & SLOTS */}
             <div ref={flashSaleRef} className={styles.flashSaleSection}>
               <div className={styles.flashHeader}>
                 <div className={styles.flashTitleWrap}>
                   <span className={styles.flashLogo}>⚡ FLASH SALE</span>
+                  
+                  {/* Digital Countdown Timer */}
+                  <div className={styles.flashCountdownBox}>
+                    <span className={styles.countdownDigit}>{countdown.hours}</span>
+                    <span className={styles.countdownColon}>:</span>
+                    <span className={styles.countdownDigit}>{countdown.minutes}</span>
+                    <span className={styles.countdownColon}>:</span>
+                    <span className={styles.countdownDigit}>{countdown.seconds}</span>
+                  </div>
                 </div>
+
                 <button
                   type="button"
                   className={styles.seeAllBtn}
@@ -562,56 +630,100 @@ function HomePageContent() {
                 </button>
               </div>
 
+              {/* Time Slots Selector Tabs (Shopee Style) */}
+              {flashSaleConfig?.slots && flashSaleConfig.slots.length > 0 && (
+                <div className={styles.flashSlotTabs}>
+                  {flashSaleConfig.slots
+                    .filter((s: any) => s.enabled)
+                    .map((slot: any) => {
+                      const isActiveSlot = flashSaleConfig.activeSlot?.id === slot.id;
+                      const isSelected = selectedSlotId === slot.id;
+                      return (
+                        <div
+                          key={slot.id}
+                          className={`${styles.flashSlotTab} ${
+                            isSelected ? styles.flashSlotTabActive : ''
+                          }`}
+                          onClick={() => setSelectedSlotId(slot.id)}
+                        >
+                          <span className={styles.slotTime}>
+                            {String(slot.startHour).padStart(2, '0')}:00
+                          </span>
+                          <span className={styles.slotStatus}>
+                            {isActiveSlot ? 'Đang diễn ra' : 'Sắp diễn ra'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+              {/* Flash Products Carousel */}
               <div className={styles.flashCarousel}>
-                {(loading ? [1, 2, 3, 4] : (flashSaleProducts.length > 0 ? flashSaleProducts : products.slice(0, 6))).map(
-                  (item: any, i) => {
-                    const discount = item.salePrice && item.salePrice < item.price ? calcDiscount(item.price, item.salePrice) : 0;
-                    const soldPercent = Math.min(95, Math.max(20, ((i + 3) * 15) % 100));
-                    return (
-                      <Link
-                        href={loading ? '#' : `/product/${item.slug}`}
-                        key={i}
-                        className={styles.flashCard}
-                      >
-                        <div className={styles.flashImgWrap}>
-                          {loading ? (
-                            <div className={styles.skeleton} />
-                          ) : (
-                            <img
-                              src={item.images?.[0] || 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'}
-                              alt={item.name || ''}
-                              className={styles.flashImg}
-                            />
-                          )}
-                          {discount > 0 && (
-                            <div className={styles.shopeeDiscountFlag}>
-                              -{discount}%
-                            </div>
-                          )}
-                        </div>
-                        <div className={styles.flashInfo}>
-                          <div className={styles.flashPrice}>
-                            {loading ? '...' : formatPrice(item.salePrice || item.price)}
+                {(loading
+                  ? [1, 2, 3, 4]
+                  : (flashSaleConfig?.items && flashSaleConfig.items.length > 0
+                      ? flashSaleConfig.items
+                      : flashSaleProducts.length > 0
+                      ? flashSaleProducts
+                      : products.slice(0, 6))
+                ).map((item: any, i: number) => {
+                  const originalPrice = item.originalPrice || item.price || 0;
+                  const salePrice = item.flashPrice || item.salePrice || item.price || 0;
+                  const discount =
+                    item.discountPercent ||
+                    (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
+                  const soldPercent = item.soldPercent || Math.min(95, Math.max(25, ((i + 3) * 18) % 100));
+                  const soldText = item.soldCount ? `Đã bán ${item.soldCount}` : 'Đang bán chạy';
+
+                  return (
+                    <Link
+                      href={loading ? '#' : `/product/${item.slug}`}
+                      key={item._id || i}
+                      className={styles.flashCard}
+                    >
+                      <div className={styles.flashImgWrap}>
+                        {loading ? (
+                          <div className={styles.skeleton} />
+                        ) : (
+                          <img
+                            src={
+                              item.image ||
+                              item.images?.[0] ||
+                              'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
+                            }
+                            alt={item.name || ''}
+                            className={styles.flashImg}
+                          />
+                        )}
+                        {discount > 0 && (
+                          <div className={styles.shopeeDiscountFlag}>
+                            -{discount}%
                           </div>
-                          {item.salePrice && item.salePrice < item.price && (
-                            <div className={styles.flashOldPrice}>
-                              {formatPrice(item.price)}
-                            </div>
-                          )}
-                          <div className={styles.fireProgressBar}>
-                            <div
-                              className={styles.fireFill}
-                              style={{ width: `${soldPercent}%` }}
-                            />
-                            <span className={styles.fireText}>
-                              🔥 Đã bán {formatSold(item.soldCount ?? item.sold ?? 0)}
-                            </span>
-                          </div>
+                        )}
+                      </div>
+                      <div className={styles.flashInfo}>
+                        <div className={styles.flashPrice} style={{ color: '#f97316' }}>
+                          {loading ? '...' : formatPrice(salePrice)}
                         </div>
-                      </Link>
-                    );
-                  }
-                )}
+                        {originalPrice > salePrice && (
+                          <div className={styles.flashOldPrice}>
+                            {formatPrice(originalPrice)}
+                          </div>
+                        )}
+                        <div className={styles.fireProgressBar}>
+                          <div
+                            className={styles.fireFill}
+                            style={{ width: `${soldPercent}%` }}
+                          />
+                          <span className={styles.fireText}>
+                            🔥 {soldText}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 

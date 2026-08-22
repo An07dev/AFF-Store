@@ -14,6 +14,7 @@ import {
   FiCheckCircle,
   FiCheck,
   FiChevronRight,
+  FiClock,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useCart, CartItem, getCartItemPrice, getCartItemOriginalPrice } from '@/contexts/CartContext';
@@ -49,6 +50,35 @@ export default function CheckoutPage() {
   // Active checkout items for this purchase
   const [activeItems, setActiveItems] = useState<CartItem[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // FOMO Reservation Timer State (Defaults to 15 mins)
+  const [reservationSeconds, setReservationSeconds] = useState(15 * 60);
+
+  useEffect(() => {
+    async function loadCheckoutFomo() {
+      try {
+        const res = await apiFetch('/api/flash-sale');
+        const data = await res.json();
+        if (data.success && data.data) {
+          const fomo = data.data.fomoSettings;
+          if (fomo?.enableCheckoutTimer === false) {
+            setReservationSeconds(0);
+          } else if (fomo?.checkoutTimerMinutes) {
+            setReservationSeconds(fomo.checkoutTimerMinutes * 60);
+          }
+        }
+      } catch (e) {}
+    }
+    loadCheckoutFomo();
+  }, []);
+
+  useEffect(() => {
+    if (reservationSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setReservationSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [reservationSeconds]);
 
   useEffect(() => {
     try {
@@ -377,6 +407,21 @@ export default function CheckoutPage() {
       </nav>
 
       <form className={styles.scrollArea} onSubmit={handleSubmitOrder}>
+        {/* FOMO Checkout Reservation Timer Banner */}
+        {reservationSeconds > 0 && (
+          <div className={styles.reservationBanner}>
+            <FiClock className={styles.reservationIcon} />
+            <div>
+              Ưu đãi Flash Sale của bạn được giữ trong{' '}
+              <strong className={styles.reservationTimer}>
+                {String(Math.floor(reservationSeconds / 60)).padStart(2, '0')}:
+                {String(reservationSeconds % 60).padStart(2, '0')}
+              </strong>{' '}
+              phút. Vui lòng hoàn tất đặt hàng!
+            </div>
+          </div>
+        )}
+
         {/* 1. SHIPPING ADDRESS CARD (MODERN ELEGANT TIKTOK SHOP DESIGN) */}
         <div className={styles.addressCard}>
           {/* Decorative Envelope Stripe */}

@@ -19,6 +19,7 @@ import {
   FiUser,
   FiMessageSquare,
   FiLogOut,
+  FiZap,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -46,6 +47,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Sản phẩm', icon: FiPackage, path: '/admin/products' },
     { name: 'Danh mục', icon: FiFolder, path: '/admin/categories' },
     { name: 'Đơn hàng', icon: FiShoppingCart, path: '/admin/orders' },
+    { name: '⚡ Flash Sale & FOMO', icon: FiZap, path: '/admin/marketing/flash-sale' },
     { name: 'Khách hàng', icon: FiUsers, path: '/admin/customers' },
     { name: 'Báo cáo', icon: FiBarChart2, path: '/admin/reports' },
     { name: 'Vận chuyển', icon: FiTruck, path: '/admin/shipping' },

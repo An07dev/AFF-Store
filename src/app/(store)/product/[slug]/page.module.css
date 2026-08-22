@@ -204,6 +204,83 @@
   background: var(--primary, #3b82f6);
 }
 
+/* ===== SHOPEE FLASH BAR ===== */
+.shopeeFlashBar {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%);
+  color: #ffffff;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+  flex-shrink: 0;
+}
+
+.flashBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flashBarTitle {
+  font-size: 13.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.flashBarRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.flashBarCountdownLabel {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.95;
+}
+
+.flashBarCountdownTimer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.flashBarDigit {
+  background: #000000;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 1.5px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+  line-height: 1;
+}
+
+.flashBarColon {
+  font-weight: 900;
+  font-size: 10px;
+  color: #ffffff;
+}
+
+.viewerCountNotice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(234, 88, 12, 0.1);
+  border: 1px dashed rgba(249, 115, 22, 0.35);
+  color: #f97316;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
 /* ===== MAIN INFO CARD ===== */
 .mainCard {
   background: var(--bg-card, #13161f);

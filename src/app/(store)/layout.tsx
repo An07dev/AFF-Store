@@ -6,6 +6,7 @@ import AuthModal from '@/components/store/AuthModal';
 import BottomNav from '@/components/store/BottomNav';
 import ChatFloatingWidget from '@/components/store/ChatFloatingWidget';
 import MarketingPixelTracker from '@/components/store/MarketingPixelTracker';
+import FomoLiveNotification from '@/components/store/FomoLiveNotification';
 import styles from './layout.module.css';
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
@@ -20,6 +21,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
         <BottomNav />
       </div>
 
+      <FomoLiveNotification />
       <CartDrawer />
       <AuthModal />
     </div>
