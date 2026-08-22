@@ -321,43 +321,78 @@
 
 .flashHeader {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 6px;
   margin-bottom: 12px;
-  gap: 8px;
-  flex-wrap: nowrap;
 }
 
-.flashTitleWrap {
+.flashHeaderTop {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .flashLogo {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 900;
   color: #f97316;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.2px;
   display: flex;
   align-items: center;
   gap: 4px;
   text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.seeAllBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  font-size: 11.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.seeAllBtn:hover {
+  color: #f97316;
+}
+
+.flashHeaderBottom {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .flashCountdownBox {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 5px;
   flex-shrink: 0;
+}
+
+.countdownLabel {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 600;
+}
+
+.countdownTimer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .countdownDigit {
   background: #111318;
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  border: 1px solid rgba(249, 115, 22, 0.4);
   color: #f97316;
   font-size: 11px;
   font-weight: 800;
@@ -373,34 +408,11 @@
   color: #f97316;
 }
 
-.seeAllBtn {
-  background: none;
-  border: none;
-  color: var(--text-muted, #94a3b8);
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: color 0.15s;
-}
-
-.seeAllBtn:hover {
-  color: #f97316;
-}
-
 .flashSubtitleText {
   font-size: 11px;
   color: var(--text-muted, #94a3b8);
   font-weight: 500;
-  margin-top: -4px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  line-height: 1.2;
 }
 
 .flashSlotTabs {

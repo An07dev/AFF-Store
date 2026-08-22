@@ -659,40 +659,45 @@ function HomePageContent() {
             ) && (
               <div ref={flashSaleRef} className={styles.flashSaleSection}>
                 <div className={styles.flashHeader}>
-                  <div className={styles.flashTitleWrap}>
+                  <div className={styles.flashHeaderTop}>
                     <span className={styles.flashLogo}>
                       {flashSaleConfig.title || '⚡ FLASH SALE'}
                     </span>
-                    
+
+                    <button
+                      type="button"
+                      className={styles.seeAllBtn}
+                      onClick={() => {
+                        setActiveTab(1);
+                        setActiveFilter(1);
+                        router.push('/?tab=products&filter=flash-sale');
+                        fetchProductsByParams(1, priceSortAsc, searchQuery, selectedCategory);
+                      }}
+                    >
+                      Xem tất cả <FiChevronRight size={13} />
+                    </button>
+                  </div>
+
+                  <div className={styles.flashHeaderBottom}>
                     {/* Digital Countdown Timer */}
                     <div className={styles.flashCountdownBox}>
-                      <span className={styles.countdownDigit}>{countdown.hours}</span>
-                      <span className={styles.countdownColon}>:</span>
-                      <span className={styles.countdownDigit}>{countdown.minutes}</span>
-                      <span className={styles.countdownColon}>:</span>
-                      <span className={styles.countdownDigit}>{countdown.seconds}</span>
+                      <span className={styles.countdownLabel}>Kết thúc trong</span>
+                      <div className={styles.countdownTimer}>
+                        <span className={styles.countdownDigit}>{countdown.hours}</span>
+                        <span className={styles.countdownColon}>:</span>
+                        <span className={styles.countdownDigit}>{countdown.minutes}</span>
+                        <span className={styles.countdownColon}>:</span>
+                        <span className={styles.countdownDigit}>{countdown.seconds}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  <button
-                    type="button"
-                    className={styles.seeAllBtn}
-                    onClick={() => {
-                      setActiveTab(1);
-                      setActiveFilter(1);
-                      router.push('/?tab=products&filter=flash-sale');
-                      fetchProductsByParams(1, priceSortAsc, searchQuery, selectedCategory);
-                    }}
-                  >
-                    Xem tất cả <FiChevronRight size={13} />
-                  </button>
+                    {flashSaleConfig.subtitle && (
+                      <span className={styles.flashSubtitleText}>
+                        • {flashSaleConfig.subtitle}
+                      </span>
+                    )}
+                  </div>
                 </div>
-
-                {flashSaleConfig.subtitle && (
-                  <div className={styles.flashSubtitleText}>
-                    {flashSaleConfig.subtitle}
-                  </div>
-                )}
 
                 {/* Time Slots Selector Tabs (Shopee Style) */}
                 {flashSaleConfig?.slots && flashSaleConfig.slots.length > 0 && (
