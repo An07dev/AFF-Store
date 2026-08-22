@@ -318,36 +318,44 @@ function HomePageContent() {
           try {
             const fsRes = await apiFetch('/api/flash-sale');
             const fsData = await fsRes.json();
-            if (fsData.success && fsData.data && fsData.data.isActive && fsData.data.isLive) {
-              const fsItems = fsData.data.items || [];
-              if (fsItems.length > 0) {
-                const fsMap = new Map();
-                fsItems.forEach((it: any) => {
-                  if (it.productId) fsMap.set(String(it.productId), it);
-                  if (it.slug) fsMap.set(it.slug, it);
-                });
-
-                list = list.map((p: any) => {
-                  const matched = fsMap.get(String(p._id)) || fsMap.get(p.slug);
-                  if (matched) {
-                    return {
-                      ...p,
-                      price: matched.originalPrice || p.price,
-                      salePrice: matched.flashPrice,
-                      flashPrice: matched.flashPrice,
-                      isFlashSale: true,
-                    };
+            if (fsData.success && fsData.data && fsData.data.isActive) {
+              let fsItems = fsData.data.items || [];
+              // If live slot has no items or not live, gather from all enabled slots
+              if (fsItems.length === 0 && fsData.data.slots && fsData.data.slots.length > 0) {
+                fsData.data.slots.forEach((s: any) => {
+                  if (s.items && s.items.length > 0) {
+                    fsItems = [...fsItems, ...s.items];
                   }
-                  return p;
+                });
+              }
+
+              if (fsItems.length > 0) {
+                const seen = new Set();
+                const uniqueItems = fsItems.filter((it: any) => {
+                  const key = String(it.productId || it._id || it.slug);
+                  if (seen.has(key)) return false;
+                  seen.add(key);
+                  return true;
                 });
 
-                list = [...list].sort((a: any, b: any) => {
-                  if (a.isFlashSale && !b.isFlashSale) return -1;
-                  if (!a.isFlashSale && b.isFlashSale) return 1;
-                  const discA = a.salePrice && a.salePrice < a.price ? (a.price - a.salePrice) / a.price : 0;
-                  const discB = b.salePrice && b.salePrice < b.price ? (b.price - b.salePrice) / b.price : 0;
-                  return discB - discA;
-                });
+                const flashProducts = uniqueItems.map((it: any) => ({
+                  _id: it.productId || it._id,
+                  name: it.name,
+                  slug: it.slug,
+                  price: it.originalPrice || it.price || 0,
+                  salePrice: it.flashPrice || it.salePrice,
+                  flashPrice: it.flashPrice,
+                  images: it.images && it.images.length > 0 ? it.images : (it.image ? [it.image] : []),
+                  rating: 5,
+                  soldCount: it.soldCount || 0,
+                  sold: it.soldCount || 0,
+                  discountPercent: it.discountPercent,
+                  isFlashSale: true,
+                }));
+
+                setProducts(flashProducts);
+                setLoading(false);
+                return;
               }
             }
           } catch (e) {
@@ -1095,11 +1103,15 @@ function HomePageContent() {
                             alt={item.name || ''}
                             className={styles.listImg}
                           />
-                          {discount && (
+                          {item.isFlashSale ? (
+                            <div className={styles.listDiscountBadge} style={{ background: '#ea580c', color: '#fff' }}>
+                              -{item.discountPercent || discount}%
+                            </div>
+                          ) : discount ? (
                             <div className={styles.listDiscountBadge}>
                               -{discount}%
                             </div>
-                          )}
+                          ) : null}
                         </div>
                         <div className={styles.listInfo}>
                           <p className={styles.listName}>{item.name}</p>
@@ -1153,12 +1165,17 @@ function HomePageContent() {
                             className={styles.cardImg}
                           />
                           <div className={styles.favoriteBadge}>Yêu Thích+</div>
-                          {discount && (
+                          {item.isFlashSale ? (
+                            <div className={styles.discountBadge} style={{ background: '#ea580c', color: '#fff' }}>
+                              <span className={styles.discountBadgePercent}>{item.discountPercent || discount}%</span>
+                              <span className={styles.discountBadgeLabel}>FLASH SALE</span>
+                            </div>
+                          ) : discount ? (
                             <div className={styles.discountBadge}>
                               <span className={styles.discountBadgePercent}>{discount}%</span>
                               <span className={styles.discountBadgeLabel}>GIẢM</span>
                             </div>
-                          )}
+                          ) : null}
                           <div className={styles.freeshipBanner}>
                             <FiTruck size={10} /> Freeship XTRA
                           </div>
