@@ -619,7 +619,16 @@ function HomePageContent() {
               <div ref={flashSaleRef} className={styles.flashSaleSection}>
                 <div className={styles.flashHeader}>
                   <div className={styles.flashTitleWrap}>
-                    <span className={styles.flashLogo}>⚡ FLASH SALE</span>
+                    <div className={styles.flashTitleBox}>
+                      <span className={styles.flashLogo}>
+                        {flashSaleConfig.title || '⚡ FLASH SALE'}
+                      </span>
+                      {flashSaleConfig.subtitle && (
+                        <span className={styles.flashSubtitle}>
+                          {flashSaleConfig.subtitle}
+                        </span>
+                      )}
+                    </div>
                     
                     {/* Digital Countdown Timer */}
                     <div className={styles.flashCountdownBox}>

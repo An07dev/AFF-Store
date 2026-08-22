@@ -329,11 +329,18 @@
 .flashTitleWrap {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.flashTitleBox {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .flashLogo {
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 900;
   color: #f97316;
   letter-spacing: -0.3px;
@@ -341,6 +348,13 @@
   align-items: center;
   gap: 4px;
   text-transform: uppercase;
+}
+
+.flashSubtitle {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 .flashCountdownBox {
