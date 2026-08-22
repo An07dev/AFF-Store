@@ -11,6 +11,7 @@ import {
   FiUser,
   FiCheckCircle,
   FiEdit3,
+  FiX,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -594,9 +595,16 @@ function ChatContent() {
           />
           <div className={styles.pinnedProductDetails}>
             <span className={styles.pinnedProductName}>{pinnedProduct.name}</span>
-            <span className={styles.pinnedProductPrice}>
-              {formatPrice(pinnedProduct.salePrice || pinnedProduct.price)}
-            </span>
+            <div className={styles.pinnedProductPriceRow}>
+              <span className={styles.pinnedProductPrice}>
+                {formatPrice(pinnedProduct.salePrice || pinnedProduct.price)}
+              </span>
+              {pinnedProduct.salePrice && pinnedProduct.price > pinnedProduct.salePrice && (
+                <span className={styles.pinnedProductOldPrice}>
+                  {formatPrice(pinnedProduct.price)}
+                </span>
+              )}
+            </div>
           </div>
           <button
             type="button"
@@ -604,6 +612,14 @@ function ChatContent() {
             onClick={handleInquireAboutProduct}
           >
             Hỏi về sản phẩm
+          </button>
+          <button
+            type="button"
+            className={styles.closePinnedBtn}
+            onClick={() => setPinnedProduct(null)}
+            title="Đóng"
+          >
+            <FiX size={14} />
           </button>
         </div>
       )}

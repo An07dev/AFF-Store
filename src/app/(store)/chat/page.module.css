@@ -138,24 +138,35 @@
 }
 
 /* ===== PRODUCT PINNED BANNER ===== */
+.pinnedProductCard,
 .productPinnedCard {
   background: var(--bg-card, #13161f);
   border-bottom: 1px solid var(--border-color, #232838);
-  padding: 10px 14px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+.pinnedProductImg,
 .productPinnedImg {
   width: 44px;
   height: 44px;
-  border-radius: 6px;
+  min-width: 44px;
+  max-width: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  border-radius: 8px;
   object-fit: cover;
   background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
+.pinnedProductDetails,
 .productPinnedInfo {
   flex: 1;
   min-width: 0;
@@ -164,6 +175,7 @@
   gap: 2px;
 }
 
+.pinnedProductName,
 .productPinnedTitle {
   font-size: 12px;
   font-weight: 700;
@@ -173,22 +185,59 @@
   color: var(--text-main, #f8fafc);
 }
 
+.pinnedProductPriceRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pinnedProductPrice,
 .productPinnedPrice {
   font-size: 12px;
   font-weight: 800;
-  color: var(--primary, #3b82f6);
+  color: #ef4444;
+}
+
+.pinnedProductOldPrice {
+  font-size: 10px;
+  text-decoration: line-through;
+  color: var(--text-dim, #64748b);
 }
 
 .sendProductInquiryBtn {
-  padding: 5px 10px;
-  background: var(--primary, #3b82f6);
-  color: var(--primary-text, #ffffff);
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+  color: #ffffff;
   border: none;
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.sendProductInquiryBtn:hover {
+  opacity: 0.9;
+}
+
+.closePinnedBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.closePinnedBtn:hover {
+  color: var(--text-main, #fff);
 }
 
 /* ===== CHAT MESSAGES SCROLL AREA ===== */
