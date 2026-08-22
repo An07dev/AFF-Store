@@ -118,12 +118,16 @@
   top: 58px;
 }
 
+.popupRight,
 .popupAlignRight {
   right: 0;
+  left: auto;
 }
 
+.popupLeft,
 .popupAlignLeft {
   left: 0;
+  right: auto;
 }
 
 @keyframes popupSlideUp {
