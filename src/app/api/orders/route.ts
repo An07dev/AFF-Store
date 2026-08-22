@@ -103,9 +103,84 @@ export async function POST(request: Request) {
     const orderCode = generateOrderCode();
     const subtotal = body.items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
     const shippingFee = body.shippingFee || 0;
-    const discountAmount = body.discountAmount || 0;
-    const voucherCode = body.voucherCode ? body.voucherCode.trim().toUpperCase() : undefined;
-    const totalAmount = body.totalAmount || Math.max(0, subtotal + shippingFee - discountAmount);
+    let discountAmount = 0;
+    let validVoucherCode: string | undefined = undefined;
+
+    // Strict Voucher Validation
+    if (body.voucherCode) {
+      const cleanCode = body.voucherCode.trim().toUpperCase();
+      const voucher = await Voucher.findOne({ code: cleanCode });
+      const now = new Date();
+
+      if (!voucher || !voucher.isActive) {
+        return NextResponse.json(
+          { success: false, message: `Mã giảm giá "${cleanCode}" không hợp lệ hoặc đã bị khóa!` },
+          { status: 400 }
+        );
+      }
+
+      if (voucher.startDate && now < new Date(voucher.startDate)) {
+        return NextResponse.json(
+          { success: false, message: `Mã giảm giá "${cleanCode}" chưa đến ngày áp dụng!` },
+          { status: 400 }
+        );
+      }
+
+      if (voucher.endDate && now > new Date(voucher.endDate)) {
+        return NextResponse.json(
+          { success: false, message: `Mã giảm giá "${cleanCode}" đã hết hạn sử dụng!` },
+          { status: 400 }
+        );
+      }
+
+      if (voucher.totalUsageLimit > 0 && voucher.usedCount >= voucher.totalUsageLimit) {
+        return NextResponse.json(
+          { success: false, message: `Mã giảm giá "${cleanCode}" đã hết lượt sử dụng toàn shop!` },
+          { status: 400 }
+        );
+      }
+
+      if (voucher.minOrderValue > 0 && subtotal < voucher.minOrderValue) {
+        return NextResponse.json(
+          { success: false, message: `Đơn hàng chưa đạt giá trị tối thiểu để dùng mã "${cleanCode}"!` },
+          { status: 400 }
+        );
+      }
+
+      const phone = body.customer?.phone?.trim() || '';
+      if (phone && voucher.limitPerCustomer > 0) {
+        const phoneUsedCount = await Order.countDocuments({
+          'customer.phone': phone,
+          voucherCode: cleanCode,
+          status: { $ne: 'cancelled' },
+        });
+
+        if (phoneUsedCount >= voucher.limitPerCustomer) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: `Mã giảm giá "${cleanCode}" đã được sử dụng với số điện thoại ${phone}!`,
+            },
+            { status: 400 }
+          );
+        }
+      }
+
+      // Calculate server-side discount
+      if (voucher.discountType === 'fixed') {
+        discountAmount = Math.min(voucher.discountValue, subtotal);
+      } else if (voucher.discountType === 'percent') {
+        const calc = Math.round((subtotal * voucher.discountValue) / 100);
+        discountAmount =
+          voucher.maxDiscountAmount && voucher.maxDiscountAmount > 0
+            ? Math.min(calc, voucher.maxDiscountAmount, subtotal)
+            : Math.min(calc, subtotal);
+      }
+
+      validVoucherCode = cleanCode;
+    }
+
+    const totalAmount = Math.max(0, subtotal + shippingFee - discountAmount);
 
     const newOrder = await Order.create({
       orderCode,
@@ -120,15 +195,15 @@ export async function POST(request: Request) {
       status: body.status || 'pending',
       shippingProvider: body.shippingProvider || 'ghn',
       shippingCarrier: body.shippingCarrier || 'Giao Hàng Nhanh (GHN)',
-      voucherCode,
+      voucherCode: validVoucherCode,
       voucherDiscount: discountAmount,
       notes: body.notes,
     });
 
     // If voucher was used, increment its usage count
-    if (voucherCode) {
-      Voucher.findOneAndUpdate(
-        { code: voucherCode },
+    if (validVoucherCode) {
+      await Voucher.findOneAndUpdate(
+        { code: validVoucherCode },
         { $inc: { usedCount: 1 } }
       ).catch((err) => console.error('Error updating voucher usedCount:', err));
     }

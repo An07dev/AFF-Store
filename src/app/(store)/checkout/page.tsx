@@ -361,6 +361,16 @@ export default function CheckoutPage() {
             const updated = [data.data.orderCode, ...stored.filter((c: string) => c !== data.data.orderCode)].slice(0, 10);
             localStorage.setItem('shoptik_order_codes', JSON.stringify(updated));
           }
+
+          // If voucher was applied, remove it from saved wallet in localStorage
+          if (selectedVoucher) {
+            try {
+              const storedVouchers = JSON.parse(localStorage.getItem('shoptik_saved_vouchers') || '[]');
+              const updatedVouchers = storedVouchers.filter((c: string) => c !== selectedVoucher.code);
+              localStorage.setItem('shoptik_saved_vouchers', JSON.stringify(updatedVouchers));
+              window.dispatchEvent(new CustomEvent('shoptik_voucher_saved'));
+            } catch (e) {}
+          }
         } catch (e) {
           console.error('Error saving profile or order code locally:', e);
         }

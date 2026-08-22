@@ -16,6 +16,7 @@ interface IVoucherItem {
   maxDiscountAmount: number;
   minOrderValue: number;
   endDate: string;
+  isUsedByCustomer?: boolean;
 }
 
 export default function VoucherCollectionBar() {
@@ -26,7 +27,13 @@ export default function VoucherCollectionBar() {
   useEffect(() => {
     async function loadVouchers() {
       try {
-        const res = await apiFetch('/api/vouchers');
+        let phone = '';
+        try {
+          const profile = JSON.parse(localStorage.getItem('shoptik_profile') || '{}');
+          if (profile?.phone) phone = profile.phone;
+        } catch (e) {}
+
+        const res = await apiFetch(`/api/vouchers?phone=${encodeURIComponent(phone)}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           setVouchers(data.data);
@@ -77,6 +84,7 @@ export default function VoucherCollectionBar() {
       <div className={styles.carousel}>
         {vouchers.map((item) => {
           const saved = isSaved(item.code);
+          const isUsed = item.isUsedByCustomer;
           const badgeText =
             item.discountType === 'percent'
               ? `-${item.discountValue}%`
@@ -109,7 +117,11 @@ export default function VoucherCollectionBar() {
                     <FiClock size={10} /> {formatExpiry(item.endDate)}
                   </span>
 
-                  {saved ? (
+                  {isUsed ? (
+                    <button type="button" className={styles.usedBtn} disabled>
+                      Đã Dùng
+                    </button>
+                  ) : saved ? (
                     <button type="button" className={styles.savedBtn} disabled>
                       <FiCheck size={11} /> Đã Lưu
                     </button>

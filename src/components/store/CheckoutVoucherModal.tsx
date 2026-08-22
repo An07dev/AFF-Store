@@ -18,6 +18,7 @@ export interface IVoucherOption {
   minOrderValue?: number;
   endDate?: string;
   discountAmount?: number;
+  isUsedByCustomer?: boolean;
 }
 
 interface CheckoutVoucherModalProps {
@@ -50,7 +51,7 @@ export default function CheckoutVoucherModal({
 
     async function fetchVouchers() {
       try {
-        const res = await apiFetch('/api/vouchers');
+        const res = await apiFetch(`/api/vouchers?phone=${encodeURIComponent(customerPhone)}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           setVouchers(data.data);
@@ -60,7 +61,7 @@ export default function CheckoutVoucherModal({
       }
     }
     fetchVouchers();
-  }, [isOpen, selectedVoucher]);
+  }, [isOpen, selectedVoucher, customerPhone]);
 
   if (!isOpen) return null;
 
@@ -192,8 +193,12 @@ export default function CheckoutVoucherModal({
                   key={v.code}
                   className={`${styles.voucherItem} ${
                     isSelected ? styles.voucherItemSelected : ''
-                  } ${!isEligible ? styles.disabled : ''}`}
+                  } ${!isEligible || v.isUsedByCustomer ? styles.disabled : ''}`}
                   onClick={() => {
+                    if (v.isUsedByCustomer) {
+                      toast.error(`Mã "${v.code}" đã được sử dụng với số điện thoại của bạn!`);
+                      return;
+                    }
                     if (isEligible) {
                       setTempSelected(isSelected ? null : { ...v, discountAmount: discount });
                     } else {
@@ -231,7 +236,11 @@ export default function CheckoutVoucherModal({
                     </div>
 
                     <div className={styles.itemBottomLine}>
-                      {isEligible ? (
+                      {v.isUsedByCustomer ? (
+                        <span className={styles.itemMissing} style={{ color: '#94a3b8' }}>
+                          ✓ Đã sử dụng trên SĐT này
+                        </span>
+                      ) : isEligible ? (
                         <span className={styles.itemSavings}>
                           Tiết kiệm: {formatCurrency(discount)}đ
                         </span>
