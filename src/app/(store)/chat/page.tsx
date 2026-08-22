@@ -43,7 +43,7 @@ function FormattedMessageText({ text }: { text: string }) {
   const lines = text.split('\n');
 
   return (
-    <div style={{ wordBreak: 'break-word', lineHeight: 1.55 }}>
+    <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.55 }}>
       {lines.map((line, lIdx) => {
         const linkRegex = /\[(.*?)\]\((.*?)\)/g;
         let lastIndex = 0;
@@ -55,18 +55,21 @@ function FormattedMessageText({ text }: { text: string }) {
             elements.push(...parseBoldText(line.substring(lastIndex, match.index), `txt-${lIdx}-${lastIndex}`));
           }
           const label = match[1];
-          const url = match[2];
+          const rawUrl = match[2];
+          const isInternal = rawUrl.startsWith('/') || rawUrl.includes('/product/') || rawUrl.includes('/tracking');
+
           elements.push(
             <a
               key={`link-${lIdx}-${match.index}`}
-              href={url}
-              target={url.startsWith('http') ? '_blank' : '_self'}
+              href={rawUrl}
+              target={isInternal ? '_self' : '_blank'}
               rel="noopener noreferrer"
               style={{
-                color: '#60a5fa',
+                color: '#38bdf8',
                 textDecoration: 'underline',
                 fontWeight: 700,
                 padding: '0 2px',
+                cursor: 'pointer',
               }}
             >
               {label}

@@ -379,56 +379,67 @@ export default function ChatFloatingWidget() {
   }, [isDragging]);
 
   // Helper for rendering Markdown text, bold **text**, and clickable links
-function FormattedMessageText({ text }: { text: string }) {
-  if (!text) return null;
-  const lines = text.split('\n');
+  function FormattedMessageText({ text }: { text: string }) {
+    if (!text) return null;
+    const lines = text.split('\n');
 
-  return (
-    <div style={{ wordBreak: 'break-word', lineHeight: 1.55 }}>
-      {lines.map((line, lIdx) => {
-        const linkRegex = /\[(.*?)\]\((.*?)\)/g;
-        let lastIndex = 0;
-        const elements: any[] = [];
-        let match;
+    return (
+      <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.55 }}>
+        {lines.map((line, lIdx) => {
+          const linkRegex = /\[(.*?)\]\((.*?)\)/g;
+          let lastIndex = 0;
+          const elements: any[] = [];
+          let match;
 
-        while ((match = linkRegex.exec(line)) !== null) {
-          if (match.index > lastIndex) {
-            elements.push(...parseBoldText(line.substring(lastIndex, match.index), `txt-${lIdx}-${lastIndex}`));
+          while ((match = linkRegex.exec(line)) !== null) {
+            if (match.index > lastIndex) {
+              elements.push(...parseBoldText(line.substring(lastIndex, match.index), `txt-${lIdx}-${lastIndex}`));
+            }
+            const label = match[1];
+            const rawUrl = match[2];
+            const isInternal = rawUrl.startsWith('/') || rawUrl.includes('/product/') || rawUrl.includes('/tracking');
+
+            elements.push(
+              <a
+                key={`link-${lIdx}-${match.index}`}
+                href={rawUrl}
+                onClick={(e) => {
+                  if (isInternal) {
+                    e.preventDefault();
+                    const cleanPath = rawUrl.replace(/^https?:\/\/[^\/]+/, '');
+                    setIsOpen(false);
+                    router.push(cleanPath);
+                  }
+                }}
+                target={isInternal ? '_self' : '_blank'}
+                rel="noopener noreferrer"
+                style={{
+                  color: '#38bdf8',
+                  textDecoration: 'underline',
+                  fontWeight: 700,
+                  padding: '0 2px',
+                  cursor: 'pointer',
+                }}
+              >
+                {label}
+              </a>
+            );
+            lastIndex = match.index + match[0].length;
           }
-          const label = match[1];
-          const url = match[2];
-          elements.push(
-            <a
-              key={`link-${lIdx}-${match.index}`}
-              href={url}
-              target={url.startsWith('http') ? '_blank' : '_self'}
-              rel="noopener noreferrer"
-              style={{
-                color: '#60a5fa',
-                textDecoration: 'underline',
-                fontWeight: 700,
-                padding: '0 2px',
-              }}
-            >
-              {label}
-            </a>
+
+          if (lastIndex < line.length) {
+            elements.push(...parseBoldText(line.substring(lastIndex), `txt-${lIdx}-${lastIndex}`));
+          }
+
+          return (
+            <div key={lIdx} style={{ minHeight: line.trim() ? undefined : '0.6em' }}>
+              {elements.length > 0 ? elements : <span>&nbsp;</span>}
+            </div>
           );
-          lastIndex = match.index + match[0].length;
-        }
-
-        if (lastIndex < line.length) {
-          elements.push(...parseBoldText(line.substring(lastIndex), `txt-${lIdx}-${lastIndex}`));
-        }
-
-        return (
-          <div key={lIdx} style={{ minHeight: line.trim() ? undefined : '0.6em' }}>
-            {elements.length > 0 ? elements : <span>&nbsp;</span>}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+        })}
+      </div>
+    );
+  }
 
 function parseBoldText(str: string, keyPrefix: string) {
   const parts = str.split(/(\*\*.*?\*\*)/g);
