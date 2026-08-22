@@ -403,19 +403,11 @@
   background: var(--bg-card, #13161f);
   border-radius: var(--radius-md, 12px);
   border: 1px solid var(--border-color, #232838);
-  padding: 14px 16px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
-}
-
-.shippingHeaderWrap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
 }
 
 .carrierList {
@@ -430,138 +422,50 @@
   justify-content: space-between;
   background: var(--bg-main, #090a0f);
   border: 1px solid var(--border-color, #232838);
-  border-radius: var(--radius-sm, 10px);
-  padding: 11px 13px;
+  border-radius: var(--radius-sm, 8px);
+  padding: 10px 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.carrierItem:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  background: rgba(59, 130, 246, 0.03);
+  transition: all 0.15s;
 }
 
 .carrierActive {
-  border-color: var(--primary, #3b82f6) !important;
-  background: rgba(59, 130, 246, 0.08) !important;
-  box-shadow: 0 0 0 1px var(--primary, #3b82f6);
+  border-color: var(--primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.08);
 }
 
 .carrierLeft {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
-  flex: 1;
-  min-width: 0;
 }
 
 .carrierRadio {
   accent-color: var(--primary, #3b82f6);
   width: 16px;
   height: 16px;
-  margin-top: 2px;
-  cursor: pointer;
 }
 
 .carrierInfo {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  flex: 1;
-  min-width: 0;
-}
-
-.carrierHeaderRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 2px;
 }
 
 .carrierName {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-main, #f8fafc);
 }
 
-.carrierTag {
-  font-size: 9.5px;
-  font-weight: 800;
-  padding: 1px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.2px;
-  text-transform: uppercase;
-}
-
-.tagGHN {
-  background: rgba(234, 88, 12, 0.15);
-  color: #fb923c;
-  border: 1px solid rgba(234, 88, 12, 0.3);
-}
-
-.tagGHTK {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.tagVTP {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.tagStandard {
-  background: rgba(148, 163, 184, 0.15);
-  color: #cbd5e1;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-}
-
 .carrierEstimated {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted, #94a3b8);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.carrierFeeCol {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  flex-shrink: 0;
-  padding-left: 8px;
 }
 
 .carrierFee {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--text-main, #f8fafc);
-}
-
-.carrierFeeFree {
-  color: #10b981 !important;
-}
-
-.carrierOriginalFee {
-  font-size: 10px;
-  color: #64748b;
-  text-decoration: line-through;
-}
-
-.freeShipBanner {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px dashed rgba(16, 185, 129, 0.3);
-  border-radius: 6px;
-  font-size: 11.5px;
-  color: #10b981;
-  font-weight: 600;
 }
 
 /* ===== PAYMENT METHODS CARD ===== */

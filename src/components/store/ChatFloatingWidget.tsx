@@ -252,7 +252,7 @@ export default function ChatFloatingWidget() {
         return [...prev, msg];
       });
 
-      if (msg.sender === 'admin') {
+      if (msg.sender === 'admin' || msg.sender === 'bot') {
         playNotificationSound();
         if (!isOpenRef.current) {
           setUnreadCount((c) => c + 1);
@@ -263,7 +263,7 @@ export default function ChatFloatingWidget() {
     };
 
     const handleUserTyping = (data: any) => {
-      if (data.conversationId === conversationIdRef.current && data.sender === 'admin') {
+      if (data.conversationId === conversationIdRef.current && (data.sender === 'admin' || data.sender === 'bot')) {
         setIsTyping(data.isTyping);
       }
     };

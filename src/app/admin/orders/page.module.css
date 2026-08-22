@@ -321,3 +321,105 @@
   background-color: rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
+
+/* Header & Batch Actions */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btnExport {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #15803d, #16a34a);
+  color: #ffffff;
+  border: 1px solid #22c55e;
+  padding: 8px 16px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.btnExport:hover {
+  background: linear-gradient(135deg, #166534, #15803d);
+  transform: translateY(-1px);
+}
+
+.btnBatchPrint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #ffffff;
+  border: 1px solid #38bdf8;
+  padding: 8px 16px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btnBatchPrint:hover {
+  background: linear-gradient(135deg, #0369a1, #1d4ed8);
+  transform: translateY(-1px);
+}
+
+.batchBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border-bottom: 2px solid #38bdf8;
+  color: #ffffff;
+  flex-wrap: wrap;
+  gap: 12px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.batchInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+
+.batchActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btnClearSelection {
+  background: transparent;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnClearSelection:hover {
+  color: #ffffff;
+  border-color: #94a3b8;
+}
+
+.checkbox {
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  accent-color: #38bdf8;
+  vertical-align: middle;
+}
+

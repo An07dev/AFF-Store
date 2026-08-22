@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { FiArrowLeft, FiCheck, FiTruck, FiUser, FiMapPin, FiPackage, FiX, FiDollarSign } from 'react-icons/fi';
+import { FiArrowLeft, FiCheck, FiTruck, FiUser, FiMapPin, FiPackage, FiX, FiDollarSign, FiPrinter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
 import AdminLoading from '@/components/admin/AdminLoading';
 import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
 import ShipOrderModal from '@/components/admin/ShipOrderModal';
+import OrderPackingSlipModal from '@/components/admin/OrderPackingSlipModal';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -20,6 +21,7 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [isShipModalOpen, setIsShipModalOpen] = useState(false);
+  const [isSlipModalOpen, setIsSlipModalOpen] = useState(false);
 
   const fetchOrder = async () => {
     try {
@@ -102,6 +104,17 @@ export default function OrderDetailPage() {
         </div>
 
         <div className={styles.actions}>
+          {/* Print Packing Slip A6 */}
+          <button
+            type="button"
+            className={styles.btnPrimary}
+            style={{ background: 'linear-gradient(135deg, #0284c7, #2563eb)' }}
+            onClick={() => setIsSlipModalOpen(true)}
+            title="In phiếu đóng hàng khổ A6 máy in nhiệt"
+          >
+            <FiPrinter /> In Phiếu Đóng Hàng (A6)
+          </button>
+
           {order.status !== 'cancelled' && order.status !== 'delivered' && (
             <button
               className={styles.btnDanger}
@@ -322,6 +335,14 @@ export default function OrderDetailPage() {
         onClose={() => setIsShipModalOpen(false)}
         onSuccess={fetchOrder}
       />
+
+      {/* Order Packing Slip Modal */}
+      {isSlipModalOpen && order && (
+        <OrderPackingSlipModal
+          orders={[order]}
+          onClose={() => setIsSlipModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
