@@ -106,9 +106,6 @@ export default function CartPage() {
   };
 
   const shopName = theme?.pageTitles?.logoText || 'ShopTik Store';
-  const freeshipThreshold = 500000;
-  const freeshipProgress = Math.min(100, Math.round((selectedSubtotal / freeshipThreshold) * 100));
-  const freeshipRemaining = Math.max(0, freeshipThreshold - selectedSubtotal);
 
   return (
     <div className={styles.page}>
@@ -279,8 +276,8 @@ export default function CartPage() {
                 </div>
                 <div className={styles.mobileSummaryRow}>
                   <span>Phí vận chuyển:</span>
-                  <span style={{ color: freeshipRemaining === 0 ? '#10b981' : 'var(--text-muted)' }}>
-                    {freeshipRemaining === 0 ? 'Miễn phí (Freeship)' : 'Tính khi thanh toán'}
+                  <span style={{ color: 'var(--text-muted)' }}>
+                    Tính khi thanh toán
                   </span>
                 </div>
                 <div className={styles.mobileSummaryDivider} />
@@ -357,31 +354,6 @@ export default function CartPage() {
           <div className={styles.pcLayoutGrid}>
             {/* Left Column: Cart Items Table */}
             <div className={styles.pcLeftCol}>
-              {/* Freeship Alert Banner */}
-              <div className={styles.pcFreeshipBanner}>
-                <div className={styles.pcFreeshipTop}>
-                  <div className={styles.pcFreeshipLeft}>
-                    <FiTruck size={18} className={styles.pcFreeshipIcon} />
-                    {freeshipRemaining === 0 ? (
-                      <span className={styles.pcFreeshipSuccess}>
-                        🎉 Chúc mừng! Đơn hàng của bạn đã đủ điều kiện <strong>FREESHIP toàn quốc!</strong>
-                      </span>
-                    ) : (
-                      <span>
-                        Mua thêm <strong>{formatPrice(freeshipRemaining)}</strong> để được <strong>FREESHIP toàn quốc!</strong>
-                      </span>
-                    )}
-                  </div>
-                  <span className={styles.pcFreeshipPercent}>{freeshipProgress}%</span>
-                </div>
-                <div className={styles.pcProgressBarBg}>
-                  <div
-                    className={styles.pcProgressBarFill}
-                    style={{ width: `${freeshipProgress}%` }}
-                  />
-                </div>
-              </div>
-
               {/* Items Table Container */}
               <div className={styles.pcTableCard}>
                 {/* Table Header */}
@@ -587,8 +559,8 @@ export default function CartPage() {
 
                   <div className={styles.pcSummaryRow}>
                     <span className={styles.pcRowLabel}>Phí vận chuyển</span>
-                    <span className={styles.pcRowVal} style={{ color: '#16a34a', fontWeight: 700 }}>
-                      {freeshipRemaining === 0 ? 'Miễn phí' : 'Tính khi thanh toán'}
+                    <span className={styles.pcRowVal} style={{ color: 'var(--text-muted)', fontWeight: 600 }}>
+                      Tính khi thanh toán
                     </span>
                   </div>
                 </div>
