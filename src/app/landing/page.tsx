@@ -29,7 +29,14 @@ import styles from './page.module.css';
 
 export default function LandingPage() {
   // Theme Showcase State
-  const [activeThemeDemo, setActiveThemeDemo] = useState<'shopee' | 'tiktok' | 'dark' | 'light'>('shopee');
+  const [activeThemeDemo, setActiveThemeDemo] = useState<'shopee' | 'tiktok' | 'dark' | 'light' | 'cyberpunk' | 'organic' | 'luxury'>('shopee');
+  const [customPrimary, setCustomPrimary] = useState<string>('#ee4d2d');
+  const [demoLayoutView, setDemoLayoutView] = useState<'grid' | 'list' | 'checkout'>('grid');
+  const [demoBorderRadius, setDemoBorderRadius] = useState<number>(10);
+  const [demoBgMode, setDemoBgMode] = useState<'default' | 'dark' | 'light'>('default');
+  const [showFlashBadge, setShowFlashBadge] = useState<boolean>(true);
+  const [showSoldProgress, setShowSoldProgress] = useState<boolean>(true);
+  const [copiedToast, setCopiedToast] = useState<boolean>(false);
 
   // Interactive Feature Tab State
   const [activeFeatureTab, setActiveFeatureTab] = useState<'storefront' | 'admin' | 'automation'>('storefront');
@@ -41,7 +48,7 @@ export default function LandingPage() {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  const themeConfigMap = {
+  const themePresets = {
     shopee: {
       name: 'Shopee Orange',
       primary: '#ee4d2d',
@@ -51,6 +58,7 @@ export default function LandingPage() {
       badgeBg: '#fee2e2',
       badgeColor: '#ef4444',
       tag: 'Chuẩn Sàn TMĐT Shopee - Rực Rỡ & Kích Thích Mua Hàng',
+      radius: 8,
     },
     tiktok: {
       name: 'TikTok Dark',
@@ -61,6 +69,7 @@ export default function LandingPage() {
       badgeBg: 'rgba(254, 44, 85, 0.2)',
       badgeColor: '#fe2c55',
       tag: 'Phong Cách TikTok Shop - Trẻ Trung, Cuốn Hút & Thời Thượng',
+      radius: 8,
     },
     dark: {
       name: 'Sleek Dark Mode',
@@ -71,6 +80,7 @@ export default function LandingPage() {
       badgeBg: 'rgba(59, 130, 246, 0.2)',
       badgeColor: '#60a5fa',
       tag: 'Giao Diện Xanh Than Sang Trọng - Đậm Chất Công Nghệ',
+      radius: 12,
     },
     light: {
       name: 'Clean Light Mode',
@@ -81,10 +91,83 @@ export default function LandingPage() {
       badgeBg: '#dbeafe',
       badgeColor: '#1d4ed8',
       tag: 'Trắng Sạch Tinh Tế - Thanh Lịch & Tối Ưu Đọc Nội Dung',
+      radius: 8,
+    },
+    cyberpunk: {
+      name: 'Neon Cyberpunk',
+      primary: '#a855f7',
+      bg: '#0a0614',
+      cardBg: '#160d29',
+      textColor: '#f8fafc',
+      badgeBg: 'rgba(168, 85, 247, 0.25)',
+      badgeColor: '#c084fc',
+      tag: 'Tím Neon Tương Lai - Cá Tính & Đột Phá Độc Bản',
+      radius: 14,
+    },
+    organic: {
+      name: 'Eco Matcha',
+      primary: '#10b981',
+      bg: '#05140e',
+      cardBg: '#0b241a',
+      textColor: '#f8fafc',
+      badgeBg: 'rgba(16, 185, 129, 0.25)',
+      badgeColor: '#34d399',
+      tag: 'Xanh Lá Tươi Mát - Chuẩn Sản Phẩm Organic & Health',
+      radius: 16,
+    },
+    luxury: {
+      name: 'Luxury Gold',
+      primary: '#f59e0b',
+      bg: '#0d0b07',
+      cardBg: '#1c170f',
+      textColor: '#f8fafc',
+      badgeBg: 'rgba(245, 158, 11, 0.25)',
+      badgeColor: '#fbbf24',
+      tag: 'Vàng Kim Hoàng Gia - Đẳng Cấp Thượng Lưu',
+      radius: 6,
     },
   };
 
-  const currentTheme = themeConfigMap[activeThemeDemo];
+  const handleSelectPreset = (key: keyof typeof themePresets) => {
+    setActiveThemeDemo(key);
+    setCustomPrimary(themePresets[key].primary);
+    setDemoBorderRadius(themePresets[key].radius);
+  };
+
+  const baseTheme = themePresets[activeThemeDemo];
+  const effectivePrimary = customPrimary;
+  const effectiveBg =
+    demoBgMode === 'dark'
+      ? '#0d0f15'
+      : demoBgMode === 'light'
+      ? '#ffffff'
+      : baseTheme.bg;
+  const effectiveCardBg =
+    demoBgMode === 'dark'
+      ? '#161922'
+      : demoBgMode === 'light'
+      ? '#f1f5f9'
+      : baseTheme.cardBg;
+  const effectiveTextColor =
+    demoBgMode === 'light' ? '#0f172a' : demoBgMode === 'dark' ? '#f8fafc' : baseTheme.textColor;
+
+  const colorSwatches = [
+    '#ee4d2d',
+    '#fe2c55',
+    '#3b82f6',
+    '#10b981',
+    '#8b5cf6',
+    '#f59e0b',
+    '#ec4899',
+    '#06b6d4',
+  ];
+
+  const handleCopyCss = () => {
+    const cssCode = `:root {\n  --primary: ${effectivePrimary};\n  --bg-main: ${effectiveBg};\n  --card-bg: ${effectiveCardBg};\n  --border-radius: ${demoBorderRadius}px;\n}`;
+    navigator.clipboard?.writeText(cssCode);
+    setCopiedToast(true);
+    setTimeout(() => setCopiedToast(false), 2500);
+  };
 
   return (
     <div className={styles.page}>
@@ -417,157 +500,571 @@ export default function LandingPage() {
             </p>
           </div>
 
+          {/* 1. SEVEN THEME PRESET TABS */}
           <div className={styles.themeSelectorTabs}>
-            <button
-              type="button"
-              className={`${styles.themeTabBtn} ${activeThemeDemo === 'shopee' ? styles.themeTabActive : ''}`}
-              onClick={() => setActiveThemeDemo('shopee')}
-            >
-              🛍️ Shopee Orange
-            </button>
-            <button
-              type="button"
-              className={`${styles.themeTabBtn} ${activeThemeDemo === 'tiktok' ? styles.themeTabActive : ''}`}
-              onClick={() => setActiveThemeDemo('tiktok')}
-            >
-              🎵 TikTok Dark
-            </button>
-            <button
-              type="button"
-              className={`${styles.themeTabBtn} ${activeThemeDemo === 'dark' ? styles.themeTabActive : ''}`}
-              onClick={() => setActiveThemeDemo('dark')}
-            >
-              🌙 Sleek Dark
-            </button>
-            <button
-              type="button"
-              className={`${styles.themeTabBtn} ${activeThemeDemo === 'light' ? styles.themeTabActive : ''}`}
-              onClick={() => setActiveThemeDemo('light')}
-            >
-              ☀️ Clean Light
-            </button>
+            {(Object.keys(themePresets) as Array<keyof typeof themePresets>).map((key) => {
+              const preset = themePresets[key];
+              const isSelected = activeThemeDemo === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  className={`${styles.themeTabBtn} ${isSelected ? styles.themeTabActive : ''}`}
+                  onClick={() => handleSelectPreset(key)}
+                  style={isSelected ? { borderColor: preset.primary } : {}}
+                >
+                  <span
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      backgroundColor: preset.primary,
+                      display: 'inline-block',
+                    }}
+                  />
+                  {preset.name}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Interactive Preview Mockup Box */}
+          {/* 2. ADVANCED INTERACTIVE CONTROL PANEL */}
+          <div className={styles.themeControlPanel}>
+            {/* Control Row 1: Primary Color */}
+            <div className={styles.controlRow}>
+              <span className={styles.controlLabel}>🎨 Màu Chủ Đạo:</span>
+              <div className={styles.controlGroup}>
+                {colorSwatches.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    className={`${styles.colorPickerDot} ${customPrimary.toLowerCase() === color.toLowerCase() ? styles.colorPickerDotActive : ''}`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setCustomPrimary(color)}
+                    title={color}
+                  />
+                ))}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 8 }}>
+                  <input
+                    type="color"
+                    value={customPrimary}
+                    onChange={(e) => setCustomPrimary(e.target.value)}
+                    style={{ width: 30, height: 30, padding: 0, border: 'none', borderRadius: 6, cursor: 'pointer', background: 'none' }}
+                    title="Chọn mã màu HEX tùy ý"
+                  />
+                  <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#94a3b8', background: 'rgba(255,255,255,0.06)', padding: '4px 8px', borderRadius: 6 }}>
+                    {customPrimary}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Control Row 2: Layout View Mode */}
+            <div className={styles.controlRow}>
+              <span className={styles.controlLabel}>🔲 Chế Độ Xem:</span>
+              <div className={styles.controlGroup}>
+                <button
+                  type="button"
+                  className={`${styles.controlBtnSmall} ${demoLayoutView === 'grid' ? styles.controlBtnSmallActive : ''}`}
+                  onClick={() => setDemoLayoutView('grid')}
+                >
+                  ▦ Lưới Sản Phẩm (Grid 3 Cột)
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.controlBtnSmall} ${demoLayoutView === 'list' ? styles.controlBtnSmallActive : ''}`}
+                  onClick={() => setDemoLayoutView('list')}
+                >
+                  ☰ Danh Sách Ngang (List Card)
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.controlBtnSmall} ${demoLayoutView === 'checkout' ? styles.controlBtnSmallActive : ''}`}
+                  onClick={() => setDemoLayoutView('checkout')}
+                >
+                  💳 Mini Checkout & VietQR
+                </button>
+              </div>
+            </div>
+
+            {/* Control Row 3: Border Radius & Background Mode */}
+            <div className={styles.controlRow}>
+              <span className={styles.controlLabel}>📐 Bo Góc Nút / Thẻ:</span>
+              <div className={styles.controlGroup}>
+                {[4, 8, 14, 24].map((radius) => (
+                  <button
+                    key={radius}
+                    type="button"
+                    className={`${styles.controlBtnSmall} ${demoBorderRadius === radius ? styles.controlBtnSmallActive : ''}`}
+                    onClick={() => setDemoBorderRadius(radius)}
+                  >
+                    {radius === 4 ? 'Vuông (4px)' : radius === 8 ? 'Chuẩn (8px)' : radius === 14 ? 'Mềm Mại (14px)' : 'Pill Tròn (24px)'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Control Row 4: Background Mode & FOMO Toggles */}
+            <div className={styles.controlRow}>
+              <span className={styles.controlLabel}>⚙️ Nền & Hiệu Ứng:</span>
+              <div className={styles.controlGroup}>
+                <button
+                  type="button"
+                  className={`${styles.controlBtnSmall} ${demoBgMode === 'default' ? styles.controlBtnSmallActive : ''}`}
+                  onClick={() => setDemoBgMode('default')}
+                >
+                  Mặc Định Theo Theme
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.controlBtnSmall} ${demoBgMode === 'dark' ? styles.controlBtnSmallActive : ''}`}
+                  onClick={() => setDemoBgMode('dark')}
+                >
+                  🌙 Ép Nền Tối (Dark)
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.controlBtnSmall} ${demoBgMode === 'light' ? styles.controlBtnSmallActive : ''}`}
+                  onClick={() => setDemoBgMode('light')}
+                >
+                  ☀️ Ép Nền Sáng (Light)
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.toggleSwitchBtn} ${showFlashBadge ? styles.toggleSwitchBtnActive : ''}`}
+                  onClick={() => setShowFlashBadge(!showFlashBadge)}
+                >
+                  {showFlashBadge ? '✓ Hiện Tag Giảm Giá' : '✕ Ẩn Tag Giảm Giá'}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.toggleSwitchBtn} ${showSoldProgress ? styles.toggleSwitchBtnActive : ''}`}
+                  onClick={() => setShowSoldProgress(!showSoldProgress)}
+                >
+                  {showSoldProgress ? '✓ Hiện Thanh Cháy Hàng' : '✕ Ẩn Thanh Cháy Hàng'}
+                </button>
+              </div>
+
+              {/* Action Buttons: Copy CSS & Admin Settings Link */}
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className={styles.controlBtnSmall}
+                  onClick={handleCopyCss}
+                  style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', borderColor: '#3b82f6', color: '#60a5fa' }}
+                >
+                  {copiedToast ? '✓ Đã Copy CSS Variables!' : '📋 Sao Chép Mã CSS'}
+                </button>
+                <Link
+                  href="/admin/settings"
+                  className={styles.controlBtnSmall}
+                  style={{ backgroundColor: 'rgba(238, 77, 45, 0.15)', borderColor: '#ee4d2d', color: '#f97316' }}
+                >
+                  ⚙️ Cài Đặt Trong Admin
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. DYNAMIC INTERACTIVE PREVIEW MOCKUP */}
           <div
             className={styles.themePreviewCard}
             style={{
-              backgroundColor: currentTheme.bg,
-              color: currentTheme.textColor,
+              backgroundColor: effectiveBg,
+              color: effectiveTextColor,
+              borderRadius: Math.max(demoBorderRadius, 14),
             }}
           >
+            {/* Mockup Header Bar */}
             <div className={styles.themeMockupHeader}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 6, background: currentTheme.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: Math.min(demoBorderRadius, 10),
+                    background: effectivePrimary,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontWeight: 900,
+                    fontSize: 14,
+                    boxShadow: `0 4px 12px ${effectivePrimary}40`,
+                  }}
+                >
                   ST
                 </div>
-                <span style={{ fontWeight: 800, fontSize: 15 }}>ShopTik Demo Store</span>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.2 }}>ShopTik Storefront</div>
+                  <div style={{ fontSize: 11, opacity: 0.7 }}>Theme: {baseTheme.name} • Primary: {effectivePrimary}</div>
+                </div>
               </div>
+
               <span
                 style={{
-                  background: currentTheme.badgeBg,
-                  color: currentTheme.badgeColor,
-                  padding: '4px 12px',
-                  borderRadius: 20,
+                  background: `${effectivePrimary}22`,
+                  color: effectivePrimary,
+                  border: `1px solid ${effectivePrimary}55`,
+                  padding: '5px 14px',
+                  borderRadius: demoBorderRadius,
                   fontSize: 12,
-                  fontWeight: 700,
+                  fontWeight: 800,
                 }}
               >
-                {currentTheme.tag}
+                {baseTheme.tag}
               </span>
             </div>
 
-            <div className={styles.themeMockupBody}>
-              {/* Product Preview 1 */}
-              <div className={styles.mockupProductCard} style={{ backgroundColor: currentTheme.cardBg }}>
-                <img
-                  src="https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=600&auto=format&fit=crop&q=80"
-                  alt="Product"
-                  className={styles.mockupThumb}
-                />
-                <div style={{ fontWeight: 700, fontSize: 14 }}>Áo Polo Nam Phối Cổ Dệt Bo Cotton</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: currentTheme.primary, fontWeight: 900, fontSize: 16 }}>229.000₫</span>
-                  <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>350.000₫</span>
-                </div>
-                <button
-                  type="button"
+            {/* Dynamic Content View Based on demoLayoutView */}
+            {demoLayoutView === 'grid' && (
+              <div className={styles.themeMockupBody}>
+                {/* Product 1 */}
+                <div
+                  className={styles.mockupProductCard}
                   style={{
-                    backgroundColor: currentTheme.primary,
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 14px',
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    width: '100%',
+                    backgroundColor: effectiveCardBg,
+                    borderRadius: demoBorderRadius,
+                    position: 'relative',
                   }}
                 >
-                  Mua Ngay
-                </button>
-              </div>
+                  {showFlashBadge && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        background: effectivePrimary,
+                        color: '#fff',
+                        fontSize: 11,
+                        fontWeight: 800,
+                        padding: '3px 8px',
+                        borderRadius: Math.min(demoBorderRadius, 6),
+                        zIndex: 2,
+                      }}
+                    >
+                      -35% FLASH SALE
+                    </div>
+                  )}
+                  <img
+                    src="https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=600&auto=format&fit=crop&q=80"
+                    alt="Polo"
+                    className={styles.mockupThumb}
+                    style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
+                  />
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>Áo Polo Nam Phối Cổ Dệt Bo Cotton</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 16 }}>229.000₫</span>
+                    <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>350.000₫</span>
+                  </div>
+                  {showSoldProgress && (
+                    <div style={{ margin: '4px 0' }}>
+                      <div style={{ height: 6, background: 'rgba(128,128,128,0.2)', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: '82%', height: '100%', background: effectivePrimary, borderRadius: 3 }} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, opacity: 0.7, marginTop: 4 }}>
+                        <span>🔥 Đã bán 82</span>
+                        <span style={{ color: effectivePrimary, fontWeight: 700 }}>Cháy hàng 82%</span>
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    style={{
+                      backgroundColor: effectivePrimary,
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: demoBorderRadius,
+                      padding: '10px 16px',
+                      fontWeight: 800,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      width: '100%',
+                      boxShadow: `0 4px 14px ${effectivePrimary}40`,
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    🛒 Mua Ngay
+                  </button>
+                </div>
 
-              {/* Product Preview 2 */}
-              <div className={styles.mockupProductCard} style={{ backgroundColor: currentTheme.cardBg }}>
-                <img
-                  src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&auto=format&fit=crop&q=80"
-                  alt="Product"
-                  className={styles.mockupThumb}
-                />
-                <div style={{ fontWeight: 700, fontSize: 14 }}>Củ Sạc Nhanh GaN 65W 3 Cổng PD</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: currentTheme.primary, fontWeight: 900, fontSize: 16 }}>299.000₫</span>
-                  <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>490.000₫</span>
-                </div>
-                <button
-                  type="button"
+                {/* Product 2 */}
+                <div
+                  className={styles.mockupProductCard}
                   style={{
-                    backgroundColor: currentTheme.primary,
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 14px',
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    width: '100%',
+                    backgroundColor: effectiveCardBg,
+                    borderRadius: demoBorderRadius,
+                    position: 'relative',
                   }}
                 >
-                  Mua Ngay
-                </button>
-              </div>
+                  {showFlashBadge && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        background: effectivePrimary,
+                        color: '#fff',
+                        fontSize: 11,
+                        fontWeight: 800,
+                        padding: '3px 8px',
+                        borderRadius: Math.min(demoBorderRadius, 6),
+                        zIndex: 2,
+                      }}
+                    >
+                      -39% DEAL HOT
+                    </div>
+                  )}
+                  <img
+                    src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&auto=format&fit=crop&q=80"
+                    alt="Charger"
+                    className={styles.mockupThumb}
+                    style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
+                  />
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>Củ Sạc Nhanh GaN 65W 3 Cổng PD</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 16 }}>299.000₫</span>
+                    <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>490.000₫</span>
+                  </div>
+                  {showSoldProgress && (
+                    <div style={{ margin: '4px 0' }}>
+                      <div style={{ height: 6, background: 'rgba(128,128,128,0.2)', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: '65%', height: '100%', background: effectivePrimary, borderRadius: 3 }} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, opacity: 0.7, marginTop: 4 }}>
+                        <span>🔥 Đã bán 130</span>
+                        <span style={{ color: effectivePrimary, fontWeight: 700 }}>Cháy hàng 65%</span>
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    style={{
+                      backgroundColor: effectivePrimary,
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: demoBorderRadius,
+                      padding: '10px 16px',
+                      fontWeight: 800,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      width: '100%',
+                      boxShadow: `0 4px 14px ${effectivePrimary}40`,
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    🛒 Mua Ngay
+                  </button>
+                </div>
 
-              {/* Product Preview 3 */}
-              <div className={styles.mockupProductCard} style={{ backgroundColor: currentTheme.cardBg }}>
-                <img
-                  src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80"
-                  alt="Product"
-                  className={styles.mockupThumb}
-                />
-                <div style={{ fontWeight: 700, fontSize: 14 }}>Tai Nghe Bluetooth TWS Chống Ồn ANC</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: currentTheme.primary, fontWeight: 900, fontSize: 16 }}>420.000₫</span>
-                  <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>650.000₫</span>
-                </div>
-                <button
-                  type="button"
+                {/* Product 3 */}
+                <div
+                  className={styles.mockupProductCard}
                   style={{
-                    backgroundColor: currentTheme.primary,
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 14px',
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    width: '100%',
+                    backgroundColor: effectiveCardBg,
+                    borderRadius: demoBorderRadius,
+                    position: 'relative',
                   }}
                 >
-                  Mua Ngay
-                </button>
+                  {showFlashBadge && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        background: effectivePrimary,
+                        color: '#fff',
+                        fontSize: 11,
+                        fontWeight: 800,
+                        padding: '3px 8px',
+                        borderRadius: Math.min(demoBorderRadius, 6),
+                        zIndex: 2,
+                      }}
+                    >
+                      -35% BÁN CHẠY
+                    </div>
+                  )}
+                  <img
+                    src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80"
+                    alt="Earphones"
+                    className={styles.mockupThumb}
+                    style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
+                  />
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>Tai Nghe Bluetooth TWS Chống Ồn ANC</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 16 }}>420.000₫</span>
+                    <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>650.000₫</span>
+                  </div>
+                  {showSoldProgress && (
+                    <div style={{ margin: '4px 0' }}>
+                      <div style={{ height: 6, background: 'rgba(128,128,128,0.2)', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: '92%', height: '100%', background: effectivePrimary, borderRadius: 3 }} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, opacity: 0.7, marginTop: 4 }}>
+                        <span>🔥 Đã bán 240</span>
+                        <span style={{ color: effectivePrimary, fontWeight: 700 }}>Cháy hàng 92%</span>
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    style={{
+                      backgroundColor: effectivePrimary,
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: demoBorderRadius,
+                      padding: '10px 16px',
+                      fontWeight: 800,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      width: '100%',
+                      boxShadow: `0 4px 14px ${effectivePrimary}40`,
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    🛒 Mua Ngay
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* List View Mode */}
+            {demoLayoutView === 'list' && (
+              <div className={styles.mockupListView}>
+                {/* List Item 1 */}
+                <div
+                  className={styles.mockupListCard}
+                  style={{
+                    backgroundColor: effectiveCardBg,
+                    borderRadius: demoBorderRadius,
+                  }}
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=400&auto=format&fit=crop&q=80"
+                    alt="Polo"
+                    className={styles.mockupListThumb}
+                    style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>Áo Polo Nam Phối Cổ Dệt Bo Cotton</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                      <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 17 }}>229.000₫</span>
+                      <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>350.000₫</span>
+                      {showFlashBadge && (
+                        <span style={{ background: `${effectivePrimary}22`, color: effectivePrimary, padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 800 }}>
+                          -35%
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 12, opacity: 0.7 }}>⭐ 5.0 (240 đánh giá) • Đã bán 82</div>
+                  </div>
+                  <button
+                    type="button"
+                    style={{
+                      backgroundColor: effectivePrimary,
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: demoBorderRadius,
+                      padding: '10px 20px',
+                      fontWeight: 800,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      boxShadow: `0 4px 14px ${effectivePrimary}40`,
+                    }}
+                  >
+                    Mua Ngay
+                  </button>
+                </div>
+
+                {/* List Item 2 */}
+                <div
+                  className={styles.mockupListCard}
+                  style={{
+                    backgroundColor: effectiveCardBg,
+                    borderRadius: demoBorderRadius,
+                  }}
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400&auto=format&fit=crop&q=80"
+                    alt="Charger"
+                    className={styles.mockupListThumb}
+                    style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>Củ Sạc Nhanh GaN 65W 3 Cổng PD</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                      <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 17 }}>299.000₫</span>
+                      <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>490.000₫</span>
+                      {showFlashBadge && (
+                        <span style={{ background: `${effectivePrimary}22`, color: effectivePrimary, padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 800 }}>
+                          -39%
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 12, opacity: 0.7 }}>⭐ 4.9 (180 đánh giá) • Đã bán 130</div>
+                  </div>
+                  <button
+                    type="button"
+                    style={{
+                      backgroundColor: effectivePrimary,
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: demoBorderRadius,
+                      padding: '10px 20px',
+                      fontWeight: 800,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      boxShadow: `0 4px 14px ${effectivePrimary}40`,
+                    }}
+                  >
+                    Mua Ngay
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Mini Checkout & VietQR View Mode */}
+            {demoLayoutView === 'checkout' && (
+              <div style={{ padding: 24, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+                {/* Checkout Column 1: Order Summary & Carrier */}
+                <div style={{ background: effectiveCardBg, borderRadius: demoBorderRadius, padding: 20, border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>📦 Tóm Tắt Đơn Hàng & Vận Chuyển</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 8 }}>
+                    <span>Áo Polo Nam x 1</span>
+                    <span style={{ fontWeight: 700 }}>229.000₫</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 14 }}>
+                    <span>Phí Vận Chuyển (GHTK Nhanh)</span>
+                    <span style={{ color: '#10b981', fontWeight: 700 }}>Miễn phí (Freeship)</span>
+                  </div>
+                  <div style={{ height: 1, background: 'rgba(128,128,128,0.2)', margin: '10px 0' }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900 }}>
+                    <span>Tổng Thanh Toán:</span>
+                    <span style={{ color: effectivePrimary }}>229.000₫</span>
+                  </div>
+                </div>
+
+                {/* Checkout Column 2: VietQR Payment Automation Box */}
+                <div style={{ background: effectiveCardBg, borderRadius: demoBorderRadius, padding: 20, border: `1px solid ${effectivePrimary}55`, textAlign: 'center' }}>
+                  <div style={{ fontWeight: 800, fontSize: 14, color: effectivePrimary, marginBottom: 8 }}>
+                    💳 Thanh Toán VietQR Tự Động 100%
+                  </div>
+                  <div style={{ background: '#fff', padding: 12, borderRadius: 10, display: 'inline-block', marginBottom: 10 }}>
+                    {/* Simulated QR Code */}
+                    <div style={{ width: 110, height: 110, background: '#000', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 800, textAlign: 'center', padding: 8 }}>
+                      [MÃ VIETQR NAPAS247]
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, opacity: 0.8 }}>
+                    Cú pháp: <strong style={{ color: effectivePrimary }}>ST88921</strong>
+                  </div>
+                  <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, marginTop: 8 }}>
+                    ✓ Khớp lệnh tự động qua SePay trong 1s
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
