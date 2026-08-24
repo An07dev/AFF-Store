@@ -31,6 +31,72 @@ import styles from './page.module.css';
 // Preset Themes for 1-click styling
 const PRESET_THEMES: { id: string; name: string; primaryColor: string; bg: string; config: Partial<ThemeConfig> }[] = [
   {
+    id: 'shopee-orange',
+    name: 'Shopee (Cam Shopee)',
+    primaryColor: '#ee4d2d',
+    bg: '#f5f5f5',
+    config: {
+      themeName: 'shopee-orange',
+      mode: 'light',
+      buttonColors: {
+        primaryBg: '#ee4d2d',
+        primaryText: '#ffffff',
+        primaryHover: '#d73211',
+        secondaryBg: '#fef0ed',
+        secondaryText: '#ee4d2d',
+        borderRadius: '6px',
+      },
+      textColors: {
+        textPrimary: '#222222',
+        textSecondary: '#666666',
+        textMuted: '#999999',
+        textAccent: '#ee4d2d',
+      },
+      componentColors: {
+        background: '#f5f5f5',
+        cardBackground: '#ffffff',
+        cardHoverBg: '#fafafa',
+        navbarBg: '#ee4d2d',
+        sidebarBg: '#ffffff',
+        borderColor: '#e8e8e8',
+        accentColor: '#ff5722',
+      },
+    },
+  },
+  {
+    id: 'tiktok-dark',
+    name: 'TikTok Shop (Đỏ Hồng & Neon)',
+    primaryColor: '#fe2c55',
+    bg: '#121212',
+    config: {
+      themeName: 'tiktok-dark',
+      mode: 'dark',
+      buttonColors: {
+        primaryBg: '#fe2c55',
+        primaryText: '#ffffff',
+        primaryHover: '#e01a44',
+        secondaryBg: '#242424',
+        secondaryText: '#ffffff',
+        borderRadius: '8px',
+      },
+      textColors: {
+        textPrimary: '#ffffff',
+        textSecondary: '#a6a6a6',
+        textMuted: '#757575',
+        textAccent: '#25f4ee',
+      },
+      componentColors: {
+        background: '#121212',
+        cardBackground: '#1e1e1e',
+        cardHoverBg: '#282828',
+        navbarBg: '#121212',
+        sidebarBg: '#181818',
+        borderColor: '#2f2f2f',
+        accentColor: '#25f4ee',
+      },
+    },
+  },
+  {
     id: 'modern-blue',
     name: 'Modern Blue (Mặc định)',
     primaryColor: '#3b82f6',
