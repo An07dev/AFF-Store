@@ -333,9 +333,23 @@
 
 .frameContent {
   position: relative;
-  min-height: 460px;
   display: flex;
   flex-direction: column;
+}
+
+.heroVisualGrid {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .heroVisualGrid {
+    grid-template-columns: 1fr;
+    padding: 16px 12px;
+    gap: 14px;
+  }
 }
 
 /* ==========================================================================

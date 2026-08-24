@@ -179,8 +179,8 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Showcase Hero Visual Grid */}
-              <div style={{ padding: '30px 20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+              {/* Showcase Hero Visual Grid (2 Cột x 2 Hàng) */}
+              <div className={styles.heroVisualGrid}>
                 {/* Feature Mini Card 1 */}
                 <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: 20, textAlign: 'left' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -282,7 +282,7 @@ export default function LandingPage() {
         <div className={styles.container}>
           <div className={styles.sectionTitleBlock}>
             <span className={styles.sectionTag}>VŨ KHÍ TĂNG TRƯỞNG DOANH SỐ</span>
-            <h2 className={styles.sectionTitle}>6 Trụ Cột Đột Phá Khác Biệt Hoàn Toàn</h2>
+            <h2 className={styles.sectionTitle}>7 Trụ Cột Đột Phá Khác Biệt Hoàn Toàn</h2>
             <p className={styles.sectionSubtitle}>
               Mọi tính năng được nghiên cứu và thiết kế tối ưu hóa hành vi mua hàng, loại bỏ 100% rào cản thanh toán và thất thoát dữ liệu quảng cáo.
             </p>
