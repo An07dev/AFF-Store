@@ -464,16 +464,20 @@ export default function LandingPage() {
 
           <div className={styles.heroTrustBadges}>
             <div className={styles.trustItem}>
-              <FiCheckCircle className={styles.trustIconCheck} /> 0% Phí Sàn Trọn Đời
+              <FiCheckCircle className={styles.trustIconCheck} size={15} />
+              <span className={styles.trustText}>0% Phí Sàn Trọn Đời</span>
             </div>
             <div className={styles.trustItem}>
-              <FiCheckCircle className={styles.trustIconCheck} /> Sở Hữu 100% Data Khách Hàng
+              <FiCheckCircle className={styles.trustIconCheck} size={15} />
+              <span className={styles.trustText}>Sở Hữu 100% Data Khách</span>
             </div>
             <div className={styles.trustItem}>
-              <FiCheckCircle className={styles.trustIconCheck} /> Tiền Vào Thẳng Tài Khoản Trong 1s
+              <FiCheckCircle className={styles.trustIconCheck} size={15} />
+              <span className={styles.trustText}>Tiền Vào Thẳng Tài Khoản 1s</span>
             </div>
             <div className={styles.trustItem}>
-              <FiCheckCircle className={styles.trustIconCheck} /> Bỏ Lên Hosting Là Chạy Ngay
+              <FiCheckCircle className={styles.trustIconCheck} size={15} />
+              <span className={styles.trustText}>Up Hosting Là Chạy Ngay</span>
             </div>
           </div>
 
