@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/mongodb';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
@@ -30,13 +31,24 @@ export async function GET(request: Request) {
     }
 
     if (category && category !== 'all') {
-      // Check if category is slug or id
-      if (category.match(/^[0-9a-fA-F]{24}$/)) {
-        filter.category = category;
+      const decodedCategory = decodeURIComponent(category).trim();
+      // Check if category is valid MongoDB ObjectId
+      if (decodedCategory.match(/^[0-9a-fA-F]{24}$/)) {
+        filter.category = decodedCategory;
       } else {
-        const catDoc = await Category.findOne({ slug: category });
+        const catDoc = await Category.findOne({
+          $or: [
+            { slug: decodedCategory },
+            { slug: category },
+            { name: decodedCategory },
+            { name: category },
+          ],
+        });
         if (catDoc) {
           filter.category = catDoc._id;
+        } else {
+          // If category not found, ensure no products match rather than all
+          filter.category = new mongoose.Types.ObjectId();
         }
       }
     }

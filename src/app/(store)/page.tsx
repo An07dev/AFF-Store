@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
@@ -209,7 +209,23 @@ function HomePageContent() {
 
   const filterParam = searchParams.get('filter');
 
-  // Sync activeTab, filter and category with URL params
+  // 1. Fetch categories on mount (once)
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await apiFetch('/api/categories');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setCategories(data.data);
+        }
+      } catch (err) {
+        console.error('Error loading categories:', err);
+      }
+    }
+    loadCategories();
+  }, []);
+
+  // 2. Sync activeTab, filter and category with URL params
   useEffect(() => {
     if (tabParam === 'products') {
       setActiveTab(1);
@@ -224,18 +240,18 @@ function HomePageContent() {
         setActiveFilter(4);
         setPriceSortAsc(true);
       }
-      if (catParam) {
-        setSelectedCategory(catParam);
-        fetchProductsByParams(targetFilter, targetPriceAsc, searchQuery, catParam);
-      } else {
-        setSelectedCategory('all');
+      const targetCategory = catParam || 'all';
+      setSelectedCategory(targetCategory);
+      if (!catParam) {
         setSearchQuery('');
-        fetchProductsByParams(targetFilter, targetPriceAsc, '', 'all');
       }
+      fetchProductsByParams(targetFilter, targetPriceAsc, searchQuery, targetCategory);
     } else if (tabParam === 'categories') {
       setActiveTab(2);
     } else {
       setActiveTab(0);
+      setSelectedCategory('all');
+      fetchProductsByParams(0, false, '', 'all');
     }
   }, [tabParam, catParam, filterParam]);
 
@@ -265,32 +281,7 @@ function HomePageContent() {
     };
   }, []);
 
-  // Fetch initial products and categories (API 2.1 & 3.1)
-  const fetchInitialData = async () => {
-    try {
-      setLoading(true);
-      const [prodRes, catRes] = await Promise.all([
-        apiFetch('/api/products?limit=40&status=active&sort=popular'),
-        apiFetch('/api/categories'),
-      ]);
-      const [prodData, catData] = await Promise.all([prodRes.json(), catRes.json()]);
 
-      if (prodData.success && Array.isArray(prodData.data)) {
-        setProducts(prodData.data);
-      }
-      if (catData.success && Array.isArray(catData.data)) {
-        setCategories(catData.data);
-      }
-    } catch (err) {
-      console.error('Error loading products & categories:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
 
   // Fetch Products via API 2.1 (GET /api/products)
   const fetchProductsByParams = async (
@@ -430,7 +421,29 @@ function HomePageContent() {
       return discountB - discountA;
     })
     .slice(0, 10);
-  const displayedFilteredProducts = products;
+  const displayedFilteredProducts = useMemo(() => {
+    let list = products;
+    if (selectedCategory && selectedCategory !== 'all') {
+      const decodedSel = decodeURIComponent(selectedCategory).toLowerCase().trim();
+      list = list.filter((p: any) => {
+        if (!p.category) return false;
+        const catSlug = (typeof p.category === 'object' ? p.category.slug : p.category || '').toLowerCase().trim();
+        const catId = (typeof p.category === 'object' ? p.category._id : p.category || '').toString().trim();
+        const catName = (typeof p.category === 'object' ? p.category.name : '').toLowerCase().trim();
+        return (
+          catSlug === decodedSel ||
+          catId === decodedSel ||
+          catName === decodedSel ||
+          catSlug === selectedCategory.toLowerCase().trim()
+        );
+      });
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter((p: any) => p.name?.toLowerCase().includes(q));
+    }
+    return list;
+  }, [products, selectedCategory, searchQuery]);
 
   return (
     <div className={styles.page}>
@@ -1047,13 +1060,13 @@ function HomePageContent() {
                   Đang lọc:{' '}
                   {selectedCategory !== 'all' && (
                     <strong style={{ color: 'var(--primary, #3b82f6)', marginRight: 6 }}>
-                      [{categories.find((c) => c.slug === selectedCategory || c._id === selectedCategory)?.name || selectedCategory}]
+                      [{categories.find((c) => c.slug === selectedCategory || c._id === selectedCategory || c.name === selectedCategory)?.name || selectedCategory}]
                     </strong>
                   )}
                   {searchQuery.trim() && (
                     <strong style={{ color: '#ffd839' }}>"{searchQuery}"</strong>
                   )}
-                  {' '}({products.length} sản phẩm)
+                  {' '}({displayedFilteredProducts.length} sản phẩm)
                 </span>
                 <button
                   style={{
