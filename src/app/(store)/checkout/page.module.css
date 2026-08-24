@@ -583,9 +583,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  background: var(--navbar-bg, #090a0f);
+  background: var(--bg-card, #13161f);
   border-top: 1px solid var(--border-color, #232838);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
   z-index: 50;
   gap: 10px;
 }
@@ -593,12 +593,13 @@
 .totalGroup {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .totalLabel {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted, #94a3b8);
+  font-weight: 500;
 }
 
 .totalAmount {

@@ -177,7 +177,7 @@
 .footer {
   padding: 14px 16px;
   border-top: 1px solid var(--border-color, #232838);
-  background: var(--navbar-bg, #090a0f);
+  background: var(--bg-card, #13161f);
   display: flex;
   flex-direction: column;
   gap: 10px;

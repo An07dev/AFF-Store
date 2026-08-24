@@ -507,7 +507,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: var(--navbar-bg, #090a0f);
+  background: var(--bg-card, #13161f);
   border-top: 1px solid var(--border-color, #232838);
   z-index: 50;
 }
