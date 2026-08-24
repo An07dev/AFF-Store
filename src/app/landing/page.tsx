@@ -37,6 +37,13 @@ export default function LandingPage() {
   const [showFlashBadge, setShowFlashBadge] = useState<boolean>(true);
   const [showSoldProgress, setShowSoldProgress] = useState<boolean>(true);
   const [copiedToast, setCopiedToast] = useState<boolean>(false);
+  const [copiedCouponToast, setCopiedCouponToast] = useState<boolean>(false);
+
+  const handleCopyCoupon = () => {
+    navigator.clipboard?.writeText('BIGMANMARKETING10');
+    setCopiedCouponToast(true);
+    setTimeout(() => setCopiedCouponToast(false), 2500);
+  };
 
   // Interactive Feature Tab State
   const [activeFeatureTab, setActiveFeatureTab] = useState<'storefront' | 'admin' | 'automation'>('storefront');
@@ -192,7 +199,7 @@ export default function LandingPage() {
             <ul className={styles.navLinks}>
               <li><a href="#features" className={styles.navLink}>Tính Năng</a></li>
               <li><a href="#themes" className={styles.navLink}>Giao Diện Theme</a></li>
-              <li><a href="#automation" className={styles.navLink}>Vận Hành Tự Động</a></li>
+              <li><a href="#hosting" className={styles.navLink}>Hosting & Tên Miền</a></li>
               <li><a href="#metrics" className={styles.navLink}>Hiệu Quả</a></li>
               <li><a href="#faq" className={styles.navLink}>Hỏi Đáp</a></li>
             </ul>
@@ -351,6 +358,7 @@ export default function LandingPage() {
             <div className={styles.partnerCard}>📮 Viettel Post</div>
             <div className={styles.partnerCard}>💳 SePay VietQR Napas247</div>
             <div className={styles.partnerCard}>✉️ Gmail SMTP Email</div>
+            <div className={styles.partnerCard}>🟣 Hostinger Cloud (Auto Deploy)</div>
             <div className={styles.partnerCard}>🎯 Meta Conversions API</div>
             <div className={styles.partnerCard}>🎵 TikTok Events API</div>
             <div className={styles.partnerCard}>💬 Socket.IO Realtime</div>
@@ -1100,6 +1108,133 @@ export default function LandingPage() {
       </section>
 
       {/* ==========================================================================
+         HOSTINGER HOSTING & AUTO DEPLOYMENT SECTION
+         ========================================================================== */}
+      <section id="hosting" className={styles.hostingSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionTitleBlock}>
+            <span className={styles.sectionTag}>🚀 TRIỂN KHAI NHANH CHÓNG & TIẾT KIỆM</span>
+            <h2 className={styles.sectionTitle}>Giải Pháp Hosting Hostinger Tối Ưu Cho ShopTik</h2>
+            <p className={styles.sectionSubtitle}>
+              Khởi chạy website bán hàng hoàn chỉnh chỉ trong 5 phút. Tặng 1 Tên Miền Quốc Tế Miễn Phí và Giảm Thêm 10% khi đăng ký qua đối tác độc quyền!
+            </p>
+          </div>
+
+          {/* Hosting Main Promo Banner */}
+          <div className={styles.hostingBanner}>
+            <div className={styles.hostingBannerInner}>
+              <div style={{ maxWidth: 640 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(168, 85, 247, 0.2)', color: '#d8b4fe', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 800, marginBottom: 12 }}>
+                  🎁 ƯU ĐÃI ĐẶC QUYỀN ĐỐI TÁC
+                </div>
+                <h3 style={{ fontSize: 26, fontWeight: 900, color: '#fff', marginBottom: 10, lineHeight: 1.3 }}>
+                  Tặng 1 Tên Miền Miễn Phí + Giảm Thêm 10% Hosting
+                </h3>
+                <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>
+                  Hosting Hostinger hỗ trợ kéo thả <strong>nguyên file ZIP</strong> hoặc kết nối <strong>Link Git</strong> là tự động Deploy và Setup website hoạt động ngay lập tức, không cần cấu hình dòng lệnh server phức tạp!
+                </p>
+
+                <div className={styles.hostingCouponBox}>
+                  <span style={{ fontSize: 13, color: '#94a3b8' }}>Mã giảm giá độc quyền:</span>
+                  <span className={styles.couponCodeText}>BIGMANMARKETING10</span>
+                  <button
+                    type="button"
+                    className={styles.btnCopyCoupon}
+                    onClick={handleCopyCoupon}
+                  >
+                    {copiedCouponToast ? '✓ Đã Copy!' : '📋 Sao Chép Mã'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <a
+                  href="https://hostinger.com/BIGMANMARKETING10"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.btnHostingerPrimary}
+                >
+                  <span>🚀 Đăng Ký Hosting Ưu Đãi Ngay</span>
+                  <FiExternalLink />
+                </a>
+                <div style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
+                  ✓ Đảm bảo hoàn tiền trong 30 ngày nếu không hài lòng
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 Feature Cards */}
+          <div className={styles.hostingFeaturesGrid}>
+            <div className={styles.hostingFeatureCard}>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>⚡</div>
+              <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Auto Setup 1-Click (ZIP & Git)</h4>
+              <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                Chỉ cần upload nguyên file ZIP mã nguồn hoặc dán Link Git Repository, hệ thống hPanel tự động nạp dependencies và khởi chạy.
+              </p>
+            </div>
+
+            <div className={styles.hostingFeatureCard}>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>🎁</div>
+              <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Tặng 1 Tên Miền Quốc Tế</h4>
+              <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                Miễn phí 100% tên miền (.com, .net, .org...) năm đầu tiên, tiết kiệm ngay hàng trăm nghìn đồng chi phí khởi tạo.
+              </p>
+            </div>
+
+            <div className={styles.hostingFeatureCard}>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>💸</div>
+              <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Giảm Thêm 10% Trực Tiếp</h4>
+              <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                Nhập mã <strong>BIGMANMARKETING10</strong> tại bước thanh toán để được giảm thêm 10% chồng lên mọi khuyến mãi.
+              </p>
+            </div>
+
+            <div className={styles.hostingFeatureCard}>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>🔒</div>
+              <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>SSL & Tốc Độ LiteSpeed</h4>
+              <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                Hạ tầng Cloud siêu tốc, chứng chỉ SSL miễn phí trọn đời, tải trang dưới 0.5 giây giúp tối ưu điểm SEO và giá thầu Ads.
+              </p>
+            </div>
+          </div>
+
+          {/* 3 Step Deployment Guide */}
+          <div style={{ marginTop: 50 }}>
+            <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', textAlign: 'center', marginBottom: 30 }}>
+              Hướng Dẫn 3 Bước Mua Hosting & Triển Khai Website Giá Rẻ Nhất
+            </h3>
+
+            <div className={styles.stepGuideGrid}>
+              <div className={styles.stepGuideCard}>
+                <div className={styles.stepNumberBadge}>1</div>
+                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Truy Cập Link & Chọn Gói</h4>
+                <p style={{ fontSize: 13.5, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
+                  Truy cập 👉 <a href="https://hostinger.com/BIGMANMARKETING10" target="_blank" rel="noopener noreferrer" style={{ color: '#a855f7', fontWeight: 700 }}>hostinger.com/BIGMANMARKETING10</a> và chọn gói <strong>Premium</strong> hoặc <strong>Business Web Hosting</strong> (khuyên dùng gói 12/24 tháng để nhận tên miền miễn phí).
+                </p>
+              </div>
+
+              <div className={styles.stepGuideCard}>
+                <div className={styles.stepNumberBadge}>2</div>
+                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Áp Mã BIGMANMARKETING10</h4>
+                <p style={{ fontSize: 13.5, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
+                  Tại trang thanh toán, bấm vào ô <em>"Have a coupon code?"</em> và nhập <strong>BIGMANMARKETING10</strong> để giảm thêm 10%. Sau đó tiến hành thanh toán và nhận tên miền miễn phí.
+                </p>
+              </div>
+
+              <div className={styles.stepGuideCard}>
+                <div className={styles.stepNumberBadge}>3</div>
+                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Upload ZIP / Git & Chạy Web</h4>
+                <p style={{ fontSize: 13.5, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
+                  Vào <strong>hPanel</strong> ➔ Chọn File Manager (hoặc mục Node.js/Git) ➔ Kéo thả file ZIP mã nguồn ShopTik ➔ Nhập biến môi trường <code>MONGODB_URI</code> ➔ Bấm Khởi chạy là website hoạt động ngay!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==========================================================================
          7. CUSTOMER TESTIMONIALS
          ========================================================================== */}
       <section style={{ padding: '80px 0' }}>
@@ -1254,6 +1389,22 @@ export default function LandingPage() {
               {openFaq === 4 && (
                 <div className={styles.faqAnswer}>
                   Hệ thống sử dụng giao thức <strong>Gmail SMTP / Nodemailer hoàn toàn miễn phí</strong>. Khi khách đặt hàng thành công hoặc thanh toán, website sẽ tự động gửi email xác nhận kèm hóa đơn chi tiết về hòm thư của khách, đồng thời gửi email thông báo cho chủ shop. Bạn có thể dễ dàng cấu hình tài khoản Gmail và Mật khẩu ứng dụng trong mục <code>/admin/settings</code>.
+                </div>
+              )}
+            </div>
+
+            <div className={styles.faqItem}>
+              <button
+                type="button"
+                className={styles.faqQuestion}
+                onClick={() => toggleFaq(5)}
+              >
+                <span>6. Tôi nên dùng gói Hosting nào để chạy web và có tự động cài đặt được không?</span>
+                {openFaq === 5 ? <FiChevronUp /> : <FiChevronDown />}
+              </button>
+              {openFaq === 5 && (
+                <div className={styles.faqAnswer}>
+                  Chúng tôi khuyến nghị sử dụng <strong>Hostinger Web Hosting</strong> thông qua liên kết đối tác <a href="https://hostinger.com/BIGMANMARKETING10" target="_blank" rel="noopener noreferrer" style={{ color: '#a855f7', fontWeight: 700 }}>hostinger.com/BIGMANMARKETING10</a>. Bạn sẽ được <strong>tặng 1 tên miền quốc tế miễn phí</strong> và <strong>giảm thêm 10%</strong> khi nhập mã <code>BIGMANMARKETING10</code>. Điểm vượt trội là bạn chỉ cần tải lên nguyên file ZIP mã nguồn hoặc dán link Git là hệ thống tự động build và chạy website ngay lập tức!
                 </div>
               )}
             </div>

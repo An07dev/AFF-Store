@@ -777,6 +777,141 @@
 }
 
 /* ==========================================================================
+   HOSTINGER HOSTING & AUTO DEPLOYMENT SECTION
+   ========================================================================== */
+.hostingSection {
+  padding: 80px 0;
+  position: relative;
+  background: radial-gradient(circle at 50% 30%, rgba(103, 58, 183, 0.1) 0%, transparent 70%);
+}
+
+.hostingBanner {
+  background: linear-gradient(135deg, rgba(103, 58, 183, 0.25) 0%, rgba(238, 77, 45, 0.15) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 24px;
+  padding: 40px 32px;
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.hostingBannerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.hostingCouponBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px dashed #a855f7;
+  padding: 10px 18px;
+  border-radius: 12px;
+  margin-top: 14px;
+}
+
+.couponCodeText {
+  font-family: monospace;
+  font-size: 16px;
+  font-weight: 900;
+  color: #c084fc;
+  letter-spacing: 1px;
+}
+
+.btnCopyCoupon {
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #a855f7;
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnCopyCoupon:hover {
+  background: #9333ea;
+  transform: translateY(-1px);
+}
+
+.btnHostingerPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.5);
+  transition: all 0.2s ease;
+}
+
+.btnHostingerPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.7);
+  opacity: 0.95;
+}
+
+.hostingFeaturesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.hostingFeatureCard {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.hostingFeatureCard:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(168, 85, 247, 0.4);
+  transform: translateY(-3px);
+}
+
+.stepGuideGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.stepGuideCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 28px;
+  position: relative;
+}
+
+.stepNumberBadge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+/* ==========================================================================
    TESTIMONIALS & TRUST
    ========================================================================== */
 .testimonialsGrid {
