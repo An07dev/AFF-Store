@@ -412,7 +412,7 @@ export default function AdminFlashSalePage() {
       <div className={styles.header}>
         <div className={styles.titleArea}>
           <h1 className={styles.title}>
-            <FiZap style={{ color: '#f97316' }} /> Quản Trị Khung Giờ Flash Sale & FOMO
+            <FiZap style={{ color: 'var(--admin-accent, #3b82f6)' }} /> Quản Trị Khung Giờ Flash Sale & FOMO
           </h1>
           <p className={styles.subtitle}>
             Tự do thiết lập các khung giờ trong ngày, mốc ngày cụ thể, chọn sản phẩm và % sale riêng cho từng khung giờ
@@ -444,7 +444,7 @@ export default function AdminFlashSalePage() {
           {isActive && <div className={styles.pulseDot} />}
           <span className={styles.statusText}>
             Trạng thái Flash Sale:{' '}
-            <strong style={{ color: isActive ? '#f97316' : '#9ca3af' }}>
+            <strong style={{ color: isActive ? 'var(--admin-accent, #3b82f6)' : 'var(--admin-text-muted, #9ca3af)' }}>
               {isActive ? `🟢 ĐANG BẬT (${currentRunningSlotName})` : '⚪ ĐANG TẮT'}
             </strong>
           </span>
@@ -462,7 +462,7 @@ export default function AdminFlashSalePage() {
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Tổng Số Khung Giờ (Slots)</span>
-          <span className={styles.statValue} style={{ color: '#38bdf8' }}>
+          <span className={styles.statValue}>
             {slots.length} khung giờ ({slots.filter((s) => s.enabled).length} bật)
           </span>
         </div>
@@ -472,13 +472,13 @@ export default function AdminFlashSalePage() {
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Tiến Độ Cháy Hàng (Slot này)</span>
-          <span className={styles.statValue} style={{ color: '#f97316' }}>
+          <span className={styles.statValue} style={{ color: 'var(--admin-accent, #3b82f6)' }}>
             🔥 {totalSoldInSlot}/{totalStockInSlot} ({soldOutPercent}%)
           </span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Đồng Hồ Giữ Đơn Checkout</span>
-          <span className={styles.statValue} style={{ color: '#10b981' }}>
+          <span className={styles.statValue}>
             {fomoSettings.checkoutTimerMinutes} phút
           </span>
         </div>
@@ -488,7 +488,7 @@ export default function AdminFlashSalePage() {
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <div className={styles.cardTitle}>
-            <FiSliders style={{ color: '#f97316' }} /> Cấu Hình Chung Chiến Dịch
+            <FiSliders style={{ color: 'var(--admin-accent, #3b82f6)' }} /> Cấu Hình Chung Chiến Dịch
           </div>
           <div className={styles.toggleWrapper} onClick={() => setIsActive(!isActive)}>
             <label className={styles.switch}>
@@ -499,7 +499,7 @@ export default function AdminFlashSalePage() {
               />
               <span className={styles.slider}></span>
             </label>
-            <span style={{ fontSize: '0.875rem', fontWeight: 700, color: isActive ? '#f97316' : '#9ca3af' }}>
+            <span style={{ fontSize: '0.875rem', fontWeight: 700, color: isActive ? 'var(--admin-accent, #3b82f6)' : 'var(--admin-text-muted, #9ca3af)' }}>
               {isActive ? 'BẬT Flash Sale toàn shop' : 'TẮT Flash Sale'}
             </span>
           </div>
@@ -534,7 +534,7 @@ export default function AdminFlashSalePage() {
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <div className={styles.cardTitle}>
-            <FiClock style={{ color: '#38bdf8' }} /> Danh Sách Khung Giờ Flash Sale ({slots.length})
+            <FiClock style={{ color: 'var(--admin-accent, #3b82f6)' }} /> Danh Sách Khung Giờ Flash Sale ({slots.length})
           </div>
           <button
             type="button"
@@ -694,7 +694,7 @@ export default function AdminFlashSalePage() {
         <div style={{ marginTop: 24 }}>
           <div className={styles.cardHeader} style={{ marginBottom: 14 }}>
             <div className={styles.cardTitle} style={{ fontSize: '1rem' }}>
-              <FiShoppingBag style={{ color: '#f97316' }} /> Sản Phẩm Thuộc Khung Giờ: <strong>{currentSlot?.name}</strong> ({slotItems.length})
+              <FiShoppingBag style={{ color: 'var(--admin-accent, #3b82f6)' }} /> Sản Phẩm Thuộc Khung Giờ: <strong>{currentSlot?.name}</strong> ({slotItems.length})
             </div>
             <button
               type="button"
@@ -706,7 +706,7 @@ export default function AdminFlashSalePage() {
           </div>
 
           {slotItems.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--admin-text-muted, #9ca3af)', background: 'rgba(0,0,0,0.15)', borderRadius: 10 }}>
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--admin-text-muted, #9ca3af)', background: 'var(--admin-bg, #111318)', borderRadius: 10, border: '1px solid var(--admin-border, #2d3343)' }}>
               Khung giờ này chưa có sản phẩm nào. Bấm <strong>"+ Thêm Sản Phẩm"</strong> để chọn hàng và cài đặt % Sale.
             </div>
           ) : (
@@ -824,7 +824,7 @@ export default function AdminFlashSalePage() {
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <div className={styles.cardTitle}>
-            <FiBell style={{ color: '#10b981' }} /> Hiệu Ứng Tâm Lý FOMO & Social Proof
+            <FiBell style={{ color: 'var(--admin-accent, #3b82f6)' }} /> Hiệu Ứng Tâm Lý FOMO & Social Proof
           </div>
         </div>
 

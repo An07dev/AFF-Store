@@ -23,7 +23,7 @@
 .title {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--admin-text, #f3f4f6);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -56,15 +56,15 @@
 }
 
 .btnPreviewWeb:hover {
-  color: #fff;
-  border-color: var(--primary, #3b82f6);
+  color: var(--admin-text, #f3f4f6);
+  border-color: var(--admin-accent, #3b82f6);
 }
 
 .btnSave {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #ea580c, #f97316);
+  background: var(--admin-accent, #3b82f6);
   color: #fff;
   border: none;
   padding: 9px 22px;
@@ -72,12 +72,12 @@
   font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   transition: all 0.2s;
 }
 
 .btnSave:hover {
-  background: linear-gradient(135deg, #c2410c, #ea580c);
+  opacity: 0.9;
   transform: translateY(-1px);
 }
 
@@ -100,13 +100,13 @@
 }
 
 .statusBannerLive {
-  background: linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(249, 115, 22, 0.05));
+  background: rgba(249, 115, 22, 0.08);
   border-color: rgba(249, 115, 22, 0.3);
 }
 
 .statusBannerInactive {
-  background: rgba(100, 116, 139, 0.1);
-  border-color: rgba(100, 116, 139, 0.2);
+  background: var(--admin-card, #1a1d27);
+  border-color: var(--admin-border, #2d3343);
 }
 
 .statusIndicator {
@@ -127,6 +127,7 @@
 .statusText {
   font-weight: 700;
   font-size: 0.9375rem;
+  color: var(--admin-text, #f3f4f6);
 }
 
 .countdownDisplay {
@@ -142,7 +143,7 @@
   font-size: 1.125rem;
   font-weight: 800;
   color: #f97316;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--admin-bg, #111318);
   padding: 3px 8px;
   border-radius: 6px;
   border: 1px solid rgba(249, 115, 22, 0.3);
@@ -174,7 +175,7 @@
 .statValue {
   font-size: 1.375rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--admin-text, #f3f4f6);
 }
 
 /* Cards */
@@ -200,7 +201,7 @@
 .cardTitle {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--admin-text, #f3f4f6);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -235,7 +236,7 @@
 .input {
   background: var(--admin-bg, #111318);
   border: 1px solid var(--admin-border, #2d3343);
-  color: #fff;
+  color: var(--admin-text, #f3f4f6);
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -244,13 +245,13 @@
 }
 
 .input:focus {
-  border-color: var(--primary, #3b82f6);
+  border-color: var(--admin-accent, #3b82f6);
 }
 
 .select {
   background: var(--admin-bg, #111318);
   border: 1px solid var(--admin-border, #2d3343);
-  color: #fff;
+  color: var(--admin-text, #f3f4f6);
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -286,7 +287,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #334155;
+  background-color: var(--admin-border, #334155);
   transition: 0.3s;
   border-radius: 24px;
 }
@@ -304,7 +305,7 @@
 }
 
 input:checked + .slider {
-  background-color: #f97316;
+  background-color: var(--admin-accent, #3b82f6);
 }
 
 input:checked + .slider:before {
@@ -339,9 +340,9 @@ input:checked + .slider:before {
 }
 
 .slotTabActive {
-  background: linear-gradient(135deg, rgba(234, 88, 12, 0.2), rgba(249, 115, 22, 0.08));
+  background: rgba(249, 115, 22, 0.1);
   border-color: #f97316;
-  color: #fff;
+  color: var(--admin-text, #f3f4f6);
 }
 
 .slotTabName {
@@ -352,9 +353,10 @@ input:checked + .slider:before {
 .slotTabTime {
   font-size: 0.75rem;
   font-family: monospace;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--admin-bg, #111318);
   padding: 2px 6px;
   border-radius: 4px;
+  color: var(--admin-text-muted, #9ca3af);
 }
 
 .slotTabBadge {
@@ -365,23 +367,23 @@ input:checked + .slider:before {
 }
 
 .badgeLive {
-  background: rgba(234, 88, 12, 0.3);
+  background: rgba(234, 88, 12, 0.15);
   color: #f97316;
-  border: 1px solid rgba(249, 115, 22, 0.5);
+  border: 1px solid rgba(249, 115, 22, 0.3);
 }
 
 .badgeDisabled {
-  background: rgba(100, 116, 139, 0.2);
-  color: #94a3b8;
+  background: var(--admin-border, rgba(100, 116, 139, 0.2));
+  color: var(--admin-text-muted, #94a3b8);
 }
 
 .btnAddSlot {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px dashed var(--primary, #3b82f6);
-  color: var(--primary, #3b82f6);
+  background: rgba(var(--admin-accent-rgb, 59, 130, 246), 0.1);
+  border: 1px dashed var(--admin-accent, #3b82f6);
+  color: var(--admin-accent, #3b82f6);
   padding: 10px 16px;
   border-radius: 10px;
   font-size: 0.875rem;
@@ -392,13 +394,13 @@ input:checked + .slider:before {
 }
 
 .btnAddSlot:hover {
-  background: var(--primary, #3b82f6);
+  background: var(--admin-accent, #3b82f6);
   color: #fff;
 }
 
 /* Active Slot Editor Box */
 .slotEditorBox {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--admin-bg, #111318);
   border: 1px solid var(--admin-border, #2d3343);
   border-radius: 12px;
   padding: 18px;
@@ -411,7 +413,7 @@ input:checked + .slider:before {
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--admin-border, #2d3343);
   flex-wrap: wrap;
   gap: 10px;
 }
@@ -419,7 +421,7 @@ input:checked + .slider:before {
 .slotEditorTitle {
   font-size: 1rem;
   font-weight: 700;
-  color: #f97316;
+  color: var(--admin-text, #f3f4f6);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -464,7 +466,7 @@ input:checked + .slider:before {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #0284c7, #2563eb);
+  background: var(--admin-accent, #3b82f6);
   color: #fff;
   border: none;
   padding: 8px 16px;
@@ -473,11 +475,11 @@ input:checked + .slider:before {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btnAddProduct:hover {
-  background: linear-gradient(135deg, #0369a1, #1d4ed8);
+  opacity: 0.9;
   transform: translateY(-1px);
 }
 
@@ -497,19 +499,20 @@ input:checked + .slider:before {
   color: var(--admin-text-muted, #9ca3af);
   font-weight: 700;
   border-bottom: 1px solid var(--admin-border, #2d3343);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--admin-bg, #111318);
 }
 
 .table td {
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--admin-border, #2d3343);
   vertical-align: middle;
+  color: var(--admin-text, #f3f4f6);
 }
 
 .tableInput {
   background: var(--admin-bg, #111318);
   border: 1px solid var(--admin-border, #2d3343);
-  color: #fff;
+  color: var(--admin-text, #f3f4f6);
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -520,7 +523,7 @@ input:checked + .slider:before {
 }
 
 .tableInput:focus {
-  border-color: #f97316;
+  border-color: var(--admin-accent, #3b82f6);
 }
 
 .tableProductCell {
@@ -534,7 +537,7 @@ input:checked + .slider:before {
   height: 44px;
   border-radius: 6px;
   object-fit: cover;
-  background: #000;
+  background: var(--admin-bg, #111318);
   border: 1px solid var(--admin-border, #2d3343);
 }
 
@@ -582,7 +585,7 @@ input:checked + .slider:before {
 
 .fomoOptionTitle {
   font-weight: 700;
-  color: #fff;
+  color: var(--admin-text, #f3f4f6);
   font-size: 0.9375rem;
 }
 
