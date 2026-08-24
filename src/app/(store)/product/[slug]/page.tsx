@@ -22,6 +22,8 @@ import {
   FiCamera,
   FiCheckCircle,
   FiZap,
+  FiChevronDown,
+  FiChevronUp,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
@@ -53,6 +55,7 @@ export default function ProductDetailPage() {
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   // Flash Sale & FOMO state
   const [flashSaleItem, setFlashSaleItem] = useState<any | null>(null);
@@ -895,11 +898,44 @@ export default function ProductDetailPage() {
 
         {/* 5. DESCRIPTION CARD */}
         <div className={styles.descCard}>
-          <h2 className={styles.descTitle}>Mô tả sản phẩm</h2>
-          <div className={styles.descContent}>
-            {product.description ||
-              'Chất liệu cao cấp, đường may tỉ mỉ, form dáng chuẩn thời trang hiện đại.\nThiết kế trẻ trung năng động, dễ phối đồ phù hợp đi học, đi chơi, đi làm.'}
+          <h2 className={styles.descTitle}>
+            <span>📋 Chi Tiết Sản Phẩm</span>
+          </h2>
+          
+          <div
+            className={`${styles.descContentWrapper} ${
+              !isDescExpanded && (product.description?.length || 0) > 300
+                ? styles.descContentCollapsed
+                : ''
+            }`}
+          >
+            <div className={styles.descContent}>
+              {product.description ||
+                'Chất liệu cao cấp, đường may tỉ mỉ, form dáng chuẩn thời trang hiện đại.\nThiết kế trẻ trung năng động, dễ phối đồ phù hợp đi học, đi chơi, đi làm.'}
+            </div>
+
+            {!isDescExpanded && (product.description?.length || 0) > 300 && (
+              <div className={styles.descFadeOverlay} />
+            )}
           </div>
+
+          {(product.description?.length || 0) > 300 && (
+            <button
+              type="button"
+              className={styles.descToggleBtn}
+              onClick={() => setIsDescExpanded(!isDescExpanded)}
+            >
+              {isDescExpanded ? (
+                <>
+                  Thu gọn mô tả <FiChevronUp size={14} />
+                </>
+              ) : (
+                <>
+                  Xem toàn bộ mô tả chi tiết <FiChevronDown size={14} />
+                </>
+              )}
+            </button>
+          )}
         </div>
 
         {/* 6. REVIEWS & RATINGS SUMMARY CARD */}
