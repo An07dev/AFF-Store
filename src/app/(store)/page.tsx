@@ -22,6 +22,7 @@ import {
   FiPlus,
   FiTrendingUp,
   FiClock,
+  FiArrowRight,
 } from 'react-icons/fi';
 import { FaTiktok, FaFacebook } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -848,8 +849,8 @@ function HomePageContent() {
                     const isLiveSlot = selectedSlot
                       ? selectedSlot.status === 'live' || flashSaleConfig.activeSlot?.id === selectedSlot.id
                       : true;
-                    const isUpcomingSlot = selectedSlot?.status === 'upcoming';
-                    const isPassedSlot = selectedSlot?.status === 'passed';
+                    const isUpcomingSlot = !isLiveSlot && selectedSlot?.status === 'upcoming';
+                    const isPassedSlot = !isLiveSlot && (selectedSlot?.status === 'passed' || selectedSlot?.status === 'ended');
 
                     const itemsToRender =
                       selectedSlot && selectedSlot.items && selectedSlot.items.length > 0
@@ -860,27 +861,57 @@ function HomePageContent() {
 
                     if (isUpcomingSlot) {
                       return (
-                        <div className={styles.upcomingSlotBox}>
-                          <div className={styles.upcomingIconCircle}>
-                            <FiClock />
+                        <div className={styles.slotUpcomingBox}>
+                          <div className={styles.slotUpcomingIconCircle}>
+                            <FiClock size={22} />
                           </div>
-                          <h4 className={styles.upcomingTitle}>
-                            Khung Giờ: {selectedSlot?.startTime} - {selectedSlot?.endTime}
-                          </h4>
-                          <p className={styles.upcomingDesc}>
-                            Khung giờ này sắp diễn ra, vui lòng chờ đến giờ vàng để săn Flash Sale với giá ưu đãi cực sốc!
-                          </p>
-                          <span className={styles.upcomingTagBadge}>
-                            ⏰ Chưa mở bán • Giữ nguyên giá gốc
-                          </span>
+                          <div className={styles.slotNoticeBody}>
+                            <div className={styles.slotNoticeHeadRow}>
+                              <span className={styles.slotUpcomingTag}>Sắp mở bán</span>
+                              <span className={styles.slotNoticeTimeText}>
+                                {selectedSlot?.startTime || '00:00'} - {selectedSlot?.endTime || '00:00'}
+                              </span>
+                            </div>
+                            <p className={styles.slotNoticeMessage}>
+                              Khung giờ này sắp diễn ra với mức giá ưu đãi cực sốc. Hãy chuẩn bị sẵn sàng và quay lại đúng giờ để săn deal bạn nhé!
+                            </p>
+                          </div>
                         </div>
                       );
                     }
 
                     if (isPassedSlot) {
+                      const liveSlot = flashSaleConfig?.slots?.find(
+                        (s: any) => s.status === 'live' || flashSaleConfig.activeSlot?.id === s.id
+                      );
+
                       return (
-                        <div className={styles.slotPassedNotice}>
-                          ⌛ Khung giờ {selectedSlot?.startTime} - {selectedSlot?.endTime} đã kết thúc. Vui lòng chọn khung giờ đang diễn ra để săn deal!
+                        <div className={styles.slotPassedBox}>
+                          <div className={styles.slotPassedIconCircle}>
+                            <FiClock size={22} />
+                          </div>
+                          <div className={styles.slotNoticeBody}>
+                            <div className={styles.slotNoticeHeadRow}>
+                              <span className={styles.slotPassedTag}>Khung giờ đã kết thúc</span>
+                              <span className={styles.slotNoticeTimeText}>
+                                {selectedSlot?.startTime || '00:00'} - {selectedSlot?.endTime || '00:00'}
+                              </span>
+                            </div>
+                            <p className={styles.slotNoticeMessage}>
+                              Ưu đãi Flash Sale cho khung giờ này đã khép lại. Vui lòng chọn khung giờ đang diễn ra để không bỏ lỡ các deal giảm giá cực sốc!
+                            </p>
+                            {liveSlot && (
+                              <button
+                                type="button"
+                                className={styles.slotSwitchActionBtn}
+                                onClick={() => setSelectedSlotId(liveSlot.id)}
+                              >
+                                <FiZap size={14} className={styles.flashIconPulse} />
+                                <span>Săn deal khung giờ đang diễn ra ({liveSlot.startTime} - {liveSlot.endTime})</span>
+                                <FiArrowRight size={13} />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       );
                     }
@@ -888,9 +919,18 @@ function HomePageContent() {
                     // LIVE SLOT: Render products with Flash Price & Fire progress bar
                     if (itemsToRender.length === 0) {
                       return (
-                        <div className={styles.emptySlotNotice}>
-                          <FiClock size={24} style={{ color: '#f97316' }} />
-                          <div>Khung giờ đang diễn ra chưa có sản phẩm nào.</div>
+                        <div className={styles.slotEmptyBox}>
+                          <div className={styles.slotEmptyIconCircle}>
+                            <FiClock size={22} />
+                          </div>
+                          <div className={styles.slotNoticeBody}>
+                            <div className={styles.slotNoticeHeadRow}>
+                              <span className={styles.slotEmptyTag}>Đang cập nhật</span>
+                            </div>
+                            <p className={styles.slotNoticeMessage}>
+                              Sản phẩm trong khung giờ này đang được chuẩn bị và cập nhật, bạn vui lòng quay lại sau ít phút nhé!
+                            </p>
+                          </div>
                         </div>
                       );
                     }
