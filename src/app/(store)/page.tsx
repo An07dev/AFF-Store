@@ -319,49 +319,52 @@ function HomePageContent() {
           try {
             const fsRes = await apiFetch('/api/flash-sale');
             const fsData = await fsRes.json();
-            if (fsData.success && fsData.data && fsData.data.isActive) {
-              let fsItems = fsData.data.items || [];
-              // If live slot has no items or not live, gather from all enabled slots
-              if (fsItems.length === 0 && fsData.data.slots && fsData.data.slots.length > 0) {
-                fsData.data.slots.forEach((s: any) => {
-                  if (s.items && s.items.length > 0) {
-                    fsItems = [...fsItems, ...s.items];
-                  }
-                });
+            if (
+              fsData.success &&
+              fsData.data &&
+              fsData.data.isActive &&
+              fsData.data.isLive &&
+              Array.isArray(fsData.data.items) &&
+              fsData.data.items.length > 0
+            ) {
+              let flashProducts = fsData.data.items.map((it: any) => ({
+                _id: it.productId || it._id,
+                name: it.name,
+                slug: it.slug,
+                price: it.originalPrice || it.price || 0,
+                salePrice: it.flashPrice || it.salePrice,
+                flashPrice: it.flashPrice,
+                images: it.images && it.images.length > 0 ? it.images : (it.image ? [it.image] : []),
+                rating: 5,
+                soldCount: it.soldCount || 0,
+                sold: it.soldCount || 0,
+                discountPercent: it.discountPercent,
+                isFlashSale: true,
+                category: it.category,
+              }));
+
+              if (categorySlug && categorySlug !== 'all') {
+                flashProducts = flashProducts.filter(
+                  (p: any) => p.category?.slug === categorySlug || p.category === categorySlug
+                );
+              }
+              if (query.trim()) {
+                const q = query.trim().toLowerCase();
+                flashProducts = flashProducts.filter((p: any) => p.name?.toLowerCase().includes(q));
               }
 
-              if (fsItems.length > 0) {
-                const seen = new Set();
-                const uniqueItems = fsItems.filter((it: any) => {
-                  const key = String(it.productId || it._id || it.slug);
-                  if (seen.has(key)) return false;
-                  seen.add(key);
-                  return true;
-                });
-
-                const flashProducts = uniqueItems.map((it: any) => ({
-                  _id: it.productId || it._id,
-                  name: it.name,
-                  slug: it.slug,
-                  price: it.originalPrice || it.price || 0,
-                  salePrice: it.flashPrice || it.salePrice,
-                  flashPrice: it.flashPrice,
-                  images: it.images && it.images.length > 0 ? it.images : (it.image ? [it.image] : []),
-                  rating: 5,
-                  soldCount: it.soldCount || 0,
-                  sold: it.soldCount || 0,
-                  discountPercent: it.discountPercent,
-                  isFlashSale: true,
-                }));
-
-                setProducts(flashProducts);
-                setLoading(false);
-                return;
-              }
+              setProducts(flashProducts);
+            } else {
+              // Khi KHÔNG CÓ khung giờ Flash Sale nào đang hoạt động: set rỗng []
+              setProducts([]);
             }
           } catch (e) {
             console.error('Error fetching flash sale products in tab:', e);
+            setProducts([]);
+          } finally {
+            setLoading(false);
           }
+          return;
         } else if (filterIndex === 4) {
           list = [...list].sort((a: any, b: any) => {
             const pA = a.salePrice && a.salePrice > 0 ? a.salePrice : a.price;
@@ -1113,8 +1116,20 @@ function HomePageContent() {
             ) : viewMode === 'list' ? (
               <div className={styles.productList}>
                 {displayedFilteredProducts.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-                    Không tìm thấy sản phẩm nào phù hợp
+                  <div style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
+                    {activeFilter === 1 ? (
+                      <>
+                        <div style={{ fontSize: '32px', marginBottom: 8 }}>⚡</div>
+                        <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main, #f8fafc)', marginBottom: 6 }}>
+                          Hiện chưa có khung giờ Flash Sale nào đang diễn ra
+                        </div>
+                        <div style={{ fontSize: '13px' }}>
+                          Vui lòng quay lại vào khung giờ Flash Sale tiếp theo để săn ưu đãi giá sốc nhé!
+                        </div>
+                      </>
+                    ) : (
+                      <div>Không tìm thấy sản phẩm nào phù hợp</div>
+                    )}
                   </div>
                 ) : (
                   displayedFilteredProducts.map((item: any, i: number) => {
@@ -1174,8 +1189,20 @@ function HomePageContent() {
             ) : (
               <div className={styles.productGrid} style={{ padding: 10 }}>
                 {displayedFilteredProducts.length === 0 ? (
-                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-                    Không tìm thấy sản phẩm nào phù hợp
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
+                    {activeFilter === 1 ? (
+                      <>
+                        <div style={{ fontSize: '32px', marginBottom: 8 }}>⚡</div>
+                        <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main, #f8fafc)', marginBottom: 6 }}>
+                          Hiện chưa có khung giờ Flash Sale nào đang diễn ra
+                        </div>
+                        <div style={{ fontSize: '13px' }}>
+                          Vui lòng quay lại vào khung giờ Flash Sale tiếp theo để săn ưu đãi giá sốc nhé!
+                        </div>
+                      </>
+                    ) : (
+                      <div>Không tìm thấy sản phẩm nào phù hợp</div>
+                    )}
                   </div>
                 ) : (
                   displayedFilteredProducts.map((item: any, i: number) => {
