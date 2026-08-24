@@ -12,6 +12,7 @@ import {
   FiCheckCircle,
   FiEdit3,
   FiX,
+  FiShoppingBag,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -51,7 +52,7 @@ function FormattedMessageText({ text }: { text: string }) {
   const lines = text.split('\n');
 
   return (
-    <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.55 }}>
+    <div style={{ wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: 1.55, minWidth: 0, maxWidth: '100%' }}>
       {lines.map((line, lIdx) => {
         const linkRegex = /\[(.*?)\]\((.*?)\)/g;
         let lastIndex = 0;
@@ -78,6 +79,8 @@ function FormattedMessageText({ text }: { text: string }) {
                 fontWeight: 700,
                 padding: '0 2px',
                 cursor: 'pointer',
+                wordBreak: 'break-word',
+                overflowWrap: 'anywhere',
               }}
             >
               {label}
@@ -91,7 +94,7 @@ function FormattedMessageText({ text }: { text: string }) {
         }
 
         return (
-          <div key={lIdx} style={{ minHeight: line.trim() ? undefined : '0.6em' }}>
+          <div key={lIdx} style={{ minHeight: line.trim() ? undefined : '0.6em', wordBreak: 'break-word', overflowWrap: 'anywhere', minWidth: 0, maxWidth: '100%' }}>
             {elements.length > 0 ? elements : <span>&nbsp;</span>}
           </div>
         );
@@ -105,7 +108,7 @@ function parseBoldText(str: string, keyPrefix: string) {
   return parts.map((part, pIdx) => {
     if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
       return (
-        <strong key={`${keyPrefix}-b-${pIdx}`} style={{ color: 'var(--text-main, #fff)', fontWeight: 800 }}>
+        <strong key={`${keyPrefix}-b-${pIdx}`} style={{ color: 'inherit', fontWeight: 800 }}>
           {part.slice(2, -2)}
         </strong>
       );
@@ -162,6 +165,15 @@ function ChatContent() {
       osc.stop(ctx.currentTime + 0.35);
     } catch (e) {}
   };
+
+  // Lock body scroll on mount so only internal messages area can scroll
+  useEffect(() => {
+    const origOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = origOverflow;
+    };
+  }, []);
 
   // 1. Initialize Conversation ID & Customer Profile
   useEffect(() => {
@@ -263,13 +275,11 @@ function ChatContent() {
     socket.on('connect', joinUserChat);
 
     const handleReceiveMessage = (msg: any) => {
-      setMessages((prev) => {
-        // 1. If message already exists by _id, ignore
-        if (msg._id && prev.some((m) => m._id === msg._id)) {
-          return prev;
-        }
+      if (msg.conversationId && msg.conversationId !== conversationId) return;
 
-        // 2. If matching by clientMsgId, replace optimistic placeholder
+      setMessages((prev) => {
+        if (msg._id && prev.some((m) => m._id === msg._id)) return prev;
+
         if (msg.clientMsgId) {
           const idx = prev.findIndex(
             (m) =>
@@ -284,7 +294,6 @@ function ChatContent() {
           }
         }
 
-        // 3. Fallback: match temporary message without official _id having same sender, text, and image
         const tempIdx = prev.findIndex(
           (m) =>
             (!m._id || m._id.startsWith('temp_') || m.id?.startsWith('temp_')) &&
@@ -317,165 +326,124 @@ function ChatContent() {
     socket.on('receive_message', handleReceiveMessage);
     socket.on('user_typing', handleUserTyping);
 
-    // Fallback polling every 5s if socket is disconnected
-    const interval = setInterval(() => {
-      if (!socket.connected) {
-        fetchMessages(conversationId);
-      }
-    }, 5000);
+    const pollInterval = setInterval(() => {
+      fetchMessages(conversationId);
+    }, 4000);
 
     return () => {
+      clearInterval(pollInterval);
       socket.off('connect', joinUserChat);
       socket.off('receive_message', handleReceiveMessage);
       socket.off('user_typing', handleUserTyping);
-      clearInterval(interval);
     };
-  }, [conversationId, customerInfo.name, customerInfo.phone, pinnedProduct]);
-
-  // Scroll to bottom
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [conversationId, customerInfo, pinnedProduct]);
 
   useEffect(() => {
-    scrollToBottom();
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAdminTyping]);
 
-  // Typing emitter
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputMsg(e.target.value);
-
+  const emitTyping = (typing: boolean) => {
     const socket = getSocket();
-    if (socket && conversationId) {
-      socket.emit('typing', { conversationId, sender: 'user', isTyping: true });
-
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = setTimeout(() => {
-        socket.emit('typing', { conversationId, sender: 'user', isTyping: false });
-      }, 1500);
-    }
-  };
-
-  // Send Message
-  const handleSend = async (textToSend?: string, attachedImage?: string, attachedProduct?: any) => {
-    const text = textToSend !== undefined ? textToSend : inputMsg;
-    if (!text.trim() && !attachedImage) return;
-
-    const clientMsgId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-
-    const payload = {
-      clientMsgId,
+    socket?.emit('typing', {
       conversationId,
       sender: 'user',
-      senderName: customerInfo.name || 'Khách hàng',
-      customerName: customerInfo.name || 'Khách hàng',
-      customerPhone: customerInfo.phone || '',
-      text: text.trim(),
-      image: attachedImage || '',
-      product: attachedProduct
-        ? {
-            name: attachedProduct.name,
-            price: attachedProduct.salePrice || attachedProduct.price,
-            image: attachedProduct.images?.[0] || attachedProduct.image || '',
-            slug: attachedProduct.slug,
-          }
-        : undefined,
-    };
+      isTyping: typing,
+    });
+  };
 
-    // Optimistic UI update
-    const tempMsg: Message & { clientMsgId?: string } = {
-      _id: clientMsgId,
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputMsg(e.target.value);
+    emitTyping(true);
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      emitTyping(false);
+    }, 1500);
+  };
+
+  const handleSend = async (customText?: string, customProduct?: any, customImage?: string) => {
+    const textToSend = customText !== undefined ? customText : inputMsg;
+    if (!textToSend.trim() && !customProduct && !customImage) return;
+
+    const clientMsgId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const tempMessage: Message = {
       id: clientMsgId,
-      clientMsgId,
+      _id: clientMsgId,
       sender: 'user',
-      senderName: payload.senderName,
-      text: payload.text,
-      image: payload.image,
-      product: payload.product,
-      time: 'Vừa xong',
+      text: textToSend,
+      image: customImage,
+      product: customProduct,
+      createdAt: new Date().toISOString(),
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
     };
-    setMessages((prev) => [...prev, tempMsg]);
-    if (textToSend === undefined) setInputMsg('');
 
+    setMessages((prev) => [...prev, tempMessage]);
+    if (customText === undefined) setInputMsg('');
+    emitTyping(false);
     setIsSending(true);
 
     const socket = getSocket();
-    if (socket && socket.connected) {
-      socket.emit('send_message', payload, (res: any) => {
-        setIsSending(false);
-        if (res?.data?._id) {
-          setMessages((prev) =>
-            prev.map((m) =>
-              m._id === clientMsgId || m.id === clientMsgId || (m as any).clientMsgId === clientMsgId
-                ? res.data
-                : m
-            )
-          );
-        }
-      });
-      // Stop typing
-      socket.emit('typing', { conversationId, sender: 'user', isTyping: false });
-    } else {
-      try {
-        const res = await apiFetch('/api/chat/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (data.success && data.data?._id) {
-          setMessages((prev) =>
-            prev.map((m) =>
-              m._id === clientMsgId || m.id === clientMsgId || (m as any).clientMsgId === clientMsgId
-                ? data.data
-                : m
-            )
-          );
+    const payload = {
+      conversationId,
+      sender: 'user',
+      senderName: customerInfo.name || 'Khách hàng',
+      text: textToSend,
+      image: customImage,
+      product: customProduct,
+      clientMsgId,
+      customerInfo: {
+        name: customerInfo.name,
+        phone: customerInfo.phone,
+      },
+    };
 
-          if (data.botReply) {
-            setIsAdminTyping(true);
-            setTimeout(() => {
-              setIsAdminTyping(false);
-              setMessages((prev) => {
-                if (prev.some((m) => m._id === data.botReply._id)) return prev;
-                return [...prev, data.botReply];
-              });
-              playNotificationSound();
-            }, 350);
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error('Lỗi khi gửi tin nhắn');
-      } finally {
-        setIsSending(false);
+    if (socket && socket.connected) {
+      socket.emit('send_message', payload);
+    }
+
+    try {
+      const res = await apiFetch('/api/chat/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === clientMsgId || m._id === clientMsgId ? data.data : m))
+        );
       }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSending(false);
     }
   };
 
-  // Image Upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
-    setIsUploading(true);
     try {
-      const res = await apiFetch('/api/upload', {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
       const data = await res.json();
-      if (data.success && data.data?.url) {
-        handleSend('', data.data.url);
-        toast.success('Đã gửi ảnh!');
+
+      if (data.success && (data.url || data.secure_url)) {
+        const uploadedUrl = data.url || data.secure_url;
+        handleSend('', undefined, uploadedUrl);
       } else {
-        toast.error(data.message || 'Lỗi tải ảnh lên');
+        toast.error('Lỗi tải ảnh lên');
       }
     } catch (err) {
-      toast.error('Lỗi khi gửi ảnh');
+      console.error(err);
+      toast.error('Không thể tải ảnh');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -484,14 +452,20 @@ function ChatContent() {
 
   const handleInquireAboutProduct = () => {
     if (!pinnedProduct) return;
-    handleSend(`Shop ơi, tư vấn giúp mình sản phẩm "${pinnedProduct.name}" này với ạ!`, undefined, pinnedProduct);
+    const prodData = {
+      name: pinnedProduct.name,
+      price: pinnedProduct.salePrice || pinnedProduct.price,
+      image: pinnedProduct.images?.[0] || pinnedProduct.image || '/file.svg',
+      slug: pinnedProduct.slug,
+    };
+    handleSend(`Tôi muốn tư vấn về sản phẩm: ${pinnedProduct.name}`, prodData);
+    setPinnedProduct(null);
   };
 
-  const handleQuickPrompt = (prompt: string) => {
-    handleSend(prompt);
+  const handleQuickPrompt = (promptText: string) => {
+    handleSend(promptText);
   };
 
-  // Save phone number & name
   const handleSaveContactInfo = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanPhone = phoneInput.trim();
@@ -506,13 +480,11 @@ function ChatContent() {
     localStorage.setItem('shoptik_guest_name', cleanName);
     setShowPhoneModal(false);
 
-    // Save to profile
     try {
       const p = { name: cleanName, phone: cleanPhone };
       localStorage.setItem('shoptik_profile', JSON.stringify(p));
     } catch (e) {}
 
-    // Emit socket update
     const socket = getSocket();
     socket?.emit('update_conversation', {
       conversationId,
@@ -521,7 +493,6 @@ function ChatContent() {
       status: 'has_phone',
     });
 
-    // Also REST update
     try {
       await apiFetch('/api/chat/conversations', {
         method: 'POST',
@@ -539,6 +510,13 @@ function ChatContent() {
       console.error(e);
     }
   };
+
+  const QUICK_PROMPTS = [
+    { label: '⚡ Tư vấn chọn size', prompt: 'Shop ơi tư vấn size giúp mình với ạ' },
+    { label: '📦 Kiểm tra đơn hàng', prompt: 'Mình muốn kiểm tra tình trạng đơn hàng' },
+    { label: '🔄 Chính sách đổi trả', prompt: 'Shop cho mình hỏi về chính sách đổi trả hàng ạ' },
+    { label: '🚚 Phí vận chuyển', prompt: 'Phí ship và thời gian giao hàng thế nào ạ?' },
+  ];
 
   return (
     <div className={styles.page}>
@@ -567,8 +545,10 @@ function ChatContent() {
           </div>
 
           <div className={styles.shopText}>
-            <span className={styles.shopName}>{shopName}</span>
-            <span className={styles.shopDivider}>•</span>
+            <div className={styles.shopNameRow}>
+              <span className={styles.shopName}>{shopName}</span>
+              <span className={styles.mallBadge}>Mall</span>
+            </div>
             <span className={styles.onlineStatus}>🤖 AI Trợ Lý 24/7 & CSKH</span>
           </div>
         </div>
@@ -576,11 +556,22 @@ function ChatContent() {
         <div className={styles.navActions}>
           <button
             type="button"
+            className={styles.phonePillBtn}
+            onClick={() => setShowPhoneModal(true)}
+            title="Cập nhật số điện thoại"
+          >
+            <FiPhone size={13} />
+            <span>{customerInfo.phone ? customerInfo.phone : 'Để lại SĐT'}</span>
+            <FiEdit3 size={12} />
+          </button>
+
+          <button
+            type="button"
             className={styles.actionBtn}
             onClick={() => setShowPhoneModal(true)}
             title="Cập nhật SĐT"
           >
-            <FiPhoneCall size={18} />
+            <FiPhoneCall size={17} />
           </button>
         </div>
       </header>
@@ -638,7 +629,7 @@ function ChatContent() {
           if (!isUser) {
             return (
               <div key={msg._id || msg.id || idx} className={styles.shopMsgRow}>
-                <div className={styles.shopAvatar}>
+                <div className={styles.shopAvatar} style={{ width: 28, height: 28, fontSize: 10 }}>
                   {theme?.pageTitles?.logoUrl ? (
                     <img
                       src={theme.pageTitles.logoUrl}
@@ -655,7 +646,7 @@ function ChatContent() {
                       style={{
                         fontSize: 10,
                         fontWeight: 800,
-                        color: '#38bdf8',
+                        color: 'var(--primary, #ee4d2d)',
                         marginBottom: 4,
                         display: 'flex',
                         alignItems: 'center',
@@ -683,7 +674,7 @@ function ChatContent() {
                   {msg.text && <FormattedMessageText text={msg.text} />}
 
                   {msg.suggestedProducts && msg.suggestedProducts.length > 0 && (
-                    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6, width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' }}>
                       {msg.suggestedProducts.map((sp, spIdx) => {
                         const spPrice = (sp.salePrice || sp.price || 0).toLocaleString('vi-VN') + '₫';
                         const spOrig = sp.salePrice && sp.price > sp.salePrice ? `${sp.price.toLocaleString('vi-VN')}₫` : '';
@@ -691,30 +682,34 @@ function ChatContent() {
                           <div
                             key={spIdx}
                             style={{
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              background: 'var(--bg-main, #f8fafc)',
+                              border: '1px solid var(--border-color, #e2e8f0)',
                               borderRadius: 10,
                               padding: '6px 8px',
                               display: 'flex',
                               alignItems: 'center',
-                              gap: 8,
+                              gap: 6,
+                              width: '100%',
+                              maxWidth: '100%',
+                              boxSizing: 'border-box',
+                              minWidth: 0,
                             }}
                           >
                             {sp.image && (
                               <img
                                 src={sp.image}
                                 alt={sp.name}
-                                style={{ width: 44, height: 44, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }}
+                                style={{ width: 38, height: 38, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }}
                               />
                             )}
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-main, #fff)' }}>
+                            <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-main, #0f172a)' }}>
                                 {sp.name}
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                                <span style={{ fontSize: 12, fontWeight: 800, color: '#ef4444' }}>{spPrice}</span>
+                                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--primary, #ee4d2d)' }}>{spPrice}</span>
                                 {spOrig && (
-                                  <span style={{ fontSize: 10, textDecoration: 'line-through', opacity: 0.6, color: '#94a3b8' }}>{spOrig}</span>
+                                  <span style={{ fontSize: 9.5, textDecoration: 'line-through', opacity: 0.6, color: '#94a3b8' }}>{spOrig}</span>
                                 )}
                               </div>
                             </div>
@@ -724,12 +719,12 @@ function ChatContent() {
                                 router.push(`/product/${sp.slug}`);
                               }}
                               style={{
-                                background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+                                background: 'var(--primary, #ee4d2d)',
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: 6,
-                                padding: '5px 10px',
-                                fontSize: 11,
+                                padding: '4px 8px',
+                                fontSize: 10,
                                 fontWeight: 800,
                                 cursor: 'pointer',
                                 whiteSpace: 'nowrap',
@@ -748,12 +743,11 @@ function ChatContent() {
                     <img
                       src={msg.image}
                       alt="Ảnh đính kèm"
-                      className={styles.msgImage}
-                      onClick={() => window.open(msg.image, '_blank')}
+                      className={styles.msgImg}
                     />
                   )}
 
-                  <span className={styles.msgTime}>{timeStr}</span>
+                  <div className={styles.msgTime}>{timeStr}</div>
                 </div>
               </div>
             );
@@ -763,33 +757,39 @@ function ChatContent() {
             <div key={msg._id || msg.id || idx} className={styles.userMsgRow}>
               <div className={styles.userBubble}>
                 {msg.product && (
-                  <div className={styles.msgProductCard}>
+                  <div
+                    className={styles.msgProductCard}
+                    style={{ background: 'rgba(255, 255, 255, 0.15)', borderColor: 'rgba(255, 255, 255, 0.3)' }}
+                  >
                     <img
                       src={msg.product.image || '/file.svg'}
                       alt={msg.product.name}
                       className={styles.msgProductImg}
                     />
                     <div className={styles.msgProductInfo}>
-                      <span className={styles.msgProductName}>{msg.product.name}</span>
-                      <span className={styles.msgProductPrice}>{formatPrice(msg.product.price)}</span>
+                      <span className={styles.msgProductName} style={{ color: '#fff' }}>
+                        {msg.product.name}
+                      </span>
+                      <span className={styles.msgProductPrice} style={{ color: '#fff' }}>
+                        {formatPrice(msg.product.price)}
+                      </span>
                     </div>
                   </div>
                 )}
 
-                {msg.text && <div>{msg.text}</div>}
+                {msg.text && <FormattedMessageText text={msg.text} />}
 
                 {msg.image && (
                   <img
                     src={msg.image}
                     alt="Ảnh đính kèm"
-                    className={styles.msgImage}
-                    onClick={() => window.open(msg.image, '_blank')}
+                    className={styles.msgImg}
                   />
                 )}
 
-                <span className={styles.userMsgTime}>
-                  {timeStr} <FiCheckCircle size={10} style={{ display: 'inline', marginLeft: 2 }} />
-                </span>
+                <div className={styles.msgTime} style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                  {timeStr}
+                </div>
               </div>
             </div>
           );
@@ -797,8 +797,13 @@ function ChatContent() {
 
         {isAdminTyping && (
           <div className={styles.typingRow}>
+            <div className={styles.shopAvatar} style={{ width: 26, height: 26, fontSize: 10 }}>
+              {avatarInitials}
+            </div>
             <div className={styles.typingBubble}>
-              <span>🤖 AI Trợ Lý đang soạn tin nhắn...</span>
+              <span className={styles.typingDot} />
+              <span className={styles.typingDot} />
+              <span className={styles.typingDot} />
             </div>
           </div>
         )}
@@ -806,29 +811,13 @@ function ChatContent() {
         <div ref={chatEndRef} />
       </div>
 
-      {/* ===== QUICK PROMPTS ROW ===== */}
-      <div
-        style={{
-          padding: '6px 12px',
-          display: 'flex',
-          gap: 6,
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          background: 'var(--bg-main, #090a0f)',
-          borderTop: '1px solid var(--border-color, #232838)',
-        }}
-      >
-        {[
-          { label: '📏 Tư vấn size', prompt: 'Shop tư vấn chọn size giúp mình với ạ' },
-          { label: '🔍 Tra cứu đơn #ST...', prompt: 'Kiểm tra đơn hàng giúp mình' },
-          { label: '🚚 Phí ship & Freeship', prompt: 'Chính sách freeship và thời gian giao hàng thế nào ạ?' },
-          { label: '🛡️ Đổi trả 7 ngày', prompt: 'Chính sách đổi trả hàng như thế nào ạ?' },
-        ].map((chip, cIdx) => (
+      {/* ===== QUICK SUGGESTION PROMPTS ===== */}
+      <div className={styles.quickPromptBar}>
+        {QUICK_PROMPTS.map((chip, idx) => (
           <button
-            key={cIdx}
+            key={idx}
             type="button"
-            className={styles.quickPromptChip}
-            style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+            className={styles.quickPromptBtn}
             onClick={() => handleQuickPrompt(chip.prompt)}
           >
             {chip.label}
@@ -836,8 +825,8 @@ function ChatContent() {
         ))}
       </div>
 
-      {/* ===== FIXED BOTTOM INPUT BAR ===== */}
-      <div className={styles.inputBar}>
+      {/* ===== INPUT FOOTER ===== */}
+      <div className={styles.inputFooter}>
         <input
           type="file"
           ref={fileInputRef}
@@ -847,16 +836,16 @@ function ChatContent() {
         />
         <button
           type="button"
-          className={styles.attachBtn}
+          className={styles.uploadBtn}
           onClick={() => fileInputRef.current?.click()}
           title="Gửi hình ảnh"
           disabled={isUploading}
         >
-          <FiImage />
+          <FiImage size={18} />
         </button>
 
         <form
-          className={styles.chatForm}
+          className={styles.inputWrapper}
           onSubmit={(e) => {
             e.preventDefault();
             handleSend();
@@ -864,8 +853,8 @@ function ChatContent() {
         >
           <input
             type="text"
-            className={styles.chatInput}
-            placeholder={isUploading ? 'Đang tải ảnh...' : 'Nhập tin nhắn với Shop...'}
+            className={styles.textInput}
+            placeholder={isUploading ? 'Đang tải ảnh lên...' : 'Nhập tin nhắn với Shop...'}
             value={inputMsg}
             onChange={handleInputChange}
             disabled={isUploading}
@@ -877,59 +866,53 @@ function ChatContent() {
             disabled={!inputMsg.trim() || isSending || isUploading}
             aria-label="Gửi"
           >
-            <FiSend />
+            <FiSend size={15} />
           </button>
         </form>
       </div>
 
       {/* ===== PHONE & NAME MODAL ===== */}
       {showPhoneModal && (
-        <div className={styles.modalBackdrop} onClick={() => setShowPhoneModal(false)}>
+        <div className={styles.modalOverlay} onClick={() => setShowPhoneModal(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 className={styles.modalTitle}>Thông tin liên hệ tư vấn</h3>
             <p className={styles.modalDesc}>
-              Nhập tên và số điện thoại để Shop có thể gọi lại hoặc nhắn tin qua Zalo hỗ trợ bạn tốt nhất.
+              Nhập tên và số điện thoại để Shop có thể gọi lại hoặc nhắn tin qua Zalo hỗ trợ bạn nhanh nhất.
             </p>
 
-            <form onSubmit={handleSaveContactInfo}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Tên của bạn:</label>
-                <div className={styles.inputWrapper}>
-                  <FiUser className={styles.inputIcon} />
-                  <input
-                    type="text"
-                    className={styles.formInput}
-                    placeholder="VD: Anh Tuấn / Chị Mai"
-                    value={nameInput}
-                    onChange={(e) => setNameInput(e.target.value)}
-                  />
-                </div>
+            <form onSubmit={handleSaveContactInfo} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>Tên của bạn:</label>
+                <input
+                  type="text"
+                  className={styles.modalInput}
+                  placeholder="VD: Anh Tuấn / Chị Mai"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                />
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Số điện thoại / Zalo *:</label>
-                <div className={styles.inputWrapper}>
-                  <FiPhone className={styles.inputIcon} />
-                  <input
-                    type="tel"
-                    required
-                    className={styles.formInput}
-                    placeholder="VD: 0987654321"
-                    value={phoneInput}
-                    onChange={(e) => setPhoneInput(e.target.value)}
-                  />
-                </div>
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>Số điện thoại / Zalo *:</label>
+                <input
+                  type="tel"
+                  required
+                  className={styles.modalInput}
+                  placeholder="VD: 0987654321"
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value)}
+                />
               </div>
 
               <div className={styles.modalActions}>
                 <button
                   type="button"
-                  className={styles.cancelBtn}
+                  className={styles.modalCancelBtn}
                   onClick={() => setShowPhoneModal(false)}
                 >
                   Bỏ qua
                 </button>
-                <button type="submit" className={styles.saveBtn}>
+                <button type="submit" className={styles.modalSubmitBtn}>
                   Lưu thông tin
                 </button>
               </div>

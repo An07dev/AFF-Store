@@ -135,27 +135,25 @@ export default function ChatFloatingWidget() {
     }
   }, []);
 
-  // 2. Initialize Default Position inside Container
+  // 2. Initialize Default Position inside Viewport
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const computeDefaultPosition = () => {
-      if (!wrapperRef.current) return;
-      const parent = wrapperRef.current.parentElement;
-      if (!parent) return;
+      const isMobile = window.innerWidth < 768;
+      const btnWidth = 48;
+      const btnHeight = 48;
 
-      const parentRect = parent.getBoundingClientRect();
-      const btnWidth = btnRef.current?.offsetWidth || 130;
-      const btnHeight = btnRef.current?.offsetHeight || 42;
-
-      const defaultX = parentRect.width - btnWidth - 14;
-      const defaultY = parentRect.height - btnHeight - 68;
+      const defaultX = window.innerWidth - btnWidth - (isMobile ? 16 : 24);
+      const defaultY = window.innerHeight - btnHeight - (isMobile ? 75 : 30);
 
       setPosition((prev) => {
         if (prev === null) {
-          return { x: Math.max(8, defaultX), y: Math.max(55, defaultY) };
+          return { x: Math.max(8, defaultX), y: Math.max(20, defaultY) };
         }
-        return prev;
+        const clampedX = Math.max(8, Math.min(prev.x, window.innerWidth - btnWidth - 8));
+        const clampedY = Math.max(20, Math.min(prev.y, window.innerHeight - btnHeight - (isMobile ? 70 : 20)));
+        return { x: clampedX, y: clampedY };
       });
     };
 
@@ -303,15 +301,10 @@ export default function ChatFloatingWidget() {
 
   // 6. Drag & Drop Event Handlers (Mouse & Touch)
   const startDrag = (clientX: number, clientY: number) => {
-    if (!wrapperRef.current || !btnRef.current) return;
-    const parent = wrapperRef.current.parentElement;
-    if (!parent) return;
-
-    const parentRect = parent.getBoundingClientRect();
+    if (!btnRef.current) return;
     const btnRect = btnRef.current.getBoundingClientRect();
-
-    const currentX = position ? position.x : parentRect.width - btnRect.width - 14;
-    const currentY = position ? position.y : parentRect.height - btnRect.height - 68;
+    const currentX = position ? position.x : btnRect.left;
+    const currentY = position ? position.y : btnRect.top;
 
     dragStartRef.current = {
       startX: clientX,
@@ -319,15 +312,14 @@ export default function ChatFloatingWidget() {
       initialX: currentX,
       initialY: currentY,
       hasMoved: false,
-      containerRect: parentRect,
+      containerRect: null,
       btnRect,
     };
     setIsDragging(true);
   };
 
   const moveDrag = (clientX: number, clientY: number) => {
-    const { startX, startY, initialX, initialY, containerRect, btnRect } = dragStartRef.current;
-    if (!containerRect || !btnRect) return;
+    const { startX, startY, initialX, initialY } = dragStartRef.current;
 
     const deltaX = clientX - startX;
     const deltaY = clientY - startY;
@@ -336,13 +328,17 @@ export default function ChatFloatingWidget() {
       dragStartRef.current.hasMoved = true;
     }
 
+    const isMobile = window.innerWidth < 768;
+    const btnWidth = 48;
+    const btnHeight = 48;
+
     let newX = initialX + deltaX;
     let newY = initialY + deltaY;
 
     const minX = 8;
-    const maxX = containerRect.width - btnRect.width - 8;
-    const minY = 52; // Below topbar
-    const maxY = containerRect.height - btnRect.height - 65; // Above bottom nav
+    const maxX = window.innerWidth - btnWidth - 8;
+    const minY = 10;
+    const maxY = window.innerHeight - btnHeight - (isMobile ? 70 : 20);
 
     newX = Math.max(minX, Math.min(newX, maxX));
     newY = Math.max(minY, Math.min(newY, maxY));
@@ -621,23 +617,22 @@ function parseBoldText(str: string, keyPrefix: string) {
   const isLeft = position && position.x < 150;
 
   return (
-    <div
-      ref={wrapperRef}
-      className={`${styles.floatingWrapper} ${isDragging ? styles.dragging : ''}`}
-      style={{
-        transform: position
-          ? `translate3d(${position.x}px, ${position.y}px, 0)`
-          : undefined,
-        right: position ? 'auto' : '16px',
-        bottom: position ? 'auto' : '72px',
-      }}
-    >
-      {/* 1. Mini Popup Window */}
+    <>
+      {/* 1. Mini Popup Window (Fixed & Centered on Mobile, Anchored on PC) */}
       {isOpen && (
         <div
-          className={`${styles.miniPopup} ${
-            position && position.y < 460 ? styles.popupBelow : styles.popupAbove
-          } ${isLeft ? styles.popupLeft : styles.popupRight}`}
+          className={styles.miniPopup}
+          style={
+            typeof window !== 'undefined' && window.innerWidth >= 768 && position
+              ? {
+                  position: 'fixed',
+                  left: isLeft ? `${position.x}px` : undefined,
+                  right: !isLeft ? `${Math.max(16, window.innerWidth - position.x - 48)}px` : undefined,
+                  top: position.y < 460 ? `${position.y + 58}px` : undefined,
+                  bottom: position.y >= 460 ? `${Math.max(16, window.innerHeight - position.y + 10)}px` : undefined,
+                }
+              : undefined
+          }
         >
           <div className={styles.popupHeader}>
             <div className={styles.shopInfoRow}>
@@ -940,28 +935,38 @@ function parseBoldText(str: string, keyPrefix: string) {
         </div>
       )}
 
-      {/* Draggable Floating Action Button */}
-      <button
-        ref={btnRef}
-        type="button"
-        className={`${styles.floatingBtn} ${isOpen ? styles.floatingBtnOpen : ''}`}
-        onClick={handleButtonClick}
-        onMouseDown={(e) => startDrag(e.clientX, e.clientY)}
-        onTouchStart={(e) => {
-          if (e.touches.length > 0) {
-            startDrag(e.touches[0].clientX, e.touches[0].clientY);
-          }
+      {/* 2. Draggable Floating Action Button */}
+      <div
+        ref={wrapperRef}
+        className={`${styles.floatingWrapper} ${isDragging ? styles.dragging : ''}`}
+        style={{
+          transform: position
+            ? `translate3d(${position.x}px, ${position.y}px, 0)`
+            : undefined,
         }}
-        aria-label={isOpen ? 'Đóng hộp thoại chat' : 'Mở chat trực tuyến'}
-        title={isOpen ? 'Đóng chat' : 'Chat với Shop (Kéo thả để di chuyển)'}
       >
-        <span className={styles.floatingIcon}>
-          {isOpen ? <FiX size={20} /> : <FiMessageSquare size={20} />}
-        </span>
-        {unreadCount > 0 && !isOpen && (
-          <span className={styles.unreadBadge}>{unreadCount}</span>
-        )}
-      </button>
-    </div>
+        <button
+          ref={btnRef}
+          type="button"
+          className={`${styles.floatingBtn} ${isOpen ? styles.floatingBtnOpen : ''}`}
+          onClick={handleButtonClick}
+          onMouseDown={(e) => startDrag(e.clientX, e.clientY)}
+          onTouchStart={(e) => {
+            if (e.touches.length > 0) {
+              startDrag(e.touches[0].clientX, e.touches[0].clientY);
+            }
+          }}
+          aria-label={isOpen ? 'Đóng hộp thoại chat' : 'Mở chat trực tuyến'}
+          title={isOpen ? 'Đóng chat' : 'Chat với Shop (Kéo thả để di chuyển)'}
+        >
+          <span className={styles.floatingIcon}>
+            {isOpen ? <FiX size={20} /> : <FiMessageSquare size={20} />}
+          </span>
+          {unreadCount > 0 && !isOpen && (
+            <span className={styles.unreadBadge}>{unreadCount}</span>
+          )}
+        </button>
+      </div>
+    </>
   );
 }

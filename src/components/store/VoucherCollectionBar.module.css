@@ -2,11 +2,23 @@
   margin: 10px 10px 14px;
 }
 
+@media (min-width: 1024px) {
+  .wrapper {
+    margin: 2px 0 4px;
+  }
+}
+
 .sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
+}
+
+@media (min-width: 1024px) {
+  .sectionHeader {
+    margin-bottom: 4px;
+  }
 }
 
 .titleGroup {

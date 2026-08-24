@@ -11,11 +11,16 @@ function BottomNavContent() {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab');
 
-  // Hide BottomNav on dedicated checkout / payment / success flows
+  // Hide BottomNav on dedicated checkout / payment / success / chat / product / cart flows
   const isHiddenRoute =
     pathname === '/checkout' ||
     pathname === '/payment' ||
-    pathname === '/order-success';
+    pathname === '/order-success' ||
+    pathname === '/chat' ||
+    pathname?.startsWith('/chat/') ||
+    pathname?.startsWith('/product') ||
+    pathname === '/cart' ||
+    pathname?.startsWith('/cart');
 
   if (isHiddenRoute) {
     return null;

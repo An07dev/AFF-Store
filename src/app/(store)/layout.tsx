@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import CartDrawer from '@/components/store/CartDrawer';
 import AuthModal from '@/components/store/AuthModal';
 import BottomNav from '@/components/store/BottomNav';
@@ -10,6 +11,11 @@ import FomoLiveNotification from '@/components/store/FomoLiveNotification';
 import styles from './layout.module.css';
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isChatPage = pathname === '/chat' || pathname?.startsWith('/chat/');
+  const isProductPage = pathname?.startsWith('/product');
+  const isCartPage = pathname === '/cart' || pathname?.startsWith('/cart');
+
   return (
     <div className={styles.outerViewport}>
       <MarketingPixelTracker />
@@ -17,8 +23,8 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
         <div className={styles.phoneScreen}>
           {children}
         </div>
-        <ChatFloatingWidget />
-        <BottomNav />
+        {!isChatPage && !isProductPage && !isCartPage && <ChatFloatingWidget />}
+        {!isChatPage && !isProductPage && !isCartPage && <BottomNav />}
       </div>
 
       <FomoLiveNotification />

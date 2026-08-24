@@ -12,9 +12,12 @@ import {
   FiShield,
   FiAlertCircle,
   FiZap,
+  FiHome,
+  FiCheckCircle,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useCart } from '@/contexts/CartContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { formatPrice } from '@/lib/utils';
 import { generateQrUrl } from '@/lib/payment/sepay';
 import StoreLoading from '@/components/store/StoreLoading';
@@ -25,6 +28,7 @@ export default function PaymentPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { removeCheckedOutItems } = useCart();
+  const { theme } = useTheme();
   const orderId = searchParams.get('orderId');
   const code = searchParams.get('code') || '';
 
@@ -179,7 +183,7 @@ export default function PaymentPage() {
   };
 
   if (loading) {
-    return <StoreLoading text="Đang tải mã QR thanh toán VietQR..." />;
+    return <StoreLoading text="Đang tải thông tin thanh toán VietQR..." />;
   }
 
   const amount = order?.totalAmount || 0;
@@ -194,150 +198,184 @@ export default function PaymentPage() {
 
   return (
     <div className={styles.page}>
-      {/* Top Bar */}
+      {/* Top Bar / Breadcrumbs */}
       <nav className={styles.topNav}>
         <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Trang chủ">
           <FiChevronLeft size={22} />
         </button>
-        <div className={styles.navTitle}>Thanh Toán VietQR SePay</div>
+        <div className={styles.navTitle}>Thanh Toán VietQR Tự Động</div>
         <div className={styles.secureBadge}>
-          <FiShield size={14} color="#10b981" />
+          <FiShield size={14} />
           <span>Bảo mật 256-bit</span>
         </div>
       </nav>
 
+      {/* PC Breadcrumb */}
+      <div className={styles.pcBreadcrumbWrap}>
+        <div className={styles.pcBreadcrumb}>
+          <Link href="/" className={styles.pcBreadcrumbLink}>
+            <FiHome size={14} /> Trang Chủ
+          </Link>
+          <span className={styles.pcBreadcrumbDivider}>/</span>
+          <span className={styles.pcBreadcrumbActive}>Thanh Toán Đơn Hàng #{code || order?.orderCode}</span>
+        </div>
+      </div>
+
       <div className={styles.content}>
-        {/* Countdown Header */}
+        {/* Timer Banner */}
         <div className={styles.timerBanner}>
           <FiClock size={16} className={styles.clockIcon} />
           <span>Đơn hàng sẽ tự động hủy sau:</span>
           <span className={styles.countdown}>{formatTimer(timeLeft)}</span>
         </div>
 
-        {/* QR Code Container */}
-        <div className={styles.qrCard}>
-          <div className={styles.bankHeader}>
-            <div className={styles.bankLogoWrap}>
-              <span className={styles.bankBadge}>{(bankConfig.bankCode || 'MBBANK').toUpperCase()}</span>
+        {/* Responsive Grid: 1 Column on Mobile, 2 Columns on PC */}
+        <div className={styles.paymentGrid}>
+          {/* Left / Top: QR Code Container */}
+          <div className={styles.qrCard}>
+            <div className={styles.bankHeader}>
+              <div className={styles.bankLogoWrap}>
+                <span className={styles.bankBadge}>{(bankConfig.bankCode || 'MBBANK').toUpperCase()}</span>
+              </div>
+              <div className={styles.bankTitleBox}>
+                <h3 className={styles.bankName}>{bankConfig.bankName}</h3>
+                <p className={styles.subtext}>Chuyển khoản 24/7 qua mã QR tự động</p>
+              </div>
             </div>
-            <div className={styles.bankTitleBox}>
-              <h3 className={styles.bankName}>{bankConfig.bankName}</h3>
-              <p className={styles.subtext}>Chuyển khoản 24/7 qua mã QR tự động</p>
+
+            <div className={styles.qrWrapper}>
+              <img src={qrUrl} alt="Mã VietQR Thanh Toán" className={styles.qrImage} />
+              <div className={styles.scanHint}>Mở App Ngân Hàng để Quét Mã QR</div>
             </div>
-          </div>
 
-          <div className={styles.qrWrapper}>
-            <img src={qrUrl} alt="Mã VietQR Thanh Toán" className={styles.qrImage} />
-            <div className={styles.scanHint}>Mở App Ngân Hàng để Quét Mã QR</div>
-          </div>
-
-          {/* Realtime Pulsing Status */}
-          <div className={styles.statusIndicator}>
-            <span className={styles.pulseDot}></span>
-            <span>Hệ thống đang tự động nhận diện thanh toán (mỗi 2.5s)...</span>
-          </div>
-        </div>
-
-        {/* Bank Transfer Details Table */}
-        <div className={styles.detailsCard}>
-          <h4 className={styles.detailsTitle}>Thông Tin Chuyển Khoản Thủ Công</h4>
-
-          {/* Amount Row */}
-          <div className={styles.detailRow}>
-            <div className={styles.detailCol}>
-              <span className={styles.detailLabel}>Số tiền cần chuyển:</span>
-              <span className={styles.amountValue}>{formatPrice(amount)}</span>
-            </div>
-            <button
-              className={styles.copyBtn}
-              onClick={() => handleCopy(amount.toString(), 'amount', 'Số tiền')}
-            >
-              {copiedKey === 'amount' ? <FiCheck size={14} color="#10b981" /> : <FiCopy size={14} />}
-              <span>{copiedKey === 'amount' ? 'Đã chép' : 'Sao chép'}</span>
-            </button>
-          </div>
-
-          {/* Content Row */}
-          <div className={`${styles.detailRow} ${styles.importantRow}`}>
-            <div className={styles.detailCol}>
-              <span className={styles.detailLabel}>
-                Nội dung chuyển khoản (bắt buộc đúng):
-              </span>
-              <span className={styles.contentValue}>{transferContent}</span>
-            </div>
-            <button
-              className={styles.copyBtn}
-              onClick={() => handleCopy(transferContent, 'content', 'Nội dung CK')}
-            >
-              {copiedKey === 'content' ? <FiCheck size={14} color="#10b981" /> : <FiCopy size={14} />}
-              <span>{copiedKey === 'content' ? 'Đã chép' : 'Sao chép'}</span>
-            </button>
-          </div>
-
-          {/* Account Number */}
-          <div className={styles.detailRow}>
-            <div className={styles.detailCol}>
-              <span className={styles.detailLabel}>Số tài khoản thụ hưởng:</span>
-              <span className={styles.normalValue}>{bankConfig.accountNumber}</span>
-            </div>
-            <button
-              className={styles.copyBtn}
-              onClick={() => handleCopy(bankConfig.accountNumber, 'acc', 'Số tài khoản')}
-            >
-              {copiedKey === 'acc' ? <FiCheck size={14} color="#10b981" /> : <FiCopy size={14} />}
-              <span>{copiedKey === 'acc' ? 'Đã chép' : 'Sao chép'}</span>
-            </button>
-          </div>
-
-          {/* Account Name */}
-          <div className={styles.detailRow}>
-            <div className={styles.detailCol}>
-              <span className={styles.detailLabel}>Chủ tài khoản:</span>
-              <span className={styles.normalValue}>{bankConfig.accountName}</span>
+            {/* Realtime Pulsing Status */}
+            <div className={styles.statusIndicator}>
+              <span className={styles.pulseDot}></span>
+              <span>Hệ thống tự động nhận diện giao dịch (mỗi 2.5s)...</span>
             </div>
           </div>
 
-          {/* Order Code */}
-          <div className={styles.detailRow}>
-            <div className={styles.detailCol}>
-              <span className={styles.detailLabel}>Mã đơn hàng:</span>
-              <span className={styles.codeValue}>#{code || order?.orderCode}</span>
+          {/* Right / Bottom: Transfer Details & Actions */}
+          <div className={styles.detailsColumn}>
+            {/* Bank Transfer Details Table */}
+            <div className={styles.detailsCard}>
+              <h4 className={styles.detailsTitle}>Thông Tin Chuyển Khoản Thủ Công</h4>
+
+              {/* Amount Row */}
+              <div className={styles.detailRow}>
+                <div className={styles.detailCol}>
+                  <span className={styles.detailLabel}>Số tiền cần chuyển:</span>
+                  <span className={styles.amountValue}>{formatPrice(amount)}</span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.copyBtn}
+                  onClick={() => handleCopy(amount.toString(), 'amount', 'Số tiền')}
+                >
+                  {copiedKey === 'amount' ? <FiCheck size={14} color="#10b981" /> : <FiCopy size={14} />}
+                  <span>{copiedKey === 'amount' ? 'Đã chép' : 'Sao chép'}</span>
+                </button>
+              </div>
+
+              {/* Content Row */}
+              <div className={`${styles.detailRow} ${styles.importantRow}`}>
+                <div className={styles.detailCol}>
+                  <span className={styles.detailLabel}>
+                    Nội dung chuyển khoản (bắt buộc chính xác):
+                  </span>
+                  <span className={styles.contentValue}>{transferContent}</span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.copyBtn}
+                  onClick={() => handleCopy(transferContent, 'content', 'Nội dung CK')}
+                >
+                  {copiedKey === 'content' ? <FiCheck size={14} color="#10b981" /> : <FiCopy size={14} />}
+                  <span>{copiedKey === 'content' ? 'Đã chép' : 'Sao chép'}</span>
+                </button>
+              </div>
+
+              {/* Account Number */}
+              <div className={styles.detailRow}>
+                <div className={styles.detailCol}>
+                  <span className={styles.detailLabel}>Số tài khoản thụ hưởng:</span>
+                  <span className={styles.normalValue}>{bankConfig.accountNumber}</span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.copyBtn}
+                  onClick={() => handleCopy(bankConfig.accountNumber, 'acc', 'Số tài khoản')}
+                >
+                  {copiedKey === 'acc' ? <FiCheck size={14} color="#10b981" /> : <FiCopy size={14} />}
+                  <span>{copiedKey === 'acc' ? 'Đã chép' : 'Sao chép'}</span>
+                </button>
+              </div>
+
+              {/* Account Name */}
+              <div className={styles.detailRow}>
+                <div className={styles.detailCol}>
+                  <span className={styles.detailLabel}>Chủ tài khoản:</span>
+                  <span className={styles.normalValue}>{bankConfig.accountName}</span>
+                </div>
+              </div>
+
+              {/* Order Code */}
+              <div className={styles.detailRow}>
+                <div className={styles.detailCol}>
+                  <span className={styles.detailLabel}>Mã đơn hàng:</span>
+                  <span className={styles.codeValue}>#{code || order?.orderCode}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Warning Note */}
+            <div className={styles.warningBox}>
+              <FiAlertCircle size={16} className={styles.warningIcon} />
+              <p>
+                Vui lòng điền <strong>chính xác nội dung chuyển khoản</strong> để hệ thống tự động kích hoạt đơn hàng ngay lập tức.
+              </p>
+            </div>
+
+            {/* Action Controls */}
+            <div className={styles.actionGroup}>
+              <button
+                type="button"
+                className={styles.checkBtn}
+                onClick={() => checkStatus(true)}
+                disabled={isChecking}
+              >
+                <FiRefreshCw className={isChecking ? styles.spinning : ''} size={16} />
+                <span>{isChecking ? 'Đang kiểm tra...' : 'Tôi Đã Chuyển Khoản'}</span>
+              </button>
+
+              <button
+                type="button"
+                className={styles.demoBtn}
+                onClick={handleSimulatePayment}
+                disabled={simulating}
+                title="Nhấn để mô phỏng SePay gửi webhook thanh toán đơn hàng này"
+              >
+                <FiZap size={15} />
+                <span>{simulating ? 'Đang kích hoạt...' : 'Mô Phỏng Thanh Toán Thành Công (Demo)'}</span>
+              </button>
+
+              <Link href="/" className={styles.homeLink}>
+                Quay về Trang Chủ
+              </Link>
+            </div>
+
+            {/* Trust Assurance Section */}
+            <div className={styles.trustSection}>
+              <div className={styles.trustItem}>
+                <FiShield size={15} className={styles.trustIcon} />
+                <span>Bảo mật giao dịch 100% chuẩn ngân hàng</span>
+              </div>
+              <div className={styles.trustItem}>
+                <FiCheckCircle size={15} className={styles.trustIcon} />
+                <span>Tự động kích hoạt đơn hàng ngay khi nhận tiền</span>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Warning Note */}
-        <div className={styles.warningBox}>
-          <FiAlertCircle size={16} className={styles.warningIcon} />
-          <p>
-            Vui lòng điền <strong>chính xác nội dung chuyển khoản</strong> để hệ thống SePay tự động kích hoạt đơn hàng ngay lập tức.
-          </p>
-        </div>
-
-        {/* Action Controls */}
-        <div className={styles.actionGroup}>
-          <button
-            className={styles.checkBtn}
-            onClick={() => checkStatus(true)}
-            disabled={isChecking}
-          >
-            <FiRefreshCw className={isChecking ? styles.spinning : ''} size={16} />
-            <span>{isChecking ? 'Đang kiểm tra...' : 'Tôi Đã Chuyển Khoản'}</span>
-          </button>
-
-          <button
-            className={styles.demoBtn}
-            onClick={handleSimulatePayment}
-            disabled={simulating}
-            title="Nhấn để mô phỏng SePay gửi webhook thanh toán đơn hàng này"
-          >
-            <FiZap size={15} />
-            <span>{simulating ? 'Đang kích hoạt...' : 'Mô Phỏng Thanh Toán Thành Công (Demo)'}</span>
-          </button>
-
-          <Link href="/" className={styles.homeLink}>
-            Quay về Trang Chủ
-          </Link>
         </div>
       </div>
     </div>

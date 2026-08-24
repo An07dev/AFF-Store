@@ -1,6 +1,8 @@
 .floatingWrapper {
-  position: absolute;
-  z-index: 95;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
   display: flex;
   flex-direction: column;
   font-family: inherit;
@@ -91,43 +93,23 @@
   100% { transform: scale(1); }
 }
 
-/* Mini Chat Popup Window (Fit inside mobile frame with smart positioning) */
+/* Mini Chat Popup Window */
 .miniPopup {
   pointer-events: auto;
-  position: absolute;
-  width: 320px;
+  position: fixed;
+  width: 330px;
   max-width: calc(100vw - 28px);
-  height: 420px;
-  max-height: calc(100vh - 160px);
-  background: var(--bg-card, #13161f);
-  border: 1px solid var(--border-color, #232838);
+  height: 440px;
+  max-height: calc(100vh - 120px);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 18px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   animation: popupSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 100;
-}
-
-.popupAbove {
-  bottom: 58px;
-}
-
-.popupBelow {
-  top: 58px;
-}
-
-.popupRight,
-.popupAlignRight {
-  right: 0;
-  left: auto;
-}
-
-.popupLeft,
-.popupAlignLeft {
-  left: 0;
-  right: auto;
+  z-index: 1000;
 }
 
 @keyframes popupSlideUp {
@@ -399,8 +381,33 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 480px) {
+/* Mobile: Căn chính giữa màn hình khi mở hộp thoại chat */
+@media (max-width: 767px) {
   .miniPopup {
-    width: calc(100vw - 20px);
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    bottom: auto !important;
+    right: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(350px, calc(100vw - 28px)) !important;
+    max-width: calc(100vw - 28px) !important;
+    height: min(460px, calc(100vh - 110px)) !important;
+    max-height: calc(100vh - 110px) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), 0 0 0 9999px rgba(0, 0, 0, 0.35) !important;
+    animation: popupCenterMobile 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    z-index: 1000 !important;
+  }
+
+  @keyframes popupCenterMobile {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -45%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
   }
 }

@@ -1,173 +1,252 @@
-/* ===== TIKTOK SHOP MOBILE CHAT PAGE (Theme Tokens) ===== */
+/* ===== THEME-DRIVEN RESPONSIVE CHAT PAGE (MOBILE, TABLET & PC) ===== */
+
 .page {
-  height: 100%;
-  max-height: 100%;
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: 100dvh;
   width: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--bg-main, #090a0f);
-  color: var(--text-main, #f8fafc);
+  background: var(--bg-main, #f8fafc);
+  color: var(--text-main, #0f172a);
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
+  z-index: 40;
+  font-family: inherit;
 }
 
-/* ===== FIXED TOP NAVIGATION ===== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 5%;
+    right: 5%;
+    width: 90%;
+    height: 100vh;
+    margin: 0 auto;
+    border-radius: var(--radius-lg, 16px);
+    background: var(--bg-card, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 15%;
+    right: 15%;
+    width: 70%;
+    height: 100vh;
+    margin: 0 auto;
+    border-radius: var(--radius-lg, 16px);
+    background: var(--bg-card, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* ==========================================================================
+   1. FIXED TOP NAVIGATION
+   ========================================================================== */
 .topNav {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  background: var(--navbar-bg, #090a0f);
-  border-bottom: 1px solid var(--border-color, #232838);
+  padding: 10px 14px;
+  background: var(--navbar-bg, var(--bg-card, #ffffff));
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   z-index: 40;
-  gap: 8px;
+  gap: 10px;
+  transition: all 0.25s ease;
 }
 
 .backBtn {
   background: none;
   border: none;
-  color: var(--text-main, #f8fafc);
+  color: var(--text-main, #0f172a);
   padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   border-radius: 50%;
-  transition: color 0.15s;
+  transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
 .backBtn:hover {
-  color: var(--primary, #3b82f6);
+  color: var(--primary, #ee4d2d);
+  background: var(--bg-card-hover, #f1f5f9);
 }
 
 .navShopInfo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex: 1;
   min-width: 0;
 }
 
 .shopAvatar {
-  width: 26px;
-  height: 26px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--primary, #3b82f6);
+  background: linear-gradient(135deg, var(--primary, #ee4d2d) 0%, #ff6b4a 100%);
   color: var(--primary-text, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   flex-shrink: 0;
   position: relative;
+  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.25);
+  overflow: visible;
 }
 
 .onlineDot {
   position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 6px;
-  height: 6px;
+  bottom: 0;
+  right: 0;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: #10b981;
-  border: 1.5px solid var(--bg-main, #090a0f);
-  box-shadow: 0 0 4px #10b981;
+  border: 2px solid var(--bg-card, #ffffff);
+  box-shadow: 0 0 6px #10b981;
 }
 
 .shopText {
   display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+
+.shopNameRow {
+  display: flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
 }
 
 .shopName {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--text-main, #f8fafc);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-main, #0f172a);
   white-space: nowrap;
-  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
-.shopDivider {
-  font-size: 9px;
-  color: var(--text-dim, #64748b);
-  opacity: 0.7;
-  flex-shrink: 0;
+.mallBadge {
+  background: #d0011b;
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
 }
 
 .onlineStatus {
-  font-size: 10px;
-  color: var(--text-muted, #94a3b8);
+  font-size: 11px;
+  color: var(--text-muted, #64748b);
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   white-space: nowrap;
-  line-height: 1;
 }
 
 .navActions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
+.phonePillBtn {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-main, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-main, #0f172a);
+  padding: 5px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.phonePillBtn:hover {
+  border-color: var(--primary, #ee4d2d);
+  color: var(--primary, #ee4d2d);
+}
+
 .actionBtn {
-  background: var(--bg-card, #13161f);
-  border: 1px solid var(--border-color, #232838);
-  color: var(--primary, #3b82f6);
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
+  background: var(--bg-main, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-main, #0f172a);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
 .actionBtn:hover {
-  background: var(--bg-card-hover, #1a1e2b);
+  color: var(--primary, #ee4d2d);
+  border-color: var(--primary, #ee4d2d);
+  background: rgba(238, 77, 45, 0.08);
 }
 
-/* ===== PRODUCT PINNED BANNER ===== */
-.pinnedProductCard,
-.productPinnedCard {
-  background: var(--bg-card, #13161f);
-  border-bottom: 1px solid var(--border-color, #232838);
-  padding: 8px 12px;
+@media (min-width: 768px) {
+  .phonePillBtn {
+    display: inline-flex;
+  }
+}
+
+/* ==========================================================================
+   2. PINNED INQUIRING PRODUCT CARD
+   ========================================================================== */
+.pinnedProductCard {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-shrink: 0;
-  width: 100%;
-  box-sizing: border-box;
+  padding: 10px 14px;
+  background: var(--bg-card, #ffffff);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  z-index: 30;
+  animation: slideDown 0.2s ease;
 }
 
-.pinnedProductImg,
-.productPinnedImg {
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.pinnedProductImg {
   width: 44px;
   height: 44px;
-  min-width: 44px;
-  max-width: 44px;
-  min-height: 44px;
-  max-height: 44px;
   border-radius: 8px;
   object-fit: cover;
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
-.pinnedProductDetails,
-.productPinnedInfo {
+.pinnedProductDetails {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -175,51 +254,50 @@
   gap: 2px;
 }
 
-.pinnedProductName,
-.productPinnedTitle {
+.pinnedProductName {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--text-main, #0f172a);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--text-main, #f8fafc);
 }
 
 .pinnedProductPriceRow {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 6px;
 }
 
-.pinnedProductPrice,
-.productPinnedPrice {
-  font-size: 12px;
+.pinnedProductPrice {
+  font-size: 13px;
   font-weight: 800;
-  color: #ef4444;
+  color: var(--primary, #ee4d2d);
 }
 
 .pinnedProductOldPrice {
-  font-size: 10px;
+  font-size: 10.5px;
+  color: var(--text-muted, #94a3b8);
   text-decoration: line-through;
-  color: var(--text-dim, #64748b);
 }
 
 .sendProductInquiryBtn {
-  padding: 6px 12px;
-  background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
-  color: #ffffff;
+  background: var(--primary, #ee4d2d);
+  color: var(--primary-text, #ffffff);
   border: none;
-  border-radius: 6px;
-  font-size: 11px;
+  border-radius: 9999px;
+  padding: 6px 12px;
+  font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0;
-  transition: opacity 0.15s;
+  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.25);
+  transition: all 0.15s ease;
 }
 
 .sendProductInquiryBtn:hover {
-  opacity: 0.9;
+  background: var(--primary-hover, #d73211);
+  transform: scale(1.02);
 }
 
 .closePinnedBtn {
@@ -231,456 +309,427 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  flex-shrink: 0;
-  transition: color 0.15s;
 }
 
-.closePinnedBtn:hover {
-  color: var(--text-main, #fff);
-}
-
-/* ===== CHAT MESSAGES SCROLL AREA ===== */
+/* ==========================================================================
+   3. CHAT MESSAGES SCROLL AREA
+   ========================================================================== */
 .chatArea {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  min-height: 0;
-  padding: 14px 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background: var(--bg-main, #f8fafc);
+  scroll-behavior: smooth;
   width: 100%;
   max-width: 100%;
-  min-width: 0;
   box-sizing: border-box;
 }
 
 .timeDivider {
   align-self: center;
-  font-size: 10px;
-  color: var(--text-dim, #64748b);
-  background: var(--bg-card, #13161f);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
   padding: 3px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color, #232838);
-  margin-bottom: 4px;
+  border-radius: 9999px;
+  margin: 4px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-/* Lead Phone Prompt Card */
-.leadPromptCard {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
-  border: 1px dashed rgba(59, 130, 246, 0.35);
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.leadPromptHeader {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--primary, #3b82f6);
-}
-
-.leadPromptDesc {
-  font-size: 11px;
-  color: var(--text-muted, #94a3b8);
-  line-height: 1.4;
-  margin: 0;
-}
-
-.leadPromptBtn {
-  align-self: flex-start;
-  background: var(--primary, #3b82f6);
-  color: #fff;
-  border: none;
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 2px;
-}
-
-/* Shop Message Bubble */
+/* Message Rows */
 .shopMsgRow {
   display: flex;
+  align-items: flex-end;
   gap: 8px;
-  align-items: flex-start;
-  max-width: 90%;
+  max-width: 88%;
+  align-self: flex-start;
   min-width: 0;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.shopAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--primary, #3b82f6);
-  color: var(--primary-text, #ffffff);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  flex-shrink: 0;
 }
 
 .shopBubble {
-  background: var(--bg-card, #13161f);
-  border: 1px solid var(--border-color, #232838);
-  border-radius: 14px;
-  border-top-left-radius: 2px;
+  background: var(--bg-card, #ffffff);
+  color: var(--text-main, #0f172a);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 16px 16px 16px 4px;
   padding: 10px 12px;
-  color: var(--text-main, #f8fafc);
   font-size: 13px;
   line-height: 1.5;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-  max-width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  position: relative;
   word-break: break-word;
   overflow-wrap: anywhere;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.userMsgRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 88%;
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  min-width: 0;
+}
+
+.userBubble {
+  background: var(--primary, #ee4d2d);
+  color: var(--primary-text, #ffffff);
+  border-radius: 16px 16px 4px 16px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 3px 10px rgba(238, 77, 45, 0.25);
+  position: relative;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
 .msgTime {
-  font-size: 10px;
-  color: var(--text-dim, #64748b);
-  align-self: flex-end;
-  margin-top: 2px;
-}
-
-/* User Message Bubble */
-.userMsgRow {
-  align-self: flex-end;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  max-width: 90%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-.userBubble {
-  background: var(--primary, #3b82f6);
-  color: var(--primary-text, #ffffff);
-  border-radius: 14px;
-  border-top-right-radius: 2px;
-  padding: 10px 12px;
-  font-size: 13px;
-  line-height: 1.5;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  max-width: 100%;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  box-sizing: border-box;
-}
-
-.userBubble .msgTime {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.msgImage {
-  max-width: 200px;
-  border-radius: 8px;
+  font-size: 9.5px;
+  color: var(--text-muted, #94a3b8);
   margin-top: 4px;
-  cursor: pointer;
+  align-self: flex-end;
 }
 
-/* Attached Product Card Inside Message */
+.userMsgRow .msgTime {
+  align-self: flex-start;
+}
+
+.msgImg {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-top: 6px;
+  display: block;
+}
+
+/* In-message Product Card */
 .msgProductCard {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  padding: 6px 8px;
   display: flex;
   align-items: center;
   gap: 8px;
+  background: var(--bg-main, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  padding: 6px 8px;
   margin-bottom: 6px;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .msgProductImg {
-  width: 38px;
-  height: 38px;
-  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .msgProductInfo {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  font-size: 11px;
 }
 
 .msgProductName {
-  font-weight: 700;
-  max-width: 140px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-main, #0f172a);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .msgProductPrice {
-  color: #FFB800;
+  font-size: 12px;
   font-weight: 800;
+  color: var(--primary, #ee4d2d);
 }
 
-/* Typing box */
-.typingBox {
-  align-self: flex-start;
+/* Typing Indicator */
+.typingRow {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--bg-card, #13161f);
-  border: 1px solid var(--border-color, #232838);
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 11px;
-  color: var(--text-muted, #94a3b8);
+  align-self: flex-start;
 }
 
-.typingDots {
+.typingBubble {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 14px;
+  padding: 8px 12px;
   display: flex;
-  gap: 3px;
+  align-items: center;
+  gap: 4px;
 }
 
-.typingDots span {
+.typingDot {
   width: 5px;
   height: 5px;
-  background: var(--primary, #3b82f6);
   border-radius: 50%;
-  animation: typingBounce 1.4s infinite ease-in-out both;
+  background: var(--text-muted, #94a3b8);
+  animation: bounce 1.2s infinite ease-in-out;
 }
 
-.typingDots span:nth-child(1) { animation-delay: -0.32s; }
-.typingDots span:nth-child(2) { animation-delay: -0.16s; }
+.typingDot:nth-child(2) { animation-delay: 0.2s; }
+.typingDot:nth-child(3) { animation-delay: 0.4s; }
 
-@keyframes typingBounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
 }
 
-/* Quick Suggestion Chips */
-.quickChipsWrap {
-  margin: 6px 0 6px 40px;
+/* ==========================================================================
+   4. QUICK SUGGESTION PROMPTS
+   ========================================================================== */
+.quickPromptBar {
   display: flex;
-  flex-direction: column;
   gap: 6px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  flex-shrink: 0;
 }
 
-.quickChip {
-  background: var(--bg-main, #090a0f);
-  border: 1px dashed var(--primary, #3b82f6);
-  color: var(--primary, #3b82f6);
-  padding: 7px 12px;
-  border-radius: 8px;
-  font-size: 12px;
+.quickPromptBar::-webkit-scrollbar {
+  display: none;
+}
+
+.quickPromptBtn {
+  flex-shrink: 0;
+  background: var(--bg-main, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-main, #0f172a);
+  padding: 5px 11px;
+  border-radius: 9999px;
+  font-size: 11px;
   font-weight: 600;
-  text-align: left;
   cursor: pointer;
-  transition: all 0.15s;
+  white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
-.quickChip:hover {
-  background: var(--bg-card-hover, #1a1e2b);
-  transform: translateX(3px);
+.quickPromptBtn:hover {
+  border-color: var(--primary, #ee4d2d);
+  color: var(--primary, #ee4d2d);
+  background: rgba(238, 77, 45, 0.06);
 }
 
-/* ===== FIXED BOTTOM INPUT BAR ===== */
-.inputBar {
+/* ==========================================================================
+   5. INPUT FOOTER
+   ========================================================================== */
+.inputFooter {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  background: var(--bg-card, #13161f);
-  border-top: 1px solid var(--border-color, #232838);
-  z-index: 50;
+  padding: 10px 14px;
+  background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  z-index: 30;
 }
 
-.attachBtn {
-  background: none;
-  border: none;
-  color: var(--text-muted, #94a3b8);
-  font-size: 18px;
-  padding: 6px;
-  cursor: pointer;
+.uploadBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--bg-main, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-muted, #64748b);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.15s;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
 }
 
-.attachBtn:hover {
-  color: var(--primary, #3b82f6);
+.uploadBtn:hover {
+  color: var(--primary, #ee4d2d);
+  border-color: var(--primary, #ee4d2d);
 }
 
-.chatForm {
+.inputWrapper {
   flex: 1;
   display: flex;
   align-items: center;
-  background: var(--bg-main, #090a0f);
-  border: 1px solid var(--border-color, #232838);
-  border-radius: 20px;
-  padding: 4px 6px 4px 14px;
+  background: var(--bg-main, #f8fafc);
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  border-radius: 9999px;
+  padding: 2px 14px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.chatInput {
+.inputWrapper:focus-within {
+  border-color: var(--primary, #ee4d2d);
+  background: var(--bg-card, #ffffff);
+  box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.12);
+}
+
+.textInput {
   flex: 1;
-  background: none;
+  height: 38px;
+  background: transparent;
   border: none;
   outline: none;
   font-size: 13px;
-  color: var(--text-main, #ffffff);
+  color: var(--text-main, #0f172a);
+  min-width: 0;
 }
 
-.chatInput::placeholder {
-  color: var(--text-dim, #64748b);
+.textInput::placeholder {
+  color: var(--text-muted, #94a3b8);
+  font-size: 12.5px;
 }
 
 .sendBtn {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: var(--primary, #3b82f6);
+  background: var(--primary, #ee4d2d);
   color: var(--primary-text, #ffffff);
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 14px;
-  transition: opacity 0.15s;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(238, 77, 45, 0.3);
+  transition: all 0.2s ease;
 }
 
-.sendBtn:hover {
-  opacity: 0.9;
+.sendBtn:hover:not(:disabled) {
+  background: var(--primary-hover, #d73211);
+  transform: scale(1.05);
 }
 
 .sendBtn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Modal */
-.modalBackdrop {
-  position: absolute;
+/* ==========================================================================
+   6. PHONE MODAL DIALOG
+   ========================================================================== */
+.modalOverlay {
+  position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
-  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  animation: fadeIn 0.2s;
+  z-index: 100;
+  padding: 16px;
 }
 
 .modalContent {
-  background: var(--bg-card, #13161f);
-  border: 1px solid var(--border-color, #232838);
-  border-radius: 16px;
-  padding: 20px;
   width: 100%;
-  max-width: 340px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  max-width: 360px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--radius-lg, 16px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .modalTitle {
   font-size: 15px;
-  font-weight: 700;
-  color: var(--text-main, #f8fafc);
-  margin-bottom: 6px;
+  font-weight: 800;
+  color: var(--text-main, #0f172a);
+  margin: 0;
 }
 
 .modalDesc {
   font-size: 12px;
-  color: var(--text-muted, #94a3b8);
-  line-height: 1.4;
-  margin-bottom: 16px;
+  color: var(--text-muted, #64748b);
+  line-height: 1.45;
+  margin: 0;
 }
 
-.formGroup {
+.modalField {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 14px;
+  gap: 4px;
 }
 
-.formLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-main, #f8fafc);
+.modalLabel {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
 }
 
-.inputWrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--bg-main, #090a0f);
-  border: 1px solid var(--border-color, #232838);
+.modalInput {
+  height: 40px;
+  background: var(--bg-main, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 8px;
-  padding: 8px 12px;
-}
-
-.inputIcon {
-  color: var(--primary, #3b82f6);
-}
-
-.formInput {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
+  padding: 0 12px;
   font-size: 13px;
-  color: var(--text-main, #f8fafc);
+  color: var(--text-main, #0f172a);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.modalInput:focus {
+  border-color: var(--primary, #ee4d2d);
 }
 
 .modalActions {
   display: flex;
   gap: 8px;
-  margin-top: 18px;
+  margin-top: 4px;
 }
 
-.cancelBtn {
+.modalCancelBtn {
   flex: 1;
-  background: var(--bg-card-hover, #1a1e2b);
-  border: 1px solid var(--border-color, #232838);
-  color: var(--text-muted, #94a3b8);
-  padding: 8px;
+  height: 38px;
+  background: var(--bg-main, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 8px;
-  font-size: 12px;
+  color: var(--text-muted, #64748b);
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
 }
 
-.saveBtn {
+.modalSubmitBtn {
   flex: 1;
-  background: var(--primary, #3b82f6);
+  height: 38px;
+  background: var(--primary, #ee4d2d);
   border: none;
-  color: #fff;
-  padding: 8px;
   border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
+  color: var(--primary-text, #ffffff);
+  font-size: 12.5px;
+  font-weight: 700;
   cursor: pointer;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.25);
 }

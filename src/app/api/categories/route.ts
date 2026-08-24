@@ -9,19 +9,49 @@ export async function GET() {
     await connectToDatabase();
     const categories = await Category.find({}).sort({ order: 1, createdAt: -1 });
 
-    // Aggregate product counts for each category
-    const counts = await Product.aggregate([
-      { $group: { _id: '$category', count: { $sum: 1 } } },
-    ]);
-
-    const countMap = new Map();
-    counts.forEach((c) => {
-      if (c._id) countMap.set(c._id.toString(), c.count);
-    });
+    // Fetch all products to reliably match category images
+    const allProducts = await Product.find({
+      status: 'active',
+      images: { $exists: true, $ne: [] },
+    }).select('category images name').lean();
 
     const categoriesWithCount = categories.map((cat) => {
       const catObj = cat.toObject();
-      catObj.productCount = countMap.get(cat._id.toString()) || 0;
+      const catIdStr = cat._id.toString();
+      const catSlug = (cat.slug || '').toLowerCase().trim();
+      const catName = (cat.name || '').toLowerCase().trim();
+
+      // Find all products matching this category
+      const matchedProducts = allProducts.filter((p: any) => {
+        if (!p.category) return false;
+        const pCatStr = (typeof p.category === 'object' ? p.category._id || p.category.toString() : p.category).toString();
+        const pCatSlug = (p.category.slug || p.category || '').toString().toLowerCase().trim();
+        const pCatName = (p.category.name || '').toString().toLowerCase().trim();
+
+        return (
+          pCatStr === catIdStr ||
+          pCatSlug === catSlug ||
+          pCatName === catName ||
+          pCatStr === catSlug ||
+          pCatStr === catName
+        );
+      });
+
+      // Lấy ảnh của 1 sản phẩm bất kỳ thuộc danh mục đó
+      let sampleProductImg = '';
+      if (matchedProducts.length > 0) {
+        for (const prod of matchedProducts) {
+          if (prod.images && prod.images.length > 0 && prod.images[0]) {
+            sampleProductImg = prod.images[0];
+            break;
+          }
+        }
+      }
+
+      catObj.productCount = matchedProducts.length;
+      // Ưu tiên 100% ảnh sản phẩm thực tế của danh mục
+      catObj.sampleImage = sampleProductImg;
+      catObj.image = sampleProductImg || catObj.image || '';
       return catObj;
     });
 
