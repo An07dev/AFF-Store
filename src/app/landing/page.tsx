@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   FiZap,
@@ -12,6 +12,7 @@ import {
   FiCheck,
   FiChevronDown,
   FiChevronUp,
+  FiChevronRight,
   FiArrowRight,
   FiLayers,
   FiShield,
@@ -32,6 +33,18 @@ import styles from './page.module.css';
 export default function LandingPage() {
   // Mobile Menu State
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Lock body scroll when mobile menu drawer is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
   // 399k Package Order Modal State
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
@@ -307,117 +320,138 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Mobile Navigation Drawer (Rendered outside header to prevent stacking context bug) */}
+      {/* Mobile Navigation Drawer Overlay (Full screen backdrop + slide-in panel) */}
       {isMobileMenuOpen && (
-        <div className={styles.mobileMenuDrawer}>
-          <ul className={styles.mobileNavList}>
-            <li>
-              <a
-                href="#goi-ngoai-san"
-                className={`${styles.mobileNavItem} ${styles.mobileNavItemHighlight}`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1 }}>🔥</span>
-                  <span>Gói Bán Hàng Ngoại Sàn (399K)</span>
+        <div className={styles.mobileDrawerOverlay} onClick={() => setIsMobileMenuOpen(false)}>
+          <div className={styles.mobileMenuDrawer} onClick={(e) => e.stopPropagation()}>
+            {/* Drawer Header */}
+            <div className={styles.drawerHeader}>
+              <div className={styles.drawerLogo}>
+                <div className={styles.logoIcon}>
+                  <FiShoppingBag size={18} />
                 </div>
-                <span style={{ fontSize: 11, background: '#ee4d2d', color: '#fff', padding: '3px 8px', borderRadius: 10, fontWeight: 900, whiteSpace: 'nowrap', flexShrink: 0 }}>
-                  HOT
-                </span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#so-sanh"
-                className={styles.mobileNavItem}
+                <span>ShopTik<span style={{ color: '#ee4d2d' }}>.</span></span>
+              </div>
+              <button
+                type="button"
+                className={styles.drawerCloseBtn}
                 onClick={() => setIsMobileMenuOpen(false)}
+                aria-label="Đóng menu"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1 }}>⚖️</span>
-                  <span>So Sánh: Trên Sàn vs Ngoại Sàn</span>
-                </div>
-                <FiArrowRight size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
-              </a>
-            </li>
-            <li>
-              <a
-                href="#features"
-                className={styles.mobileNavItem}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1 }}>⚡</span>
-                  <span>7 Trụ Cột Đột Phá Khác Biệt</span>
-                </div>
-                <FiArrowRight size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
-              </a>
-            </li>
-            <li>
-              <a
-                href="#themes"
-                className={styles.mobileNavItem}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1 }}>🎨</span>
-                  <span>Thử Nghiệm Multi-Theme</span>
-                </div>
-                <FiArrowRight size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
-              </a>
-            </li>
-            <li>
-              <a
-                href="#hosting"
-                className={styles.mobileNavItem}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1 }}>🚀</span>
-                  <span>Ưu Đãi Hosting & Tên Miền Free</span>
-                </div>
-                <FiArrowRight size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
-              </a>
-            </li>
-            <li>
-              <a
-                href="#faq"
-                className={styles.mobileNavItem}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1 }}>❓</span>
-                  <span>Hỏi Đáp Thường Gặp (FAQ)</span>
-                </div>
-                <FiArrowRight size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
-              </a>
-            </li>
-          </ul>
+                <FiX size={20} />
+              </button>
+            </div>
 
-          <div className={styles.mobileDrawerCtas}>
-            <button
-              type="button"
-              className={`${styles.btnPrimary} ${styles.btnGradientShopee} ${styles.mobileBtnFull}`}
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                setIsPackageModalOpen(true);
-              }}
-            >
-              <FiZap size={18} /> ĐĂNG KÝ GÓI NGOẠI SÀN 399K
-            </button>
-            <Link
-              href="/"
-              className={`${styles.btnSecondary} ${styles.mobileBtnFull}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <FiShoppingBag size={18} /> Xem Cửa Hàng Demo Trực Tiếp
-            </Link>
-            <Link
-              href="/admin"
-              className={`${styles.btnSecondary} ${styles.mobileBtnFull}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <FiZap size={18} /> Trải Nghiệm Trang Quản Trị Admin
-            </Link>
+            {/* Navigation Links List */}
+            <div className={styles.drawerNavSection}>
+              <div className={styles.drawerSectionLabel}>ĐIỀU HƯỚNG NHANH</div>
+              <div className={styles.drawerNavList}>
+                <a
+                  href="#goi-ngoai-san"
+                  className={`${styles.drawerNavItem} ${styles.drawerNavItemHighlight}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className={styles.drawerNavLeft}>
+                    <span className={styles.drawerNavEmoji}>🔥</span>
+                    <span className={styles.drawerNavText}>Gói Bán Hàng Ngoại Sàn (399K)</span>
+                  </div>
+                  <span className={styles.drawerHotBadge}>HOT</span>
+                </a>
+
+                <a
+                  href="#so-sanh"
+                  className={styles.drawerNavItem}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className={styles.drawerNavLeft}>
+                    <span className={styles.drawerNavEmoji}>⚖️</span>
+                    <span className={styles.drawerNavText}>So Sánh: Trên Sàn vs Ngoại Sàn</span>
+                  </div>
+                  <FiChevronRight size={18} className={styles.drawerNavChevron} />
+                </a>
+
+                <a
+                  href="#features"
+                  className={styles.drawerNavItem}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className={styles.drawerNavLeft}>
+                    <span className={styles.drawerNavEmoji}>⚡</span>
+                    <span className={styles.drawerNavText}>7 Trụ Cột Đột Phá Khác Biệt</span>
+                  </div>
+                  <FiChevronRight size={18} className={styles.drawerNavChevron} />
+                </a>
+
+                <a
+                  href="#themes"
+                  className={styles.drawerNavItem}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className={styles.drawerNavLeft}>
+                    <span className={styles.drawerNavEmoji}>🎨</span>
+                    <span className={styles.drawerNavText}>Thử Nghiệm Multi-Theme</span>
+                  </div>
+                  <FiChevronRight size={18} className={styles.drawerNavChevron} />
+                </a>
+
+                <a
+                  href="#hosting"
+                  className={styles.drawerNavItem}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className={styles.drawerNavLeft}>
+                    <span className={styles.drawerNavEmoji}>🚀</span>
+                    <span className={styles.drawerNavText}>Ưu Đãi Hosting & Tên Miền Free</span>
+                  </div>
+                  <FiChevronRight size={18} className={styles.drawerNavChevron} />
+                </a>
+
+                <a
+                  href="#faq"
+                  className={styles.drawerNavItem}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className={styles.drawerNavLeft}>
+                    <span className={styles.drawerNavEmoji}>❓</span>
+                    <span className={styles.drawerNavText}>Hỏi Đáp Thường Gặp (FAQ)</span>
+                  </div>
+                  <FiChevronRight size={18} className={styles.drawerNavChevron} />
+                </a>
+              </div>
+            </div>
+
+            {/* Action CTA Buttons */}
+            <div className={styles.drawerCtas}>
+              <button
+                type="button"
+                className={styles.drawerPrimaryBtn}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsPackageModalOpen(true);
+                }}
+              >
+                <FiZap size={18} />
+                <span>ĐĂNG KÝ GÓI NGOẠI SÀN 399K</span>
+              </button>
+
+              <Link
+                href="/"
+                className={styles.drawerSecondaryBtn}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <FiShoppingBag size={17} />
+                <span>Xem Cửa Hàng Demo Trực Tiếp</span>
+              </Link>
+
+              <Link
+                href="/admin"
+                className={styles.drawerSecondaryBtn}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <FiZap size={17} />
+                <span>Trải Nghiệm Trang Quản Trị Admin</span>
+              </Link>
+            </div>
           </div>
         </div>
       )}
