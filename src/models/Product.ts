@@ -15,6 +15,7 @@ export interface IVariant {
   attributes?: Record<string, string>;
   price: number;
   salePrice?: number;
+  originalPrice?: number;
   stock: number;
   image?: string;
 }

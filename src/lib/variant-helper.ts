@@ -10,6 +10,7 @@ export interface IVariantItem {
   attributes: Record<string, string>;
   price: number;
   salePrice?: number;
+  originalPrice?: number;
   stock: number;
   image?: string;
 }

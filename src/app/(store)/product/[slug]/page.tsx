@@ -365,8 +365,17 @@ export default function ProductDetailPage() {
     if (flashSaleItem?.originalPrice) {
       return flashSaleItem.originalPrice;
     }
-    if (matchedVariant?.originalPrice) {
-      return matchedVariant.originalPrice;
+    if (matchedVariant) {
+      if (
+        typeof matchedVariant.salePrice === 'number' &&
+        matchedVariant.salePrice > 0 &&
+        matchedVariant.price > matchedVariant.salePrice
+      ) {
+        return matchedVariant.price;
+      }
+      if (matchedVariant.originalPrice && matchedVariant.originalPrice > currentPrice) {
+        return matchedVariant.originalPrice;
+      }
     }
     if (baseOriginalPrice && baseOriginalPrice > currentPrice) {
       return baseOriginalPrice;
