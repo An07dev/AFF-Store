@@ -187,7 +187,7 @@ function OrderSuccessContent() {
     order?.items?.reduce((acc: number, i: any) => acc + (i.price * i.quantity), 0) ||
     0;
   const shippingFee = order?.shippingFee || 0;
-  const discountAmount = order?.discountAmount || 0;
+  const discountAmount = order?.discountAmount || order?.voucherDiscount || 0;
   const totalAmount = order?.totalAmount || Math.max(0, subtotal + shippingFee - discountAmount);
 
   // Stepper state calculation
