@@ -23,6 +23,7 @@ import {
   FiClock,
   FiGift,
   FiAward,
+  FiMail,
 } from 'react-icons/fi';
 import styles from './page.module.css';
 
@@ -232,6 +233,22 @@ export default function LandingPage() {
                     <FiCheckCircle style={{ color: '#3b82f6' }} /> Tính cước theo vị trí & Tracking 5 bước
                   </div>
                 </div>
+
+                {/* Feature Mini Card 4: Email Automation */}
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: 20, textAlign: 'left' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
+                      ✉️
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: 14 }}>Email Tự Động Hóa</div>
+                      <div style={{ fontSize: 11.5, color: '#94a3b8' }}>Hóa đơn & Báo đơn tức thì</div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <FiCheckCircle style={{ color: '#06b6d4' }} /> Gửi song song khách & Admin qua Gmail SMTP
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -250,6 +267,7 @@ export default function LandingPage() {
             <div className={styles.partnerCard}>📦 Giao Hàng Tiết Kiệm (GHTK)</div>
             <div className={styles.partnerCard}>📮 Viettel Post</div>
             <div className={styles.partnerCard}>💳 SePay VietQR Napas247</div>
+            <div className={styles.partnerCard}>✉️ Gmail SMTP Email</div>
             <div className={styles.partnerCard}>🎯 Meta Conversions API</div>
             <div className={styles.partnerCard}>🎵 TikTok Events API</div>
             <div className={styles.partnerCard}>💬 Socket.IO Realtime</div>
@@ -364,6 +382,22 @@ export default function LandingPage() {
                 <li className={styles.featureListItem}><FiCheck className={styles.featureListCheck} /> Máy chủ Socket.IO độc lập độ trễ siêu thấp</li>
                 <li className={styles.featureListItem}><FiCheck className={styles.featureListCheck} /> Tự động trả lời câu hỏi thường gặp khi admin offline</li>
                 <li className={styles.featureListItem}><FiCheck className={styles.featureListCheck} /> Đính kèm sản phẩm và thông tin đơn hàng trong chat</li>
+              </ul>
+            </div>
+
+            {/* Pillar 7: Automated Email System */}
+            <div className={styles.featureCard}>
+              <div className={`${styles.featureIconWrap} ${styles.iconCyan}`}>
+                <FiMail />
+              </div>
+              <h3 className={styles.featureName}>Gửi Email Thông Báo Tự Động 100%</h3>
+              <p className={styles.featureDesc}>
+                Tự động gửi email xác nhận kèm hóa đơn chi tiết ngay khi khách đặt hàng thành công, đồng thời phát cảnh báo có đơn mới tức thì về hòm thư của chủ shop qua Gmail SMTP.
+              </p>
+              <ul className={styles.featureList}>
+                <li className={styles.featureListItem}><FiCheck className={styles.featureListCheck} /> Hóa đơn điện tử đầy đủ sản phẩm, ảnh, giá và phí ship</li>
+                <li className={styles.featureListItem}><FiCheck className={styles.featureListCheck} /> Thông báo Realtime cho Admin khi phát sinh đơn hàng</li>
+                <li className={styles.featureListItem}><FiCheck className={styles.featureListCheck} /> Template HTML cao cấp, responsive trên Mobile & Desktop</li>
               </ul>
             </div>
           </div>
@@ -707,6 +741,22 @@ export default function LandingPage() {
               {openFaq === 3 && (
                 <div className={styles.faqAnswer}>
                   Có! Bạn có thể tùy chỉnh toàn diện: Tải lên Logo riêng, đổi tên shop, thay đổi màu chủ đạo (Primary Color), màu nền (Background), màu Header, màu Button và chọn các bộ theme Shopee, TikTok, Dark, Light bất cứ lúc nào trong mục <code>/admin/settings</code>.
+                </div>
+              )}
+            </div>
+
+            <div className={styles.faqItem}>
+              <button
+                type="button"
+                className={styles.faqQuestion}
+                onClick={() => toggleFaq(4)}
+              >
+                <span>5. Tính năng gửi email thông báo hoạt động thế nào và có mất phí không?</span>
+                {openFaq === 4 ? <FiChevronUp /> : <FiChevronDown />}
+              </button>
+              {openFaq === 4 && (
+                <div className={styles.faqAnswer}>
+                  Hệ thống sử dụng giao thức <strong>Gmail SMTP / Nodemailer hoàn toàn miễn phí</strong>. Khi khách đặt hàng thành công hoặc thanh toán, website sẽ tự động gửi email xác nhận kèm hóa đơn chi tiết về hòm thư của khách, đồng thời gửi email thông báo cho chủ shop. Bạn có thể dễ dàng cấu hình tài khoản Gmail và Mật khẩu ứng dụng trong mục <code>/admin/settings</code>.
                 </div>
               )}
             </div>

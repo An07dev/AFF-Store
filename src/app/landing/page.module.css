@@ -460,6 +460,7 @@
 .iconGreen { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 .iconPurple { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
 .iconAmber { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.iconCyan { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
 
 .featureName {
   font-size: 19px;
