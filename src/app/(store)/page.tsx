@@ -58,6 +58,11 @@ function HomePageContent() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProductForModal, setSelectedProductForModal] = useState<any | null>(null);
+  const [tab1VisibleLimit, setTab1VisibleLimit] = useState(16);
+
+  useEffect(() => {
+    setTab1VisibleLimit(16);
+  }, [activeFilter, selectedCategory, searchQuery]);
 
   // Flash Sale State
   const [flashSaleConfig, setFlashSaleConfig] = useState<any>(null);
@@ -111,7 +116,7 @@ function HomePageContent() {
     loadCategories();
   }, []);
 
-  // Fetch Products via API 2.1 (GET /api/products) - Optimized to prevent duplicate requests
+  // Fetch Products via API 2.1 (GET /api/products) - Optimized with Client-Side SWR Caching
   const fetchProductsByParams = useCallback(
     async (
       filterIndex: number,
@@ -119,9 +124,17 @@ function HomePageContent() {
       query: string,
       categorySlug: string
     ) => {
-      try {
-        setLoading(true);
+      const queryKey = `products_${filterIndex}_${isAsc}_${query.trim().toLowerCase()}_${categorySlug}`;
+      const cachedProducts = clientCache.get<ProductItem[]>(queryKey);
 
+      if (cachedProducts) {
+        setProducts(cachedProducts);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+
+      try {
         // FLASH SALE FILTER: Direct optimized fetch from /api/flash-sale (No redundant /api/products request)
         if (filterIndex === 1) {
           try {
@@ -167,8 +180,10 @@ function HomePageContent() {
                 flashProducts = flashProducts.filter((p: any) => p.name?.toLowerCase().includes(q));
               }
 
+              clientCache.set(queryKey, flashProducts, 30000);
               setProducts(flashProducts);
             } else {
+              clientCache.set(queryKey, [], 30000);
               setProducts([]);
             }
           } catch (e) {
@@ -201,6 +216,7 @@ function HomePageContent() {
               return isAsc ? pA - pB : pB - pA;
             });
           }
+          clientCache.set(queryKey, list, 45000);
           setProducts(list);
         }
       } catch (err) {
@@ -551,63 +567,119 @@ function HomePageContent() {
             {loading ? (
               <StoreLoading text="Đang tải danh sách sản phẩm..." />
             ) : viewMode === 'list' ? (
-              <div className={styles.productList}>
-                {displayedFilteredProducts.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
-                    {activeFilter === 1 ? (
-                      <>
-                        <div style={{ fontSize: '32px', marginBottom: 8 }}>⚡</div>
-                        <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main, #f8fafc)', marginBottom: 6 }}>
-                          Hiện chưa có khung giờ Flash Sale nào đang diễn ra
-                        </div>
-                        <div style={{ fontSize: '13px' }}>
-                          Vui lòng quay lại vào khung giờ Flash Sale tiếp theo để săn ưu đãi giá sốc nhé!
-                        </div>
-                      </>
-                    ) : (
-                      <div>Không tìm thấy sản phẩm nào phù hợp</div>
-                    )}
+              <>
+                <div className={styles.productList}>
+                  {displayedFilteredProducts.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
+                      {activeFilter === 1 ? (
+                        <>
+                          <div style={{ fontSize: '32px', marginBottom: 8 }}>⚡</div>
+                          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main, #f8fafc)', marginBottom: 6 }}>
+                            Hiện chưa có khung giờ Flash Sale nào đang diễn ra
+                          </div>
+                          <div style={{ fontSize: '13px' }}>
+                            Vui lòng quay lại vào khung giờ Flash Sale tiếp theo để săn ưu đãi giá sốc nhé!
+                          </div>
+                        </>
+                      ) : (
+                        <div>Không tìm thấy sản phẩm nào phù hợp</div>
+                      )}
+                    </div>
+                  ) : (
+                    displayedFilteredProducts.slice(0, tab1VisibleLimit).map((item: any, i: number) => (
+                      <StoreProductCard
+                        key={item._id || i}
+                        product={item}
+                        viewMode="list"
+                        onQuickAdd={handleQuickAdd}
+                      />
+                    ))
+                  )}
+                </div>
+
+                {displayedFilteredProducts.length > tab1VisibleLimit && (
+                  <div style={{ textAlign: 'center', margin: '16px 0 24px' }}>
+                    <button
+                      type="button"
+                      style={{
+                        background: 'var(--bg-card, #ffffff)',
+                        border: '1px solid var(--border-color, #e2e8f0)',
+                        color: 'var(--text-main, #0f172a)',
+                        padding: '9px 24px',
+                        borderRadius: '9999px',
+                        fontSize: '12.5px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
+                      onClick={() => setTab1VisibleLimit((prev) => prev + 16)}
+                    >
+                      <span>Xem thêm sản phẩm ({displayedFilteredProducts.length - tab1VisibleLimit}+)</span>
+                      <FiChevronRight size={14} />
+                    </button>
                   </div>
-                ) : (
-                  displayedFilteredProducts.map((item: any, i: number) => (
-                    <StoreProductCard
-                      key={item._id || i}
-                      product={item}
-                      viewMode="list"
-                      onQuickAdd={handleQuickAdd}
-                    />
-                  ))
                 )}
-              </div>
+              </>
             ) : (
-              <div className={styles.productGrid} style={{ padding: 10 }}>
-                {displayedFilteredProducts.length === 0 ? (
-                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
-                    {activeFilter === 1 ? (
-                      <>
-                        <div style={{ fontSize: '32px', marginBottom: 8 }}>⚡</div>
-                        <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main, #f8fafc)', marginBottom: 6 }}>
-                          Hiện chưa có khung giờ Flash Sale nào đang diễn ra
-                        </div>
-                        <div style={{ fontSize: '13px' }}>
-                          Vui lòng quay lại vào khung giờ Flash Sale tiếp theo để săn ưu đãi giá sốc nhé!
-                        </div>
-                      </>
-                    ) : (
-                      <div>Không tìm thấy sản phẩm nào phù hợp</div>
-                    )}
+              <>
+                <div className={styles.productGrid} style={{ padding: 10 }}>
+                  {displayedFilteredProducts.length === 0 ? (
+                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
+                      {activeFilter === 1 ? (
+                        <>
+                          <div style={{ fontSize: '32px', marginBottom: 8 }}>⚡</div>
+                          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main, #f8fafc)', marginBottom: 6 }}>
+                            Hiện chưa có khung giờ Flash Sale nào đang diễn ra
+                          </div>
+                          <div style={{ fontSize: '13px' }}>
+                            Vui lòng quay lại vào khung giờ Flash Sale tiếp theo để săn ưu đãi giá sốc nhé!
+                          </div>
+                        </>
+                      ) : (
+                        <div>Không tìm thấy sản phẩm nào phù hợp</div>
+                      )}
+                    </div>
+                  ) : (
+                    displayedFilteredProducts.slice(0, tab1VisibleLimit).map((item: any, i: number) => (
+                      <StoreProductCard
+                        key={item._id || i}
+                        product={item}
+                        viewMode="grid"
+                        onQuickAdd={handleQuickAdd}
+                      />
+                    ))
+                  )}
+                </div>
+
+                {displayedFilteredProducts.length > tab1VisibleLimit && (
+                  <div style={{ textAlign: 'center', margin: '16px 0 24px' }}>
+                    <button
+                      type="button"
+                      style={{
+                        background: 'var(--bg-card, #ffffff)',
+                        border: '1px solid var(--border-color, #e2e8f0)',
+                        color: 'var(--text-main, #0f172a)',
+                        padding: '9px 24px',
+                        borderRadius: '9999px',
+                        fontSize: '12.5px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
+                      onClick={() => setTab1VisibleLimit((prev) => prev + 16)}
+                    >
+                      <span>Xem thêm sản phẩm ({displayedFilteredProducts.length - tab1VisibleLimit}+)</span>
+                      <FiChevronRight size={14} />
+                    </button>
                   </div>
-                ) : (
-                  displayedFilteredProducts.map((item: any, i: number) => (
-                    <StoreProductCard
-                      key={item._id || i}
-                      product={item}
-                      viewMode="grid"
-                      onQuickAdd={handleQuickAdd}
-                    />
-                  ))
                 )}
-              </div>
+              </>
             )}
           </div>
         )}

@@ -55,10 +55,17 @@ export async function GET() {
       return catObj;
     });
 
-    return NextResponse.json({
-      success: true,
-      data: categoriesWithCount,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: categoriesWithCount,
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || 'Lỗi tải danh mục' },

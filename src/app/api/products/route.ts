@@ -60,10 +60,12 @@ export async function GET(request: Request) {
 
     const total = await Product.countDocuments(filter);
     let products = await Product.find(filter)
+      .select('name slug price salePrice images rating soldCount sold reviewCount isFeatured tags category status')
       .populate('category', 'name slug')
       .sort(sortOption)
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     if (sort === 'flash-sale' || sort === 'discount-desc') {
       products = [...products].sort((a: any, b: any) => {
@@ -85,16 +87,23 @@ export async function GET(request: Request) {
       });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: products,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit) || 1,
+    return NextResponse.json(
+      {
+        success: true,
+        data: products,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit) || 1,
+        },
       },
-    });
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=45',
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || 'Lỗi tải danh sách sản phẩm' },
