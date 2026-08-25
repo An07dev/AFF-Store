@@ -396,7 +396,7 @@ Quy tắc tư vấn bán hàng đỉnh cao (Elite Sales Consultant):
 1. Xưng hô "em" và gọi khách là "bạn" hoặc "anh/chị", giọng điệu nhiệt tình, am hiểu chuyên môn sâu, truyền cảm hứng và thân thiện với emoji sống động.
 2. TUYỆT ĐỐI KHÔNG LIỆT KÊ TRÀN LAN danh sách dài. Hãy chọn lọc đúng 1 ĐẾN 2 SẢN PHẨM PHÙ HỢP NHẤT từ danh mục trên, nêu rõ lý do tại sao mẫu này đáng mua (chất liệu vải thun lạnh thoáng khí, da bóng êm đầm chân, đế cao su bám sân...).
 3. Báo giá sale ưu đãi chính xác và CHÈN ĐƯỜNG LINK CLICKABLE dạng [Xem chi tiết & đặt mua](/product/slug) để khách bấm vào xem ngay!
-4. Nhấn mạnh chính sách: Freeship toàn quốc từ 500k, Đổi size miễn phí trong 7 ngày, và Kiểm tra hàng trước khi thanh toán COD.
+4. Nhấn mạnh chính sách: Freeship toàn quốc, Đổi size miễn phí trong 7 ngày, và Kiểm tra hàng trước khi thanh toán COD.
 5. Luôn kết thúc bằng 1 câu hỏi gợi mở khéo léo (về kích thước, màu sắc, vị trí thi đấu...) để tiếp tục tương tác và giúp khách chốt đơn.
 6. Trả lời súc tích, tự nhiên trong khoảng 2 - 3 đoạn ngắn gọn.`;
 
@@ -485,7 +485,7 @@ Quy tắc tư vấn bán hàng đỉnh cao (Elite Sales Consultant):
     if (measurements.height || measurements.weight || measurements.footLength) {
       const rec = calculateRecommendedSize(measurements.height, measurements.weight, measurements.footLength, prodType);
       const prodMention = params.productContext?.name ? ` đối với sản phẩm **"${params.productContext.name}"**` : '';
-      
+
       const reply = `Dạ${prodMention}, ${rec.explanation}\n\n` +
         `💡 **Shop cam kết:** Hỗ trợ đổi size miễn phí trong vòng 7 ngày nếu bạn mặc chưa vừa ý nha! Bạn có muốn đặt mẫu này luôn không ạ?`;
 
@@ -536,7 +536,7 @@ Quy tắc tư vấn bán hàng đỉnh cao (Elite Sales Consultant):
       replyText: `🚀 **Cách Đặt Hàng Nhanh Chóng Tại ShopTik:**\n\n` +
         `1. Bạn có thể bấm nút **"Mua Ngay"** trên trang sản phẩm để chọn size, điền địa chỉ nhận hàng và đặt đơn trong 30 giây.\n` +
         `2. Hoặc bạn có thể **nhắn tin SĐT + Địa chỉ** ngay tại đây, nhân viên CSKH của shop sẽ gọi điện xác nhận và gửi hàng nhanh cho bạn nhé!\n\n` +
-        `🎁 Đơn hàng từ 500k được **Freeship toàn quốc** và kiểm tra hàng trước khi thanh toán ạ!`,
+        `🎁 Đơn hàng được **Freeship toàn quốc** và kiểm tra hàng trước khi thanh toán ạ!`,
       senderName: botName,
     };
   }
@@ -547,7 +547,7 @@ Quy tắc tư vấn bán hàng đỉnh cao (Elite Sales Consultant):
       shouldReply: true,
       replyText: `🎁 **Chương Trình Khuyến Mãi & Ưu Đãi Hôm Nay:**\n\n` +
         `• 🔥 **Giảm trực tiếp 15% - 35%** trên toàn bộ sản phẩm (đã áp dụng giá sale trên web).\n` +
-        `• 🚚 **Freeship toàn quốc** cho đơn hàng từ 500.000₫.\n` +
+        `• 🚚 **Freeship toàn quốc**.\n` +
         `• ⚽ **Quà tặng kèm:** Tặng 01 kim bơm chống gỉ + túi lưới khi mua Quả bóng đá.\n` +
         `• 🛡️ **Bảo hành 1 đổi 1** và đổi size miễn phí trong 7 ngày!\n\n` +
         `Bạn đang quan tâm mẫu nào để em báo giá tốt nhất cho bạn nhé ạ?`,
@@ -560,7 +560,7 @@ Quy tắc tư vấn bán hàng đỉnh cao (Elite Sales Consultant):
     return {
       shouldReply: true,
       replyText: `🚚 **Chính Sách Vận Chuyển & Giao Hàng của Shop:**\n\n` +
-        `• **Miễn phí giao hàng (Freeship):** Áp dụng toàn quốc cho đơn hàng từ 500.000₫ (hoặc theo chương trình ưu đãi hiện hành).\n` +
+        `• **Miễn phí giao hàng (Freeship):** Áp dụng toàn quốc.\n` +
         `• **Thời gian giao hàng:**\n` +
         `  - Nội thành Hà Nội / TP.HCM: 1 - 2 ngày làm việc.\n` +
         `  - Các tỉnh thành khác: 2 - 4 ngày qua đối tác GHN / GHTK.\n` +
