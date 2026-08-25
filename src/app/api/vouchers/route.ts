@@ -54,10 +54,17 @@ export async function GET(request: Request) {
       };
     });
 
-    return NextResponse.json({
-      success: true,
-      data: formattedVouchers,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: formattedVouchers,
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+        },
+      }
+    );
   } catch (error: any) {
     console.error('Error fetching public vouchers:', error);
     return NextResponse.json(

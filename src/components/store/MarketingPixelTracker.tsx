@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
+import { clientCache } from '@/lib/clientCache';
 import { IMarketingConfig } from '@/types/marketing';
 
 declare global {
@@ -73,13 +74,19 @@ export default function MarketingPixelTracker() {
     }
   }, []);
 
-  // 2. Load Marketing Config from API
+  // 2. Load Marketing Config with Client Cache (60s TTL)
   useEffect(() => {
     async function loadMarketingConfig() {
       try {
-        const res = await apiFetch('/api/settings/marketing');
-        const data = await res.json();
-        if (data.success && data.data) {
+        const data = await clientCache.fetchWithCache(
+          'public_marketing_config',
+          async () => {
+            const res = await apiFetch('/api/settings/marketing');
+            return await res.json();
+          },
+          60000
+        );
+        if (data?.success && data?.data) {
           setConfig(data.data);
         }
       } catch (err) {

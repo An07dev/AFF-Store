@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiGift, FiClock, FiCheck } from 'react-icons/fi';
 import { apiFetch } from '@/lib/api';
+import { clientCache } from '@/lib/clientCache';
 import { useVoucherWallet } from '@/hooks/useVoucherWallet';
 import styles from './VoucherCollectionBar.module.css';
 
@@ -33,9 +34,17 @@ export default function VoucherCollectionBar() {
           if (profile?.phone) phone = profile.phone;
         } catch (e) {}
 
-        const res = await apiFetch(`/api/vouchers?phone=${encodeURIComponent(phone)}`);
-        const data = await res.json();
-        if (data.success && Array.isArray(data.data)) {
+        const cacheKey = `public_vouchers_${phone}`;
+        const data = await clientCache.fetchWithCache(
+          cacheKey,
+          async () => {
+            const res = await apiFetch(`/api/vouchers?phone=${encodeURIComponent(phone)}`);
+            return await res.json();
+          },
+          45000 // 45s TTL
+        );
+
+        if (data?.success && Array.isArray(data?.data)) {
           setVouchers(data.data);
         }
       } catch (err) {

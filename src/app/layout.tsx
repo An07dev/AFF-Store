@@ -1,9 +1,17 @@
 import type { Metadata } from 'next';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
 import { CustomerAuthProvider } from '@/contexts/CustomerAuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin', 'vietnamese'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-jakarta',
+});
 
 export const metadata: Metadata = {
   title: 'ShopTik - Cửa Hàng Thời Trang & Công Nghệ',
@@ -16,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi">
-      <body>
+    <html lang="vi" className={jakarta.variable}>
+      <body className={jakarta.className}>
         <ThemeProvider>
           <CustomerAuthProvider>
             <CartProvider>
