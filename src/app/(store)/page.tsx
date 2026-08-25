@@ -32,6 +32,16 @@ import StoreLoading from '@/components/store/StoreLoading';
 import ProductDetailModal from '@/components/store/ProductDetailModal';
 import BannerNotice from '@/components/common/BannerNotice';
 import VoucherCollectionBar from '@/components/store/VoucherCollectionBar';
+import {
+  QuickIconFreeship,
+  QuickIconFlashSale,
+  QuickIconBestSeller,
+  QuickIconMall,
+  QuickIconCheap,
+  QuickIconShockDeal,
+  QuickIconTracking,
+  QuickIconConsult,
+} from '@/components/store/QuickHubIcons';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -636,7 +646,7 @@ function HomePageContent() {
               </div>
             </div>
 
-            {/* 3. SHOPEE 8-ICON QUICK ACTION HUB */}
+            {/* 3. SHOPEE 8-ICON QUICK ACTION HUB (3D VIVID ICONS) */}
             <div className={styles.quickHubGrid}>
               <button
                 type="button"
@@ -648,7 +658,7 @@ function HomePageContent() {
                 }}
               >
                 <div className={`${styles.quickIconWrap} ${styles.iconOrange}`}>
-                  <FiTruck />
+                  <QuickIconFreeship />
                 </div>
                 <span className={styles.quickHubLabel}>Freeship 0Đ</span>
               </button>
@@ -659,7 +669,7 @@ function HomePageContent() {
                 onClick={() => flashSaleRef.current?.scrollIntoView({ behavior: 'smooth' })}
               >
                 <div className={`${styles.quickIconWrap} ${styles.iconYellow}`}>
-                  <FiZap />
+                  <QuickIconFlashSale />
                 </div>
                 <span className={styles.quickHubLabel}>Flash Sale</span>
               </button>
@@ -674,7 +684,7 @@ function HomePageContent() {
                 }}
               >
                 <div className={`${styles.quickIconWrap} ${styles.iconRed}`}>
-                  <FiTrendingUp />
+                  <QuickIconBestSeller />
                 </div>
                 <span className={styles.quickHubLabel}>Bán Chạy</span>
               </button>
@@ -688,7 +698,7 @@ function HomePageContent() {
                 }}
               >
                 <div className={`${styles.quickIconWrap} ${styles.iconPink}`}>
-                  <FiAward />
+                  <QuickIconMall />
                 </div>
                 <span className={styles.quickHubLabel}>Shopee Mall</span>
               </button>
@@ -705,7 +715,7 @@ function HomePageContent() {
                 }}
               >
                 <div className={`${styles.quickIconWrap} ${styles.iconGreen}`}>
-                  <FiDollarSign />
+                  <QuickIconCheap />
                 </div>
                 <span className={styles.quickHubLabel}>Gì Cũng Rẻ</span>
               </button>
@@ -722,7 +732,7 @@ function HomePageContent() {
                 }}
               >
                 <div className={`${styles.quickIconWrap} ${styles.iconPurple}`}>
-                  <FiGift />
+                  <QuickIconShockDeal />
                 </div>
                 <span className={styles.quickHubLabel}>Deal sốc</span>
               </button>
@@ -733,7 +743,7 @@ function HomePageContent() {
                 onClick={() => router.push('/tracking')}
               >
                 <div className={`${styles.quickIconWrap} ${styles.iconCyan}`}>
-                  <FiTruck />
+                  <QuickIconTracking />
                 </div>
                 <span className={styles.quickHubLabel}>Tra Cứu Đơn</span>
               </button>
@@ -744,7 +754,7 @@ function HomePageContent() {
                 onClick={() => router.push('/chat')}
               >
                 <div className={`${styles.quickIconWrap} ${styles.iconBlue}`}>
-                  <FiMessageSquare />
+                  <QuickIconConsult />
                 </div>
                 <span className={styles.quickHubLabel}>Tư Vấn Shop</span>
               </button>

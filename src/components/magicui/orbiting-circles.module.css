@@ -1,0 +1,48 @@
+.orbitSvg {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.orbitPath {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 6;
+}
+
+.orbitItem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--icon-size) * var(--orbit-icon-scale, 1));
+  height: calc(var(--icon-size) * var(--orbit-icon-scale, 1));
+  margin-top: calc(-1 * (var(--icon-size) * var(--orbit-icon-scale, 1)) / 2);
+  margin-left: calc(-1 * (var(--icon-size) * var(--orbit-icon-scale, 1)) / 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  animation: orbitAnimation var(--duration) linear infinite;
+  z-index: 10;
+  transition: filter 0.2s ease;
+}
+
+.orbitItem:hover {
+  z-index: 50;
+  filter: drop-shadow(0 0 16px rgba(99, 102, 241, 0.6));
+}
+
+.orbitReverse {
+  animation-direction: reverse;
+}
+
+@keyframes orbitAnimation {
+  0% {
+    transform: rotate(var(--angle)) translateY(calc(var(--radius) * var(--orbit-scale, 1))) rotate(calc(-1 * var(--angle)));
+  }
+  100% {
+    transform: rotate(calc(var(--angle) + 360deg)) translateY(calc(var(--radius) * var(--orbit-scale, 1))) rotate(calc(-1 * var(--angle) - 360deg));
+  }
+}
