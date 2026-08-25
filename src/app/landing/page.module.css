@@ -1019,28 +1019,17 @@
   z-index: 0;
 }
 
-/* 70% Centered Content Wrapper (for all sections except Rareblocks Hero) */
+/* Full width seamless content wrapper (blends seamlessly into landing page) */
 .content70Wrapper {
   width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
-}
-
-@media (min-width: 1024px) {
-  .content70Wrapper {
-    width: 70%;
-    max-width: 70%;
-    margin: 0 auto;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 
-      0 0 60px rgba(0, 0, 0, 0.95),
-      0 0 120px rgba(0, 0, 0, 0.7),
-      0 0 1px 1px rgba(255, 255, 255, 0.06);
-    background-color: #08090e;
-  }
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 /* Container */
@@ -4364,11 +4353,6 @@
     padding: 0 14px;
     max-width: 100%;
     box-sizing: border-box;
-  }
-
-  .content70Wrapper {
-    padding: 0 12px;
-    max-width: 100%;
   }
 
   /* Universal Section Headings on Tablet/Mobile */
