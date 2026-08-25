@@ -1989,9 +1989,9 @@
    ========================================================================== */
 .themeShowcaseSection {
   position: relative;
-  padding: 80px 0 90px;
+  padding: 70px 0 80px;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 80%);
+  background: transparent;
 }
 
 .themeAmbientGlow {
@@ -2324,9 +2324,9 @@
    METRICS & IMPACT STATS
    ========================================================================== */
 .statsSection {
-  padding: 70px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 50px 0 60px;
+  border: none;
+  background: transparent;
 }
 
 .statsGrid {
@@ -2370,9 +2370,9 @@
    ========================================================================== */
 .hostingSection {
   position: relative;
-  padding: 80px 0 90px;
+  padding: 70px 0 80px;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 30%, rgba(103, 58, 183, 0.1) 0%, transparent 70%);
+  background: transparent;
 }
 
 .hostingAmbientGlow {
@@ -3031,8 +3031,9 @@
    ========================================================================== */
 .comparisonSection {
   position: relative;
-  padding: 70px 0 85px;
+  padding: 70px 0 80px;
   overflow: hidden;
+  background: transparent;
 }
 
 .compAmbientGlow {
@@ -3669,13 +3670,11 @@
    ========================================================================== */
 .floatPricingSection {
   position: relative;
-  padding: 80px 0;
-  background-color: #0b0f19;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 70px 0 80px;
+  background: transparent;
+  border: none;
   overflow: hidden;
-  border-radius: 24px;
-  margin: 40px 0;
+  margin: 0;
 }
 
 .floatPricingGlow {
