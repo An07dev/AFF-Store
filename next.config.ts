@@ -8,6 +8,20 @@ const nextConfig: NextConfig = {
     '*.ngrok.app',
     '*.ngrok.io',
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
+    ],
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 86400,
+  },
 };
 
 export default nextConfig;

@@ -61,6 +61,8 @@ const HeroBannerCarouselComponent: React.FC<HeroBannerCarouselProps> = ({
               className={styles.carouselImg}
               loading={idx === 0 ? 'eager' : 'lazy'}
               decoding="async"
+              // @ts-ignore
+              fetchpriority={idx === 0 ? 'high' : 'auto'}
             />
             {(slide.tag || slide.title) && (
               <div className={styles.carouselOverlay}>

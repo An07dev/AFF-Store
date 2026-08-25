@@ -386,21 +386,6 @@ function HomePageContent() {
     return map;
   }, [products]);
 
-  if (isThemeLoading) {
-    return (
-      <div
-        style={{
-          minHeight: '80vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-        }}
-      >
-        <StoreLoading text="Đang tải cấu hình giao diện..." />
-      </div>
-    );
-  }
 
   return (
     <div className={styles.page}>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { apiFetch } from '@/lib/api';
 
@@ -126,6 +126,8 @@ export const defaultTheme: ThemeConfig = {
   },
 };
 
+const THEME_CACHE_KEY = 'shoptik_cached_theme_config';
+
 interface ThemeContextType {
   theme: ThemeConfig;
   setTheme: React.Dispatch<React.SetStateAction<ThemeConfig>>;
@@ -140,10 +142,11 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<ThemeConfig>(defaultTheme);
-  const [isLoading, setIsLoading] = useState(true);
+  // Non-blocking initialization for instant 0ms First Contentful Paint
+  const [isLoading, setIsLoading] = useState(false);
 
   // Apply CSS variables to :root and html element
-  const applyCSSVariables = (config: ThemeConfig) => {
+  const applyCSSVariables = useCallback((config: ThemeConfig) => {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
 
@@ -151,107 +154,78 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.setAttribute('data-theme', config.mode);
 
     // Buttons
-    root.style.setProperty('--primary', config.buttonColors.primaryBg);
-    root.style.setProperty('--primary-hover', config.buttonColors.primaryHover);
-    root.style.setProperty('--primary-text', config.buttonColors.primaryText);
-    root.style.setProperty('--secondary-btn-bg', config.buttonColors.secondaryBg);
-    root.style.setProperty('--secondary-btn-text', config.buttonColors.secondaryText);
-    root.style.setProperty('--radius-md', config.buttonColors.borderRadius || '10px');
+    root.style.setProperty('--primary', config.buttonColors?.primaryBg || '#3b82f6');
+    root.style.setProperty('--primary-hover', config.buttonColors?.primaryHover || '#2563eb');
+    root.style.setProperty('--primary-text', config.buttonColors?.primaryText || '#ffffff');
+    root.style.setProperty('--secondary-btn-bg', config.buttonColors?.secondaryBg || '#1a1e2b');
+    root.style.setProperty('--secondary-btn-text', config.buttonColors?.secondaryText || '#94a3b8');
+    root.style.setProperty('--radius-md', config.buttonColors?.borderRadius || '10px');
 
     // Texts
-    root.style.setProperty('--text-main', config.textColors.textPrimary);
-    root.style.setProperty('--text-muted', config.textColors.textSecondary);
-    root.style.setProperty('--text-dim', config.textColors.textMuted);
-    root.style.setProperty('--text-accent', config.textColors.textAccent);
+    root.style.setProperty('--text-main', config.textColors?.textPrimary || '#f8fafc');
+    root.style.setProperty('--text-muted', config.textColors?.textSecondary || '#94a3b8');
+    root.style.setProperty('--text-dim', config.textColors?.textMuted || '#64748b');
+    root.style.setProperty('--text-accent', config.textColors?.textAccent || '#3b82f6');
 
     // Components & Backgrounds
-    root.style.setProperty('--bg-main', config.componentColors.background);
-    root.style.setProperty('--bg-card', config.componentColors.cardBackground);
-    root.style.setProperty('--bg-card-hover', config.componentColors.cardHoverBg);
-    root.style.setProperty('--navbar-bg', config.componentColors.navbarBg);
-    root.style.setProperty('--admin-sidebar-bg', config.componentColors.sidebarBg);
-    root.style.setProperty('--border-color', config.componentColors.borderColor);
-    root.style.setProperty('--accent', config.componentColors.accentColor);
+    root.style.setProperty('--bg-main', config.componentColors?.background || '#090a0f');
+    root.style.setProperty('--bg-card', config.componentColors?.cardBackground || '#13161f');
+    root.style.setProperty('--bg-card-hover', config.componentColors?.cardHoverBg || '#1a1e2b');
+    root.style.setProperty('--navbar-bg', config.componentColors?.navbarBg || '#090a0f');
+    root.style.setProperty('--admin-sidebar-bg', config.componentColors?.sidebarBg || '#131826');
+    root.style.setProperty('--border-color', config.componentColors?.borderColor || '#232838');
+    root.style.setProperty('--accent', config.componentColors?.accentColor || '#10b981');
 
     // Admin Theme specific variables
-    root.style.setProperty('--admin-bg', config.componentColors.background);
-    root.style.setProperty('--admin-card', config.componentColors.cardBackground);
-    root.style.setProperty('--admin-border', config.componentColors.borderColor);
-    root.style.setProperty('--admin-text', config.textColors.textPrimary);
-    root.style.setProperty('--admin-text-muted', config.textColors.textSecondary);
-    root.style.setProperty('--admin-accent', config.buttonColors.primaryBg);
+    root.style.setProperty('--admin-bg', config.componentColors?.background || '#090a0f');
+    root.style.setProperty('--admin-card', config.componentColors?.cardBackground || '#13161f');
+    root.style.setProperty('--admin-border', config.componentColors?.borderColor || '#232838');
+    root.style.setProperty('--admin-text', config.textColors?.textPrimary || '#f8fafc');
+    root.style.setProperty('--admin-text-muted', config.textColors?.textSecondary || '#94a3b8');
+    root.style.setProperty('--admin-accent', config.buttonColors?.primaryBg || '#3b82f6');
 
     // Page Title
     if (config.pageTitles?.siteTitle) {
       document.title = config.pageTitles.siteTitle;
     }
-  };
+  }, []);
 
-  // Toggle Theme Mode between Dark and Light
-  const toggleThemeMode = (mode: 'dark' | 'light') => {
-    let updated: ThemeConfig;
-    if (mode === 'dark') {
-      updated = {
-        ...theme,
-        mode: 'dark',
-        componentColors: {
-          ...theme.componentColors,
-          background: '#090a0f',
-          cardBackground: '#13161f',
-          cardHoverBg: '#1a1e2b',
-          navbarBg: '#090a0f',
-          sidebarBg: '#131826',
-          borderColor: '#232838',
-        },
-        textColors: {
-          ...theme.textColors,
-          textPrimary: '#f8fafc',
-          textSecondary: '#94a3b8',
-          textMuted: '#64748b',
-        },
-        buttonColors: {
-          ...theme.buttonColors,
-          secondaryBg: '#1a1e2b',
-          secondaryText: '#94a3b8',
-        },
-      };
-    } else {
-      updated = {
-        ...theme,
-        mode: 'light',
-        componentColors: {
-          ...theme.componentColors,
-          background: '#f8fafc',
-          cardBackground: '#ffffff',
-          cardHoverBg: '#f1f5f9',
-          navbarBg: '#ffffff',
-          sidebarBg: '#ffffff',
-          borderColor: '#e2e8f0',
-        },
-        textColors: {
-          ...theme.textColors,
-          textPrimary: '#0f172a',
-          textSecondary: '#475569',
-          textMuted: '#94a3b8',
-        },
-        buttonColors: {
-          ...theme.buttonColors,
-          secondaryBg: '#f1f5f9',
-          secondaryText: '#475569',
-        },
-      };
-    }
-    setTheme(updated);
-    applyCSSVariables(updated);
-  };
-
-  // Fetch initial theme from API
+  // 1. Initial Mount: Load cached theme from localStorage synchronously to eliminate flash / delay
   useEffect(() => {
+    try {
+      const cached = localStorage.getItem(THEME_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          const merged: ThemeConfig = {
+            ...defaultTheme,
+            ...parsed,
+            pageTitles: { ...defaultTheme.pageTitles, ...(parsed.pageTitles || {}) },
+            banners: Array.isArray(parsed.banners) && parsed.banners.length > 0 ? parsed.banners : defaultTheme.banners,
+            socialLinks: { ...defaultTheme.socialLinks, ...(parsed.socialLinks || {}) },
+            buttonColors: { ...defaultTheme.buttonColors, ...(parsed.buttonColors || {}) },
+            textColors: { ...defaultTheme.textColors, ...(parsed.textColors || {}) },
+            componentColors: { ...defaultTheme.componentColors, ...(parsed.componentColors || {}) },
+          };
+          setTheme(merged);
+          applyCSSVariables(merged);
+        }
+      } else {
+        applyCSSVariables(defaultTheme);
+      }
+    } catch (e) {
+      applyCSSVariables(defaultTheme);
+    }
+  }, [applyCSSVariables]);
+
+  // 2. Background Revalidation (Stale-While-Revalidate): Fetch fresh theme from API
+  useEffect(() => {
+    let isMounted = true;
     async function loadTheme() {
       try {
         const res = await apiFetch('/api/settings/theme');
         const data = await res.json();
-        if (data.success && data.data) {
+        if (data?.success && data?.data && isMounted) {
           const merged: ThemeConfig = {
             ...defaultTheme,
             ...data.data,
@@ -264,16 +238,84 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           };
           setTheme(merged);
           applyCSSVariables(merged);
+          try {
+            localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(merged));
+          } catch (storageErr) {
+            // Ignore localStorage quota errors
+          }
         }
       } catch (e) {
-        console.error('Failed to load theme from API', e);
-        applyCSSVariables(defaultTheme);
-      } finally {
-        setIsLoading(false);
+        console.warn('Background theme refresh failed, using cached/default theme.');
       }
     }
     loadTheme();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [applyCSSVariables]);
+
+  // Toggle Theme Mode between Dark and Light
+  const toggleThemeMode = useCallback((mode: 'dark' | 'light') => {
+    setTheme((prevTheme) => {
+      let updated: ThemeConfig;
+      if (mode === 'dark') {
+        updated = {
+          ...prevTheme,
+          mode: 'dark',
+          componentColors: {
+            ...prevTheme.componentColors,
+            background: '#090a0f',
+            cardBackground: '#13161f',
+            cardHoverBg: '#1a1e2b',
+            navbarBg: '#090a0f',
+            sidebarBg: '#131826',
+            borderColor: '#232838',
+          },
+          textColors: {
+            ...prevTheme.textColors,
+            textPrimary: '#f8fafc',
+            textSecondary: '#94a3b8',
+            textMuted: '#64748b',
+          },
+          buttonColors: {
+            ...prevTheme.buttonColors,
+            secondaryBg: '#1a1e2b',
+            secondaryText: '#94a3b8',
+          },
+        };
+      } else {
+        updated = {
+          ...prevTheme,
+          mode: 'light',
+          componentColors: {
+            ...prevTheme.componentColors,
+            background: '#f8fafc',
+            cardBackground: '#ffffff',
+            cardHoverBg: '#f1f5f9',
+            navbarBg: '#ffffff',
+            sidebarBg: '#ffffff',
+            borderColor: '#e2e8f0',
+          },
+          textColors: {
+            ...prevTheme.textColors,
+            textPrimary: '#0f172a',
+            textSecondary: '#475569',
+            textMuted: '#94a3b8',
+          },
+          buttonColors: {
+            ...prevTheme.buttonColors,
+            secondaryBg: '#f1f5f9',
+            secondaryText: '#475569',
+          },
+        };
+      }
+      applyCSSVariables(updated);
+      try {
+        localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(updated));
+      } catch (err) {}
+      return updated;
+    });
+  }, [applyCSSVariables]);
 
   // Save theme to MongoDB Atlas via API
   const saveTheme = async (newConfig?: ThemeConfig): Promise<boolean> => {
@@ -288,6 +330,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
       if (data.success) {
         setTheme(data.data);
+        try {
+          localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(data.data));
+        } catch (err) {}
         toast.success('Đã lưu cấu hình giao diện thành công!');
         return true;
       } else {
@@ -303,6 +348,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const resetToDefault = async () => {
     setTheme(defaultTheme);
     applyCSSVariables(defaultTheme);
+    try {
+      localStorage.removeItem(THEME_CACHE_KEY);
+    } catch (err) {}
     await saveTheme(defaultTheme);
     toast.success('Đã khôi phục giao diện mặc định');
   };

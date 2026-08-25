@@ -60,6 +60,8 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
             src={logoUrl}
             alt={logoText}
             className={styles.desktopLogoImg}
+            loading="eager"
+            decoding="async"
           />
         ) : (
           <div className={styles.desktopLogoAvatar}>{avatarInitials}</div>
