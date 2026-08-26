@@ -20,6 +20,7 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
+import { formatVariantDisplay } from '@/lib/variant-helper';
 import Skeleton from '@/components/common/Skeleton';
 import OrderDetailModal from '@/components/admin/OrderDetailModal';
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
@@ -484,8 +485,10 @@ export default function OrdersPage() {
                             {o.items?.length || 0} sản phẩm
                           </span>
                           {o.items?.[0] && (
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim, #64748b)', maxWidth: 180, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {o.items[0].name} {o.items.length > 1 ? `(+${o.items.length - 1})` : ''}
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim, #64748b)', maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {o.items[0].name}
+                              {formatVariantDisplay(o.items[0]) ? ` (${formatVariantDisplay(o.items[0])})` : ''}
+                              {o.items.length > 1 ? ` (+${o.items.length - 1})` : ''}
                             </div>
                           )}
                         </td>

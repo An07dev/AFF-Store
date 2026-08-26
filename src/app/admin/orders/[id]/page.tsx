@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { FiArrowLeft, FiCheck, FiTruck, FiUser, FiMapPin, FiPackage, FiX, FiDollarSign, FiPrinter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
+import { formatVariantDisplay } from '@/lib/variant-helper';
 import AdminLoading from '@/components/admin/AdminLoading';
 import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
 import ShipOrderModal from '@/components/admin/ShipOrderModal';
@@ -205,27 +206,32 @@ export default function OrderDetailPage() {
               <FiPackage className={styles.inlineIcon} /> Sản phẩm trong đơn ({order.items?.length || 0})
             </h3>
             <div className={styles.productList}>
-              {order.items?.map((item: any, idx: number) => (
-                <div key={idx} className={styles.productItem}>
-                  <img
-                    src={item.image || '/file.svg'}
-                    alt={item.name}
-                    className={styles.productImg}
-                  />
-                  <div className={styles.productInfo}>
-                    <h4>{item.name}</h4>
-                    {item.variant?.name && (
-                      <p className={styles.textMuted}>Phân loại: {item.variant.name}</p>
-                    )}
+              {order.items?.map((item: any, idx: number) => {
+                const variantLabel = formatVariantDisplay(item);
+                return (
+                  <div key={idx} className={styles.productItem}>
+                    <img
+                      src={item.image || '/file.svg'}
+                      alt={item.name}
+                      className={styles.productImg}
+                    />
+                    <div className={styles.productInfo}>
+                      <h4>{item.name}</h4>
+                      {variantLabel && (
+                        <p className={styles.textMuted} style={{ fontSize: '0.8125rem', marginTop: 4 }}>
+                          Phân loại: <strong style={{ color: 'var(--primary, #3b82f6)' }}>{variantLabel}</strong>
+                        </p>
+                      )}
+                    </div>
+                    <div className={styles.productPrice}>
+                      <p>
+                        {formatPrice(item.price)} x {item.quantity}
+                      </p>
+                      <strong>{formatPrice(item.price * item.quantity)}</strong>
+                    </div>
                   </div>
-                  <div className={styles.productPrice}>
-                    <p>
-                      {formatPrice(item.price)} x {item.quantity}
-                    </p>
-                    <strong>{formatPrice(item.price * item.quantity)}</strong>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className={styles.summary}>

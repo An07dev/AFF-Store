@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FiX, FiUser, FiTruck, FiPackage, FiCreditCard, FiExternalLink, FiPrinter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
+import { formatVariantDisplay } from '@/lib/variant-helper';
 import LazyImage from '@/components/common/LazyImage';
 import Skeleton from '@/components/common/Skeleton';
 import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
@@ -204,32 +205,35 @@ export default function OrderDetailModal({
                   <FiPackage /> Danh sách sản phẩm ({order.items?.length || 0})
                 </h4>
                 <div className={styles.itemList}>
-                  {order.items?.map((item: any, i: number) => (
-                    <div key={i} className={styles.itemRow}>
-                      <LazyImage
-                        src={item.image || '/file.svg'}
-                        alt={item.name}
-                        aspectRatio="1 / 1"
-                        style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }}
-                      />
-                      <div className={styles.itemInfo}>
-                        <div className={styles.itemName}>{item.name}</div>
-                        {item.variant && (item.variant.color || item.variant.size) && (
-                          <div className={styles.itemVariant}>
-                            Phân loại: {item.variant.color ? `Màu: ${item.variant.color}` : ''} {item.variant.size ? `| Size: ${item.variant.size}` : ''}
+                  {order.items?.map((item: any, i: number) => {
+                    const variantLabel = formatVariantDisplay(item);
+                    return (
+                      <div key={i} className={styles.itemRow}>
+                        <LazyImage
+                          src={item.image || '/file.svg'}
+                          alt={item.name}
+                          aspectRatio="1 / 1"
+                          style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }}
+                        />
+                        <div className={styles.itemInfo}>
+                          <div className={styles.itemName}>{item.name}</div>
+                          {variantLabel && (
+                            <div className={styles.itemVariant}>
+                              Phân loại: <strong style={{ color: 'var(--primary, #3b82f6)' }}>{variantLabel}</strong>
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div className={styles.itemPrice}>
+                            {formatPrice(item.price)} x {item.quantity}
                           </div>
-                        )}
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div className={styles.itemPrice}>
-                          {formatPrice(item.price)} x {item.quantity}
-                        </div>
-                        <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #94a3b8)', fontWeight: 600 }}>
-                          = {formatPrice(item.price * item.quantity)}
+                          <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #94a3b8)', fontWeight: 600 }}>
+                            = {formatPrice(item.price * item.quantity)}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

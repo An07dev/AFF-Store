@@ -115,3 +115,51 @@ export function findMatchingVariant(
     }) || null
   );
 }
+
+/**
+ * Trích xuất chuỗi hiển thị phân loại (Màu sắc, Size, Biến thể) từ item trong đơn hàng
+ */
+export function formatVariantDisplay(itemOrVariant: any): string {
+  if (!itemOrVariant) return '';
+  if (typeof itemOrVariant === 'string') return itemOrVariant;
+
+  // Nếu là item đơn hàng có variant object hoặc variant string
+  const v = itemOrVariant.variant !== undefined ? itemOrVariant.variant : itemOrVariant;
+  if (!v) {
+    if (itemOrVariant.variantTitle) return itemOrVariant.variantTitle;
+    if (itemOrVariant.color || itemOrVariant.size) {
+      return [itemOrVariant.color && `Màu: ${itemOrVariant.color}`, itemOrVariant.size && `Size: ${itemOrVariant.size}`]
+        .filter(Boolean)
+        .join(' | ');
+    }
+    return '';
+  }
+
+  if (typeof v === 'string') return v;
+  if (v.title) return v.title;
+  if (v.name) return v.name;
+
+  if (v.attributes) {
+    const rawAttrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
+    if (typeof rawAttrs === 'object' && rawAttrs !== null) {
+      const parts = Object.entries(rawAttrs)
+        .filter(([_, val]) => Boolean(val))
+        .map(([k, val]) => `${k}: ${val}`);
+      if (parts.length > 0) return parts.join(' | ');
+    }
+  }
+
+  if (v.color || v.size) {
+    return [v.color && `Màu: ${v.color}`, v.size && `Size: ${v.size}`].filter(Boolean).join(' | ');
+  }
+
+  if (itemOrVariant.variantTitle) return itemOrVariant.variantTitle;
+  if (itemOrVariant.color || itemOrVariant.size) {
+    return [itemOrVariant.color && `Màu: ${itemOrVariant.color}`, itemOrVariant.size && `Size: ${itemOrVariant.size}`]
+      .filter(Boolean)
+      .join(' | ');
+  }
+
+  return v.sku ? `SKU: ${v.sku}` : '';
+}
+

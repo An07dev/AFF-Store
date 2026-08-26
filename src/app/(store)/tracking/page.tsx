@@ -24,6 +24,7 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
+import { formatVariantDisplay } from '@/lib/variant-helper';
 import { useTheme } from '@/contexts/ThemeContext';
 import BannerNotice from '@/components/common/BannerNotice';
 import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
@@ -480,10 +481,7 @@ function TrackingContent() {
 
                   <div className={styles.itemList}>
                     {order.items.map((item: any, idx: number) => {
-                      const variantText =
-                        item.variant?.name ||
-                        [item.variant?.color, item.variant?.size].filter(Boolean).join(' - ') ||
-                        (typeof item.variant === 'string' ? item.variant : '');
+                      const variantText = formatVariantDisplay(item);
                       const unitPrice = item.price || item.variant?.price || 0;
                       const itemTotal = unitPrice * (item.quantity || 1);
 

@@ -4,6 +4,7 @@ import React from 'react';
 import { FiPrinter, FiX, FiCheckCircle, FiPackage } from 'react-icons/fi';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { generateBarcodeSVG } from '@/lib/barcode';
+import { formatVariantDisplay } from '@/lib/variant-helper';
 import styles from './OrderPackingSlipModal.module.css';
 
 interface OrderPackingSlipModalProps {
@@ -39,11 +40,7 @@ export default function OrderPackingSlipModal({
             ? '<tr><td colspan="5" style="text-align:center; padding: 6px;">Không có thông tin sản phẩm</td></tr>'
             : items
                 .map((item: any, idx: number) => {
-                  const variant =
-                    item.variantTitle ||
-                    (item.color || item.size
-                      ? [item.color, item.size].filter(Boolean).join(' - ')
-                      : '');
+                  const variant = formatVariantDisplay(item);
                   const itemTotal = (item.price || 0) * (item.quantity || 1);
                   return `
                   <tr>

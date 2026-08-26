@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
+import { formatVariantDisplay } from '@/lib/variant-helper';
 
 export async function GET(request: Request) {
   try {
@@ -105,8 +106,9 @@ export async function GET(request: Request) {
     orders.forEach((o: any, idx: number) => {
       const itemsDetail = (o.items || [])
         .map((item: any) => {
-          const variant = item.variantTitle || (item.color || item.size ? `[${[item.color, item.size].filter(Boolean).join(', ')}]` : '');
-          return `${item.name || 'Sản phẩm'} ${variant} (SL: ${item.quantity || 1} x ${(item.price || 0).toLocaleString('vi-VN')}₫)`;
+          const variant = formatVariantDisplay(item);
+          const variantStr = variant ? ` [${variant}]` : '';
+          return `${item.name || 'Sản phẩm'}${variantStr} (SL: ${item.quantity || 1} x ${(item.price || 0).toLocaleString('vi-VN')}₫)`;
         })
         .join('; ');
 
