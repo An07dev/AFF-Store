@@ -175,9 +175,17 @@ export default function ProductDetailModal({ productId, onClose }: ProductDetail
                   {/* Stats Row */}
                   <div className={styles.statsRow}>
                     <div className={styles.statBox}>
-                      <span className={styles.statNum} style={{ color: (product.stock || 0) < 10 ? '#ef4444' : '#10b981' }}>
-                        {product.stock ?? 0}
-                      </span>
+                      {(() => {
+                        const totalStock =
+                          Array.isArray(product.variants) && product.variants.length > 0
+                            ? product.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0)
+                            : Number(product.stock) || 0;
+                        return (
+                          <span className={styles.statNum} style={{ color: totalStock < 10 ? '#ef4444' : '#10b981' }}>
+                            {totalStock}
+                          </span>
+                        );
+                      })()}
                       <span className={styles.statTitle}>Tồn kho hiện tại</span>
                     </div>
 

@@ -320,9 +320,22 @@ export default function ProductsPage() {
                         {p.salePrice ? formatPrice(p.salePrice) : '-'}
                       </td>
                       <td>
-                        <span style={{ fontWeight: 600, color: (p.stock || 0) < 10 ? '#ef4444' : 'var(--text-main, #fff)' }}>
-                          {p.stock ?? 0}
-                        </span>
+                        {(() => {
+                          const computedStock =
+                            Array.isArray(p.variants) && p.variants.length > 0
+                              ? p.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0)
+                              : Number(p.stock) || 0;
+                          return (
+                            <span
+                              style={{
+                                fontWeight: 700,
+                                color: computedStock <= 0 ? '#ef4444' : computedStock < 10 ? '#f59e0b' : 'inherit',
+                              }}
+                            >
+                              {computedStock}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td>
                         <strong style={{ color: 'var(--accent, #10b981)' }}>{p.soldCount ?? 0}</strong>

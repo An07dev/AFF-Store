@@ -61,12 +61,24 @@ export async function GET(request: Request) {
 
     const total = await Product.countDocuments(filter);
     let products = await Product.find(filter)
-      .select('name slug price salePrice images rating soldCount sold reviewCount isFeatured tags category status')
+      .select('name slug price salePrice images rating soldCount sold reviewCount isFeatured tags category status stock variants options')
       .populate('category', 'name slug')
       .sort(sortOption)
       .skip((page - 1) * limit)
       .limit(limit)
       .lean();
+
+    // Accurately calculate total stock as sum of variants
+    products = products.map((p: any) => {
+      let finalStock = Number(p.stock) || 0;
+      if (Array.isArray(p.variants) && p.variants.length > 0) {
+        finalStock = p.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0);
+      }
+      return {
+        ...p,
+        stock: finalStock,
+      };
+    });
 
     // Check if there is an active live flash sale
     try {
