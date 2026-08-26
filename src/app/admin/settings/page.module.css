@@ -663,3 +663,75 @@
   color: #ffffff;
 }
 
+/* PC Sub-Banners & Layout Mockup in Admin */
+.bannerSectionDivider {
+  margin: 32px 0 20px;
+  border-top: 1px dashed var(--border-color, #1e2638);
+  padding-top: 24px;
+}
+
+.subBannerAlertBox {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.8125rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.subBannerAlertIcon {
+  color: var(--primary, #3b82f6);
+  font-size: 1.125rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pcBannerMockupContainer {
+  background: var(--bg-main, #090a0f);
+  border: 1px solid var(--border-color, #1e2638);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 24px;
+}
+
+.pcBannerMockupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.pcBannerMockupGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  aspect-ratio: 16 / 5.2;
+}
+
+.mockupMainBanner {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+}
+
+.mockupSideColumn {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 8px;
+}
+
+.mockupSideBanner {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+}
+

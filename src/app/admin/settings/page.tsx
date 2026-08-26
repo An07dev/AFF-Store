@@ -24,7 +24,7 @@ import {
   FiArrowDown,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
-import { useTheme, ThemeConfig, BannerSlide, defaultTheme, defaultBanners } from '@/contexts/ThemeContext';
+import { useTheme, ThemeConfig, BannerSlide, defaultTheme, defaultBanners, defaultSubBanners } from '@/contexts/ThemeContext';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -269,8 +269,10 @@ export default function AdminSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadingBannerIdx, setUploadingBannerIdx] = useState<number | null>(null);
+  const [uploadingSubBannerIdx, setUploadingSubBannerIdx] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const subBannerInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Email SMTP Settings State
   const [emailForm, setEmailForm] = useState({
@@ -529,6 +531,45 @@ export default function AdminSettingsPage() {
     }
   };
 
+  // Sub Banner Handlers (2 Side Banners for Desktop PC)
+  const handleSubBannerChange = (index: number, field: keyof BannerSlide, value: string) => {
+    const currentSubBanners = theme.subBanners && theme.subBanners.length > 0 ? theme.subBanners : defaultSubBanners;
+    const updated = [...currentSubBanners];
+    while (updated.length < 2) {
+      const fallback = defaultSubBanners[updated.length] || { tag: '', title: '', image: '', link: '/?tab=products' };
+      updated.push({ ...fallback });
+    }
+    updated[index] = { ...updated[index], [field]: value };
+    setTheme({ ...theme, subBanners: updated });
+  };
+
+  const handleSubBannerUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploadingSubBannerIdx(index);
+    try {
+      const res = await apiFetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.data?.url) {
+        handleSubBannerChange(index, 'image', data.data.url);
+        toast.success(`Upload ảnh Banner Phụ #${index + 1} thành công!`);
+      } else {
+        toast.error(data.message || 'Lỗi upload ảnh banner phụ');
+      }
+    } catch (err) {
+      toast.error('Lỗi khi tải ảnh banner phụ lên');
+    } finally {
+      setUploadingSubBannerIdx(null);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     await saveTheme(theme);
@@ -741,8 +782,18 @@ export default function AdminSettingsPage() {
                 <div className={styles.sectionHeader}>
                   <div>
                     <h3>Quản Lý Banner Quảng Cáo Trang Chủ</h3>
-                    <p>Tùy biến hình ảnh banner trượt Carousel, nhãn tag nổi bật, tiêu đề và link chuyển hướng</p>
+                    <p>Tùy biến hình ảnh banner trượt Carousel chính và 2 Banner phụ hiển thị trên giao diện PC / Desktop</p>
                   </div>
+                </div>
+
+                {/* ===== PHẦN 1: BANNER CHÍNH (CAROUSEL SLIDES) ===== */}
+                <div style={{ marginBottom: 12 }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 700, color: theme.textColors?.textPrimary || '#fff', marginBottom: 4 }}>
+                    1. Danh Sách Banner Chính (Carousel Trượt Tự Động)
+                  </h4>
+                  <p style={{ fontSize: '0.8125rem', color: theme.textColors?.textSecondary || '#94a3b8', margin: 0 }}>
+                    Hiển thị toàn màn hình trên điện thoại (Mobile) và chiếm 2/3 bề ngang bên trái trên máy tính (PC).
+                  </p>
                 </div>
 
                 <div className={styles.bannerList}>
@@ -750,7 +801,7 @@ export default function AdminSettingsPage() {
                     <div key={index} className={styles.bannerCard}>
                       <div className={styles.bannerCardHeader}>
                         <span className={styles.bannerBadge}>
-                          <FiLayers size={14} /> Banner #{index + 1}
+                          <FiLayers size={14} /> Banner Chính #{index + 1}
                         </span>
                         <div className={styles.bannerCardActions}>
                           <button
@@ -873,8 +924,180 @@ export default function AdminSettingsPage() {
                   className={styles.addBannerBtn}
                   onClick={handleAddBanner}
                 >
-                  <FiPlus size={18} /> Thêm Banner Mới
+                  <FiPlus size={18} /> Thêm Banner Chính Mới
                 </button>
+
+                {/* ===== PHẦN 2: 2 BANNER PHỤ BÊN PHẢI (PC DESKTOP DUAL LAYOUT) ===== */}
+                <div className={styles.bannerSectionDivider}>
+                  <div style={{ marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 700, color: theme.textColors?.textPrimary || '#fff', marginBottom: 4 }}>
+                      2. Cấu Hình 2 Banner Phụ Bên Phải (Hiển Thị Trên Giao Diện PC)
+                    </h4>
+                    <p style={{ fontSize: '0.8125rem', color: theme.textColors?.textSecondary || '#94a3b8', margin: 0 }}>
+                      Tự động xếp chồng 2 banner ở cột bên phải cạnh Banner chính theo bố cục chuẩn Shopee trên máy tính (PC / Laptop). Trên điện thoại (Mobile) hệ thống sẽ ẩn để giữ giao diện gọn gàng.
+                    </p>
+                  </div>
+
+                  <div className={styles.subBannerAlertBox}>
+                    <FiHelpCircle className={styles.subBannerAlertIcon} />
+                    <div>
+                      <strong>Mẹo tỷ lệ ảnh:</strong> Nên dùng hình ảnh kích thước khoảng <strong>400 x 180 px</strong> hoặc tỷ lệ ngang <strong>16:7.5</strong> để hiển thị vừa vặn đẹp nhất với banner chính bên cạnh.
+                    </div>
+                  </div>
+
+                  <div className={styles.bannerList}>
+                    {[0, 1].map((subIdx) => {
+                      const currentSubBanners = theme.subBanners && theme.subBanners.length > 0 ? theme.subBanners : defaultSubBanners;
+                      const subBanner = currentSubBanners[subIdx] || defaultSubBanners[subIdx] || { tag: '', title: '', image: '', link: '/?tab=products' };
+                      const labelText = subIdx === 0 ? 'Banner Phụ Phía Trên (Top Sub-Banner)' : 'Banner Phụ Phía Dưới (Bottom Sub-Banner)';
+
+                      return (
+                        <div key={subIdx} className={styles.bannerCard}>
+                          <div className={styles.bannerCardHeader}>
+                            <span className={styles.bannerBadge} style={{ color: '#10b981', background: 'rgba(16, 185, 129, 0.1)' }}>
+                              <FiLayers size={14} /> {labelText}
+                            </span>
+                          </div>
+
+                          <div className={styles.bannerCardGrid}>
+                            <div className={styles.bannerInputs}>
+                              <div className={styles.formGroup}>
+                                <label>Nhãn / Tag nổi bật</label>
+                                <input
+                                  type="text"
+                                  className={styles.input}
+                                  placeholder={subIdx === 0 ? 'Ví dụ: 9.9 Siêu Sale' : 'Ví dụ: Hàng Việt Tôi Yêu'}
+                                  value={subBanner.tag || ''}
+                                  onChange={(e) => handleSubBannerChange(subIdx, 'tag', e.target.value)}
+                                />
+                              </div>
+
+                              <div className={styles.formGroup}>
+                                <label>Tiêu đề Banner phụ</label>
+                                <input
+                                  type="text"
+                                  className={styles.input}
+                                  placeholder={subIdx === 0 ? 'Ăn Sáng Ngon Rẻ - Chỉ từ 10.000đ' : 'Chất Lượng Chính Hãng - Freeship 0Đ'}
+                                  value={subBanner.title || ''}
+                                  onChange={(e) => handleSubBannerChange(subIdx, 'title', e.target.value)}
+                                />
+                              </div>
+
+                              <div className={styles.formGroup}>
+                                <label>Đường dẫn liên kết (Link URL)</label>
+                                <input
+                                  type="text"
+                                  className={styles.input}
+                                  placeholder="/?tab=products"
+                                  value={subBanner.link || ''}
+                                  onChange={(e) => handleSubBannerChange(subIdx, 'link', e.target.value)}
+                                />
+                              </div>
+
+                              <div className={styles.formGroup}>
+                                <label>Hình ảnh Banner phụ (URL hoặc Upload từ máy tính)</label>
+                                <div className={styles.uploadRow}>
+                                  <input
+                                    type="text"
+                                    className={styles.input}
+                                    placeholder="https://images.unsplash.com/... hoặc /uploads/sub-banner.jpg"
+                                    value={subBanner.image || ''}
+                                    onChange={(e) => handleSubBannerChange(subIdx, 'image', e.target.value)}
+                                    style={{ flex: 1 }}
+                                  />
+                                  <button
+                                    type="button"
+                                    className={styles.uploadBtn}
+                                    onClick={() => subBannerInputRefs.current[subIdx]?.click()}
+                                    disabled={uploadingSubBannerIdx === subIdx}
+                                  >
+                                    <FiUploadCloud /> {uploadingSubBannerIdx === subIdx ? 'Đang tải...' : 'Upload ảnh'}
+                                  </button>
+                                  <input
+                                    type="file"
+                                    ref={(el) => { subBannerInputRefs.current[subIdx] = el; }}
+                                    style={{ display: 'none' }}
+                                    accept="image/*"
+                                    onChange={(e) => handleSubBannerUpload(subIdx, e)}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className={styles.bannerLivePreviewWrap}>
+                              <span className={styles.previewLabel}>Xem trước hiển thị:</span>
+                              <div className={styles.bannerLivePreview} style={{ aspectRatio: '16 / 7.5' }}>
+                                <img
+                                  src={subBanner.image || defaultSubBanners[subIdx]?.image}
+                                  alt={subBanner.title || `Sub-Banner ${subIdx + 1}`}
+                                  className={styles.bannerLiveImg}
+                                />
+                                {(subBanner.tag || subBanner.title) && (
+                                  <div className={styles.bannerLiveOverlay}>
+                                    {subBanner.tag && <span className={styles.bannerLiveTag} style={{ background: '#10b981' }}>{subBanner.tag}</span>}
+                                    {subBanner.title && <h4 className={styles.bannerLiveTitle}>{subBanner.title}</h4>}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ===== PHẦN 3: MOCKUP TRỰC QUAN BỐ CỤC PC SHOPEE ===== */}
+                <div className={styles.pcBannerMockupContainer}>
+                  <div className={styles.pcBannerMockupHeader}>
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <FiEye color="#3b82f6" /> Xem Trước Toàn Bộ Bố Cục Banner Trang Chủ Trên PC (Desktop Mockup)
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                      Chuẩn tỷ lệ Shopee Web (2/3 Banner Chính + 1/3 Cột Banner Phụ)
+                    </span>
+                  </div>
+
+                  <div className={styles.pcBannerMockupGrid}>
+                    {/* Mockup Main Carousel */}
+                    <div className={styles.mockupMainBanner}>
+                      <img
+                        src={(theme.banners && theme.banners[0]?.image) || defaultBanners[0]?.image}
+                        alt="Main Preview"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      <div className={styles.bannerLiveOverlay}>
+                        <span className={styles.bannerLiveTag}>Banner Chính (Slide)</span>
+                        <h4 className={styles.bannerLiveTitle}>
+                          {(theme.banners && theme.banners[0]?.title) || defaultBanners[0]?.title}
+                        </h4>
+                      </div>
+                    </div>
+
+                    {/* Mockup 2 Sub-Banners */}
+                    <div className={styles.mockupSideColumn}>
+                      {[0, 1].map((idx) => {
+                        const currentSub = (theme.subBanners && theme.subBanners[idx]) || defaultSubBanners[idx];
+                        return (
+                          <div key={idx} className={styles.mockupSideBanner}>
+                            <img
+                              src={currentSub?.image || defaultSubBanners[idx]?.image}
+                              alt={`Sub Preview ${idx + 1}`}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                            <div className={styles.bannerLiveOverlay} style={{ padding: '6px 8px' }}>
+                              {currentSub?.title && (
+                                <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+                                  {currentSub.title}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </>
             )}
 

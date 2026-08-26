@@ -17,6 +17,20 @@ function calcDiscount(price: number, salePrice: number) {
   return Math.round(((price - salePrice) / price) * 100);
 }
 
+function getSlotStatus(slot: any): 'live' | 'upcoming' | 'passed' {
+  if (!slot?.startTime || !slot?.endTime) return 'upcoming';
+  const now = new Date();
+  const curTotalMin = now.getHours() * 60 + now.getMinutes();
+  const [sh, sm] = slot.startTime.split(':').map((n: string) => parseInt(n, 10) || 0);
+  const [eh, em] = slot.endTime.split(':').map((n: string) => parseInt(n, 10) || 0);
+  const startTotal = sh * 60 + (sm || 0);
+  const endTotal = eh * 60 + (em || 0);
+
+  if (curTotalMin >= endTotal) return 'passed';
+  if (curTotalMin >= startTotal && curTotalMin < endTotal) return 'live';
+  return 'upcoming';
+}
+
 interface FlashSaleCountdownProps {
   slots?: any[];
 }
@@ -34,8 +48,10 @@ const FlashSaleCountdown: React.FC<FlashSaleCountdownProps> = memo(({ slots }) =
       const curMin = now.getMinutes();
       const curSec = now.getSeconds();
       const currentTotalMinutes = curHour * 60 + curMin;
+      const curTotalSeconds = curHour * 3600 + curMin * 60 + curSec;
 
-      const activeSlot = slots.find((s: any) => {
+      // 1. Check if there is an active LIVE slot
+      const liveSlot = slots.find((s: any) => {
         if (!s.startTime || !s.endTime) return false;
         const [sh, sm] = s.startTime.split(':').map((n: string) => parseInt(n, 10) || 0);
         const [eh, em] = s.endTime.split(':').map((n: string) => parseInt(n, 10) || 0);
@@ -44,11 +60,35 @@ const FlashSaleCountdown: React.FC<FlashSaleCountdownProps> = memo(({ slots }) =
         return currentTotalMinutes >= startTotal && currentTotalMinutes < endTotal;
       });
 
-      if (activeSlot) {
-        const [eh, em] = activeSlot.endTime.split(':').map((n: string) => parseInt(n, 10) || 0);
+      if (liveSlot) {
+        const [eh, em] = liveSlot.endTime.split(':').map((n: string) => parseInt(n, 10) || 0);
         const endTotalSeconds = eh * 3600 + (em || 0) * 60;
-        const curTotalSeconds = curHour * 3600 + curMin * 60 + curSec;
         const diffSeconds = Math.max(0, endTotalSeconds - curTotalSeconds);
+
+        const h = String(Math.floor(diffSeconds / 3600)).padStart(2, '0');
+        const m = String(Math.floor((diffSeconds % 3600) / 60)).padStart(2, '0');
+        const s = String(diffSeconds % 60).padStart(2, '0');
+        setCountdown({ hours: h, minutes: m, seconds: s });
+        return;
+      }
+
+      // 2. If no live slot, countdown to the next UPCOMING slot
+      const sortedSlots = [...slots].sort((a: any, b: any) => {
+        const [ah, am] = (a.startTime || '00:00').split(':').map((n: string) => parseInt(n, 10) || 0);
+        const [bh, bm] = (b.startTime || '00:00').split(':').map((n: string) => parseInt(n, 10) || 0);
+        return ah * 60 + am - (bh * 60 + bm);
+      });
+
+      const upcomingSlot = sortedSlots.find((s: any) => {
+        if (!s.startTime) return false;
+        const [sh, sm] = s.startTime.split(':').map((n: string) => parseInt(n, 10) || 0);
+        return sh * 60 + (sm || 0) > currentTotalMinutes;
+      });
+
+      if (upcomingSlot) {
+        const [sh, sm] = upcomingSlot.startTime.split(':').map((n: string) => parseInt(n, 10) || 0);
+        const startTotalSeconds = sh * 3600 + (sm || 0) * 60;
+        const diffSeconds = Math.max(0, startTotalSeconds - curTotalSeconds);
 
         const h = String(Math.floor(diffSeconds / 3600)).padStart(2, '0');
         const m = String(Math.floor((diffSeconds % 3600) / 60)).padStart(2, '0');
@@ -93,12 +133,25 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (flashSaleConfig?.activeSlot?.id) {
-      setSelectedSlotId(flashSaleConfig.activeSlot.id);
-    } else if (flashSaleConfig?.slots?.[0]?.id) {
-      setSelectedSlotId(flashSaleConfig.slots[0].id);
+    if (!flashSaleConfig?.slots || flashSaleConfig.slots.length === 0) return;
+
+    // 1. Prefer selecting the LIVE slot
+    const live = flashSaleConfig.slots.find((s: any) => getSlotStatus(s) === 'live');
+    if (live) {
+      setSelectedSlotId(live.id);
+      return;
     }
-  }, [flashSaleConfig?.activeSlot?.id, flashSaleConfig?.slots]);
+
+    // 2. Otherwise select next UPCOMING slot
+    const upcoming = flashSaleConfig.slots.find((s: any) => getSlotStatus(s) === 'upcoming');
+    if (upcoming) {
+      setSelectedSlotId(upcoming.id);
+      return;
+    }
+
+    // 3. Otherwise default to first slot
+    setSelectedSlotId(flashSaleConfig.slots[0].id);
+  }, [flashSaleConfig?.slots]);
 
   const hasFlashContent = Boolean(
     flashSaleConfig &&
@@ -112,11 +165,10 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
   if (!hasFlashContent) return null;
 
   const selectedSlot = flashSaleConfig?.slots?.find((s: any) => s.id === selectedSlotId);
-  const isLiveSlot = selectedSlot
-    ? selectedSlot.status === 'live' || flashSaleConfig.activeSlot?.id === selectedSlot.id
-    : true;
-  const isUpcomingSlot = !isLiveSlot && selectedSlot?.status === 'upcoming';
-  const isPassedSlot = !isLiveSlot && (selectedSlot?.status === 'passed' || selectedSlot?.status === 'ended');
+  const selectedStatus = selectedSlot ? getSlotStatus(selectedSlot) : 'upcoming';
+  const isLiveSlot = selectedStatus === 'live';
+  const isUpcomingSlot = selectedStatus === 'upcoming';
+  const isPassedSlot = selectedStatus === 'passed';
 
   const itemsToRender =
     selectedSlot && selectedSlot.items && selectedSlot.items.length > 0
@@ -169,12 +221,13 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
         <div className={styles.flashSlotTabs}>
           {flashSaleConfig.slots.map((slot: any) => {
             const isSelected = selectedSlotId === slot.id;
-            const isLive = slot.status === 'live' || flashSaleConfig.activeSlot?.id === slot.id;
-            const statusText = isLive
-              ? '🔥 Đang diễn ra'
-              : slot.status === 'passed'
-                ? 'Đã qua'
-                : 'Sắp diễn ra';
+            const status = getSlotStatus(slot);
+            const statusText =
+              status === 'live'
+                ? '🔥 Đang diễn ra'
+                : status === 'passed'
+                  ? 'Đã qua'
+                  : 'Sắp diễn ra';
 
             return (
               <div
@@ -198,28 +251,105 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
       {(() => {
         if (isUpcomingSlot) {
           return (
-            <div className={styles.slotUpcomingBox}>
-              <div className={styles.slotUpcomingIconCircle}>
-                <FiClock size={22} />
-              </div>
-              <div className={styles.slotNoticeBody}>
-                <div className={styles.slotNoticeHeadRow}>
-                  <span className={styles.slotUpcomingTag}>Sắp mở bán</span>
-                  <span className={styles.slotNoticeTimeText}>
-                    {selectedSlot?.startTime || '00:00'} - {selectedSlot?.endTime || '00:00'}
-                  </span>
+            <>
+              <div className={styles.slotUpcomingBox}>
+                <div className={styles.slotUpcomingIconCircle}>
+                  <FiClock size={22} />
                 </div>
-                <p className={styles.slotNoticeMessage}>
-                  Khung giờ này sắp diễn ra với mức giá ưu đãi cực sốc. Hãy chuẩn bị sẵn sàng và quay lại đúng giờ để săn deal bạn nhé!
-                </p>
+                <div className={styles.slotNoticeBody}>
+                  <div className={styles.slotNoticeHeadRow}>
+                    <span className={styles.slotUpcomingTag}>Sắp mở bán</span>
+                    <span className={styles.slotNoticeTimeText}>
+                      {selectedSlot?.startTime || '00:00'} - {selectedSlot?.endTime || '00:00'}
+                    </span>
+                  </div>
+                  <p className={styles.slotNoticeMessage}>
+                    Khung giờ này sắp diễn ra với mức giá ưu đãi cực sốc. Hãy chuẩn bị sẵn sàng và quay lại đúng giờ để săn deal bạn nhé!
+                  </p>
+                </div>
               </div>
-            </div>
+
+              {/* Preview Upcoming Items (Horizontal Scroll) */}
+              {itemsToRender.length > 0 && (
+                <div className={styles.flashCarousel}>
+                  {itemsToRender.slice(0, 6).map((item: any, i: number) => {
+                    const originalPrice = item.originalPrice || item.price || 0;
+                    const salePrice = item.flashPrice || item.salePrice || item.price || 0;
+                    const discount =
+                      item.discountPercent ||
+                      (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
+
+                    return (
+                      <Link
+                        href={`/product/${item.slug}`}
+                        key={item._id || i}
+                        className={styles.flashCard}
+                      >
+                        <div className={styles.flashImgWrap}>
+                          <img
+                            src={
+                              item.image ||
+                              item.images?.[0] ||
+                              'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
+                            }
+                            alt={item.name || ''}
+                            className={styles.flashImg}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          {discount > 0 && (
+                            <div className={styles.shopeeDiscountFlag}>
+                              -{discount}%
+                            </div>
+                          )}
+                        </div>
+                        <div className={styles.flashInfo}>
+                          <div className={styles.flashPrice} style={{ color: '#f97316' }}>
+                            {formatPrice(salePrice)}
+                          </div>
+                          {originalPrice > salePrice && (
+                            <div className={styles.flashOldPrice}>
+                              {formatPrice(originalPrice)}
+                            </div>
+                          )}
+                          <div className={styles.fireProgressBar}>
+                            <div
+                              className={styles.fireFill}
+                              style={{ width: '0%', background: '#94a3b8' }}
+                            />
+                            <span className={styles.fireText} style={{ color: '#64748b' }}>
+                              ⏰ Sắp mở bán
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+
+                  {/* See All Card at the end of the scroll */}
+                  <div
+                    className={styles.flashSeeAllCard}
+                    onClick={onSeeAll}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <div className={styles.flashSeeAllCircle}>
+                      <FiArrowRight size={18} />
+                    </div>
+                    <span className={styles.flashSeeAllText}>Xem tất cả</span>
+                    <span className={styles.flashSeeAllSubText}>
+                      {itemsToRender.length > 6 ? `+${itemsToRender.length - 6} deal nữa` : 'Sắp diễn ra'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </>
           );
         }
 
         if (isPassedSlot) {
           const liveSlot = flashSaleConfig?.slots?.find(
-            (s: any) => s.status === 'live' || flashSaleConfig.activeSlot?.id === s.id
+            (s: any) => getSlotStatus(s) === 'live'
           );
 
           return (
@@ -272,9 +402,12 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
           );
         }
 
+        const displayLiveItems = itemsToRender.slice(0, 6);
+        const remainingLiveCount = Math.max(0, itemsToRender.length - displayLiveItems.length);
+
         return (
           <div className={styles.flashCarousel}>
-            {itemsToRender.map((item: any, i: number) => {
+            {displayLiveItems.map((item: any, i: number) => {
               const originalPrice = item.originalPrice || item.price || 0;
               const salePrice = item.flashPrice || item.salePrice || item.price || 0;
               const discount =
@@ -329,6 +462,22 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
                 </Link>
               );
             })}
+
+            {/* See All Card at the end of the scroll */}
+            <div
+              className={styles.flashSeeAllCard}
+              onClick={onSeeAll}
+              role="button"
+              tabIndex={0}
+            >
+              <div className={styles.flashSeeAllCircle}>
+                <FiArrowRight size={18} />
+              </div>
+              <span className={styles.flashSeeAllText}>Xem tất cả</span>
+              <span className={styles.flashSeeAllSubText}>
+                {remainingLiveCount > 0 ? `+${remainingLiveCount} deal nữa` : 'Flash Sale'}
+              </span>
+            </div>
           </div>
         );
       })()}

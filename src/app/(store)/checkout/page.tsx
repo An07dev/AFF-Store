@@ -802,19 +802,21 @@ export default function CheckoutPage() {
 
       {/* ===== FIXED BOTTOM ACTION BAR ===== */}
       <div className={styles.bottomBar}>
-        <div className={styles.totalGroup}>
-          <span className={styles.totalLabel}>Tổng thanh toán</span>
-          <span className={styles.totalAmount}>{formatPrice(finalTotalAmount)}</span>
-        </div>
+        <div className={styles.bottomBarInner}>
+          <div className={styles.totalGroup}>
+            <span className={styles.totalLabel}>Tổng thanh toán</span>
+            <span className={styles.totalAmount}>{formatPrice(finalTotalAmount)}</span>
+          </div>
 
-        <button
-          type="button"
-          className={styles.orderSubmitBtn}
-          disabled={submitting}
-          onClick={handleSubmitOrder}
-        >
-          {submitting ? 'Đang Xử Lý...' : 'Đặt Hàng Ngay'}
-        </button>
+          <button
+            type="button"
+            className={styles.orderSubmitBtn}
+            disabled={submitting}
+            onClick={handleSubmitOrder}
+          >
+            {submitting ? 'Đang Xử Lý...' : 'Đặt Hàng Ngay'}
+          </button>
+        </div>
       </div>
 
       {/* ===== VOUCHER SELECTION MODAL ===== */}

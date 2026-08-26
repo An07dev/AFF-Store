@@ -90,13 +90,20 @@ const StoreProductCardComponent: React.FC<StoreProductCardProps> = ({
     );
   }
 
+  const isFlash = Boolean(product.isFlashSale || (product.flashPrice && product.flashPrice > 0));
+  const effectivePrice = product.flashPrice || product.salePrice || product.price;
+  const effectiveOriginalPrice =
+    product.price > effectivePrice
+      ? product.price
+      : (product.salePrice && product.salePrice > effectivePrice ? product.salePrice : 0);
+
   const discount =
-    product.salePrice && product.salePrice < product.price
-      ? calcDiscount(product.price, product.salePrice)
-      : null;
+    effectiveOriginalPrice > effectivePrice
+      ? calcDiscount(effectiveOriginalPrice, effectivePrice)
+      : (product.discountPercent || null);
+
   const displayImage =
     product.images?.[0] || product.image || 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400';
-  const effectivePrice = product.flashPrice || product.salePrice || product.price;
 
   if (viewMode === 'list') {
     return (
@@ -109,9 +116,10 @@ const StoreProductCardComponent: React.FC<StoreProductCardProps> = ({
             loading="lazy"
             decoding="async"
           />
-          {product.isFlashSale ? (
-            <div className={styles.listDiscountBadge} style={{ background: '#ea580c', color: '#fff' }}>
-              -{product.discountPercent || discount}%
+          {isFlash ? (
+            <div className={styles.cardFlashBadge} style={{ transform: 'scale(0.85)', transformOrigin: 'top right' }}>
+              <span className={styles.cardFlashPercent}>-{product.discountPercent || discount || 20}%</span>
+              <span className={styles.cardFlashLabel}>⚡ SALE</span>
             </div>
           ) : discount ? (
             <div className={styles.listDiscountBadge}>
@@ -121,6 +129,11 @@ const StoreProductCardComponent: React.FC<StoreProductCardProps> = ({
         </div>
 
         <div className={styles.listInfo}>
+          {isFlash && (
+            <div className={styles.cardFlashPill}>
+              <span>⚡ FLASH SALE</span>
+            </div>
+          )}
           <p className={styles.listName}>{product.name}</p>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             <StarRating rating={product.rating || 5} />
@@ -132,8 +145,8 @@ const StoreProductCardComponent: React.FC<StoreProductCardProps> = ({
             <span className={styles.listPrice}>
               {formatPrice(effectivePrice)}
             </span>
-            {effectivePrice < product.price && (
-              <span className={styles.listOldPrice}>{formatPrice(product.price)}</span>
+            {effectiveOriginalPrice > effectivePrice && (
+              <span className={styles.listOldPrice}>{formatPrice(effectiveOriginalPrice)}</span>
             )}
           </div>
         </div>
@@ -162,10 +175,10 @@ const StoreProductCardComponent: React.FC<StoreProductCardProps> = ({
           decoding="async"
         />
         <div className={styles.favoriteBadge}>Yêu Thích+</div>
-        {product.isFlashSale ? (
-          <div className={styles.discountBadge} style={{ background: '#ea580c', color: '#fff' }}>
-            <span className={styles.discountBadgePercent}>{product.discountPercent || discount}%</span>
-            <span className={styles.discountBadgeLabel}>FLASH SALE</span>
+        {isFlash ? (
+          <div className={styles.cardFlashBadge}>
+            <span className={styles.cardFlashPercent}>-{product.discountPercent || discount || 20}%</span>
+            <span className={styles.cardFlashLabel}>⚡ FLASH SALE</span>
           </div>
         ) : discount ? (
           <div className={styles.discountBadge}>
@@ -180,14 +193,19 @@ const StoreProductCardComponent: React.FC<StoreProductCardProps> = ({
 
       <div className={styles.cardBody}>
         <div>
+          {isFlash && (
+            <div className={styles.cardFlashPill}>
+              <span>⚡ FLASH SALE</span>
+            </div>
+          )}
           <p className={styles.cardName}>{product.name}</p>
           <div className={styles.cardPriceRow}>
             <span className={styles.cardCurrentPrice}>
               {formatPrice(effectivePrice)}
             </span>
-            {effectivePrice < product.price && (
+            {effectiveOriginalPrice > effectivePrice && (
               <span className={styles.cardOldPrice}>
-                {formatPrice(product.price)}
+                {formatPrice(effectiveOriginalPrice)}
               </span>
             )}
           </div>

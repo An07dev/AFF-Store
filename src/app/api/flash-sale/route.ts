@@ -52,11 +52,14 @@ export async function GET() {
     const currentSecond = vnTime.getSeconds();
     const currentTotalMinutes = currentHour * 60 + currentMinute;
 
+    const enabledSlots = (flashSale.slots || [])
+      .filter((s) => s.enabled)
+      .sort((a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime));
+
     let isLive = false;
     let activeSlot: any = null;
+    let nextUpcomingSlot: any = null;
     let timeRemainingSeconds = 0;
-
-    const enabledSlots = (flashSale.slots || []).filter((s) => s.enabled);
 
     // 1. Find the active live slot right now
     for (const slot of enabledSlots) {
@@ -79,22 +82,15 @@ export async function GET() {
         activeSlot = slot;
         timeRemainingSeconds = Math.max(0, (endMin - currentTotalMinutes) * 60 - currentSecond);
         break;
+      } else if (currentTotalMinutes < startMin && !nextUpcomingSlot) {
+        nextUpcomingSlot = slot;
       }
     }
 
-    // 2. If no live slot, find the upcoming slot today
-    if (!isLive && enabledSlots.length > 0) {
-      for (const slot of enabledSlots) {
-        const startMin = parseTimeToMinutes(slot.startTime);
-        if (startMin > currentTotalMinutes) {
-          activeSlot = slot;
-          timeRemainingSeconds = Math.max(0, (startMin - currentTotalMinutes) * 60 - currentSecond);
-          break;
-        }
-      }
-      if (!activeSlot) {
-        activeSlot = enabledSlots[0];
-      }
+    // 2. If no live slot, calculate countdown to next upcoming slot
+    if (!isLive && nextUpcomingSlot) {
+      const startMin = parseTimeToMinutes(nextUpcomingSlot.startTime);
+      timeRemainingSeconds = Math.max(0, (startMin - currentTotalMinutes) * 60 - currentSecond);
     }
 
     // Determine products to show: ONLY return active Flash Sale items when slot is actively LIVE!
@@ -142,10 +138,30 @@ export async function GET() {
       const endMin = parseTimeToMinutes(s.endTime);
       let status: 'passed' | 'live' | 'upcoming' = 'upcoming';
 
-      if (currentTotalMinutes >= endMin) {
-        status = 'passed';
-      } else if (currentTotalMinutes >= startMin && currentTotalMinutes < endMin) {
-        status = 'live';
+      let isDateMatch = true;
+      if (s.dateType === 'specific_date' && s.specificDate) {
+        isDateMatch = todayStr === s.specificDate;
+      } else if (s.dateType === 'date_range') {
+        if (s.startDate && todayStr < s.startDate) isDateMatch = false;
+        if (s.endDate && todayStr > s.endDate) isDateMatch = false;
+      }
+
+      if (!isDateMatch) {
+        if (s.dateType === 'specific_date' && s.specificDate && todayStr > s.specificDate) {
+          status = 'passed';
+        } else if (s.dateType === 'date_range' && s.endDate && todayStr > s.endDate) {
+          status = 'passed';
+        } else {
+          status = 'upcoming';
+        }
+      } else {
+        if (currentTotalMinutes >= endMin) {
+          status = 'passed';
+        } else if (currentTotalMinutes >= startMin && currentTotalMinutes < endMin) {
+          status = 'live';
+        } else {
+          status = 'upcoming';
+        }
       }
 
       // Slot items preview
@@ -188,7 +204,8 @@ export async function GET() {
         subtitle: flashSale.subtitle,
         isActive: flashSale.isActive,
         isLive,
-        activeSlot,
+        activeSlot: isLive ? activeSlot : null,
+        nextSlot: nextUpcomingSlot,
         slots: formattedSlots,
         timeRemainingSeconds,
         items: activeItems,

@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FiGrid, FiList, FiChevronRight, FiLayers } from 'react-icons/fi';
 import { useCart } from '@/contexts/CartContext';
-import { useTheme, defaultBanners } from '@/contexts/ThemeContext';
+import { useTheme, defaultBanners, defaultSubBanners } from '@/contexts/ThemeContext';
 import StoreLoading from '@/components/store/StoreLoading';
 import BannerNotice from '@/components/common/BannerNotice';
 import VoucherCollectionBar from '@/components/store/VoucherCollectionBar';
@@ -71,6 +71,7 @@ function HomePageContent() {
   const shopDisplayName = theme?.pageTitles?.logoText || 'ShopTik Store';
   const avatarInitials = shopDisplayName ? shopDisplayName.substring(0, 2).toUpperCase() : 'ST';
   const heroBanners = theme?.banners && theme.banners.length > 0 ? theme.banners : defaultBanners;
+  const subBanners = theme?.subBanners && theme.subBanners.length > 0 ? theme.subBanners : defaultSubBanners;
 
   // 1. Fetch Public Flash Sale with Client Cache
   useEffect(() => {
@@ -426,6 +427,7 @@ function HomePageContent() {
             {/* HERO BANNER CAROUSEL (ISOLATED 4S TIMER) */}
             <HeroBannerCarousel
               banners={heroBanners}
+              subBanners={subBanners}
               onNavigateToProducts={handleNavigateToProducts}
             />
 

@@ -34,7 +34,7 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
         className={styles.quickHubItem}
         onClick={() => onSelectQuickFilter(1, false)}
       >
-        <div className={`${styles.quickIconWrap} ${styles.iconOrange}`}>
+        <div className={`${styles.quickIconWrap} ${styles.iconTransparent}`}>
           <QuickIconFreeship />
         </div>
         <span className={styles.quickHubLabel}>Freeship 0Đ</span>
@@ -45,7 +45,7 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
         className={styles.quickHubItem}
         onClick={onScrollToFlashSale}
       >
-        <div className={`${styles.quickIconWrap} ${styles.iconYellow}`}>
+        <div className={`${styles.quickIconWrap} ${styles.iconTransparent}`}>
           <QuickIconFlashSale />
         </div>
         <span className={styles.quickHubLabel}>Flash Sale</span>
@@ -56,7 +56,7 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
         className={styles.quickHubItem}
         onClick={() => onSelectQuickFilter(2, false)}
       >
-        <div className={`${styles.quickIconWrap} ${styles.iconRed}`}>
+        <div className={`${styles.quickIconWrap} ${styles.iconTransparent}`}>
           <QuickIconBestSeller />
         </div>
         <span className={styles.quickHubLabel}>Bán Chạy</span>
@@ -67,7 +67,7 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
         className={styles.quickHubItem}
         onClick={onNavigateToProducts}
       >
-        <div className={`${styles.quickIconWrap} ${styles.iconPink}`}>
+        <div className={`${styles.quickIconWrap} ${styles.iconTransparent}`}>
           <QuickIconMall />
         </div>
         <span className={styles.quickHubLabel}>Shopee Mall</span>
@@ -78,7 +78,7 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
         className={styles.quickHubItem}
         onClick={() => onSelectQuickFilter(4, true)}
       >
-        <div className={`${styles.quickIconWrap} ${styles.iconGreen}`}>
+        <div className={`${styles.quickIconWrap} ${styles.iconTransparent}`}>
           <QuickIconCheap />
         </div>
         <span className={styles.quickHubLabel}>Gì Cũng Rẻ</span>
@@ -89,7 +89,7 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
         className={styles.quickHubItem}
         onClick={() => onSelectQuickFilter(4, true)}
       >
-        <div className={`${styles.quickIconWrap} ${styles.iconPurple}`}>
+        <div className={`${styles.quickIconWrap} ${styles.iconTransparent}`}>
           <QuickIconShockDeal />
         </div>
         <span className={styles.quickHubLabel}>Deal sốc</span>
@@ -100,7 +100,7 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
         className={styles.quickHubItem}
         onClick={() => router.push('/tracking')}
       >
-        <div className={`${styles.quickIconWrap} ${styles.iconCyan}`}>
+        <div className={`${styles.quickIconWrap} ${styles.iconTransparent}`}>
           <QuickIconTracking />
         </div>
         <span className={styles.quickHubLabel}>Tra Cứu Đơn</span>
@@ -111,7 +111,7 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
         className={styles.quickHubItem}
         onClick={() => router.push('/chat')}
       >
-        <div className={`${styles.quickIconWrap} ${styles.iconBlue}`}>
+        <div className={`${styles.quickIconWrap} ${styles.iconTransparent}`}>
           <QuickIconConsult />
         </div>
         <span className={styles.quickHubLabel}>Tư Vấn Shop</span>

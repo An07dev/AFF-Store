@@ -38,6 +38,7 @@ import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import StoreLoading from '@/components/store/StoreLoading';
 import BannerNotice from '@/components/common/BannerNotice';
 import VoucherCollectionBar from '@/components/store/VoucherCollectionBar';
+import StoreProductCard, { ProductItem } from '@/components/store/home/StoreProductCard';
 import { apiFetch } from '@/lib/api';
 import {
   IProductOption,
@@ -62,12 +63,15 @@ export default function ProductDetailPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
-  // PC Tab State (Mô tả vs Đánh giá)
-  const [pcTab, setPcTab] = useState<'desc' | 'reviews'>('desc');
+  // PC Tab State (Mô tả vs Đánh giá vs Gợi ý)
+  const [pcTab, setPcTab] = useState<'desc' | 'reviews' | 'related'>('desc');
+
+  // Related products state ("Có thể bạn cũng thích")
+  const [relatedProducts, setRelatedProducts] = useState<ProductItem[]>([]);
 
   // Expand Modal State (For full description & full reviews view on PC)
   const [isExpandModalOpen, setIsExpandModalOpen] = useState(false);
-  const [expandModalTab, setExpandModalTab] = useState<'desc' | 'reviews'>('desc');
+  const [expandModalTab, setExpandModalTab] = useState<'desc' | 'reviews' | 'related'>('desc');
 
   // Flash Sale & FOMO state
   const [flashSaleItem, setFlashSaleItem] = useState<any | null>(null);
@@ -131,29 +135,6 @@ export default function ProductDetailPage() {
   useEffect(() => {
     loadReviewsPreview();
   }, [params.slug]);
-
-  // Lock outer body/html scroll on PC only to ensure 100% single-screen layout with zero outer scroll
-  useEffect(() => {
-    const handleLockScroll = () => {
-      if (typeof window !== 'undefined') {
-        if (window.innerWidth >= 1024) {
-          document.body.style.overflow = 'hidden';
-          document.documentElement.style.overflow = 'hidden';
-        } else {
-          document.body.style.overflow = '';
-          document.documentElement.style.overflow = '';
-        }
-      }
-    };
-
-    handleLockScroll();
-    window.addEventListener('resize', handleLockScroll);
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      window.removeEventListener('resize', handleLockScroll);
-    };
-  }, []);
 
   // Handle Photo Upload in Review
   const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -243,13 +224,23 @@ export default function ProductDetailPage() {
     setLoading(true);
     Promise.all([
       apiFetch(`/api/products/${params.slug}`).then((r) => r.json()),
-      apiFetch(`/api/flash-sales/active`).then((r) => r.json()).catch(() => null),
+      apiFetch(`/api/flash-sale`).then((r) => r.json()).catch(() => null),
       apiFetch(`/api/settings/fomo`).then((r) => r.json()).catch(() => null),
     ])
       .then(([prodData, fsData, fomoData]) => {
         if (prodData.success && prodData.data) {
           const p = prodData.data;
           setProduct(p);
+
+          if (p.flashSale) {
+            setFlashSaleItem(p.flashSale);
+          } else if (p.flashPrice && p.isFlashSale) {
+            setFlashSaleItem({
+              flashPrice: p.flashPrice,
+              originalPrice: p.price,
+              isLive: true,
+            });
+          }
 
           // Initialize default attributes from first available variant or option defaults
           const initAttrs: Record<string, string> = {};
@@ -263,15 +254,55 @@ export default function ProductDetailPage() {
           setSelectedAttributes(initAttrs);
 
           // Check if this product is part of active flash sale
-          if (fsData && fsData.success && fsData.data && fsData.data.products) {
-            const fsProduct = fsData.data.products.find(
-              (item: any) =>
-                item.productId === p._id ||
-                item.productId?._id === p._id ||
-                (typeof item.productId === 'string' && item.productId === p._id)
-            );
+          if (fsData && fsData.success && fsData.data) {
+            const pIdStr = String(p._id);
+            let fsProduct: any = null;
+
+            // 1. Check live items
+            if (Array.isArray(fsData.data.items)) {
+              fsProduct = fsData.data.items.find(
+                (item: any) =>
+                  String(item.productId?._id || item.productId || item._id) === pIdStr ||
+                  item.slug === p.slug
+              );
+            }
+
+            // 2. Check slots array (data.slots -> slot.items)
+            if (!fsProduct && Array.isArray(fsData.data.slots)) {
+              const liveSlot = fsData.data.slots.find((s: any) => s.status === 'live');
+              if (liveSlot && Array.isArray(liveSlot.items)) {
+                fsProduct = liveSlot.items.find(
+                  (item: any) =>
+                    String(item.productId?._id || item.productId || item._id) === pIdStr ||
+                    item.slug === p.slug
+                );
+              }
+              if (!fsProduct) {
+                for (const s of fsData.data.slots) {
+                  if (Array.isArray(s.items)) {
+                    const found = s.items.find(
+                      (item: any) =>
+                        String(item.productId?._id || item.productId || item._id) === pIdStr ||
+                        item.slug === p.slug
+                    );
+                    if (found) {
+                      fsProduct = found;
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+
             if (fsProduct) {
-              setFlashSaleItem(fsProduct);
+              const activeEndTime =
+                fsData.data.activeSlot?.endTime ||
+                fsData.data.slots?.find((s: any) => s.status === 'live')?.endTime;
+
+              setFlashSaleItem({
+                ...fsProduct,
+                endTime: activeEndTime,
+              });
             }
           }
 
@@ -294,29 +325,92 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!flashSaleItem) return;
 
-    const timer = setInterval(() => {
+    const updateCountdown = () => {
       const now = new Date();
-      const endOfDay = new Date();
-      endOfDay.setHours(23, 59, 59, 999);
-      const diff = endOfDay.getTime() - now.getTime();
+      const curHour = now.getHours();
+      const curMin = now.getMinutes();
+      const curSec = now.getSeconds();
+      const curTotalSec = curHour * 3600 + curMin * 60 + curSec;
 
-      if (diff <= 0) {
-        setFlashCountdown({ hours: '00', minutes: '00', seconds: '00' });
-      } else {
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        setFlashCountdown({
-          hours: String(hours).padStart(2, '0'),
-          minutes: String(minutes).padStart(2, '0'),
-          seconds: String(seconds).padStart(2, '0'),
-        });
+      let endTotalSec = 24 * 3600;
+      if (flashSaleItem.endTime) {
+        const [eh, em] = flashSaleItem.endTime.split(':').map((n: string) => parseInt(n, 10) || 0);
+        endTotalSec = eh * 3600 + (em || 0) * 60;
       }
-    }, 1000);
 
+      const diff = Math.max(0, endTotalSec - curTotalSec);
+      const hours = Math.floor(diff / 3600);
+      const minutes = Math.floor((diff % 3600) / 60);
+      const seconds = diff % 60;
+
+      setFlashCountdown({
+        hours: String(hours).padStart(2, '0'),
+        minutes: String(minutes).padStart(2, '0'),
+        seconds: String(seconds).padStart(2, '0'),
+      });
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
   }, [flashSaleItem]);
+
+  // Fetch related products ("Có thể bạn cũng thích")
+  useEffect(() => {
+    if (!product?._id) return;
+
+    let catParam = '';
+    if (typeof product.category === 'string') {
+      catParam = product.category;
+    } else if (product.category?.slug) {
+      catParam = product.category.slug;
+    } else if (product.category?._id) {
+      catParam = String(product.category._id);
+    }
+
+    async function loadRelated() {
+      const currentIdStr = String(product._id);
+      let list: any[] = [];
+
+      if (catParam && catParam !== 'all') {
+        try {
+          const res = await apiFetch(`/api/products?category=${encodeURIComponent(catParam)}&limit=12&status=active`);
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data)) {
+            list = data.data.filter((p: any) => String(p._id) !== currentIdStr && p.slug !== product.slug);
+          }
+        } catch (e) {}
+      }
+
+      if (list.length < 4) {
+        try {
+          const res = await apiFetch(`/api/products?limit=12&status=active&sort=popular`);
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data)) {
+            const fallbackList = data.data.filter((p: any) => String(p._id) !== currentIdStr && p.slug !== product.slug);
+            const existingIds = new Set(list.map((it) => String(it._id)));
+            fallbackList.forEach((it: any) => {
+              if (!existingIds.has(String(it._id))) {
+                list.push(it);
+                existingIds.add(String(it._id));
+              }
+            });
+          }
+        } catch (e) {}
+      }
+
+      setRelatedProducts(list.slice(0, 10));
+    }
+
+    loadRelated();
+  }, [product?._id, product?.category, product?.slug]);
+
+  const handleQuickAddRelated = (e: React.MouseEvent, relProd: ProductItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(relProd, 1);
+    toast.success('Đã thêm sản phẩm vào giỏ hàng!');
+  };
 
   // Derive Options and Variants from Product Data
   const options: IProductOption[] = useMemo(() => {
@@ -351,6 +445,9 @@ export default function ProductDetailPage() {
       if (typeof matchedVariant.salePrice === 'number' && matchedVariant.salePrice > 0) {
         return matchedVariant.salePrice;
       }
+      if (typeof product?.salePrice === 'number' && product.salePrice > 0 && product.salePrice < (matchedVariant.price || basePrice)) {
+        return product.salePrice;
+      }
       if (typeof matchedVariant.price === 'number' && matchedVariant.price > 0) {
         return matchedVariant.price;
       }
@@ -365,6 +462,9 @@ export default function ProductDetailPage() {
     if (flashSaleItem?.originalPrice) {
       return flashSaleItem.originalPrice;
     }
+    if (flashSaleItem?.flashPrice && (product?.originalPrice || product?.price)) {
+      return product?.originalPrice || product?.price;
+    }
     if (matchedVariant) {
       if (
         typeof matchedVariant.salePrice === 'number' &&
@@ -375,6 +475,9 @@ export default function ProductDetailPage() {
       }
       if (matchedVariant.originalPrice && matchedVariant.originalPrice > currentPrice) {
         return matchedVariant.originalPrice;
+      }
+      if (matchedVariant.price && matchedVariant.price > currentPrice) {
+        return matchedVariant.price;
       }
     }
     if (baseOriginalPrice && baseOriginalPrice > currentPrice) {
@@ -433,7 +536,11 @@ export default function ProductDetailPage() {
       return;
     }
 
-    addToCart(product, quantity, matchedVariant || undefined);
+    const prodWithFlash = flashSaleItem?.flashPrice
+      ? { ...product, flashPrice: flashSaleItem.flashPrice, isFlashSale: true }
+      : product;
+
+    addToCart(prodWithFlash, quantity, matchedVariant || undefined);
     toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
   };
 
@@ -444,7 +551,11 @@ export default function ProductDetailPage() {
       return;
     }
 
-    buyNow(product, quantity, matchedVariant || undefined);
+    const prodWithFlash = flashSaleItem?.flashPrice
+      ? { ...product, flashPrice: flashSaleItem.flashPrice, isFlashSale: true }
+      : product;
+
+    buyNow(prodWithFlash, quantity, matchedVariant || undefined);
     router.push('/checkout');
   };
 
@@ -898,6 +1009,32 @@ export default function ProductDetailPage() {
               <span>Viết đánh giá cho sản phẩm này</span>
             </button>
           </div>
+
+          {/* 6. Mobile Related Products: Có Thể Bạn Cũng Thích */}
+          {relatedProducts.length > 0 && (
+            <div className={styles.relatedSection}>
+              <div className={styles.relatedHeader}>
+                <div className={styles.relatedTitleGroup}>
+                  <span className={styles.relatedSparkleIcon}>✨</span>
+                  <h3 className={styles.relatedTitle}>CÓ THỂ BẠN CŨNG THÍCH</h3>
+                </div>
+                <Link href="/?tab=products" className={styles.relatedSeeAllBtn}>
+                  <span>Xem thêm</span>
+                  <FiChevronRight size={13} />
+                </Link>
+              </div>
+
+              <div className={styles.relatedGrid}>
+                {relatedProducts.map((relProd) => (
+                  <StoreProductCard
+                    key={relProd._id}
+                    product={relProd}
+                    onQuickAdd={handleQuickAddRelated}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Mobile Fixed Bottom Action Bar */}
@@ -1235,127 +1372,6 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* PC Tab Switcher with Expand Modal */}
-            <div className={styles.pcTabSection}>
-              <div className={styles.tabHeader}>
-                <div className={styles.tabButtonsGroup}>
-                  <button
-                    type="button"
-                    className={`${styles.tabBtn} ${pcTab === 'desc' ? styles.activeTabBtn : ''}`}
-                    onClick={() => setPcTab('desc')}
-                  >
-                    <FiPackage size={14} />
-                    <span>Mô Tả Sản Phẩm</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.tabBtn} ${pcTab === 'reviews' ? styles.activeTabBtn : ''}`}
-                    onClick={() => setPcTab('reviews')}
-                  >
-                    <FiStar size={14} />
-                    <span>Đánh Giá ({reviewsStats.totalReviews})</span>
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  className={styles.expandTabActionBtn}
-                  onClick={() => handleOpenExpandModal(pcTab)}
-                  title="Mở rộng xem toàn bộ"
-                >
-                  <FiMaximize2 size={13} />
-                  <span>Mở Rộng</span>
-                </button>
-              </div>
-
-              <div className={styles.pcTabContentArea}>
-                {pcTab === 'desc' ? (
-                  <div className={styles.descTabContent}>
-                    <p className={styles.descTextClamp}>
-                      {product.description ||
-                        'Chất liệu cao cấp, đường may tỉ mỉ, form dáng chuẩn thời trang hiện đại.\nThiết kế trẻ trung năng động, dễ phối đồ phù hợp đi học, đi chơi, đi làm.'}
-                    </p>
-                    <button
-                      type="button"
-                      className={styles.viewMoreInlineBtn}
-                      onClick={() => handleOpenExpandModal('desc')}
-                    >
-                      <span>Xem toàn bộ mô tả chi tiết & thông số</span>
-                      <FiChevronRight size={13} />
-                    </button>
-                  </div>
-                ) : (
-                  <div className={styles.reviewsTabContent}>
-                    <div className={styles.reviewsStatsHeader}>
-                      <div className={styles.reviewsRatingSummary}>
-                        <span className={styles.reviewsScoreBig}>{reviewsStats.averageRating || '5.0'}</span>
-                        <div className={styles.reviewsStarsRow}>
-                          {[1, 2, 3, 4, 5].map((i) => (
-                            <FiStar
-                              key={i}
-                              size={12}
-                              style={{
-                                fill: i <= Math.round(reviewsStats.averageRating) ? '#fbbf24' : 'none',
-                                color: '#fbbf24',
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        className={styles.writeReviewCtaBtnSmall}
-                        onClick={() => setIsWriteModalOpen(true)}
-                      >
-                        <FiEdit3 size={13} /> Viết đánh giá
-                      </button>
-                    </div>
-
-                    {reviewsPreview.length > 0 ? (
-                      <div className={styles.reviewsListCompact}>
-                        {reviewsPreview.slice(0, 3).map((rev) => (
-                          <div key={rev._id} className={styles.previewReviewItem}>
-                            <div className={styles.previewReviewHeader}>
-                              <strong className={styles.previewAuthor}>
-                                {rev.author ? (rev.author.length <= 2 ? rev.author + '***' : rev.author[0] + '***' + rev.author[rev.author.length - 1]) : 'Khách hàng'}
-                              </strong>
-                              <div className={styles.previewStars}>
-                                {[1, 2, 3, 4, 5].map((s: number) => (
-                                  <FiStar
-                                    key={s}
-                                    size={10}
-                                    style={{
-                                      fill: s <= rev.rating ? '#fbbf24' : 'none',
-                                      color: '#fbbf24',
-                                    }}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            {rev.variantTitle && (
-                              <span className={styles.previewVariant}>Phân loại: {rev.variantTitle}</span>
-                            )}
-                            <p className={styles.previewComment}>{rev.comment}</p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className={styles.noReviewsText}>Chưa có đánh giá nào cho sản phẩm này.</p>
-                    )}
-
-                    <button
-                      type="button"
-                      className={styles.viewMoreInlineBtn}
-                      onClick={() => handleOpenExpandModal('reviews')}
-                    >
-                      <span>Xem tất cả {reviewsStats.totalReviews} đánh giá khách hàng</span>
-                      <FiChevronRight size={13} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Desktop Action Buttons */}
             <div className={styles.pcActionButtons}>
               <Link
@@ -1389,6 +1405,159 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* 2. Full Description & Customer Reviews Card */}
+        <div className={styles.pcDetailsCard}>
+          <div className={styles.tabHeader}>
+            <div className={styles.tabButtonsGroup}>
+              <button
+                type="button"
+                className={`${styles.tabBtn} ${pcTab === 'desc' ? styles.activeTabBtn : ''}`}
+                onClick={() => setPcTab('desc')}
+              >
+                <FiPackage size={15} />
+                <span>Chi Tiết Mô Tả Sản Phẩm</span>
+              </button>
+              <button
+                type="button"
+                className={`${styles.tabBtn} ${pcTab === 'reviews' ? styles.activeTabBtn : ''}`}
+                onClick={() => setPcTab('reviews')}
+              >
+                <FiStar size={15} />
+                <span>Đánh Giá Khách Hàng ({reviewsStats.totalReviews})</span>
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.pcDetailsBody}>
+            {pcTab === 'desc' ? (
+              <div className={styles.fullDescContent}>
+                <div className={styles.descHighlightsBox}>
+                  <h4>🌟 Đặc điểm nổi bật</h4>
+                  <p>{product.name}</p>
+                </div>
+                <div className={styles.fullDescText}>
+                  {product.description ||
+                    'Chất liệu cao cấp, đường may tỉ mỉ, form dáng chuẩn thời trang hiện đại.\nThiết kế trẻ trung năng động, dễ phối đồ phù hợp đi học, đi chơi, đi làm.'}
+                </div>
+
+                <div className={styles.policyGuarantees}>
+                  <div className={styles.policyItem}>
+                    <FiShield size={20} color="var(--primary, #ee4d2d)" />
+                    <div>
+                      <strong>Cam kết chính hãng 100%</strong>
+                      <p>Đảm bảo nguồn gốc xuất xứ rõ ràng, hoàn tiền nếu phát hiện hàng giả.</p>
+                    </div>
+                  </div>
+                  <div className={styles.policyItem}>
+                    <FiRefreshCw size={20} color="var(--primary, #ee4d2d)" />
+                    <div>
+                      <strong>Chính sách đổi trả trong 7 ngày</strong>
+                      <p>Hỗ trợ đổi size hoặc hoàn tiền nếu sản phẩm có lỗi từ nhà sản xuất.</p>
+                    </div>
+                  </div>
+                  <div className={styles.policyItem}>
+                    <FiTruck size={20} color="var(--primary, #ee4d2d)" />
+                    <div>
+                      <strong>Giao hàng toàn quốc siêu tốc</strong>
+                      <p>Kiểm tra hàng thoải mái trước khi thanh toán COD.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.fullReviewsContent}>
+                <div className={styles.fullReviewsStatsCard}>
+                  <div className={styles.fullReviewsScoreGroup}>
+                    <span className={styles.fullReviewsScoreNum}>{reviewsStats.averageRating || '5.0'}</span>
+                    <div className={styles.fullReviewsStarsBig}>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <FiStar
+                          key={i}
+                          size={16}
+                          style={{
+                            fill: i <= Math.round(reviewsStats.averageRating) ? '#fbbf24' : 'none',
+                            color: '#fbbf24',
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span className={styles.fullReviewsCount}>Dựa trên {reviewsStats.totalReviews} lượt đánh giá thực tế</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={styles.writeReviewCtaBtn}
+                    onClick={() => setIsWriteModalOpen(true)}
+                  >
+                    <FiEdit3 size={15} />
+                    <span>Viết đánh giá cho sản phẩm này</span>
+                  </button>
+                </div>
+
+                {reviewsPreview.length > 0 ? (
+                  <div className={styles.reviewsPreviewList}>
+                    {reviewsPreview.map((rev) => (
+                      <div key={rev._id} className={styles.previewReviewItem}>
+                        <div className={styles.previewReviewHeader}>
+                          <div className={styles.previewAuthor}>
+                            {rev.author ? (rev.author.length <= 2 ? rev.author + '***' : rev.author[0] + '***' + rev.author[rev.author.length - 1]) : 'Khách hàng'}
+                          </div>
+                          <div className={styles.previewStars}>
+                            {[1, 2, 3, 4, 5].map((s: number) => (
+                              <FiStar
+                                key={s}
+                                size={11}
+                                style={{
+                                  fill: s <= rev.rating ? '#fbbf24' : 'none',
+                                  color: '#fbbf24',
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        {rev.variantTitle && (
+                          <span className={styles.previewVariant}>Phân loại: {rev.variantTitle}</span>
+                        )}
+                        <p className={styles.previewComment}>{rev.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={styles.noReviewsYet}>
+                    <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 3. PC Related Products: Có Thể Bạn Cũng Thích */}
+        {relatedProducts.length > 0 && (
+          <div className={styles.pcRelatedSection}>
+            <div className={styles.relatedHeader}>
+              <div className={styles.relatedTitleGroup}>
+                <span className={styles.relatedSparkleIcon}>✨</span>
+                <h3 className={styles.relatedTitle}>CÓ THỂ BẠN CŨNG THÍCH</h3>
+              </div>
+              <Link href="/?tab=products" className={styles.relatedSeeAllBtn}>
+                <span>Xem tất cả</span>
+                <FiChevronRight size={14} />
+              </Link>
+            </div>
+
+            <div className={styles.pcRelatedGrid}>
+              {relatedProducts.map((relProd) => (
+                <StoreProductCard
+                  key={relProd._id}
+                  product={relProd}
+                  onQuickAdd={handleQuickAddRelated}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* =========================================================================

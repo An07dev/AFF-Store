@@ -26,6 +26,7 @@ export interface ThemeConfig {
     showBannerNotice: boolean;
   };
   banners: BannerSlide[];
+  subBanners?: BannerSlide[];
   socialLinks: {
     tiktokUrl: string;
     facebookUrl: string;
@@ -54,6 +55,21 @@ export interface ThemeConfig {
     accentColor: string;
   };
 }
+
+export const defaultSubBanners: BannerSlide[] = [
+  {
+    tag: '9.9 Siêu Sale',
+    title: 'Ăn Sáng Ngon Rẻ - Chỉ từ 10.000đ',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80',
+    link: '/?tab=products',
+  },
+  {
+    tag: 'Hàng Việt Tôi Yêu',
+    title: 'Chất Lượng Chính Hãng - Freeship 0Đ',
+    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&auto=format&fit=crop&q=80',
+    link: '/?tab=products&filter=flash-sale',
+  },
+];
 
 export const defaultBanners: BannerSlide[] = [
   {
@@ -97,6 +113,7 @@ export const defaultTheme: ThemeConfig = {
     showBannerNotice: true,
   },
   banners: defaultBanners,
+  subBanners: defaultSubBanners,
   socialLinks: {
     tiktokUrl: '',
     facebookUrl: '',
@@ -202,6 +219,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             ...parsed,
             pageTitles: { ...defaultTheme.pageTitles, ...(parsed.pageTitles || {}) },
             banners: Array.isArray(parsed.banners) && parsed.banners.length > 0 ? parsed.banners : defaultTheme.banners,
+            subBanners: Array.isArray(parsed.subBanners) && parsed.subBanners.length > 0 ? parsed.subBanners : defaultTheme.subBanners,
             socialLinks: { ...defaultTheme.socialLinks, ...(parsed.socialLinks || {}) },
             buttonColors: { ...defaultTheme.buttonColors, ...(parsed.buttonColors || {}) },
             textColors: { ...defaultTheme.textColors, ...(parsed.textColors || {}) },
@@ -231,6 +249,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             ...data.data,
             pageTitles: { ...defaultTheme.pageTitles, ...(data.data.pageTitles || {}) },
             banners: Array.isArray(data.data.banners) && data.data.banners.length > 0 ? data.data.banners : defaultTheme.banners,
+            subBanners: Array.isArray(data.data.subBanners) && data.data.subBanners.length > 0 ? data.data.subBanners : defaultTheme.subBanners,
             socialLinks: { ...defaultTheme.socialLinks, ...(data.data.socialLinks || {}) },
             buttonColors: { ...defaultTheme.buttonColors, ...(data.data.buttonColors || {}) },
             textColors: { ...defaultTheme.textColors, ...(data.data.textColors || {}) },

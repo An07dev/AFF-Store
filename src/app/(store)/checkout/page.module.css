@@ -1,28 +1,30 @@
-/* ===== TIKTOK SHOP MOBILE CHECKOUT PAGE (Theme Tokens) ===== */
+/* ===== TIKTOK SHOP MOBILE & DESKTOP CHECKOUT PAGE ===== */
 .page {
-  flex: 1;
-  min-height: 0;
-  height: 100%;
-  max-height: 100%;
   width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-main, #090a0f);
-  color: var(--text-main, #f8fafc);
-  overflow: hidden;
+  background: var(--bg-main, #f8fafc);
+  color: var(--text-main, #0f172a);
   position: relative;
+  padding-bottom: 90px;
+  box-sizing: border-box;
 }
 
 /* ===== FIXED TOP NAVIGATION ===== */
 .topNav {
-  flex-shrink: 0;
+  position: sticky;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  background: var(--navbar-bg, #090a0f);
-  border-bottom: 1px solid var(--border-color, #232838);
-  z-index: 40;
+  padding: 12px 16px;
+  background: var(--navbar-bg, #ffffff);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  z-index: 50;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
 .backBtn {
@@ -92,14 +94,12 @@
 /* ===== SCROLLABLE CHECKOUT FORM BODY ===== */
 .scrollArea {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  min-height: 0;
-  padding: 12px 14px 40px;
+  width: 100%;
+  padding: 14px 16px 30px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  box-sizing: border-box;
 }
 
 .scrollArea::-webkit-scrollbar {
@@ -578,16 +578,30 @@
 
 /* ===== FIXED BOTTOM CHECKOUT BAR ===== */
 .bottomBar {
-  flex-shrink: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  z-index: 999;
+  box-sizing: border-box;
+}
+
+.bottomBarInner {
+  width: 100%;
+  max-width: 800px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  background: var(--bg-card, #13161f);
-  border-top: 1px solid var(--border-color, #232838);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
-  z-index: 50;
-  gap: 10px;
+  gap: 16px;
+  box-sizing: border-box;
 }
 
 .totalGroup {
@@ -597,35 +611,41 @@
 }
 
 .totalLabel {
-  font-size: 11px;
-  color: var(--text-muted, #94a3b8);
-  font-weight: 500;
+  font-size: 12px;
+  color: var(--text-muted, #64748b);
+  font-weight: 600;
 }
 
 .totalAmount {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 900;
-  color: var(--primary, #3b82f6);
+  color: var(--primary, #ee4d2d);
+  letter-spacing: -0.3px;
 }
 
 .savedBadge {
-  font-size: 9px;
+  font-size: 9.5px;
   color: var(--accent, #10b981);
   font-weight: 700;
 }
 
 .orderSubmitBtn {
-  padding: 12px 24px;
-  border-radius: var(--radius-md, 8px);
-  font-size: 13px;
+  padding: 12px 28px;
+  border-radius: var(--radius-md, 10px);
+  font-size: 14.5px;
   font-weight: 800;
-  background: var(--primary, #3b82f6);
-  color: var(--primary-text, #ffffff);
+  background: linear-gradient(135deg, #ff6b4a 0%, var(--primary, #ee4d2d) 100%);
+  color: #ffffff;
   border: none;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  transition: transform 0.1s;
+  box-shadow: 0 4px 14px rgba(238, 77, 45, 0.28);
+  transition: transform 0.1s, opacity 0.15s;
+}
+
+.orderSubmitBtn:hover:not(:disabled) {
+  background: var(--primary-hover, #d73211);
+  transform: translateY(-1px);
 }
 
 .orderSubmitBtn:active {
@@ -633,7 +653,7 @@
 }
 
 .orderSubmitBtn:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 

@@ -1,10 +1,15 @@
 .wrapper {
   margin: 10px 10px 14px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 @media (min-width: 1024px) {
   .wrapper {
-    margin: 2px 0 4px;
+    margin: 2px 0 6px;
   }
 }
 
@@ -12,7 +17,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  width: 100%;
 }
 
 @media (min-width: 1024px) {
@@ -35,9 +41,9 @@
 }
 
 .title {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 800;
-  color: var(--text-main, #f8fafc);
+  color: var(--text-main, #0f172a);
   text-transform: uppercase;
   letter-spacing: -0.2px;
 }
@@ -55,6 +61,10 @@
   padding-bottom: 4px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .carousel::-webkit-scrollbar {

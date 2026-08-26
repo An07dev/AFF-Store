@@ -257,19 +257,26 @@
 }
 
 /* ==========================================================================
-   3. HERO BANNER CAROUSEL
+   3. HERO BANNER CAROUSEL (MAIN CAROUSEL + 2 PC SUB-BANNERS)
    ========================================================================== */
+.heroBannerSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+
 .bannerCarousel {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 8;
   overflow: hidden;
-  border-radius: var(--radius-lg, 16px);
+  border-radius: var(--radius-lg, 14px);
   background: var(--bg-card, #ffffff);
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
   border: 1px solid var(--border-color, #e2e8f0);
-  margin-top: 10px;
-  margin-bottom: 16px;
 }
 
 .carouselTrack {
@@ -359,8 +366,8 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(8px);
@@ -391,11 +398,108 @@
 }
 
 .carouselPrevBtn {
-  left: 14px;
+  left: 12px;
 }
 
 .carouselNextBtn {
-  right: 14px;
+  right: 12px;
+}
+
+/* Side Banners Column (2 Sub-Banners on PC) */
+.sideBannersColumn {
+  display: none; /* Hidden on Mobile */
+}
+
+.sideBannerItem {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-lg, 14px);
+  overflow: hidden;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-card, #ffffff);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: block;
+}
+
+.sideBannerItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+}
+
+.sideBannerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.sideBannerItem:hover .sideBannerImg {
+  transform: scale(1.03);
+}
+
+.sideBannerOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 0.6) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 10px 14px;
+  pointer-events: none;
+}
+
+.sideBannerTag {
+  align-self: flex-start;
+  background: var(--primary, #ee4d2d);
+  color: var(--primary-text, #ffffff);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.sideBannerTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   DESKTOP / PC VIEW (>= 768px): Dual Layout with Left Carousel & Right 2 Banners
+   ========================================================================== */
+@media (min-width: 768px) {
+  .heroBannerSection {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .bannerCarousel {
+    aspect-ratio: 16 / 7.6;
+    height: 100%;
+  }
+
+  .sideBannersColumn {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    height: 100%;
+  }
 }
 
 /* ==========================================================================
@@ -473,6 +577,15 @@
 
 .quickHubItem:hover .quickHubLabel {
   color: var(--primary, #ee4d2d);
+}
+
+.iconTransparent {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.iconTransparent::after {
+  display: none !important;
 }
 
 /* 3D Rich Icon Gradients with Colored Glow */
@@ -875,32 +988,25 @@
   }
 }
 
-/* Flash Sale Products Grid */
+/* Flash Sale Horizontal Scroll Carousel */
 .flashCarousel {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
   gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
+  scrollbar-width: none;
 }
 
-@media (min-width: 540px) {
-  .flashCarousel {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 800px) {
-  .flashCarousel {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 1100px) {
-  .flashCarousel {
-    grid-template-columns: repeat(5, 1fr);
-  }
+.flashCarousel::-webkit-scrollbar {
+  display: none;
 }
 
 .flashCard {
+  flex: 0 0 135px;
+  width: 135px;
+  scroll-snap-align: start;
   background: var(--bg-card, #ffffff);
   border: 1px solid var(--border-color, #e2e8f0);
   border-radius: var(--radius-md, 12px);
@@ -912,10 +1018,80 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
+@media (min-width: 768px) {
+  .flashCard {
+    flex: 0 0 160px;
+    width: 160px;
+  }
+}
+
 .flashCard:hover {
   transform: translateY(-3px);
   border-color: var(--primary, #ee4d2d);
   box-shadow: 0 8px 20px -2px rgba(238, 77, 45, 0.15);
+}
+
+.flashSeeAllCard {
+  flex: 0 0 110px;
+  width: 110px;
+  scroll-snap-align: start;
+  background: var(--bg-main, #f8fafc);
+  border: 1.5px dashed var(--border-color, #cbd5e1);
+  border-radius: var(--radius-md, 12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 12px 8px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+@media (min-width: 768px) {
+  .flashSeeAllCard {
+    flex: 0 0 130px;
+    width: 130px;
+  }
+}
+
+.flashSeeAllCard:hover {
+  border-color: var(--primary, #ee4d2d);
+  background: rgba(238, 77, 45, 0.06);
+  transform: translateY(-2px);
+}
+
+.flashSeeAllCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(238, 77, 45, 0.12);
+  color: var(--primary, #ee4d2d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+
+.flashSeeAllCard:hover .flashSeeAllCircle {
+  transform: scale(1.1) translateX(2px);
+  background: var(--primary, #ee4d2d);
+  color: #ffffff;
+}
+
+.flashSeeAllText {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary, #ee4d2d);
+  line-height: 1.2;
+}
+
+.flashSeeAllSubText {
+  font-size: 10px;
+  color: var(--text-muted, #64748b);
+  line-height: 1.2;
 }
 
 .flashImgWrap {
@@ -1526,6 +1702,52 @@
 .discountBadgeLabel {
   font-size: 7.5px;
   font-weight: 800;
+}
+
+/* Flash Sale Special Badge on Card */
+.cardFlashBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 900;
+  padding: 3px 6px;
+  border-bottom-left-radius: 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+  z-index: 2;
+}
+
+.cardFlashPercent {
+  font-size: 10.5px;
+  font-weight: 900;
+}
+
+.cardFlashLabel {
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+
+.cardFlashPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: linear-gradient(135deg, rgba(238, 77, 45, 0.12) 0%, rgba(249, 115, 22, 0.15) 100%);
+  color: var(--primary, #ee4d2d);
+  border: 1px solid rgba(238, 77, 45, 0.3);
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  width: fit-content;
 }
 
 .freeshipBanner {

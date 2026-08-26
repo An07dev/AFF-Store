@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/mongodb';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
+import FlashSale from '@/models/FlashSale';
 import { generateSlug } from '@/lib/utils';
 
 export async function GET(request: Request) {
@@ -66,6 +67,65 @@ export async function GET(request: Request) {
       .skip((page - 1) * limit)
       .limit(limit)
       .lean();
+
+    // Check if there is an active live flash sale
+    try {
+      const flashSale = await FlashSale.findOne({ isActive: true }).lean();
+      if (flashSale) {
+        const now = new Date();
+        const vnOffset = 7 * 60;
+        const localOffset = now.getTimezoneOffset();
+        const vnTime = new Date(now.getTime() + (vnOffset + localOffset) * 60 * 1000);
+        const todayStr = `${vnTime.getFullYear()}-${String(vnTime.getMonth() + 1).padStart(2, '0')}-${String(vnTime.getDate()).padStart(2, '0')}`;
+        const curMin = vnTime.getHours() * 60 + vnTime.getMinutes();
+
+        const liveSlot = (flashSale.slots || []).find((slot: any) => {
+          if (!slot.enabled) return false;
+          let isDateMatch = true;
+          if (slot.dateType === 'specific_date' && slot.specificDate) {
+            isDateMatch = todayStr === slot.specificDate;
+          } else if (slot.dateType === 'date_range') {
+            if (slot.startDate && todayStr < slot.startDate) isDateMatch = false;
+            if (slot.endDate && todayStr > slot.endDate) isDateMatch = false;
+          }
+          if (!isDateMatch) return false;
+
+          const [sh, sm] = (slot.startTime || '00:00').split(':').map((n: string) => parseInt(n, 10) || 0);
+          const [eh, em] = (slot.endTime || '00:00').split(':').map((n: string) => parseInt(n, 10) || 0);
+          const startTotal = sh * 60 + sm;
+          const endTotal = eh * 60 + em;
+
+          return curMin >= startTotal && curMin < endTotal;
+        });
+
+        if (liveSlot && Array.isArray(liveSlot.items)) {
+          const liveItemMap = new Map();
+          liveSlot.items.forEach((it: any) => {
+            if (it.isActive) {
+              const pId = it.productId?.toString() || it.productId?._id?.toString();
+              if (pId) liveItemMap.set(pId, it);
+            }
+          });
+
+          products = products.map((p: any) => {
+            const pIdStr = p._id.toString();
+            const fsItem = liveItemMap.get(pIdStr);
+            if (fsItem) {
+              return {
+                ...p,
+                isFlashSale: true,
+                flashPrice: fsItem.flashPrice,
+                salePrice: fsItem.flashPrice,
+                discountPercent: fsItem.discountPercent,
+              };
+            }
+            return p;
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Error attaching flash sale in /api/products:', e);
+    }
 
     if (sort === 'flash-sale' || sort === 'discount-desc') {
       products = [...products].sort((a: any, b: any) => {

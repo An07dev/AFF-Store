@@ -124,15 +124,26 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
     return findMatchingVariant(variants, selectedAttributes);
   }, [variants, selectedAttributes]);
 
-  const currentPrice = matchedVariant
-    ? (matchedVariant.salePrice && matchedVariant.salePrice > 0 ? matchedVariant.salePrice : matchedVariant.price)
+  const flashPrice =
+    product?.flashPrice && Number(product.flashPrice) > 0 ? Number(product.flashPrice) : null;
+
+  const currentPrice = flashPrice
+    ? flashPrice
+    : matchedVariant
+    ? (matchedVariant.salePrice && matchedVariant.salePrice > 0
+        ? matchedVariant.salePrice
+        : (product?.salePrice && product.salePrice > 0 && product.salePrice < (matchedVariant.price || product.price)
+            ? product.salePrice
+            : matchedVariant.price))
     : (product?.salePrice && product.salePrice > 0 ? product.salePrice : (product?.price || 0));
 
-  const originalPrice = matchedVariant ? matchedVariant.price : (product?.price || 0);
+  const originalPrice = flashPrice
+    ? (matchedVariant?.price || product?.originalPrice || product?.price || flashPrice)
+    : matchedVariant
+    ? (matchedVariant.originalPrice || matchedVariant.price)
+    : (product?.originalPrice || product?.price || 0);
 
-  const hasDiscount = matchedVariant
-    ? (matchedVariant.salePrice !== undefined && matchedVariant.salePrice > 0 && matchedVariant.salePrice < matchedVariant.price)
-    : (product?.salePrice !== undefined && product.salePrice > 0 && product.salePrice < product.price);
+  const hasDiscount = originalPrice > currentPrice;
 
   const discountPercent = hasDiscount && originalPrice > 0
     ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)

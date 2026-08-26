@@ -29,6 +29,8 @@ export interface IThemeConfig {
 
   // 3. Banner Slides Carousel
   banners: IBannerSlide[];
+  // 3.1. Sub Banners (2 side banners for PC desktop)
+  subBanners?: IBannerSlide[];
 
   // 4. Social Links (TikTok, Facebook)
   socialLinks: {
@@ -65,6 +67,21 @@ export interface IThemeConfig {
     accentColor: string; // Màu điểm nhấn (vd: #10b981)
   };
 }
+
+export const defaultSubBanners: IBannerSlide[] = [
+  {
+    tag: '9.9 Siêu Sale',
+    title: 'Ăn Sáng Ngon Rẻ - Chỉ từ 10.000đ',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80',
+    link: '/?tab=products',
+  },
+  {
+    tag: 'Hàng Việt Tôi Yêu',
+    title: 'Chất Lượng Chính Hãng - Freeship 0Đ',
+    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&auto=format&fit=crop&q=80',
+    link: '/?tab=products&filter=flash-sale',
+  },
+];
 
 export const defaultThemeConfig: IThemeConfig = {
   themeName: 'modern-blue',
@@ -106,6 +123,7 @@ export const defaultThemeConfig: IThemeConfig = {
       link: '/?tab=products',
     },
   ],
+  subBanners: defaultSubBanners,
   socialLinks: {
     tiktokUrl: '',
     facebookUrl: '',
@@ -153,6 +171,7 @@ export async function GET() {
       ...setting.value,
       pageTitles: { ...defaultThemeConfig.pageTitles, ...(setting.value.pageTitles || {}) },
       banners: Array.isArray(setting.value.banners) && setting.value.banners.length > 0 ? setting.value.banners : defaultThemeConfig.banners,
+      subBanners: Array.isArray(setting.value.subBanners) && setting.value.subBanners.length > 0 ? setting.value.subBanners : defaultThemeConfig.subBanners,
       socialLinks: { ...defaultThemeConfig.socialLinks, ...(setting.value.socialLinks || {}) },
       buttonColors: { ...defaultThemeConfig.buttonColors, ...(setting.value.buttonColors || {}) },
       textColors: { ...defaultThemeConfig.textColors, ...(setting.value.textColors || {}) },
@@ -188,6 +207,7 @@ export async function POST(request: Request) {
         ...(body.pageTitles || {}),
       },
       banners: Array.isArray(body.banners) ? body.banners : (currentVal.banners || defaultThemeConfig.banners),
+      subBanners: Array.isArray(body.subBanners) ? body.subBanners : (currentVal.subBanners || defaultThemeConfig.subBanners),
       socialLinks: {
         ...currentVal.socialLinks,
         ...(body.socialLinks || {}),
