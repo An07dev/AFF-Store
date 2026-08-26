@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
 import { extractOrderCode } from '@/lib/payment/sepay';
+import { deductOrderInventory } from '@/lib/inventory-helper';
 import { createGHNOrder } from '@/lib/shipping/ghn';
 import { createGHTKOrder } from '@/lib/shipping/ghtk';
 import { createViettelPostOrder } from '@/lib/shipping/viettelpost';
@@ -72,11 +73,16 @@ export async function POST(request: Request) {
       order.transactionId = String(body.referenceCode || body.transactionId || body.id);
     }
 
+    // Tự động trừ tồn kho theo từng biến thể sản phẩm khi chuyển khoản thành công
+    if (!order.inventoryDeducted && Array.isArray(order.items) && order.items.length > 0) {
+      await deductOrderInventory(order);
+    }
+
     const newLog = {
       time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
       status: 'Đã thanh toán',
       location: 'Cổng thanh toán VietQR (SePay)',
-      description: `Khách hàng đã thanh toán thành công ${receivedAmount ? receivedAmount.toLocaleString('vi-VN') + '₫' : ''} qua mã VietQR. Đơn hàng đã được xác nhận.`,
+      description: `Khách hàng đã thanh toán thành công ${receivedAmount ? receivedAmount.toLocaleString('vi-VN') + '₫' : ''} qua mã VietQR. Đơn hàng đã được xác nhận và trừ tồn kho tự động.`,
       createdAt: new Date(),
     };
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
+import { checkOrderLowStock, deductOrderInventory, restoreOrderInventory } from '@/lib/inventory-helper';
 import { createGHNOrder, cancelGHNOrder } from '@/lib/shipping/ghn';
 import { createGHTKOrder, cancelGHTKOrder } from '@/lib/shipping/ghtk';
 import { createViettelPostOrder } from '@/lib/shipping/viettelpost';
@@ -153,77 +154,19 @@ export async function PUT(
       }
     }
 
-    // TỰ ĐỘNG TRỪ TỒN KHO KHI ADMIN XÁC NHẬN ĐƠN HÀNG (HOẶC CHUYỂN SANG ĐANG GIAO)
+    // TỰ ĐỘNG TRỪ HOẶC HOÀN TRẢ TỒN KHO THEO TRẠNG THÁI ĐƠN HÀNG
     const isNowActive = ['confirmed', 'shipping', 'delivering', 'delivered'].includes(newStatus);
     const isNowInactive = ['cancelled', 'returned'].includes(newStatus);
 
-    // KIỂM TRA CẢNH BÁO TỒN KHO TRƯỚC KHI DUYỆT ĐƠN
+    // 1. KIỂM TRA CẢNH BÁO TỒN KHO TRƯỚC KHI DUYỆT ĐƠN (NẾU CHƯA FORCE)
     if (isNowActive && !order.inventoryDeducted && Array.isArray(order.items) && order.items.length > 0 && !body.forceConfirm) {
-      const lowStockItems: Array<{
-        productName: string;
-        productImage: string;
-        variantTitle: string;
-        orderedQuantity: number;
-        availableStock: number;
-        deficit: number;
-      }> = [];
-      const lowStockWarnings: string[] = [];
-
-      for (const item of order.items) {
-        if (!item.productId) continue;
-        const prod = await Product.findById(item.productId);
-        if (!prod) continue;
-
-        const qty = Number(item.quantity) || 1;
-
-        if (item.variant && Array.isArray(prod.variants) && prod.variants.length > 0) {
-          const varIdStr = item.variant._id ? String(item.variant._id) : '';
-          const varSku = item.variant.sku || '';
-          const varTitle = item.variant.title || item.variant.name || '';
-          const varAttrs = item.variant.attributes instanceof Map ? Object.fromEntries(item.variant.attributes) : (item.variant.attributes || {});
-
-          const matchedV = prod.variants.find((v: any) => {
-            if (varIdStr && v._id && String(v._id) === varIdStr) return true;
-            if (varSku && v.sku && v.sku.toLowerCase() === varSku.toLowerCase()) return true;
-            if (varTitle && v.title && v.title.toLowerCase() === varTitle.toLowerCase()) return true;
-            if (Object.keys(varAttrs).length > 0 && v.attributes) {
-              const vAttrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
-              const keys = Object.keys(varAttrs);
-              if (keys.every((k) => varAttrs[k] === vAttrs[k])) return true;
-            }
-            return false;
-          });
-
-          const avail = matchedV ? (Number(matchedV.stock) || 0) : 0;
-          if (qty > avail) {
-            const vTitle = matchedV?.title || item.variant?.title || 'Phân loại đã chọn';
-            lowStockItems.push({
-              productName: prod.name,
-              productImage: matchedV?.image || item.image || prod.images?.[0] || '/file.svg',
-              variantTitle: vTitle,
-              orderedQuantity: qty,
-              availableStock: avail,
-              deficit: qty - avail,
-            });
-            lowStockWarnings.push(`"${prod.name}" (${vTitle}) chỉ còn ${avail} cái trong kho (đơn đặt: ${qty})`);
-          }
-        } else {
-          const avail = Number(prod.stock) || 0;
-          if (qty > avail) {
-            lowStockItems.push({
-              productName: prod.name,
-              productImage: item.image || prod.images?.[0] || '/file.svg',
-              variantTitle: 'Mặc định',
-              orderedQuantity: qty,
-              availableStock: avail,
-              deficit: qty - avail,
-            });
-            lowStockWarnings.push(`"${prod.name}" chỉ còn ${avail} cái trong kho (đơn đặt: ${qty})`);
-          }
-        }
-      }
+      const lowStockItems = await checkOrderLowStock(order);
 
       if (lowStockItems.length > 0) {
+        const lowStockWarnings = lowStockItems.map(
+          (it) => `"${it.productName}" (${it.variantTitle || 'Phân loại'}) chỉ còn ${it.availableStock} cái trong kho (đơn đặt: ${it.orderedQuantity})`
+        );
+
         return NextResponse.json({
           success: false,
           requiresConfirmation: true,
@@ -234,87 +177,12 @@ export async function PUT(
       }
     }
 
+    // 2. TRỪ TỒN KHO KHI DUYỆT ĐƠN
     if (isNowActive && !order.inventoryDeducted && Array.isArray(order.items) && order.items.length > 0) {
-      // Trừ tồn kho tương ứng từng sản phẩm và từng biến thể đã mua
-      for (const item of order.items) {
-        if (!item.productId) continue;
-        const prod = await Product.findById(item.productId);
-        if (!prod) continue;
-
-        const qty = Number(item.quantity) || 1;
-
-        // Nếu sản phẩm có phân loại biến thể
-        if (item.variant && Array.isArray(prod.variants) && prod.variants.length > 0) {
-          const varIdStr = item.variant._id ? String(item.variant._id) : '';
-          const varSku = item.variant.sku || '';
-          const varTitle = item.variant.title || item.variant.name || '';
-          const varAttrs = item.variant.attributes instanceof Map ? Object.fromEntries(item.variant.attributes) : (item.variant.attributes || {});
-
-          const vIndex = prod.variants.findIndex((v: any) => {
-            if (varIdStr && v._id && String(v._id) === varIdStr) return true;
-            if (varSku && v.sku && v.sku.toLowerCase() === varSku.toLowerCase()) return true;
-            if (varTitle && v.title && v.title.toLowerCase() === varTitle.toLowerCase()) return true;
-            if (Object.keys(varAttrs).length > 0 && v.attributes) {
-              const vAttrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
-              const keys = Object.keys(varAttrs);
-              if (keys.every((k) => varAttrs[k] === vAttrs[k])) return true;
-            }
-            return false;
-          });
-
-          if (vIndex !== -1) {
-            prod.variants[vIndex].stock = Math.max(0, (Number(prod.variants[vIndex].stock) || 0) - qty);
-          }
-          prod.stock = prod.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0);
-        } else {
-          prod.stock = Math.max(0, (Number(prod.stock) || 0) - qty);
-        }
-
-        prod.soldCount = (Number(prod.soldCount) || 0) + qty;
-        await prod.save();
-      }
-
-      order.inventoryDeducted = true;
+      await deductOrderInventory(order);
     } else if (isNowInactive && order.inventoryDeducted && Array.isArray(order.items) && order.items.length > 0) {
-      // Hoàn trả lại tồn kho nếu đơn bị hủy hoặc hoàn trả
-      for (const item of order.items) {
-        if (!item.productId) continue;
-        const prod = await Product.findById(item.productId);
-        if (!prod) continue;
-
-        const qty = Number(item.quantity) || 1;
-
-        if (item.variant && Array.isArray(prod.variants) && prod.variants.length > 0) {
-          const varIdStr = item.variant._id ? String(item.variant._id) : '';
-          const varSku = item.variant.sku || '';
-          const varTitle = item.variant.title || item.variant.name || '';
-          const varAttrs = item.variant.attributes instanceof Map ? Object.fromEntries(item.variant.attributes) : (item.variant.attributes || {});
-
-          const vIndex = prod.variants.findIndex((v: any) => {
-            if (varIdStr && v._id && String(v._id) === varIdStr) return true;
-            if (varSku && v.sku && v.sku.toLowerCase() === varSku.toLowerCase()) return true;
-            if (varTitle && v.title && v.title.toLowerCase() === varTitle.toLowerCase()) return true;
-            if (Object.keys(varAttrs).length > 0 && v.attributes) {
-              const vAttrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
-              const keys = Object.keys(varAttrs);
-              if (keys.every((k) => varAttrs[k] === vAttrs[k])) return true;
-            }
-            return false;
-          });
-
-          if (vIndex !== -1) {
-            prod.variants[vIndex].stock = (Number(prod.variants[vIndex].stock) || 0) + qty;
-          }
-          prod.stock = prod.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0);
-        } else {
-          prod.stock = (Number(prod.stock) || 0) + qty;
-        }
-
-        prod.soldCount = Math.max(0, (Number(prod.soldCount) || 0) - qty);
-        await prod.save();
-      }
-
-      order.inventoryDeducted = false;
+      // 3. HOÀN TRẢ TỒN KHO KHI HỦY ĐƠN HOẶC HOÀN HÀNG
+      await restoreOrderInventory(order);
     }
 
     // Cập nhật các trường khác
