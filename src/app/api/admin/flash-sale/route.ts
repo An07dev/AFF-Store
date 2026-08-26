@@ -11,11 +11,11 @@ export async function GET() {
     let flashSale = await FlashSale.findOne()
       .populate({
         path: 'items.productId',
-        select: 'name slug price salePrice images stock soldCount category',
+        select: 'name slug price salePrice images stock soldCount category variants',
       })
       .populate({
         path: 'slots.items.productId',
-        select: 'name slug price salePrice images stock soldCount category',
+        select: 'name slug price salePrice images stock soldCount category variants',
       });
 
     // Nếu chưa có, tự động tạo cấu hình mẫu ban đầu
@@ -92,11 +92,11 @@ export async function GET() {
       flashSale = await FlashSale.findById(flashSale._id)
         .populate({
           path: 'items.productId',
-          select: 'name slug price salePrice images stock soldCount category',
+          select: 'name slug price salePrice images stock soldCount category variants',
         })
         .populate({
           path: 'slots.items.productId',
-          select: 'name slug price salePrice images stock soldCount category',
+          select: 'name slug price salePrice images stock soldCount category variants',
         });
     }
 
@@ -143,22 +143,22 @@ export async function PUT(req: Request) {
       })
         .populate({
           path: 'items.productId',
-          select: 'name slug price salePrice images stock soldCount category',
+          select: 'name slug price salePrice images stock soldCount category variants',
         })
         .populate({
           path: 'slots.items.productId',
-          select: 'name slug price salePrice images stock soldCount category',
+          select: 'name slug price salePrice images stock soldCount category variants',
         });
     } else {
       flashSale = await FlashSale.create(updateData);
       flashSale = await FlashSale.findById(flashSale._id)
         .populate({
           path: 'items.productId',
-          select: 'name slug price salePrice images stock soldCount category',
+          select: 'name slug price salePrice images stock soldCount category variants',
         })
         .populate({
           path: 'slots.items.productId',
-          select: 'name slug price salePrice images stock soldCount category',
+          select: 'name slug price salePrice images stock soldCount category variants',
         });
     }
 

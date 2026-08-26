@@ -34,7 +34,7 @@ interface IFlashItem {
   originalPrice: number;
   flashPrice: number;
   discountPercent: number;
-  flashStock: number;
+  flashStock?: number;
   soldCount: number;
   isActive: boolean;
 }
@@ -719,7 +719,6 @@ export default function AdminFlashSalePage() {
                     <th style={{ width: 120 }}>Giá gốc</th>
                     <th style={{ width: 110 }}>% Sale</th>
                     <th style={{ width: 140 }}>Giá Flash Sale</th>
-                    <th style={{ width: 110 }}>Suất bán</th>
                     <th style={{ width: 110 }}>Đã bán 🔥</th>
                     <th style={{ width: 60, textAlign: 'center' }}>Xóa</th>
                   </tr>
@@ -727,6 +726,10 @@ export default function AdminFlashSalePage() {
                 <tbody>
                   {slotItems.map((item, idx) => {
                     const prod = item.product || {};
+                    const realStock = Array.isArray(prod.variants) && prod.variants.length > 0
+                      ? prod.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0)
+                      : (Number(prod.stock) || 0);
+
                     return (
                       <tr key={idx} style={{ opacity: item.isActive ? 1 : 0.5 }}>
                         <td style={{ textAlign: 'center' }}>
@@ -746,8 +749,8 @@ export default function AdminFlashSalePage() {
                             />
                             <div>
                               <strong style={{ color: '#fff', fontSize: '0.875rem' }}>{prod.name}</strong>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, #9ca3af)' }}>
-                                Kho thực tế: {prod.stock || 0} cái
+                              <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, #9ca3af)', marginTop: 2 }}>
+                                Kho thực tế: <strong style={{ color: realStock < 10 ? '#ef4444' : '#10b981' }}>{realStock}</strong> cái
                               </div>
                             </div>
                           </div>
@@ -778,16 +781,6 @@ export default function AdminFlashSalePage() {
                             value={item.flashPrice || ''}
                             onChange={(e) => handleItemChangeInSlot(idx, 'flashPrice', e.target.value)}
                             style={{ color: '#f97316', fontWeight: 800 }}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            min={1}
-                            className={styles.tableInput}
-                            value={item.flashStock || ''}
-                            onChange={(e) => handleItemChangeInSlot(idx, 'flashStock', e.target.value)}
-                            style={{ width: 80 }}
                           />
                         </td>
                         <td>

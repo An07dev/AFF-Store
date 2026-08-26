@@ -6,7 +6,7 @@ export interface IFlashSaleItem {
   flashPrice: number;
   originalPrice: number;
   discountPercent: number;
-  flashStock: number;
+  flashStock?: number;
   soldCount: number;
   isActive: boolean;
 }
