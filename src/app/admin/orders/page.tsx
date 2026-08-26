@@ -196,16 +196,25 @@ export default function OrdersPage() {
   };
 
   // Quick update order status (API 5.3 PUT)
-  const handleUpdateStatus = async (orderId: string, status: string) => {
+  const handleUpdateStatus = async (orderId: string, status: string, forceConfirm: boolean = false) => {
     try {
       const res = await apiFetch(`/api/orders/${orderId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, forceConfirm }),
       });
       const data = await res.json();
+
+      if (data.requiresConfirmation) {
+        const confirmMsg = `⚠️ CẢNH BÁO TỒN KHO KHÔNG ĐỦ:\n\n${(data.lowStockWarnings || []).join('\n')}\n\nBạn có chắc chắn vẫn muốn tiếp tục duyệt đơn hàng này?`;
+        if (window.confirm(confirmMsg)) {
+          await handleUpdateStatus(orderId, status, true);
+        }
+        return;
+      }
+
       if (data.success) {
-        toast.success(`Đã cập nhật trạng thái đơn thành công!`);
+        toast.success(data.message || `Đã cập nhật trạng thái đơn thành công!`);
         fetchOrders();
       } else {
         toast.error(data.message || 'Lỗi cập nhật');

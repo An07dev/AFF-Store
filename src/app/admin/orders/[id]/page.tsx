@@ -44,10 +44,10 @@ export default function OrderDetailPage() {
     if (id) fetchOrder();
   }, [id]);
 
-  const updateOrderStatus = async (status: string, paymentStatus?: string) => {
+  const updateOrderStatus = async (status: string, paymentStatus?: string, forceConfirm: boolean = false) => {
     setUpdating(true);
     try {
-      const payload: any = { status };
+      const payload: any = { status, forceConfirm };
       if (paymentStatus) payload.paymentStatus = paymentStatus;
 
       const res = await apiFetch(`/api/orders/${id}`, {
@@ -56,8 +56,18 @@ export default function OrderDetailPage() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
+
+      if (data.requiresConfirmation) {
+        setUpdating(false);
+        const confirmMsg = `⚠️ CẢNH BÁO TỒN KHO KHÔNG ĐỦ:\n\n${(data.lowStockWarnings || []).join('\n')}\n\nBạn có chắc chắn vẫn muốn tiếp tục duyệt đơn hàng này?`;
+        if (window.confirm(confirmMsg)) {
+          await updateOrderStatus(status, paymentStatus, true);
+        }
+        return;
+      }
+
       if (data.success) {
-        toast.success(`Đã cập nhật trạng thái đơn thành ${status}`);
+        toast.success(data.message || `Đã cập nhật trạng thái đơn thành ${status}`);
         fetchOrder();
       } else {
         toast.error(data.message || 'Lỗi cập nhật');

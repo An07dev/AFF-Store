@@ -715,7 +715,8 @@ export default function AdminFlashSalePage() {
                 <thead>
                   <tr>
                     <th style={{ width: 40, textAlign: 'center' }}>Bật</th>
-                    <th>Sản phẩm</th>
+                    <th style={{ width: 65, textAlign: 'center' }}>Ảnh</th>
+                    <th style={{ minWidth: 260 }}>Tên sản phẩm</th>
                     <th style={{ width: 120 }}>Giá gốc</th>
                     <th style={{ width: 110 }}>% Sale</th>
                     <th style={{ width: 140 }}>Giá Flash Sale</th>
@@ -725,7 +726,9 @@ export default function AdminFlashSalePage() {
                 </thead>
                 <tbody>
                   {slotItems.map((item, idx) => {
-                    const prod = item.product || {};
+                    const prod = typeof item.product === 'object' && item.product !== null ? item.product : {};
+                    const prodName = prod.name || (item as any).name || prod.title || 'Sản phẩm Flash Sale';
+                    const prodImg = prod.images?.[0] || (item as any).image || (item as any).images?.[0] || '/file.svg';
                     const realStock = Array.isArray(prod.variants) && prod.variants.length > 0
                       ? prod.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0)
                       : (Number(prod.stock) || 0);
@@ -740,18 +743,21 @@ export default function AdminFlashSalePage() {
                             style={{ accentColor: '#f97316', width: 18, height: 18, cursor: 'pointer' }}
                           />
                         </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <img
+                            src={prodImg}
+                            alt={prodName}
+                            className={styles.tableThumb}
+                            style={{ width: 44, height: 44, borderRadius: 6, objectFit: 'cover' }}
+                          />
+                        </td>
                         <td>
-                          <div className={styles.tableProductCell}>
-                            <img
-                              src={prod.images?.[0] || '/file.svg'}
-                              alt={prod.name || 'Sản phẩm'}
-                              className={styles.tableThumb}
-                            />
-                            <div>
-                              <strong style={{ color: '#fff', fontSize: '0.875rem' }}>{prod.name}</strong>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, #9ca3af)', marginTop: 2 }}>
-                                Kho thực tế: <strong style={{ color: realStock < 10 ? '#ef4444' : '#10b981' }}>{realStock}</strong> cái
-                              </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <strong style={{ color: 'var(--admin-text, #f3f4f6)', fontSize: '0.875rem', lineHeight: 1.35, fontWeight: 700 }}>
+                              {prodName}
+                            </strong>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, #9ca3af)' }}>
+                              Kho thực tế: <strong style={{ color: realStock < 10 ? '#ef4444' : '#10b981' }}>{realStock}</strong> cái
                             </div>
                           </div>
                         </td>

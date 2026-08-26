@@ -157,6 +157,57 @@ export async function PUT(
     const isNowActive = ['confirmed', 'shipping', 'delivering', 'delivered'].includes(newStatus);
     const isNowInactive = ['cancelled', 'returned'].includes(newStatus);
 
+    // KIỂM TRA CẢNH BÁO TỒN KHO TRƯỚC KHI DUYỆT ĐƠN
+    if (isNowActive && !order.inventoryDeducted && Array.isArray(order.items) && order.items.length > 0 && !body.forceConfirm) {
+      const lowStockWarnings: string[] = [];
+
+      for (const item of order.items) {
+        if (!item.productId) continue;
+        const prod = await Product.findById(item.productId);
+        if (!prod) continue;
+
+        const qty = Number(item.quantity) || 1;
+
+        if (item.variant && Array.isArray(prod.variants) && prod.variants.length > 0) {
+          const varIdStr = item.variant._id ? String(item.variant._id) : '';
+          const varSku = item.variant.sku || '';
+          const varTitle = item.variant.title || item.variant.name || '';
+          const varAttrs = item.variant.attributes instanceof Map ? Object.fromEntries(item.variant.attributes) : (item.variant.attributes || {});
+
+          const matchedV = prod.variants.find((v: any) => {
+            if (varIdStr && v._id && String(v._id) === varIdStr) return true;
+            if (varSku && v.sku && v.sku.toLowerCase() === varSku.toLowerCase()) return true;
+            if (varTitle && v.title && v.title.toLowerCase() === varTitle.toLowerCase()) return true;
+            if (Object.keys(varAttrs).length > 0 && v.attributes) {
+              const vAttrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
+              const keys = Object.keys(varAttrs);
+              if (keys.every((k) => varAttrs[k] === vAttrs[k])) return true;
+            }
+            return false;
+          });
+
+          const avail = matchedV ? (Number(matchedV.stock) || 0) : 0;
+          if (qty > avail) {
+            lowStockWarnings.push(`"${prod.name}" (Phân loại: ${matchedV?.title || item.variant?.title || 'Biến thể'}) chỉ còn ${avail} cái trong kho (đơn đặt: ${qty})`);
+          }
+        } else {
+          const avail = Number(prod.stock) || 0;
+          if (qty > avail) {
+            lowStockWarnings.push(`"${prod.name}" chỉ còn ${avail} cái trong kho (đơn đặt: ${qty})`);
+          }
+        }
+      }
+
+      if (lowStockWarnings.length > 0) {
+        return NextResponse.json({
+          success: false,
+          requiresConfirmation: true,
+          lowStockWarnings,
+          message: `Cảnh báo tồn kho không đủ: ${lowStockWarnings.join('; ')}`,
+        }, { status: 409 });
+      }
+    }
+
     if (isNowActive && !order.inventoryDeducted && Array.isArray(order.items) && order.items.length > 0) {
       // Trừ tồn kho tương ứng từng sản phẩm và từng biến thể đã mua
       for (const item of order.items) {
