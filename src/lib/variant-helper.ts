@@ -77,17 +77,41 @@ export function generateCartesianVariants(
  * Tìm biến thể khớp với lựa chọn
  */
 export function findMatchingVariant(
-  variants: IVariantItem[],
+  variants: any[],
   selectedAttributes: Record<string, string>
-): IVariantItem | null {
+): any | null {
   if (!variants || variants.length === 0) return null;
+
+  const selectedKeys = Object.keys(selectedAttributes).filter((k) => selectedAttributes[k]);
+  if (selectedKeys.length === 0) return null;
 
   return (
     variants.find((v) => {
-      const attrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
-      const attrKeys = Object.keys(selectedAttributes);
-      if (Object.keys(attrs).length !== attrKeys.length) return false;
-      return attrKeys.every((key) => attrs[key] === selectedAttributes[key]);
+      const rawAttrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : (v.attributes || {});
+      const attrs: Record<string, string> = { ...rawAttrs };
+
+      // Fallback for direct color/size fields
+      if (v.color && !attrs['Màu sắc'] && !attrs['Màu'] && !attrs['Color']) {
+        attrs['Màu sắc'] = v.color;
+      }
+      if (v.size && !attrs['Kích cỡ'] && !attrs['Size'] && !attrs['Kích thước']) {
+        attrs['Kích cỡ'] = v.size;
+      }
+
+      return selectedKeys.every((key) => {
+        const selVal = selectedAttributes[key]?.trim();
+        if (!selVal) return true;
+
+        if (attrs[key]?.trim() === selVal) return true;
+
+        // Case-insensitive key lookup
+        const entry = Object.entries(attrs).find(
+          ([k]) => k.trim().toLowerCase() === key.trim().toLowerCase()
+        );
+        if (entry && entry[1]?.trim() === selVal) return true;
+
+        return false;
+      });
     }) || null
   );
 }

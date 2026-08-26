@@ -521,15 +521,39 @@ export default function ProductDetailPage() {
   const isOutOfStock = currentStock <= 0;
   const isProductOutOfStock = totalStock <= 0;
 
+  const images =
+    product?.images && product.images.length > 0
+      ? product.images
+      : ['https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600'];
+
+  // Auto adjust quantity when selected variant's stock changes
+  useEffect(() => {
+    if (currentStock > 0 && quantity > currentStock) {
+      setQuantity(currentStock);
+    } else if (currentStock === 0) {
+      setQuantity(1);
+    }
+  }, [currentStock]);
+
+  // Switch image if variant has dedicated image
+  useEffect(() => {
+    if (matchedVariant?.image && images.length > 0) {
+      const idx = images.findIndex((img: string) => img === matchedVariant.image);
+      if (idx > -1) {
+        setActiveImageIndex(idx);
+      }
+    }
+  }, [matchedVariant, images]);
+
   // Check if an option value is available given current selections
   const isOptionValueAvailable = (optName: string, val: string) => {
     if (!variants.length) return true;
     const testAttrs = { ...selectedAttributes, [optName]: val };
-    const matching = variants.find((v) => {
-      if (!v.attributes) return false;
+    const matching = variants.find((v: any) => {
+      const rawAttrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : (v.attributes || {});
       const isMatch = Object.entries(testAttrs).every(([k, vVal]) => {
         if (!vVal) return true;
-        return v.attributes[k] === vVal;
+        return rawAttrs[k] === vVal || (k === 'Màu sắc' && v.color === vVal) || (k === 'Kích cỡ' && v.size === vVal);
       });
       return isMatch && (v.stock ?? 1) > 0;
     });
@@ -594,11 +618,6 @@ export default function ProductDetailPage() {
     setExpandModalTab(tab);
     setIsExpandModalOpen(true);
   };
-
-  const images =
-    product?.images && product.images.length > 0
-      ? product.images
-      : ['https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600'];
 
   if (loading) {
     return <StoreLoading />;
@@ -795,10 +814,15 @@ export default function ProductDetailPage() {
               {options.map((opt) => (
                 <div key={opt.name} className={styles.variantSection}>
                   <div className={styles.variantTitle}>
-                    <span>{opt.name}</span>
+                    <span>{opt.name}:</span>
                     {selectedAttributes[opt.name] && (
-                      <span style={{ color: 'var(--primary, #3b82f6)', fontWeight: 600 }}>
+                      <span style={{ color: 'var(--primary, #ee4d2d)', fontWeight: 700, marginLeft: 4 }}>
                         {selectedAttributes[opt.name]}
+                        {matchedVariant && typeof matchedVariant.stock === 'number' && (
+                          <span style={{ fontSize: 11.5, color: 'var(--text-muted, #64748b)', fontWeight: 500, marginLeft: 6 }}>
+                            (Còn {matchedVariant.stock} sp)
+                          </span>
+                        )}
                       </span>
                     )}
                   </div>
@@ -1310,7 +1334,12 @@ export default function ProductDetailPage() {
                       <span>{opt.name}:</span>
                       {selectedAttributes[opt.name] && (
                         <span className={styles.selectedVariantText}>
-                          {selectedAttributes[opt.name]}
+                          {' '}{selectedAttributes[opt.name]}
+                          {matchedVariant && typeof matchedVariant.stock === 'number' && (
+                            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 500, marginLeft: 6 }}>
+                              (Còn {matchedVariant.stock} sản phẩm)
+                            </span>
+                          )}
                         </span>
                       )}
                     </div>

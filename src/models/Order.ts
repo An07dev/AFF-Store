@@ -51,6 +51,7 @@ export interface IOrder extends Document {
   shippingLogs?: IShippingLog[];
   voucherCode?: string;
   voucherDiscount?: number;
+  inventoryDeducted?: boolean;
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -59,6 +60,7 @@ export interface IOrder extends Document {
 const OrderSchema = new Schema<IOrder>(
   {
     orderCode: { type: String, required: true, unique: true },
+    inventoryDeducted: { type: Boolean, default: false },
     customer: {
       name: { type: String, required: true },
       phone: { type: String, required: true },

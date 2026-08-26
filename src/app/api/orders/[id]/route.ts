@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
+import Product from '@/models/Product';
 import { createGHNOrder, cancelGHNOrder } from '@/lib/shipping/ghn';
 import { createGHTKOrder, cancelGHTKOrder } from '@/lib/shipping/ghtk';
 import { createViettelPostOrder } from '@/lib/shipping/viettelpost';
@@ -150,6 +151,81 @@ export async function PUT(
           console.error('Lỗi khi gửi yêu cầu hủy vận đơn sang hãng:', err.message);
         }
       }
+    }
+
+    // TỰ ĐỘNG TRỪ TỒN KHO KHI ADMIN XÁC NHẬN ĐƠN HÀNG (HOẶC CHUYỂN SANG ĐANG GIAO)
+    const isNowActive = ['confirmed', 'shipping', 'delivering', 'delivered'].includes(newStatus);
+    const isNowInactive = ['cancelled', 'returned'].includes(newStatus);
+
+    if (isNowActive && !order.inventoryDeducted && Array.isArray(order.items) && order.items.length > 0) {
+      // Trừ tồn kho tương ứng từng sản phẩm và từng biến thể đã mua
+      for (const item of order.items) {
+        if (!item.productId) continue;
+        const prod = await Product.findById(item.productId);
+        if (!prod) continue;
+
+        const qty = Number(item.quantity) || 1;
+
+        // Nếu sản phẩm có phân loại biến thể
+        if (item.variant && Array.isArray(prod.variants) && prod.variants.length > 0) {
+          const varIdStr = item.variant._id ? String(item.variant._id) : '';
+          const varSku = item.variant.sku || '';
+          const varTitle = item.variant.title || item.variant.name || '';
+
+          const vIndex = prod.variants.findIndex((v: any) => {
+            if (varIdStr && v._id && String(v._id) === varIdStr) return true;
+            if (varSku && v.sku && v.sku.toLowerCase() === varSku.toLowerCase()) return true;
+            if (varTitle && v.title && v.title.toLowerCase() === varTitle.toLowerCase()) return true;
+            return false;
+          });
+
+          if (vIndex !== -1) {
+            prod.variants[vIndex].stock = Math.max(0, (Number(prod.variants[vIndex].stock) || 0) - qty);
+          }
+          prod.stock = prod.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0);
+        } else {
+          prod.stock = Math.max(0, (Number(prod.stock) || 0) - qty);
+        }
+
+        prod.soldCount = (Number(prod.soldCount) || 0) + qty;
+        await prod.save();
+      }
+
+      order.inventoryDeducted = true;
+    } else if (isNowInactive && order.inventoryDeducted && Array.isArray(order.items) && order.items.length > 0) {
+      // Hoàn trả lại tồn kho nếu đơn bị hủy hoặc hoàn trả
+      for (const item of order.items) {
+        if (!item.productId) continue;
+        const prod = await Product.findById(item.productId);
+        if (!prod) continue;
+
+        const qty = Number(item.quantity) || 1;
+
+        if (item.variant && Array.isArray(prod.variants) && prod.variants.length > 0) {
+          const varIdStr = item.variant._id ? String(item.variant._id) : '';
+          const varSku = item.variant.sku || '';
+          const varTitle = item.variant.title || item.variant.name || '';
+
+          const vIndex = prod.variants.findIndex((v: any) => {
+            if (varIdStr && v._id && String(v._id) === varIdStr) return true;
+            if (varSku && v.sku && v.sku.toLowerCase() === varSku.toLowerCase()) return true;
+            if (varTitle && v.title && v.title.toLowerCase() === varTitle.toLowerCase()) return true;
+            return false;
+          });
+
+          if (vIndex !== -1) {
+            prod.variants[vIndex].stock = (Number(prod.variants[vIndex].stock) || 0) + qty;
+          }
+          prod.stock = prod.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0);
+        } else {
+          prod.stock = (Number(prod.stock) || 0) + qty;
+        }
+
+        prod.soldCount = Math.max(0, (Number(prod.soldCount) || 0) - qty);
+        await prod.save();
+      }
+
+      order.inventoryDeducted = false;
     }
 
     // Cập nhật các trường khác
