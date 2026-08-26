@@ -10,6 +10,7 @@ import AdminLoading from '@/components/admin/AdminLoading';
 import OrderTrackingTimeline from '@/components/store/OrderTrackingTimeline';
 import ShipOrderModal from '@/components/admin/ShipOrderModal';
 import OrderPackingSlipModal from '@/components/admin/OrderPackingSlipModal';
+import LowStockWarningModal, { ILowStockItem } from '@/components/admin/LowStockWarningModal';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -22,6 +23,14 @@ export default function OrderDetailPage() {
   const [updating, setUpdating] = useState(false);
   const [isShipModalOpen, setIsShipModalOpen] = useState(false);
   const [isSlipModalOpen, setIsSlipModalOpen] = useState(false);
+
+  // Low Stock Warning Modal
+  const [lowStockWarningData, setLowStockWarningData] = useState<{
+    isOpen: boolean;
+    status: string;
+    paymentStatus?: string;
+    items: ILowStockItem[];
+  } | null>(null);
 
   const fetchOrder = async () => {
     try {
@@ -59,15 +68,18 @@ export default function OrderDetailPage() {
 
       if (data.requiresConfirmation) {
         setUpdating(false);
-        const confirmMsg = `⚠️ CẢNH BÁO TỒN KHO KHÔNG ĐỦ:\n\n${(data.lowStockWarnings || []).join('\n')}\n\nBạn có chắc chắn vẫn muốn tiếp tục duyệt đơn hàng này?`;
-        if (window.confirm(confirmMsg)) {
-          await updateOrderStatus(status, paymentStatus, true);
-        }
+        setLowStockWarningData({
+          isOpen: true,
+          status,
+          paymentStatus,
+          items: data.lowStockItems || [],
+        });
         return;
       }
 
       if (data.success) {
         toast.success(data.message || `Đã cập nhật trạng thái đơn thành ${status}`);
+        setLowStockWarningData(null);
         fetchOrder();
       } else {
         toast.error(data.message || 'Lỗi cập nhật');
@@ -351,6 +363,24 @@ export default function OrderDetailPage() {
         <OrderPackingSlipModal
           orders={[order]}
           onClose={() => setIsSlipModalOpen(false)}
+        />
+      )}
+
+      {/* Low Stock Warning Modal */}
+      {lowStockWarningData && (
+        <LowStockWarningModal
+          isOpen={lowStockWarningData.isOpen}
+          onClose={() => setLowStockWarningData(null)}
+          onConfirm={() =>
+            updateOrderStatus(
+              lowStockWarningData.status,
+              lowStockWarningData.paymentStatus,
+              true
+            )
+          }
+          orderCode={order?.orderCode}
+          items={lowStockWarningData.items}
+          loading={updating}
         />
       )}
     </div>

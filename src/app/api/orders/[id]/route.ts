@@ -159,6 +159,14 @@ export async function PUT(
 
     // KIỂM TRA CẢNH BÁO TỒN KHO TRƯỚC KHI DUYỆT ĐƠN
     if (isNowActive && !order.inventoryDeducted && Array.isArray(order.items) && order.items.length > 0 && !body.forceConfirm) {
+      const lowStockItems: Array<{
+        productName: string;
+        productImage: string;
+        variantTitle: string;
+        orderedQuantity: number;
+        availableStock: number;
+        deficit: number;
+      }> = [];
       const lowStockWarnings: string[] = [];
 
       for (const item of order.items) {
@@ -188,20 +196,38 @@ export async function PUT(
 
           const avail = matchedV ? (Number(matchedV.stock) || 0) : 0;
           if (qty > avail) {
-            lowStockWarnings.push(`"${prod.name}" (Phân loại: ${matchedV?.title || item.variant?.title || 'Biến thể'}) chỉ còn ${avail} cái trong kho (đơn đặt: ${qty})`);
+            const vTitle = matchedV?.title || item.variant?.title || 'Phân loại đã chọn';
+            lowStockItems.push({
+              productName: prod.name,
+              productImage: matchedV?.image || item.image || prod.images?.[0] || '/file.svg',
+              variantTitle: vTitle,
+              orderedQuantity: qty,
+              availableStock: avail,
+              deficit: qty - avail,
+            });
+            lowStockWarnings.push(`"${prod.name}" (${vTitle}) chỉ còn ${avail} cái trong kho (đơn đặt: ${qty})`);
           }
         } else {
           const avail = Number(prod.stock) || 0;
           if (qty > avail) {
+            lowStockItems.push({
+              productName: prod.name,
+              productImage: item.image || prod.images?.[0] || '/file.svg',
+              variantTitle: 'Mặc định',
+              orderedQuantity: qty,
+              availableStock: avail,
+              deficit: qty - avail,
+            });
             lowStockWarnings.push(`"${prod.name}" chỉ còn ${avail} cái trong kho (đơn đặt: ${qty})`);
           }
         }
       }
 
-      if (lowStockWarnings.length > 0) {
+      if (lowStockItems.length > 0) {
         return NextResponse.json({
           success: false,
           requiresConfirmation: true,
+          lowStockItems,
           lowStockWarnings,
           message: `Cảnh báo tồn kho không đủ: ${lowStockWarnings.join('; ')}`,
         }, { status: 409 });

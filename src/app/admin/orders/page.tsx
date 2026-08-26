@@ -25,6 +25,7 @@ import OrderDetailModal from '@/components/admin/OrderDetailModal';
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
 import ShipOrderModal from '@/components/admin/ShipOrderModal';
 import OrderPackingSlipModal from '@/components/admin/OrderPackingSlipModal';
+import LowStockWarningModal, { ILowStockItem } from '@/components/admin/LowStockWarningModal';
 import { apiFetch } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -50,6 +51,16 @@ export default function OrdersPage() {
   const [shippingTargetOrder, setShippingTargetOrder] = useState<any | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; code: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Low Stock Warning Modal state
+  const [lowStockWarningData, setLowStockWarningData] = useState<{
+    isOpen: boolean;
+    orderId: string;
+    orderCode: string;
+    status: string;
+    items: ILowStockItem[];
+  } | null>(null);
+  const [isConfirmingLowStock, setIsConfirmingLowStock] = useState(false);
 
   const tabs = [
     { key: 'all', label: 'Tất cả đơn' },
@@ -196,8 +207,14 @@ export default function OrdersPage() {
   };
 
   // Quick update order status (API 5.3 PUT)
-  const handleUpdateStatus = async (orderId: string, status: string, forceConfirm: boolean = false) => {
+  const handleUpdateStatus = async (
+    orderId: string,
+    status: string,
+    forceConfirm: boolean = false,
+    orderCode?: string
+  ) => {
     try {
+      if (forceConfirm) setIsConfirmingLowStock(true);
       const res = await apiFetch(`/api/orders/${orderId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -206,21 +223,27 @@ export default function OrdersPage() {
       const data = await res.json();
 
       if (data.requiresConfirmation) {
-        const confirmMsg = `⚠️ CẢNH BÁO TỒN KHO KHÔNG ĐỦ:\n\n${(data.lowStockWarnings || []).join('\n')}\n\nBạn có chắc chắn vẫn muốn tiếp tục duyệt đơn hàng này?`;
-        if (window.confirm(confirmMsg)) {
-          await handleUpdateStatus(orderId, status, true);
-        }
+        setLowStockWarningData({
+          isOpen: true,
+          orderId,
+          orderCode: orderCode || orderId,
+          status,
+          items: data.lowStockItems || [],
+        });
         return;
       }
 
       if (data.success) {
         toast.success(data.message || `Đã cập nhật trạng thái đơn thành công!`);
+        setLowStockWarningData(null);
         fetchOrders();
       } else {
         toast.error(data.message || 'Lỗi cập nhật');
       }
     } catch (e) {
       toast.error('Lỗi cập nhật đơn hàng');
+    } finally {
+      setIsConfirmingLowStock(false);
     }
   };
 
@@ -542,7 +565,7 @@ export default function OrdersPage() {
                                   className={styles.actionBtn}
                                   title="Duyệt đơn hàng"
                                   style={{ color: '#10b981' }}
-                                  onClick={() => handleUpdateStatus(o._id, 'confirmed')}
+                                  onClick={() => handleUpdateStatus(o._id, 'confirmed', false, o.orderCode)}
                                 >
                                   <FiCheck />
                                 </button>
@@ -696,6 +719,24 @@ export default function OrdersPage() {
         onConfirm={handleConfirmDelete}
         onClose={() => setDeleteTarget(null)}
       />
+      {/* Low Stock Warning Modal */}
+      {lowStockWarningData && (
+        <LowStockWarningModal
+          isOpen={lowStockWarningData.isOpen}
+          onClose={() => setLowStockWarningData(null)}
+          onConfirm={() =>
+            handleUpdateStatus(
+              lowStockWarningData.orderId,
+              lowStockWarningData.status,
+              true,
+              lowStockWarningData.orderCode
+            )
+          }
+          orderCode={lowStockWarningData.orderCode}
+          items={lowStockWarningData.items}
+          loading={isConfirmingLowStock}
+        />
+      )}
     </div>
   );
 }
