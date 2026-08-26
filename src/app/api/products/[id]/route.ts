@@ -29,7 +29,10 @@ export async function GET(
 
     const product: any = { ...productDoc };
 
-    // Check if product is in an active live flash sale
+    // Ensure product.stock accurately reflects total inventory of all variants
+    if (Array.isArray(product.variants) && product.variants.length > 0) {
+      product.stock = product.variants.reduce((sum: number, v: any) => sum + (Number(v.stock) || 0), 0);
+    }
     try {
       const flashSale = await FlashSale.findOne({ isActive: true }).lean();
       if (flashSale) {

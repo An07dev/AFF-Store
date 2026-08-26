@@ -495,17 +495,31 @@ export default function ProductDetailPage() {
     : null;
 
   // Stock Calculation
-  const currentStock = useMemo(() => {
-    if (matchedVariant && typeof matchedVariant.stock === 'number') {
-      return matchedVariant.stock;
+  const totalStock = useMemo(() => {
+    if (variants && variants.length > 0) {
+      return variants.reduce((acc, v) => acc + (Number(v.stock) || 0), 0);
     }
     if (typeof product?.stock === 'number') {
       return product.stock;
     }
-    return 999;
-  }, [matchedVariant, product]);
+    return 0;
+  }, [variants, product]);
+
+  const currentStock = useMemo(() => {
+    if (matchedVariant && typeof matchedVariant.stock === 'number') {
+      return matchedVariant.stock;
+    }
+    if (variants && variants.length > 0) {
+      return totalStock;
+    }
+    if (typeof product?.stock === 'number') {
+      return product.stock;
+    }
+    return 0;
+  }, [matchedVariant, variants, totalStock, product]);
 
   const isOutOfStock = currentStock <= 0;
+  const isProductOutOfStock = totalStock <= 0;
 
   // Check if an option value is available given current selections
   const isOptionValueAvailable = (optName: string, val: string) => {
@@ -756,10 +770,10 @@ export default function ProductDetailPage() {
                 Đã bán {product.soldCount ?? product.sold ?? 0}
               </span>
               <span className={styles.mobileStock}>
-                {isOutOfStock ? (
+                {isProductOutOfStock ? (
                   <span className={styles.outOfStockBadge}>Tạm hết hàng</span>
                 ) : (
-                  `Kho: ${currentStock} có sẵn`
+                  `Kho: ${totalStock} có sẵn`
                 )}
               </span>
             </div>
@@ -1234,10 +1248,10 @@ export default function ProductDetailPage() {
                 </span>
                 <span className={styles.metaDivider}>•</span>
                 <span className={styles.stock}>
-                  {isOutOfStock ? (
+                  {isProductOutOfStock ? (
                     <span className={styles.outOfStockBadge}>Tạm hết hàng</span>
                   ) : (
-                    `Kho: ${currentStock} có sẵn`
+                    `Kho: ${totalStock} có sẵn`
                   )}
                 </span>
               </div>

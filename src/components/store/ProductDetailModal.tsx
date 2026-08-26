@@ -149,11 +149,19 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
     ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
     : null;
 
+  const totalStock = useMemo(() => {
+    if (variants && variants.length > 0) {
+      return variants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+    }
+    return product?.stock ?? 0;
+  }, [variants, product]);
+
   const currentStock = matchedVariant
     ? (matchedVariant.stock ?? 0)
-    : (product?.stock ?? 0);
+    : (variants.length > 0 ? totalStock : (product?.stock ?? 0));
 
   const isOutOfStock = currentStock <= 0;
+  const isProductOutOfStock = totalStock <= 0;
 
   // Auto adjust quantity
   useEffect(() => {
