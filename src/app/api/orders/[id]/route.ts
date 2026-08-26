@@ -171,11 +171,17 @@ export async function PUT(
           const varIdStr = item.variant._id ? String(item.variant._id) : '';
           const varSku = item.variant.sku || '';
           const varTitle = item.variant.title || item.variant.name || '';
+          const varAttrs = item.variant.attributes instanceof Map ? Object.fromEntries(item.variant.attributes) : (item.variant.attributes || {});
 
           const vIndex = prod.variants.findIndex((v: any) => {
             if (varIdStr && v._id && String(v._id) === varIdStr) return true;
             if (varSku && v.sku && v.sku.toLowerCase() === varSku.toLowerCase()) return true;
             if (varTitle && v.title && v.title.toLowerCase() === varTitle.toLowerCase()) return true;
+            if (Object.keys(varAttrs).length > 0 && v.attributes) {
+              const vAttrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
+              const keys = Object.keys(varAttrs);
+              if (keys.every((k) => varAttrs[k] === vAttrs[k])) return true;
+            }
             return false;
           });
 
@@ -205,11 +211,17 @@ export async function PUT(
           const varIdStr = item.variant._id ? String(item.variant._id) : '';
           const varSku = item.variant.sku || '';
           const varTitle = item.variant.title || item.variant.name || '';
+          const varAttrs = item.variant.attributes instanceof Map ? Object.fromEntries(item.variant.attributes) : (item.variant.attributes || {});
 
           const vIndex = prod.variants.findIndex((v: any) => {
             if (varIdStr && v._id && String(v._id) === varIdStr) return true;
             if (varSku && v.sku && v.sku.toLowerCase() === varSku.toLowerCase()) return true;
             if (varTitle && v.title && v.title.toLowerCase() === varTitle.toLowerCase()) return true;
+            if (Object.keys(varAttrs).length > 0 && v.attributes) {
+              const vAttrs = v.attributes instanceof Map ? Object.fromEntries(v.attributes) : v.attributes;
+              const keys = Object.keys(varAttrs);
+              if (keys.every((k) => varAttrs[k] === vAttrs[k])) return true;
+            }
             return false;
           });
 
