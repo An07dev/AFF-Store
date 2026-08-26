@@ -436,9 +436,8 @@ export default function AdminFlashSalePage() {
 
       {/* Live Status Banner */}
       <div
-        className={`${styles.statusBanner} ${
-          isActive ? styles.statusBannerLive : styles.statusBannerInactive
-        }`}
+        className={`${styles.statusBanner} ${isActive ? styles.statusBannerLive : styles.statusBannerInactive
+          }`}
       >
         <div className={styles.statusIndicator}>
           {isActive && <div className={styles.pulseDot} />}
@@ -562,9 +561,8 @@ export default function AdminFlashSalePage() {
                   </div>
                 </div>
                 <span
-                  className={`${styles.slotTabBadge} ${
-                    s.enabled ? styles.badgeLive : styles.badgeDisabled
-                  }`}
+                  className={`${styles.slotTabBadge} ${s.enabled ? styles.badgeLive : styles.badgeDisabled
+                    }`}
                 >
                   {s.enabled ? 'Bật' : 'Tắt'}
                 </span>
