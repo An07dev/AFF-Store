@@ -260,7 +260,8 @@ export default function ProductDetailPage() {
           const p = prodData.data;
           setProduct(p);
 
-          if (p.flashSale) {
+          // 1. Check if the product itself from API has an active LIVE flash sale
+          if (p.flashSale && p.flashSale.isLive) {
             setFlashSaleItem(p.flashSale);
           } else if (p.flashPrice && p.isFlashSale) {
             setFlashSaleItem({
@@ -268,6 +269,8 @@ export default function ProductDetailPage() {
               originalPrice: p.price,
               isLive: true,
             });
+          } else {
+            setFlashSaleItem(null);
           }
 
           // Initialize default attributes from first available variant or option defaults
@@ -281,57 +284,48 @@ export default function ProductDetailPage() {
           }
           setSelectedAttributes(initAttrs);
 
-          // Check if this product is part of active flash sale
-          if (fsData && fsData.success && fsData.data) {
+          // 2. Cross-verify with live /api/flash-sale data
+          // ONLY attach flash sale when flash sale campaign is active AND currently LIVE in real-time
+          if (fsData && fsData.success && fsData.data && fsData.data.isActive && fsData.data.isLive) {
             const pIdStr = String(p._id);
-            let fsProduct: any = null;
+            let liveFsProduct: any = null;
 
-            // 1. Check live items
-            if (Array.isArray(fsData.data.items)) {
-              fsProduct = fsData.data.items.find(
+            // Check live items in active slot
+            if (Array.isArray(fsData.data.items) && fsData.data.items.length > 0) {
+              liveFsProduct = fsData.data.items.find(
                 (item: any) =>
                   String(item.productId?._id || item.productId || item._id) === pIdStr ||
                   item.slug === p.slug
               );
             }
 
-            // 2. Check slots array (data.slots -> slot.items)
-            if (!fsProduct && Array.isArray(fsData.data.slots)) {
-              const liveSlot = fsData.data.slots.find((s: any) => s.status === 'live');
-              if (liveSlot && Array.isArray(liveSlot.items)) {
-                fsProduct = liveSlot.items.find(
-                  (item: any) =>
-                    String(item.productId?._id || item.productId || item._id) === pIdStr ||
-                    item.slug === p.slug
-                );
-              }
-              if (!fsProduct) {
-                for (const s of fsData.data.slots) {
-                  if (Array.isArray(s.items)) {
-                    const found = s.items.find(
-                      (item: any) =>
-                        String(item.productId?._id || item.productId || item._id) === pIdStr ||
-                        item.slug === p.slug
-                    );
-                    if (found) {
-                      fsProduct = found;
-                      break;
-                    }
-                  }
-                }
-              }
+            // Check active live slot if available
+            if (!liveFsProduct && fsData.data.activeSlot && Array.isArray(fsData.data.activeSlot.items)) {
+              liveFsProduct = fsData.data.activeSlot.items.find(
+                (item: any) =>
+                  (item.isActive ?? true) &&
+                  (String(item.productId?._id || item.productId || item._id) === pIdStr ||
+                    item.slug === p.slug)
+              );
             }
 
-            if (fsProduct) {
+            if (liveFsProduct) {
               const activeEndTime =
                 fsData.data.activeSlot?.endTime ||
-                fsData.data.slots?.find((s: any) => s.status === 'live')?.endTime;
+                fsData.data.slots?.find((s: any) => s.status === 'live')?.endTime ||
+                '23:59';
 
               setFlashSaleItem({
-                ...fsProduct,
+                ...liveFsProduct,
+                isLive: true,
                 endTime: activeEndTime,
               });
+            } else {
+              setFlashSaleItem(null);
             }
+          } else {
+            // Flash sale is not active or not currently live -> strictly clear flashSaleItem
+            setFlashSaleItem(null);
           }
 
           // Set FOMO settings
@@ -466,7 +460,7 @@ export default function ProductDetailPage() {
   const baseOriginalPrice = product?.originalPrice || (product?.comparePrice ?? null);
 
   const currentPrice = useMemo(() => {
-    if (flashSaleItem?.flashPrice) {
+    if (flashSaleItem?.flashPrice && flashSaleItem?.isLive) {
       return flashSaleItem.flashPrice;
     }
     if (matchedVariant) {
@@ -487,10 +481,10 @@ export default function ProductDetailPage() {
   }, [flashSaleItem, matchedVariant, product, basePrice]);
 
   const originalPrice = useMemo(() => {
-    if (flashSaleItem?.originalPrice) {
+    if (flashSaleItem?.originalPrice && flashSaleItem?.isLive) {
       return flashSaleItem.originalPrice;
     }
-    if (flashSaleItem?.flashPrice && (product?.originalPrice || product?.price)) {
+    if (flashSaleItem?.flashPrice && flashSaleItem?.isLive && (product?.originalPrice || product?.price)) {
       return product?.originalPrice || product?.price;
     }
     if (matchedVariant) {
@@ -602,7 +596,7 @@ export default function ProductDetailPage() {
       return;
     }
 
-    const prodWithFlash = flashSaleItem?.flashPrice
+    const prodWithFlash = (flashSaleItem?.flashPrice && flashSaleItem?.isLive)
       ? { ...product, flashPrice: flashSaleItem.flashPrice, isFlashSale: true }
       : product;
 
@@ -617,7 +611,7 @@ export default function ProductDetailPage() {
       return;
     }
 
-    const prodWithFlash = flashSaleItem?.flashPrice
+    const prodWithFlash = (flashSaleItem?.flashPrice && flashSaleItem?.isLive)
       ? { ...product, flashPrice: flashSaleItem.flashPrice, isFlashSale: true }
       : product;
 
@@ -755,7 +749,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Mobile Flash Sale Bar */}
-          {flashSaleItem && (
+          {flashSaleItem && flashSaleItem.isLive && (
             <div className={styles.mobileFlashBar}>
               <div className={styles.flashBarLeft}>
                 <FiZap size={18} style={{ fill: '#fff' }} />
@@ -780,7 +774,7 @@ export default function ProductDetailPage() {
             <div className={styles.mobilePriceRow}>
               <span
                 className={styles.mobileCurrentPrice}
-                style={{ color: flashSaleItem ? '#f97316' : undefined }}
+                style={{ color: (flashSaleItem && flashSaleItem.isLive) ? '#f97316' : undefined }}
               >
                 {formatPrice(currentPrice)}
               </span>
@@ -791,8 +785,8 @@ export default function ProductDetailPage() {
                     <span
                       className={styles.mobileDiscountBadge}
                       style={{
-                        background: flashSaleItem ? '#ea580c' : undefined,
-                        color: flashSaleItem ? '#ffffff' : undefined,
+                        background: (flashSaleItem && flashSaleItem.isLive) ? '#ea580c' : undefined,
+                        color: (flashSaleItem && flashSaleItem.isLive) ? '#ffffff' : undefined,
                       }}
                     >
                       -{discountPercent}%
@@ -1308,7 +1302,7 @@ export default function ProductDetailPage() {
                 </span>
               </div>
 
-              {flashSaleItem && (
+              {flashSaleItem && flashSaleItem.isLive && (
                 <div className={styles.shopeeFlashBar}>
                   <div className={styles.flashBarLeft}>
                     <FiZap size={16} style={{ fill: '#fff' }} />
