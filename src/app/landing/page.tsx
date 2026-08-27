@@ -6,29 +6,17 @@ import {
   FiZap,
   FiShoppingBag,
   FiTruck,
-  FiCreditCard,
   FiBarChart2,
-  FiMessageSquare,
   FiCheck,
   FiChevronDown,
   FiChevronUp,
   FiChevronRight,
-  FiArrowRight,
-  FiLayers,
-  FiShield,
-  FiStar,
   FiCheckCircle,
   FiExternalLink,
-  FiSmartphone,
-  FiPackage,
-  FiClock,
-  FiGift,
-  FiAward,
-  FiMail,
-  FiMenu,
   FiX,
   FiZoomIn,
   FiChevronLeft,
+  FiShield,
 } from 'react-icons/fi';
 import { CoolMode } from '@/registry/magicui/cool-mode';
 import { OrbitingCircles } from '@/registry/magicui/orbiting-circles';
@@ -46,48 +34,48 @@ interface ComparisonNotificationItem {
 
 const rawPainPoints: ComparisonNotificationItem[] = [
   {
-    name: 'Bị trừ 12.5% phí sàn',
-    description: 'Mất 48.000₫ trên đơn 400K, bào mòn sạch biên lợi nhuận',
+    name: 'Mất 10 - 15% Phí Sàn',
+    description: 'Bào mòn biên lợi nhuận trên từng đơn hàng',
     time: 'Vừa xong',
     icon: '💸',
     color: 'rgba(239, 68, 68, 0.25)',
     isPositive: false,
   },
   {
-    name: 'Bị giam tiền hàng 10 ngày',
-    description: 'Chôn vốn xoay vòng, đối soát phức tạp và chậm trễ',
+    name: 'Giam Tiền Hàng 7 - 14 Ngày',
+    description: 'Chôn vốn xoay vòng, đối soát chậm trễ',
     time: '2m ago',
     icon: '⏳',
     color: 'rgba(249, 115, 22, 0.25)',
     isPositive: false,
   },
   {
-    name: 'Bị ẩn 100% SĐT khách',
-    description: 'Sàn độc quyền data, không thể remarketing Zalo / Tele',
+    name: 'Ẩn 100% SĐT Khách',
+    description: 'Sàn độc quyền data, không thể remarketing',
     time: '5m ago',
     icon: '🚫',
     color: 'rgba(239, 68, 68, 0.25)',
     isPositive: false,
   },
   {
-    name: 'Nguy cơ bị khóa shop vô lý',
-    description: 'Quét lỗi thuật toán bất chợt, đối thủ chơi xấu ép giá',
+    name: 'Nguy Cơ Khóa Shop',
+    description: 'Phụ thuộc thuật toán quét lỗi bất chợt',
     time: '12m ago',
     icon: '⚠️',
     color: 'rgba(234, 179, 8, 0.25)',
     isPositive: false,
   },
   {
-    name: 'Thất thoát 35% pixel iOS',
-    description: 'Không thể gắn Meta CAPI chuẩn, giá thầu Ads đắt đỏ',
+    name: 'Thất Thoát Dữ Liệu Ads',
+    description: 'Không có Meta CAPI, chi phí CPA đắt đỏ',
     time: '18m ago',
     icon: '📉',
     color: 'rgba(239, 68, 68, 0.25)',
     isPositive: false,
   },
   {
-    name: 'Bị phạt vì trả lời chat trễ',
-    description: 'Hạ điểm vận hành shop nếu không trực máy 24/7',
+    name: 'Phạt Phản Hồi Chậm',
+    description: 'Hạ điểm vận hành nếu không trực chat 24/7',
     time: '25m ago',
     icon: '🤖',
     color: 'rgba(249, 115, 22, 0.25)',
@@ -97,8 +85,8 @@ const rawPainPoints: ComparisonNotificationItem[] = [
 
 const rawShopTikBenefits: ComparisonNotificationItem[] = [
   {
-    name: 'Khớp lệnh VietQR 1s',
-    description: 'Tiền bắn thẳng vào tài khoản MBBank ngay khi khách quét',
+    name: 'Khớp Lệnh VietQR 1s',
+    description: 'Tiền về thẳng tài khoản ngân hàng tức thì',
     time: 'Vừa xong',
     icon: '⚡',
     color: 'rgba(16, 185, 129, 0.3)',
@@ -106,39 +94,39 @@ const rawShopTikBenefits: ComparisonNotificationItem[] = [
   },
   {
     name: '0% Phí Sàn Trọn Đời',
-    description: 'Giữ trọn 100% doanh thu, không mất thêm bất kỳ đồng phí nào',
+    description: 'Giữ trọn 100% doanh thu & lợi nhuận',
     time: '1m ago',
     icon: '💰',
     color: 'rgba(16, 185, 129, 0.3)',
     isPositive: true,
   },
   {
-    name: 'Sở hữu 100% Data Khách',
-    description: 'Tự động lưu SĐT, Tên, Địa chỉ & Lịch sử mua vào Database',
+    name: 'Sở Hữu 100% Data Khách',
+    description: 'Lưu tự động SĐT, Tên, Địa chỉ vào Database riêng',
     time: '4m ago',
     icon: '👥',
     color: 'rgba(99, 102, 241, 0.3)',
     isPositive: true,
   },
   {
-    name: 'Đẩy đơn GHN / GHTK 1-Click',
-    description: 'Tự động tính phí ship theo km, bưu tá tự đến lấy hàng',
+    name: 'Đẩy Đơn GHN / GHTK 1-Chạm',
+    description: 'Tự tính phí ship, bưu tá tự đến lấy hàng',
     time: '8m ago',
     icon: '🚚',
     color: 'rgba(59, 130, 246, 0.3)',
     isPositive: true,
   },
   {
-    name: 'Chuẩn Meta CAPI & TikTok Events',
-    description: 'Đo lường sự kiện Purchase 100%, giảm 40% chi phí chạy Ads',
+    name: 'Chuẩn Meta & TikTok CAPI',
+    description: 'Đo lường 100% chuyển đổi, tối ưu chi phí Ads',
     time: '15m ago',
     icon: '🎯',
     color: 'rgba(168, 85, 247, 0.3)',
     isPositive: true,
   },
   {
-    name: 'Tự động gửi Email & Zalo 24/7',
-    description: 'Xác nhận đơn hàng tức thì, nâng cao uy tín và tỷ lệ nhận hàng',
+    name: 'Tự Động Gửi Email 24/7',
+    description: 'Xác nhận đơn và thông báo vận đơn tức thì',
     time: '22m ago',
     icon: '✉️',
     color: 'rgba(16, 185, 129, 0.3)',
@@ -149,12 +137,34 @@ const rawShopTikBenefits: ComparisonNotificationItem[] = [
 const painPointsList = Array.from({ length: 6 }, () => rawPainPoints).flat();
 const benefitsList = Array.from({ length: 6 }, () => rawShopTikBenefits).flat();
 
+const planDetails = {
+  '399k': {
+    name: 'Gói Bán Hàng Ngoại Sàn (Tự Cài Đặt)',
+    shortName: 'Gói Tự Cài 399K',
+    priceNumber: 399000,
+    priceStr: '399.000₫',
+    originalPriceStr: '2.490.000₫',
+    memoPrefix: 'GOI399K',
+    badge: 'Full Source Code + Hướng Dẫn A-Z',
+  },
+  '799k': {
+    name: 'Gói Setup & Cài Đặt Trọn Gói A - Z',
+    shortName: 'Gói Setup A-Z 799K',
+    priceNumber: 799000,
+    priceStr: '799.000₫',
+    originalPriceStr: '3.500.000₫',
+    memoPrefix: 'GOI799K',
+    badge: 'Bàn Giao Chìa Khóa Trao Tay (Cài Sẵn A-Z)',
+  },
+};
+
 export default function LandingPage() {
   // Mobile Menu State
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // 399k Package Order Modal State
+  // Package Order Modal State
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'399k' | '799k'>('399k');
   const [orderName, setOrderName] = useState('');
   const [orderPhone, setOrderPhone] = useState('');
   const [orderEmail, setOrderEmail] = useState('');
@@ -164,32 +174,38 @@ export default function LandingPage() {
   const [isOrderSubmitted, setIsOrderSubmitted] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
+  const openOrderModal = (plan: '399k' | '799k' = '399k') => {
+    setSelectedPlan(plan);
+    setIsOrderSubmitted(false);
+    setIsPackageModalOpen(true);
+  };
+
   // Testimonials Carousel State & Auto-Play Timer
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isTestimonialHovered, setIsTestimonialHovered] = useState(false);
 
   const testimonials = [
     {
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80",
-      name: "Nguyễn Thu Hằng",
-      title: "CEO & Founder • Hằng Boutique Fashion",
-      quote: "Từ ngày chuyển sang dùng tính năng quét mã VietQR tự động của ShopTik, bên mình tiết kiệm hẳn 2 nhân sự trực đối soát sao kê ngân hàng. Khách chuyển tiền xong là web tự báo thành công ngay trong 1 giây, tiền về thẳng tài khoản mà không mất một đồng phí sàn nào!"
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
+      name: 'Nguyễn Thu Hằng',
+      title: 'Founder • Hằng Boutique',
+      quote: 'Tính năng VietQR tự động giúp shop tiết kiệm nhân sự đối soát. Khách quét mã xong là web báo thành công ngay trong 1s, tiền về thẳng tài khoản mà không mất 1 đồng phí sàn nào.',
     },
     {
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80",
-      name: "Trần Hoàng Minh",
-      title: "Founder • TechZone Phụ Kiện Cao Cấp",
-      quote: "Quảng cáo Facebook và TikTok của shop mình từng bị rớt 30% đơn vì khách dùng iOS chặn cookie. Sau khi tích hợp Meta CAPI và TikTok Events API server-side của ShopTik, số liệu đo lường chuẩn đét 100%, giá thầu CPA giảm rõ rệt và ROI tăng vọt."
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
+      name: 'Trần Hoàng Minh',
+      title: 'Founder • TechZone Phụ Kiện',
+      quote: 'Tích hợp Meta CAPI & TikTok Events API server-side giúp số liệu đo lường chuẩn xác 100%, khắc phục hoàn toàn tình trạng rớt đơn trên iOS, giảm mạnh chi phí CPA.',
     },
     {
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80",
-      name: "Lê Phương Thảo",
-      title: "Quản Lý Vận Hành • Thảo House Living Decor",
-      quote: "Nút xuất đơn 1-Click sang GHN và GHTK cực kỳ tiện lợi. Đơn hàng khách chọn hãng nào là hệ thống tự gọi đúng hãng đó, shipper qua lấy hàng theo mã vận đơn in sẵn, khách có trang tra cứu lộ trình 5 bước cực kỳ chuyên nghiệp."
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+      name: 'Lê Phương Thảo',
+      title: 'Quản Lý • Thảo House',
+      quote: 'Xuất đơn 1-Click sang GHN và GHTK cực kỳ nhanh. Shipper tự qua lấy hàng theo mã vận đơn in sẵn, khách có trang tra cứu lộ trình 5 bước rất chuyên nghiệp.',
     },
   ];
 
-  // Auto-scroll / Auto-advance testimonial every 4.5 seconds
+  // Auto-scroll testimonial every 4.5 seconds
   useEffect(() => {
     if (isTestimonialHovered) return;
     const timer = setInterval(() => {
@@ -204,44 +220,44 @@ export default function LandingPage() {
   const heroGallery = [
     {
       src: '/images/preview-admin-dashboard.png',
-      title: '📊 Báo Cáo Kinh Doanh & Phân Tích Doanh Thu Admin',
-      desc: 'Bảng điều khiển Admin theo dõi doanh thu thực nhận 7.358.000đ, biểu đồ tăng trưởng, phân bổ trạng thái đơn và danh sách đơn mới nhất.',
-      tag: 'Báo Cáo & Doanh Thu',
+      title: 'Báo Cáo Doanh Thu & Đơn Hàng Realtime',
+      desc: 'Bảng điều khiển trực quan: theo dõi doanh thu thực nhận, biểu đồ tăng trưởng và danh sách đơn mới.',
+      tag: 'Báo Cáo Doanh Thu',
       badge: '7.358K',
     },
     {
       src: '/images/preview-admin-theme.png',
-      title: '🎨 Cấu Hình Giao Diện & 7 Bộ Multi-Themes Hệ Thống',
-      desc: 'Tùy biến nhanh 7 theme (Shopee, TikTok Shop, Neon, Minimal...), thay đổi màu sắc, logo thương hiệu và xem trước Live Preview realtime.',
-      tag: 'Đổi Giao Diện Realtime',
+      title: 'Tùy Biến Giao Diện & 7 Multi-Themes',
+      desc: 'Tùy chỉnh màu sắc thương hiệu, đổi theme 1-Click và xem trước Live Preview realtime.',
+      tag: 'Đổi Theme Realtime',
       badge: '7 Themes',
     },
     {
       src: '/images/preview-product.png',
-      title: '👕 Chi Tiết Sản Phẩm & Phân Loại Biến Thể Size/Màu',
-      desc: 'Giao diện sản phẩm chuẩn sàn TMĐT, đếm số người đang xem, lưu voucher của shop, chọn phân loại hàng và mua ngay không cần đăng nhập.',
+      title: 'Chi Tiết Sản Phẩm & Biến Thể Size/Màu',
+      desc: 'Giao diện chuẩn sàn TMĐT: chọn phân loại hàng, voucher giảm giá và mua ngay 1-chạm.',
       tag: 'Sản Phẩm & Phân Loại',
       badge: '229K',
     },
     {
       src: '/images/preview-mobile.png',
-      title: '📱 Mobile App & Popup FOMO Thông Báo Đơn Hàng Live',
-      desc: 'Tối ưu 100% trải nghiệm điện thoại thông minh, khung iPhone tinh tế, popup thông báo khách vừa mua hàng kích thích chốt đơn tức thì.',
-      tag: 'Mobile App & FOMO',
+      title: 'Mobile App & Popup FOMO Mua Hàng',
+      desc: 'Tối ưu 100% trải nghiệm di động kèm popup thông báo đơn hàng realtime kích thích chốt sale.',
+      tag: 'Mobile & FOMO Live',
       badge: 'Live',
     },
     {
       src: '/images/preview-feed.png',
-      title: '🛍️ Danh Mục Gợi Ý Hôm Nay Chuẩn Sàn TMĐT',
-      desc: 'Gợi ý sản phẩm thông minh, gắn nhãn Freeship XTRA, Yêu thích+, % giảm giá và bộ lọc danh mục hàng mượt mà.',
-      tag: 'Gợi Ý Hôm Nay',
+      title: 'Danh Mục & Gợi Ý Hôm Nay',
+      desc: 'Gợi ý sản phẩm thông minh, nhãn Freeship XTRA, flash sale và bộ lọc danh mục mượt mà.',
+      tag: 'Gợi Ý Sản Phẩm',
       badge: '-35%',
     },
     {
       src: '/images/preview-tracking.png',
-      title: '🚚 Tra Cứu Vận Đơn 5 Bước & Cổng Thanh Toán VietQR',
-      desc: 'Theo dõi tiến trình bưu tá GHN / GHTK 5 bước realtime, xuất mã VietQR SePay tự động khớp lệnh chỉ trong 1 giây.',
-      tag: 'Tra Cứu Đơn Hàng',
+      title: 'Tra Cứu Vận Đơn & Cổng VietQR',
+      desc: 'Theo dõi tiến trình bưu tá GHN/GHTK 5 bước và cổng thanh toán VietQR tự động 1s.',
+      tag: 'Tra Cứu & VietQR',
       badge: '5 Bước',
     },
   ];
@@ -279,7 +295,7 @@ export default function LandingPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activePreviewIndex]);
 
-  // Lock body scroll when mobile drawer, modal, or image preview is open
+  // Lock body scroll when modal is open
   useEffect(() => {
     if (isMobileMenuOpen || isPackageModalOpen || activePreviewIndex !== null) {
       document.body.style.overflow = 'hidden';
@@ -307,6 +323,7 @@ export default function LandingPage() {
     }
 
     setIsOrderSubmitting(true);
+    const prefix = selectedPlan === '799k' ? 'ST799K_' : 'ST399K_';
     try {
       const res = await fetch('/api/landing-leads', {
         method: 'POST',
@@ -315,18 +332,19 @@ export default function LandingPage() {
           name: orderName.trim(),
           phone: orderPhone.trim(),
           email: orderEmail.trim(),
-          notes: orderNotes.trim(),
+          notes: `[Gói: ${selectedPlan.toUpperCase()}] ${orderNotes.trim()}`,
+          plan: selectedPlan,
         }),
       });
       const data = await res.json();
       if (data.orderCode) {
         setOrderCode(data.orderCode);
       } else {
-        setOrderCode('ST399K_' + Math.floor(100000 + Math.random() * 900000));
+        setOrderCode(prefix + Math.floor(100000 + Math.random() * 900000));
       }
     } catch (err) {
       console.warn('Order submission offline fallback:', err);
-      setOrderCode('ST399K_' + Math.floor(100000 + Math.random() * 900000));
+      setOrderCode(prefix + Math.floor(100000 + Math.random() * 900000));
     } finally {
       setIsOrderSubmitting(false);
       setIsOrderSubmitted(true);
@@ -341,7 +359,6 @@ export default function LandingPage() {
   const [demoBgMode, setDemoBgMode] = useState<'default' | 'dark' | 'light'>('default');
   const [showFlashBadge, setShowFlashBadge] = useState<boolean>(true);
   const [showSoldProgress, setShowSoldProgress] = useState<boolean>(true);
-  const [copiedToast, setCopiedToast] = useState<boolean>(false);
   const [copiedCouponToast, setCopiedCouponToast] = useState<boolean>(false);
 
   const handleCopyCoupon = () => {
@@ -349,9 +366,6 @@ export default function LandingPage() {
     setCopiedCouponToast(true);
     setTimeout(() => setCopiedCouponToast(false), 2500);
   };
-
-  // Interactive Feature Tab State
-  const [activeFeatureTab, setActiveFeatureTab] = useState<'storefront' | 'admin' | 'automation'>('storefront');
 
   // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -369,7 +383,7 @@ export default function LandingPage() {
       textColor: '#0f172a',
       badgeBg: '#fee2e2',
       badgeColor: '#ef4444',
-      tag: 'Chuẩn Sàn TMĐT Shopee - Rực Rỡ & Kích Thích Mua Hàng',
+      tag: 'Chuẩn Sàn TMĐT • Rực Rỡ & Nổi Bật',
       radius: 8,
     },
     tiktok: {
@@ -380,29 +394,29 @@ export default function LandingPage() {
       textColor: '#f8fafc',
       badgeBg: 'rgba(254, 44, 85, 0.2)',
       badgeColor: '#fe2c55',
-      tag: 'Phong Cách TikTok Shop - Trẻ Trung, Cuốn Hút & Thời Thượng',
+      tag: 'Phong Cách TikTok • Trẻ Trung & Cuốn Hút',
       radius: 8,
     },
     dark: {
-      name: 'Sleek Dark Mode',
+      name: 'Sleek Dark',
       primary: '#3b82f6',
       bg: '#090a0f',
       cardBg: '#13161f',
       textColor: '#f8fafc',
       badgeBg: 'rgba(59, 130, 246, 0.2)',
       badgeColor: '#60a5fa',
-      tag: 'Giao Diện Xanh Than Sang Trọng - Đậm Chất Công Nghệ',
+      tag: 'Xanh Than Hiện Đại • Đậm Chất Công Nghệ',
       radius: 12,
     },
     light: {
-      name: 'Clean Light Mode',
+      name: 'Clean Light',
       primary: '#2563eb',
       bg: '#f8fafc',
       cardBg: '#ffffff',
       textColor: '#0f172a',
       badgeBg: '#dbeafe',
       badgeColor: '#1d4ed8',
-      tag: 'Trắng Sạch Tinh Tế - Thanh Lịch & Tối Ưu Đọc Nội Dung',
+      tag: 'Trắng Tinh Tế • Thanh Lịch & Tối Ưu Đọc',
       radius: 8,
     },
     cyberpunk: {
@@ -413,7 +427,7 @@ export default function LandingPage() {
       textColor: '#f8fafc',
       badgeBg: 'rgba(168, 85, 247, 0.25)',
       badgeColor: '#c084fc',
-      tag: 'Tím Neon Tương Lai - Cá Tính & Đột Phá Độc Bản',
+      tag: 'Tím Neon • Cá Tính & Đột Phá Độc Bản',
       radius: 14,
     },
     organic: {
@@ -424,7 +438,7 @@ export default function LandingPage() {
       textColor: '#f8fafc',
       badgeBg: 'rgba(16, 185, 129, 0.25)',
       badgeColor: '#34d399',
-      tag: 'Xanh Lá Tươi Mát - Chuẩn Sản Phẩm Organic & Health',
+      tag: 'Xanh Lá Tươi Mát • Chuẩn Organic & Health',
       radius: 16,
     },
     luxury: {
@@ -435,7 +449,7 @@ export default function LandingPage() {
       textColor: '#f8fafc',
       badgeBg: 'rgba(245, 158, 11, 0.25)',
       badgeColor: '#fbbf24',
-      tag: 'Vàng Kim Hoàng Gia - Đẳng Cấp Thượng Lưu',
+      tag: 'Vàng Hoàng Gia • Đẳng Cấp & Sang Trọng',
       radius: 6,
     },
   };
@@ -474,12 +488,7 @@ export default function LandingPage() {
     '#06b6d4',
   ];
 
-  const handleCopyCss = () => {
-    const cssCode = `:root {\n  --primary: ${effectivePrimary};\n  --bg-main: ${effectiveBg};\n  --card-bg: ${effectiveCardBg};\n  --border-radius: ${demoBorderRadius}px;\n}`;
-    navigator.clipboard?.writeText(cssCode);
-    setCopiedToast(true);
-    setTimeout(() => setCopiedToast(false), 2500);
-  };
+  const currentPlanInfo = planDetails[selectedPlan];
 
   return (
     <div className={styles.page}>
@@ -489,7 +498,7 @@ export default function LandingPage() {
       <div className={styles.ambientGlowBottom} />
 
       {/* ==========================================================================
-         RAREBLOCKS CLARITY E-COMMERCE HEADER & HERO SECTION
+         HEADER & HERO SECTION
          ========================================================================== */}
       <section className={styles.rareSection}>
         <header className={styles.rareHeader}>
@@ -507,10 +516,11 @@ export default function LandingPage() {
               </div>
 
               <div className={styles.rareNavLinks}>
-                <a href="#goi-ngoai-san" className={styles.rareNavLink} style={{ color: '#a5b4fc', fontWeight: 700 }}>⚡ Gói 399K</a>
                 <a href="#so-sanh" className={styles.rareNavLink}>So Sánh</a>
-                <a href="#features" className={styles.rareNavLink}>Tính Năng</a>
                 <a href="#themes" className={styles.rareNavLink}>Theme</a>
+                <a href="#orbit" className={styles.rareNavLink}>Hệ Sinh Thái</a>
+                <a href="#danh-gia" className={styles.rareNavLink}>Đánh Giá</a>
+                <a href="#goi-ngoai-san" className={styles.rareNavLink} style={{ color: '#a5b4fc', fontWeight: 700 }}>⚡ Gói 399K</a>
                 <a href="#hosting" className={styles.rareNavLink}>Hosting</a>
                 <a href="#faq" className={styles.rareNavLink}>Hỏi Đáp</a>
               </div>
@@ -534,7 +544,7 @@ export default function LandingPage() {
                       cursor: 'pointer',
                       boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)',
                     }}
-                    onClick={() => setIsPackageModalOpen(true)}
+                    onClick={() => openOrderModal('399k')}
                   >
                     <FiZap size={14} /> Mua Gói 399K
                   </button>
@@ -581,24 +591,10 @@ export default function LandingPage() {
               <div className={styles.drawerNavSection}>
                 <div className={styles.drawerSectionLabel}>ĐIỀU HƯỚNG NHANH</div>
                 <div className={styles.drawerNavList}>
-                  <a href="#goi-ngoai-san" className={`${styles.drawerNavItem} ${styles.drawerNavItemHighlight}`} onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={styles.drawerNavLeft}>
-                      <span className={styles.drawerNavEmoji}>⚡</span>
-                      <span className={styles.drawerNavText}>Gói Bán Hàng Ngoại Sàn (399K)</span>
-                    </div>
-                    <span className={styles.drawerHotBadge}>HOT</span>
-                  </a>
                   <a href="#so-sanh" className={styles.drawerNavItem} onClick={() => setIsMobileMenuOpen(false)}>
                     <div className={styles.drawerNavLeft}>
                       <span className={styles.drawerNavEmoji}>⚖️</span>
-                      <span className={styles.drawerNavText}>So Sánh: Trên Sàn vs Ngoại Sàn</span>
-                    </div>
-                    <FiChevronRight size={18} className={styles.drawerNavChevron} />
-                  </a>
-                  <a href="#features" className={styles.drawerNavItem} onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={styles.drawerNavLeft}>
-                      <span className={styles.drawerNavEmoji}>✨</span>
-                      <span className={styles.drawerNavText}>6 Trụ Cột Đột Phá Khác Biệt</span>
+                      <span className={styles.drawerNavText}>So Sánh Sàn vs Ngoại Sàn</span>
                     </div>
                     <FiChevronRight size={18} className={styles.drawerNavChevron} />
                   </a>
@@ -609,10 +605,31 @@ export default function LandingPage() {
                     </div>
                     <FiChevronRight size={18} className={styles.drawerNavChevron} />
                   </a>
-                  <a href="#hosting" className={styles.drawerNavItem} onClick={() => setIsMobileMenuOpen(false)}>
+                  <a href="#orbit" className={styles.drawerNavItem} onClick={() => setIsMobileMenuOpen(false)}>
                     <div className={styles.drawerNavLeft}>
                       <span className={styles.drawerNavEmoji}>🌐</span>
-                      <span className={styles.drawerNavText}>Cài Đặt Hosting 0đ Trọn Đời</span>
+                      <span className={styles.drawerNavText}>Hệ Sinh Thái & Hiệu Năng</span>
+                    </div>
+                    <FiChevronRight size={18} className={styles.drawerNavChevron} />
+                  </a>
+                  <a href="#danh-gia" className={styles.drawerNavItem} onClick={() => setIsMobileMenuOpen(false)}>
+                    <div className={styles.drawerNavLeft}>
+                      <span className={styles.drawerNavEmoji}>⭐</span>
+                      <span className={styles.drawerNavText}>Đánh Giá Khách Hàng</span>
+                    </div>
+                    <FiChevronRight size={18} className={styles.drawerNavChevron} />
+                  </a>
+                  <a href="#goi-ngoai-san" className={`${styles.drawerNavItem} ${styles.drawerNavItemHighlight}`} onClick={() => setIsMobileMenuOpen(false)}>
+                    <div className={styles.drawerNavLeft}>
+                      <span className={styles.drawerNavEmoji}>⚡</span>
+                      <span className={styles.drawerNavText}>Bảng Giá Gói 399K & 799K</span>
+                    </div>
+                    <span className={styles.drawerHotBadge}>HOT</span>
+                  </a>
+                  <a href="#hosting" className={styles.drawerNavItem} onClick={() => setIsMobileMenuOpen(false)}>
+                    <div className={styles.drawerNavLeft}>
+                      <span className={styles.drawerNavEmoji}>🚀</span>
+                      <span className={styles.drawerNavText}>Hosting Ưu Đãi</span>
                     </div>
                     <FiChevronRight size={18} className={styles.drawerNavChevron} />
                   </a>
@@ -633,7 +650,7 @@ export default function LandingPage() {
                     className={styles.drawerPrimaryBtn}
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      setIsPackageModalOpen(true);
+                      openOrderModal('399k');
                     }}
                   >
                     <FiZap size={18} />
@@ -642,32 +659,33 @@ export default function LandingPage() {
                 </CoolMode>
                 <Link
                   href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={styles.drawerSecondaryBtn}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FiShoppingBag size={17} />
-                  <span>Trải Nghiệm Demo Cửa Hàng</span>
+                  <span>Trải Nghiệm Demo ↗</span>
                 </Link>
               </div>
             </div>
           </div>
         )}
 
-        {/* Hero Section with Left Copy and Right 3D Isometric Showcase */}
+        {/* Hero Section */}
         <div className={styles.rareHeroWrap}>
           <div className={styles.rareHeroContainer}>
-            {/* Left Column: Headline, Copy, CTA Buttons & Trust Badges */}
+            {/* Left Column */}
             <div className={styles.rareHeroContent}>
               <div className={styles.rareBadgePill}>
-                <FiZap style={{ color: '#818cf8' }} /> GIẢI PHÁP BÁN HÀNG NGOẠI SÀN 2026 • 0% PHÍ SÀN
+                <FiZap style={{ color: '#818cf8' }} /> BÁN HÀNG NGOẠI SÀN • 0% PHÍ SÀN
               </div>
 
               <h1 className={styles.rareHeroTitle}>
-                Nền Tảng Bán Hàng Ngoại Sàn <span className={styles.rareGradientText}>Đột Phá Lợi Nhuận</span> & Tự Động Hóa 100%
+                Nền Tảng Bán Hàng Ngoại Sàn <span className={styles.rareGradientText}>Tự Động Hóa 100%</span>
               </h1>
               <p className={styles.rareHeroDesc}>
-                Không còn nỗi lo bị trừ <strong>10% - 15% phí sàn</strong>, bị giam tiền hàng hay rủi ro khóa shop vô lý.
-                Sở hữu ngay hệ thống bán hàng độc lập: <strong>VietQR tự động 1s</strong>, <strong>vận chuyển GHN/GHTK 1-Click</strong> và <strong>đo lường Meta/TikTok CAPI chuẩn 100%</strong>.
+                Giải pháp bán hàng độc lập: Giữ trọn 100% doanh thu, <strong>VietQR tự động 1s</strong>, <strong>đẩy đơn GHN/GHTK 1-chạm</strong> và <strong>đo lường Meta/TikTok CAPI chuẩn xác</strong>.
               </p>
 
               <div className={styles.rareHeroCtas}>
@@ -677,19 +695,21 @@ export default function LandingPage() {
                     className={styles.rareBtnPrimary}
                     onClick={(e) => {
                       e.preventDefault();
-                      setIsPackageModalOpen(true);
+                      openOrderModal('399k');
                     }}
                   >
-                    <FiZap size={18} /> Đăng Ký Gói 399K Ngay
+                    <FiZap size={18} /> Đăng Ký Gói 399K
                   </button>
                 </CoolMode>
 
                 <CoolMode options={{ particle: "✨" }}>
                   <Link
                     href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={styles.rareBtnSecondary}
                   >
-                    <FiShoppingBag size={18} /> Trải Nghiệm Demo Cửa Hàng
+                    <FiShoppingBag size={18} /> Trải Nghiệm Demo ↗
                   </Link>
                 </CoolMode>
               </div>
@@ -709,12 +729,12 @@ export default function LandingPage() {
                 </div>
                 <div className={styles.rareTrustItem}>
                   <FiCheckCircle className={styles.rareTrustIcon} size={15} />
-                  <span>Up Hosting Là Chạy Ngay</span>
+                  <span>Cài Hosting Chạy Ngay</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: 3D Isometric Real Store Multi-Image Showcase */}
+            {/* Right Column: 3D Isometric Showcase */}
             <div className={styles.rareIsoShowcase}>
               <div className={styles.rareIsoStage}>
                 {/* Floating Badges */}
@@ -728,133 +748,32 @@ export default function LandingPage() {
                   <FiBarChart2 /> Meta & TikTok CAPI
                 </div>
 
-                {/* 3D 6-Card Large Grid */}
+                {/* 3D 6-Card Grid */}
                 <div className={styles.rareIsoGrid}>
-                  {/* Card 1: Admin Dashboard Báo Cáo Doanh Thu (Ảnh mới 1) */}
-                  <div
-                    className={`${styles.rareIsoCard} ${styles.rareIsoCard1}`}
-                    onClick={() => openPreview(0)}
-                    title="Bấm để xem ảnh lớn"
-                  >
-                    <div className={styles.rareIsoZoomHint}>
-                      <FiZoomIn size={12} /> Phóng to
+                  {heroGallery.map((item, idx) => (
+                    <div
+                      key={item.src}
+                      className={`${styles.rareIsoCard} ${styles[`rareIsoCard${idx + 1}` as keyof typeof styles]}`}
+                      onClick={() => openPreview(idx)}
+                      title="Bấm để xem ảnh lớn"
+                    >
+                      <div className={styles.rareIsoZoomHint}>
+                        <FiZoomIn size={12} /> Phóng to
+                      </div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.src}
+                        alt={item.title}
+                        className={styles.rareIsoImg}
+                      />
+                      <div className={styles.rareIsoCardFooter}>
+                        <span className={styles.rareIsoCardTag}>{item.tag}</span>
+                        <span style={{ color: idx === 0 ? '#10b981' : idx === 1 ? '#818cf8' : idx === 2 ? '#f59e0b' : idx === 3 ? '#ef4444' : idx === 4 ? '#ec4899' : '#60a5fa' }}>
+                          {item.badge}
+                        </span>
+                      </div>
                     </div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/preview-admin-dashboard.png"
-                      alt="Dashboard Quản trị Báo Cáo Doanh Thu"
-                      className={styles.rareIsoImg}
-                    />
-                    <div className={styles.rareIsoCardFooter}>
-                      <span className={styles.rareIsoCardTag}>📊 Báo Cáo & Doanh Thu</span>
-                      <span style={{ color: '#10b981' }}>7.358K</span>
-                    </div>
-                  </div>
-
-                  {/* Card 2: Admin Cấu Hình Theme & Live View (Ảnh mới 2) */}
-                  <div
-                    className={`${styles.rareIsoCard} ${styles.rareIsoCard2}`}
-                    onClick={() => openPreview(1)}
-                    title="Bấm để xem ảnh lớn"
-                  >
-                    <div className={styles.rareIsoZoomHint}>
-                      <FiZoomIn size={12} /> Phóng to
-                    </div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/preview-admin-theme.png"
-                      alt="Cấu Hình Theme & Live Preview"
-                      className={styles.rareIsoImg}
-                    />
-                    <div className={styles.rareIsoCardFooter}>
-                      <span className={styles.rareIsoCardTag}>🎨 Đổi Giao Diện Realtime</span>
-                      <span style={{ color: '#818cf8' }}>7 Themes</span>
-                    </div>
-                  </div>
-
-                  {/* Card 3: Chi Tiết Sản Phẩm & Biến Thể (Ảnh 5) */}
-                  <div
-                    className={`${styles.rareIsoCard} ${styles.rareIsoCard3}`}
-                    onClick={() => openPreview(2)}
-                    title="Bấm để xem ảnh lớn"
-                  >
-                    <div className={styles.rareIsoZoomHint}>
-                      <FiZoomIn size={12} /> Phóng to
-                    </div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/preview-product.png"
-                      alt="Chi tiết sản phẩm & biến thể size màu"
-                      className={styles.rareIsoImg}
-                    />
-                    <div className={styles.rareIsoCardFooter}>
-                      <span className={styles.rareIsoCardTag}>👕 Sản Phẩm & Phân Loại</span>
-                      <span style={{ color: '#f59e0b' }}>229K</span>
-                    </div>
-                  </div>
-
-                  {/* Card 4: Mobile App iPhone & Popup FOMO (Ảnh 2) */}
-                  <div
-                    className={`${styles.rareIsoCard} ${styles.rareIsoCard4}`}
-                    onClick={() => openPreview(3)}
-                    title="Bấm để xem ảnh lớn"
-                  >
-                    <div className={styles.rareIsoZoomHint}>
-                      <FiZoomIn size={12} /> Phóng to
-                    </div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/preview-mobile.png"
-                      alt="Mobile App & FOMO live"
-                      className={styles.rareIsoImg}
-                    />
-                    <div className={styles.rareIsoCardFooter}>
-                      <span className={styles.rareIsoCardTag}>📱 Mobile App & FOMO</span>
-                      <span style={{ color: '#ef4444' }}>Live</span>
-                    </div>
-                  </div>
-
-                  {/* Card 5: Gợi Ý Hôm Nay (Ảnh 4) */}
-                  <div
-                    className={`${styles.rareIsoCard} ${styles.rareIsoCard5}`}
-                    onClick={() => openPreview(4)}
-                    title="Bấm để xem ảnh lớn"
-                  >
-                    <div className={styles.rareIsoZoomHint}>
-                      <FiZoomIn size={12} /> Phóng to
-                    </div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/preview-feed.png"
-                      alt="Gợi ý sản phẩm chuẩn sàn TMĐT"
-                      className={styles.rareIsoImg}
-                    />
-                    <div className={styles.rareIsoCardFooter}>
-                      <span className={styles.rareIsoCardTag}>🛍️ Gợi Ý Hôm Nay</span>
-                      <span style={{ color: '#ec4899' }}>-35%</span>
-                    </div>
-                  </div>
-
-                  {/* Card 6: Tra Cứu Vận Đơn 5 Bước (Ảnh 3) */}
-                  <div
-                    className={`${styles.rareIsoCard} ${styles.rareIsoCard6}`}
-                    onClick={() => openPreview(5)}
-                    title="Bấm để xem ảnh lớn"
-                  >
-                    <div className={styles.rareIsoZoomHint}>
-                      <FiZoomIn size={12} /> Phóng to
-                    </div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/preview-tracking.png"
-                      alt="Tra cứu vận đơn 5 bước & VietQR"
-                      className={styles.rareIsoImg}
-                    />
-                    <div className={styles.rareIsoCardFooter}>
-                      <span className={styles.rareIsoCardTag}>🚚 Tra Cứu Đơn Hàng</span>
-                      <span style={{ color: '#60a5fa' }}>5 Bước</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -863,305 +782,29 @@ export default function LandingPage() {
       </section>
 
       {/* ==========================================================================
-         70% CENTERED BODY CONTENT WRAPPER
+         BODY CONTENT (CRO AIDA/PAS CONVERSION FLOW)
          ========================================================================== */}
       <div className={styles.content70Wrapper}>
         {/* ==========================================================================
-           3. MAGIC UI ORBITING CIRCLES / ECOSYSTEM & PARTNERS SECTION
+           SECTION 1: BẢNG SO SÁNH: SÀN TMĐT VS BÁN NGOẠI SÀN (ĐÁNH TRÚNG NỖI ĐAU)
            ========================================================================== */}
-        <section className={styles.orbitSection}>
-          <div className={styles.floatLogoContainer}>
-            <div className={styles.floatLogoHeader}>
-              <div className={styles.floatLogoBadge}>
-                <FiZap /> HỆ SINH THÁI TÍCH HỢP
-              </div>
-              <h2 className={styles.floatLogoTitle}>
-                Công Nghệ & Đối Tác Vận Hành Hàng Đầu
-              </h2>
-              <p className={styles.floatLogoDesc}>
-                Hạ tầng Next.js 16 kết hợp cổng thanh toán VietQR tự động 1s, đối tác vận chuyển toàn quốc và API đo lường Ads chuẩn 100%.
-              </p>
-            </div>
-
-            {/* Orbiting Circles Container */}
-            <div className={styles.orbitContainer}>
-              {/* Center Core */}
-              <div className={styles.orbitCenterCore}>
-                <div className={styles.orbitCenterIcon}>
-                  <FiShoppingBag size={36} />
-                </div>
-                <span className={styles.orbitCenterText}>ShopTik Core</span>
-                <span className={styles.orbitCenterSub}>Next.js 16</span>
-              </div>
-
-              {/* Inner Orbit (Radius 180px) */}
-              <OrbitingCircles iconSize={82} radius={180} duration={28} speed={1}>
-                {/* 1. GHN */}
-                <div className={styles.orbitBadge} title="Giao Hàng Nhanh (GHN)">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/logo-ghn.png" alt="GHN" className={styles.orbitImg} />
-                </div>
-                {/* 2. GHTK */}
-                <div className={styles.orbitBadge} title="Giao Hàng Tiết Kiệm (GHTK)">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/logo-ghtk.png" alt="GHTK" className={styles.orbitImg} />
-                </div>
-                {/* 3. Viettel Post */}
-                <div className={styles.orbitBadge} title="Viettel Post">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/logo-viettelpost.svg" alt="Viettel Post" className={styles.orbitImg} />
-                </div>
-                {/* 4. SePay VietQR */}
-                <div className={styles.orbitBadge} title="SePay VietQR Napas247">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/logo-sepay.png" alt="SePay VietQR" className={styles.orbitImg} />
-                </div>
-              </OrbitingCircles>
-
-              {/* Outer Orbit (Radius 310px - Reverse) */}
-              <OrbitingCircles iconSize={92} radius={310} duration={38} speed={1} reverse>
-                {/* 5. Gmail */}
-                <div className={styles.orbitBadge} title="Gmail SMTP Email">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/logo-gmail.png" alt="Gmail" className={styles.orbitImg} />
-                </div>
-                {/* 6. Hostinger */}
-                <div className={styles.orbitBadge} title="Hostinger Cloud (Auto Deploy)">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/logo-hostinger.png" alt="Hostinger" className={styles.orbitImg} />
-                </div>
-                {/* 7. Meta Conversions API */}
-                <div className={styles.orbitBadge} title="Meta Conversions API">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/logo-meta.png" alt="Meta Conversions API" className={styles.orbitImg} />
-                </div>
-                {/* 8. TikTok Events API */}
-                <div className={styles.orbitBadge} title="TikTok Events API">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/logo-tiktok.svg" alt="TikTok Events API" className={styles.orbitImg} />
-                </div>
-              </OrbitingCircles>
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================================================
-         ★ BẢNG GIÁ GÓI BÁN HÀNG NGOẠI SÀN (FLOATUI PRICING CARDS)
-         ========================================================================== */}
-        <section id="goi-ngoai-san" className={styles.floatPricingSection}>
-          {/* Glow ambient background from FloatUI */}
-          <div className={styles.floatPricingGlow}></div>
-
-          <div className={styles.floatPricingContainer}>
-            {/* Section Header */}
-            <div className={styles.floatPricingHeader}>
-              <div className={styles.floatPricingTag}>
-                ⚡ BẢNG GIÁ ĐẦU TƯ 1 LẦN • SỞ HỮU TRỌN ĐỜI
-              </div>
-              <h2 className={styles.floatPricingTitle}>
-                Chi Phí Siêu Tiết Kiệm, Tối Ưu Lợi Nhuận
-              </h2>
-              <p className={styles.floatPricingDesc}>
-                Loại bỏ hoàn toàn nỗi lo bị trừ 10% - 15% phí sàn mỗi tháng. Sở hữu nền tảng bán hàng độc lập, tự động hóa 100% với mức giá ưu đãi nhất.
-              </p>
-            </div>
-
-            {/* Pricing Cards Grid */}
-            <div className={styles.floatPricingGrid}>
-              {/* Plan 1: Gói 399K Best Seller */}
-              <div className={`${styles.floatPlanCard} ${styles.floatPlanCardPopular}`}>
-                <div className={styles.floatPlanTopBanner}>
-                  🔥 GÓI BÁN HÀNG NGOẠI SÀN SIÊU CẤP • BEST SELLER
-                </div>
-                <div className={styles.floatPlanCardHead}>
-                  <span className={styles.floatPlanName}>
-                    Gói Bán Hàng Ngoại Sàn Toàn Diện
-                  </span>
-                  <div className={styles.floatPlanPriceWrap}>
-                    <span className={styles.floatPlanPrice}>399.000₫</span>
-                    <span className={styles.floatPlanPeriod}>/ sở hữu trọn đời</span>
-                  </div>
-                  <p className={styles.floatPlanDesc}>
-                    Trọn bộ mã nguồn Next.js 16 + React 19, tích hợp VietQR, vận chuyển GHN/GHTK và Meta/TikTok CAPI chuẩn 100%.
-                  </p>
-                  <CoolMode options={{ particle: "🔥" }}>
-                    <button
-                      type="button"
-                      className={`${styles.floatPlanBtn} ${styles.floatPlanBtnPopular}`}
-                      onClick={() => setIsPackageModalOpen(true)}
-                    >
-                      <FiZap size={16} /> ĐĂNG KÝ GÓI 399K NGAY
-                    </button>
-                  </CoolMode>
-                </div>
-
-                <ul className={styles.floatPlanFeatureList}>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Full source code Next.js 16 + React 19 chuẩn SEO TMĐT</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Tự động hóa thanh toán VietQR SePay khớp lệnh 1s</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Tích hợp trực tiếp API vận chuyển GHN / GHTK / Viettel Post</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Đo lường kép Meta Conversions API & TikTok Events API</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Bộ 7 Theme tùy biến giao diện trực quan 1-Click</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Video bài giảng hướng dẫn cài đặt hosting & chạy Ads chi tiết</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Hỗ trợ kỹ thuật 1:1 qua Ultraviewer / Zalo khi gặp khó khăn</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Plan 2: Gói Setup A-Z */}
-              <div className={styles.floatPlanCard}>
-                <div className={styles.floatPlanCardHead}>
-                  <span className={styles.floatPlanName}>
-                    Gói Setup & Cài Đặt Trọn Gói A - Z
-                  </span>
-                  <div className={styles.floatPlanPriceWrap}>
-                    <span className={styles.floatPlanPrice} style={{ color: '#a5b4fc' }}>799.000₫</span>
-                    <span className={styles.floatPlanPeriod}>/ bàn giao hoàn thiện</span>
-                  </div>
-                  <p className={styles.floatPlanDesc}>
-                    Dành cho chủ shop bận rộn: Đội ngũ kỹ thuật hỗ trợ cài đặt toàn bộ từ tên miền, hosting, VietQR đến nạp 20 sản phẩm mẫu.
-                  </p>
-                  <CoolMode options={{ particle: "⚡" }}>
-                    <button
-                      type="button"
-                      className={styles.floatPlanBtn}
-                      onClick={() => setIsPackageModalOpen(true)}
-                    >
-                      <FiCheck size={16} /> ĐẶT DỊCH VỤ SETUP A-Z
-                    </button>
-                  </CoolMode>
-                </div>
-
-                <ul className={styles.floatPlanFeatureList}>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Bao gồm toàn bộ quyền lợi của Gói 399K</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Cài đặt sẵn tên miền riêng & chứng chỉ SSL HTTPS</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Thiết lập Hosting 0đ hoạt động 100% không lo lỗi code</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Cấu hình tài khoản ngân hàng VietQR & Bưu tá GHN/GHTK</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Hỗ trợ đăng tải sẵn 20 sản phẩm mẫu ban đầu</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Gắn Pixel Meta CAPI & TikTok Ads ID lên website</span>
-                  </li>
-                  <li className={styles.floatPlanFeatureItem}>
-                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>Bàn giao chìa khóa trao tay - Chỉ việc chạy Ads bán hàng</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================================================
-         BẢNG SO SÁNH: BÁN TRÊN SÀN (SHOPEE/TIKTOK) VS BÁN NGOẠI SÀN (SHOPTIK)
-         ========================================================================== */}
-        {/* ==========================================================================
-         BẢNG SO SÁNH: BÁN TRÊN SÀN (SHOPEE/TIKTOK) VS BÁN NGOẠI SÀN (SHOPTIK)
-         ========================================================================== */}
         <section id="so-sanh" className={styles.comparisonSection}>
-          {/* Ambient Lighting Glow */}
           <div className={styles.compAmbientGlow} />
 
           <div className={styles.container}>
-            {/* Prominent High-Impact Header */}
             <div className={styles.compHeaderBlock}>
-              <div className={styles.compBadge}>
-                <FiZap /> ĐỐI CHIẾU HIỆU QUẢ & LỢI NHUẬN 2026
-              </div>
               <h2 className={styles.compMainTitle}>
-                Bán Hàng Trên Sàn <span className={styles.compTitleVs}>VS</span> <span className={styles.compTitleGradient}>Bán Ngoại Sàn Độc Lập</span>
+                Bán Trên Sàn <span className={styles.compTitleVs}>VS</span> <span className={styles.compTitleGradient}>Bán Ngoại Sàn ShopTik</span>
               </h2>
-              <p className={styles.compSubtitle}>
-                Loại bỏ hoàn toàn nỗi lo bị giam tiền hàng, mất 10% - 15% phí sàn và nguy cơ bị khóa shop vô lý. Giữ trọn 100% doanh thu và làm chủ toàn bộ tệp dữ liệu khách hàng với hệ thống tự động hóa ShopTik.
-              </p>
-
-              <div className={styles.compHighlightsRow}>
-                <span className={`${styles.compHighlightChip} ${styles.compChipPositive}`}>
-                  💸 0% Phí Sàn Trọn Đời
-                </span>
-                <span className={`${styles.compHighlightChip} ${styles.compChipPositive}`}>
-                  ⚡ Khớp Lệnh VietQR 1s
-                </span>
-                <span className={`${styles.compHighlightChip} ${styles.compChipPositive}`}>
-                  👥 Sở Hữu 100% Data Khách
-                </span>
-                <span className={`${styles.compHighlightChip} ${styles.compChipPositive}`}>
-                  🎯 Chuẩn Meta & TikTok CAPI
-                </span>
-              </div>
             </div>
 
-            {/* Magic UI AnimatedList Dual Comparison Showcase */}
             <div className={styles.animatedCompGrid}>
-              {/* Column 1: Nỗi đau trên sàn */}
+              {/* Column 1 */}
               <div className={`${styles.animatedCompCol} ${styles.compColNegative}`}>
                 <div className={styles.compColHeader}>
                   <h3 className={styles.compColTitle}>
                     <span style={{ color: '#ef4444' }}>❌</span> Bán Trên Sàn TMĐT
                   </h3>
-                  <span className={styles.compColBadgeNeg}>Shopee / TikTok Shop</span>
                 </div>
 
                 <div className={styles.animatedListContainer}>
@@ -1194,13 +837,12 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Column 2: Giải pháp ngoại sàn ShopTik */}
+              {/* Column 2 */}
               <div className={`${styles.animatedCompCol} ${styles.compColPositive}`}>
                 <div className={styles.compColHeader}>
                   <h3 className={styles.compColTitle}>
-                    <span style={{ color: '#10b981' }}>✅</span> Bán Ngoại Sàn Toàn Diện
+                    <span style={{ color: '#10b981' }}>✅</span> Bán Ngoại Sàn ShopTik
                   </h3>
-                  <span className={styles.compColBadgePos}>ShopTik Core 399K</span>
                 </div>
 
                 <div className={styles.animatedListContainer}>
@@ -1237,231 +879,19 @@ export default function LandingPage() {
         </section>
 
         {/* ==========================================================================
-         4. CRUIP-STYLE CORE PILLARS & FEATURES GRID (6 PILLARS)
-         ========================================================================== */}
-        <section id="features" className={styles.cruipFeaturesSection}>
-          <div className={styles.container}>
-            <div className={styles.cruipSectionHeader}>
-              <div className={styles.cruipBadgeTag}>
-                <FiZap /> VŨ KHÍ TĂNG TRƯỞNG DOANH SỐ
-              </div>
-              <h2 className={styles.cruipSectionTitle}>
-                6 Trụ Cột Đột Phá Khác Biệt Hoàn Toàn
-              </h2>
-              <p className={styles.cruipSectionSubtitle}>
-                Mọi tính năng được nghiên cứu và thiết kế tối ưu hóa hành vi mua hàng, loại bỏ 100% rào cản thanh toán và thất thoát dữ liệu quảng cáo.
-              </p>
-            </div>
-
-            <div className={styles.cruipFeaturesGrid}>
-              {/* Pillar 1: Multi-Theme */}
-              <div className={styles.cruipCard}>
-                <div className={styles.cruipCardTop}>
-                  <div className={`${styles.cruipIconBox} ${styles.iconPurple}`}>
-                    <FiLayers />
-                  </div>
-                  <span className={styles.cruipPillBadge}>7 Bộ Themes</span>
-                </div>
-                <h3 className={styles.cruipCardTitle}>Giao Diện Multi-Theme Đa Dạng</h3>
-                <p className={styles.cruipCardDesc}>
-                  Biến hóa phong cách giao diện ngay lập tức với hệ thống CSS Variables toàn diện: Cam Shopee rực rỡ, Đen TikTok thời thượng hoặc Sleek Dark Mode sang trọng.
-                </p>
-                <ul className={styles.cruipChecklist}>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Chuyển đổi 1-Click không cần build lại code</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Đồng bộ từ Storefront đến Admin quản trị</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Tùy biến mã màu HEX theo từng thương hiệu</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Pillar 2: VietQR SePay */}
-              <div className={styles.cruipCard}>
-                <div className={styles.cruipCardTop}>
-                  <div className={`${styles.cruipIconBox} ${styles.iconGreen}`}>
-                    <FiCreditCard />
-                  </div>
-                  <span className={styles.cruipPillBadge}>Webhook 1s</span>
-                </div>
-                <h3 className={styles.cruipCardTitle}>Thanh Toán VietQR Tự Động 100%</h3>
-                <p className={styles.cruipCardDesc}>
-                  Tự sinh mã QR ngân hàng kèm số tiền và mã đơn. Khách hàng quét mã qua app ngân hàng $\rightarrow$ Hệ thống tự động xác nhận đơn đã thanh toán trong 1 giây qua Webhook SePay!
-                </p>
-                <ul className={styles.cruipChecklist}>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Khách không cần chụp màn hình gửi hóa đơn</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Tiền về thẳng tài khoản ngân hàng của bạn tức thì</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Hỗ trợ MBBank, VCB, Techcombank, TPBank, MSB...</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Pillar 3: Multi-Carrier Logistics */}
-              <div className={styles.cruipCard}>
-                <div className={styles.cruipCardTop}>
-                  <div className={`${styles.cruipIconBox} ${styles.iconBlue}`}>
-                    <FiTruck />
-                  </div>
-                  <span className={styles.cruipPillBadge}>GHN • GHTK • Viettel</span>
-                </div>
-                <h3 className={styles.cruipCardTitle}>Vận Chuyển Đa Hãng 1-Chạm</h3>
-                <p className={styles.cruipCardDesc}>
-                  Tích hợp trực tiếp API Giao Hàng Nhanh (GHN), Giao Hàng Tiết Kiệm (GHTK) và Viettel Post. Tính cước chuẩn xác theo vị trí địa lý và xuất vận đơn chỉ với 1 cú click.
-                </p>
-                <ul className={styles.cruipChecklist}>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Tự động phân luồng đúng hãng khách hàng chọn</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Trang tra cứu vận đơn lộ trình 5 bước (`/tracking`)</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Hủy đơn 2 chiều đồng bộ trực tiếp với bưu tá</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Pillar 4: Meta CAPI & TikTok Events API */}
-              <div className={styles.cruipCard}>
-                <div className={styles.cruipCardTop}>
-                  <div className={`${styles.cruipIconBox} ${styles.iconOrange}`}>
-                    <FiBarChart2 />
-                  </div>
-                  <span className={styles.cruipPillBadge}>Server-Side 100%</span>
-                </div>
-                <h3 className={styles.cruipCardTitle}>Đo Lường Kép Meta CAPI & TikTok API</h3>
-                <p className={styles.cruipCardDesc}>
-                  Gửi trực tiếp sự kiện mua hàng từ Server đến Meta Graph API & TikTok Business API. Khử trùng lặp 100% bằng `event_id`, bỏ qua rào cản AdBlock và iOS 14.5+.
-                </p>
-                <ul className={styles.cruipChecklist}>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Băm bảo mật SHA-256 (Email, SĐT, IP, User Agent)</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Tối ưu giá thầu quảng cáo CPA và ROI chiến dịch</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Báo cáo phễu chuyển đổi thời gian thực</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Pillar 5: Realtime Chat & AI Bot */}
-              <div className={styles.cruipCard}>
-                <div className={styles.cruipCardTop}>
-                  <div className={`${styles.cruipIconBox} ${styles.iconAmber}`}>
-                    <FiMessageSquare />
-                  </div>
-                  <span className={styles.cruipPillBadge}>Chatbot 24/7</span>
-                </div>
-                <h3 className={styles.cruipCardTitle}>CSKH Realtime Socket.IO & Chatbot</h3>
-                <p className={styles.cruipCardDesc}>
-                  Hệ thống trò chuyện trực tuyến tức thì giữa khách hàng và tư vấn viên, kết hợp AI Chatbot tự động tư vấn sản phẩm, giải đáp thắc mắc và tra cứu đơn 24/7.
-                </p>
-                <ul className={styles.cruipChecklist}>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Máy chủ Socket.IO độc lập độ trễ siêu thấp</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Tự động trả lời câu hỏi thường gặp khi admin offline</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Đính kèm sản phẩm và thông tin đơn hàng trong chat</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Pillar 6: Automated Email System */}
-              <div className={styles.cruipCard}>
-                <div className={styles.cruipCardTop}>
-                  <div className={`${styles.cruipIconBox} ${styles.iconCyan}`}>
-                    <FiMail />
-                  </div>
-                  <span className={styles.cruipPillBadge}>Gmail SMTP</span>
-                </div>
-                <h3 className={styles.cruipCardTitle}>Gửi Email Thông Báo Tự Động 100%</h3>
-                <p className={styles.cruipCardDesc}>
-                  Tự động gửi email xác nhận kèm hóa đơn chi tiết ngay khi khách đặt hàng thành công, đồng thời phát cảnh báo có đơn mới tức thì về hòm thư của chủ shop qua Gmail SMTP.
-                </p>
-                <ul className={styles.cruipChecklist}>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Hóa đơn điện tử đầy đủ sản phẩm, ảnh, giá và phí ship</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Thông báo Realtime cho Admin khi phát sinh đơn hàng</span>
-                  </li>
-                  <li className={styles.cruipCheckItem}>
-                    <FiCheckCircle className={styles.cruipCheckIcon} size={15} />
-                    <span>Template HTML cao cấp, responsive trên Mobile & Desktop</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================================================
-         5. INTERACTIVE THEME PREVIEW SHOWCASE
-         ========================================================================== */}
+           SECTION 2: TRẢI NGHIỆM MULTI-THEME TRỰC TIẾP (GIÁ TRỊ & TÍNH NĂNG)
+           ========================================================================== */}
         <section id="themes" className={styles.themeShowcaseSection}>
-          {/* Ambient Lighting Glow */}
           <div className={styles.themeAmbientGlow} />
 
           <div className={styles.container}>
-            {/* Prominent High-Impact Header */}
             <div className={styles.themeHeaderBlock}>
-              <div className={styles.themeBadgeTop}>
-                <FiLayers /> BỘ SƯU TẬP 7 THEMES ĐỘC BẢN • TÙY BIẾN 1-CLICK
-              </div>
               <h2 className={styles.themeMainTitle}>
-                Trải Nghiệm Đổi Giao Diện <span className={styles.themeTitleGradient}>Trực Tiếp 1-Click</span>
+                Trải Nghiệm Multi-Theme <span className={styles.themeTitleGradient}>Trực Tiếp 1-Click</span>
               </h2>
-              <p className={styles.themeSubtitle}>
-                Bấm vào từng chủ đề dưới đây để chiêm ngưỡng website tự động thay đổi toàn bộ màu sắc chủ đạo, nút bấm, bo góc và phong cách hiển thị tức thì theo chuẩn hệ thống CSS Variables cao cấp.
-              </p>
-
-              <div className={styles.themeHighlightsRow}>
-                <span className={`${styles.themeHighlightChip} ${styles.themeChipActive}`}>
-                  🎨 7 Bộ Theme Có Sẵn
-                </span>
-                <span className={`${styles.themeHighlightChip} ${styles.themeChipActive}`}>
-                  ⚡ Thay Đổi Không Cần Build Code
-                </span>
-                <span className={`${styles.themeHighlightChip} ${styles.themeChipActive}`}>
-                  🎯 Chuẩn CSS Variables 100%
-                </span>
-                <span className={`${styles.themeHighlightChip} ${styles.themeChipActive}`}>
-                  📱 Tương Thích Mobile & Desktop
-                </span>
-              </div>
             </div>
 
-            {/* 1. SEVEN THEME PRESET TABS */}
+            {/* Theme Preset Tabs */}
             <div className={styles.themeSelectorTabs}>
               {(Object.keys(themePresets) as Array<keyof typeof themePresets>).map((key) => {
                 const preset = themePresets[key];
@@ -1489,9 +919,9 @@ export default function LandingPage() {
               })}
             </div>
 
-            {/* 2. ADVANCED INTERACTIVE CONTROL PANEL */}
+            {/* Control Panel */}
             <div className={styles.themeControlPanel}>
-              {/* Control Row 1: Primary Color */}
+              {/* Row 1: Primary Color */}
               <div className={styles.controlRow}>
                 <span className={styles.controlLabel}>🎨 Màu Chủ Đạo:</span>
                 <div className={styles.controlGroup}>
@@ -1513,14 +943,14 @@ export default function LandingPage() {
                       style={{ width: 30, height: 30, padding: 0, border: 'none', borderRadius: 6, cursor: 'pointer', background: 'none' }}
                       title="Chọn mã màu HEX tùy ý"
                     />
-                    <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#94a3b8', background: 'rgba(255,255,255,0.06)', padding: '4px 8px', borderRadius: 6 }}>
+                    <span style={{ fontSize: 12, color: '#94a3b8', background: 'rgba(255,255,255,0.06)', padding: '4px 8px', borderRadius: 6 }}>
                       {customPrimary}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Control Row 2: Layout View Mode */}
+              {/* Row 2: Layout View Mode */}
               <div className={styles.controlRow}>
                 <span className={styles.controlLabel}>🔲 Chế Độ Xem:</span>
                 <div className={styles.controlGroup}>
@@ -1529,14 +959,14 @@ export default function LandingPage() {
                     className={`${styles.controlBtnSmall} ${demoLayoutView === 'grid' ? styles.controlBtnSmallActive : ''}`}
                     onClick={() => setDemoLayoutView('grid')}
                   >
-                    ▦ Lưới Sản Phẩm (Grid 3 Cột)
+                    ▦ Lưới Sản Phẩm
                   </button>
                   <button
                     type="button"
                     className={`${styles.controlBtnSmall} ${demoLayoutView === 'list' ? styles.controlBtnSmallActive : ''}`}
                     onClick={() => setDemoLayoutView('list')}
                   >
-                    ☰ Danh Sách Ngang (List Card)
+                    ☰ Danh Sách Ngang
                   </button>
                   <button
                     type="button"
@@ -1548,9 +978,9 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Control Row 3: Border Radius & Background Mode */}
+              {/* Row 3: Border Radius */}
               <div className={styles.controlRow}>
-                <span className={styles.controlLabel}>📐 Bo Góc Nút / Thẻ:</span>
+                <span className={styles.controlLabel}>📐 Bo Góc Thẻ:</span>
                 <div className={styles.controlGroup}>
                   {[4, 8, 14, 24].map((radius) => (
                     <button
@@ -1559,13 +989,13 @@ export default function LandingPage() {
                       className={`${styles.controlBtnSmall} ${demoBorderRadius === radius ? styles.controlBtnSmallActive : ''}`}
                       onClick={() => setDemoBorderRadius(radius)}
                     >
-                      {radius === 4 ? 'Vuông (4px)' : radius === 8 ? 'Chuẩn (8px)' : radius === 14 ? 'Mềm Mại (14px)' : 'Pill Tròn (24px)'}
+                      {radius === 4 ? '4px' : radius === 8 ? '8px' : radius === 14 ? '14px' : '24px (Pill)'}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Control Row 4: Background Mode & FOMO Toggles */}
+              {/* Row 4: Background & Toggles */}
               <div className={styles.controlRow}>
                 <span className={styles.controlLabel}>⚙️ Nền & Hiệu Ứng:</span>
                 <div className={styles.controlGroup}>
@@ -1574,21 +1004,21 @@ export default function LandingPage() {
                     className={`${styles.controlBtnSmall} ${demoBgMode === 'default' ? styles.controlBtnSmallActive : ''}`}
                     onClick={() => setDemoBgMode('default')}
                   >
-                    Mặc Định Theo Theme
+                    Mặc Định
                   </button>
                   <button
                     type="button"
                     className={`${styles.controlBtnSmall} ${demoBgMode === 'dark' ? styles.controlBtnSmallActive : ''}`}
                     onClick={() => setDemoBgMode('dark')}
                   >
-                    🌙 Ép Nền Tối (Dark)
+                    🌙 Nền Tối
                   </button>
                   <button
                     type="button"
                     className={`${styles.controlBtnSmall} ${demoBgMode === 'light' ? styles.controlBtnSmallActive : ''}`}
                     onClick={() => setDemoBgMode('light')}
                   >
-                    ☀️ Ép Nền Sáng (Light)
+                    ☀️ Nền Sáng
                   </button>
 
                   <button
@@ -1596,24 +1026,20 @@ export default function LandingPage() {
                     className={`${styles.toggleSwitchBtn} ${showFlashBadge ? styles.toggleSwitchBtnActive : ''}`}
                     onClick={() => setShowFlashBadge(!showFlashBadge)}
                   >
-                    {showFlashBadge ? '✓ Hiện Tag Giảm Giá' : '✕ Ẩn Tag Giảm Giá'}
+                    {showFlashBadge ? '✓ Tag Giảm Giá' : '✕ Ẩn Tag'}
                   </button>
                   <button
                     type="button"
                     className={`${styles.toggleSwitchBtn} ${showSoldProgress ? styles.toggleSwitchBtnActive : ''}`}
                     onClick={() => setShowSoldProgress(!showSoldProgress)}
                   >
-                    {showSoldProgress ? '✓ Hiện Thanh Cháy Hàng' : '✕ Ẩn Thanh Cháy Hàng'}
+                    {showSoldProgress ? '✓ Thanh Đã Bán' : '✕ Ẩn Thanh Đã Bán'}
                   </button>
-                </div>
-
-                {/* Action Buttons: Copy CSS & Admin Settings Link */}
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 </div>
               </div>
             </div>
 
-            {/* 3. DYNAMIC INTERACTIVE PREVIEW MOCKUP */}
+            {/* Dynamic Preview Mockup */}
             <div
               className={styles.themePreviewCard}
               style={{
@@ -1644,7 +1070,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <div style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.2 }}>ShopTik Storefront</div>
-                    <div style={{ fontSize: 11, opacity: 0.7 }}>Theme: {baseTheme.name} • Primary: {effectivePrimary}</div>
+                    <div style={{ fontSize: 11, opacity: 0.7 }}>Theme: {baseTheme.name}</div>
                   </div>
                 </div>
 
@@ -1663,7 +1089,7 @@ export default function LandingPage() {
                 </span>
               </div>
 
-              {/* Dynamic Content View Based on demoLayoutView */}
+              {/* Dynamic Content View */}
               {demoLayoutView === 'grid' && (
                 <div className={styles.themeMockupBody}>
                   {/* Product 1 */}
@@ -1690,16 +1116,17 @@ export default function LandingPage() {
                           zIndex: 2,
                         }}
                       >
-                        -35% FLASH SALE
+                        -35% SALE
                       </div>
                     )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=600&auto=format&fit=crop&q=80"
                       alt="Polo"
                       className={styles.mockupThumb}
                       style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
                     />
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>Áo Polo Nam Phối Cổ Dệt Bo Cotton</div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>Áo Polo Nam Cotton Cao Cấp</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 16 }}>229.000₫</span>
                       <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>350.000₫</span>
@@ -1711,7 +1138,7 @@ export default function LandingPage() {
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, opacity: 0.7, marginTop: 4 }}>
                           <span>🔥 Đã bán 82</span>
-                          <span style={{ color: effectivePrimary, fontWeight: 700 }}>Cháy hàng 82%</span>
+                          <span style={{ color: effectivePrimary, fontWeight: 700 }}>82%</span>
                         </div>
                       </div>
                     )}
@@ -1759,16 +1186,17 @@ export default function LandingPage() {
                           zIndex: 2,
                         }}
                       >
-                        -39% DEAL HOT
+                        -39% DEAL
                       </div>
                     )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&auto=format&fit=crop&q=80"
                       alt="Charger"
                       className={styles.mockupThumb}
                       style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
                     />
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>Củ Sạc Nhanh GaN 65W 3 Cổng PD</div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>Củ Sạc GaN 65W 3 Cổng PD</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 16 }}>299.000₫</span>
                       <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>490.000₫</span>
@@ -1780,7 +1208,7 @@ export default function LandingPage() {
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, opacity: 0.7, marginTop: 4 }}>
                           <span>🔥 Đã bán 130</span>
-                          <span style={{ color: effectivePrimary, fontWeight: 700 }}>Cháy hàng 65%</span>
+                          <span style={{ color: effectivePrimary, fontWeight: 700 }}>65%</span>
                         </div>
                       </div>
                     )}
@@ -1828,16 +1256,17 @@ export default function LandingPage() {
                           zIndex: 2,
                         }}
                       >
-                        -35% BÁN CHẠY
+                        -35% HOT
                       </div>
                     )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80"
                       alt="Earphones"
                       className={styles.mockupThumb}
                       style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
                     />
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>Tai Nghe Bluetooth TWS Chống Ồn ANC</div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>Tai Nghe Bluetooth Chống Ồn ANC</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 16 }}>420.000₫</span>
                       <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>650.000₫</span>
@@ -1849,7 +1278,7 @@ export default function LandingPage() {
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, opacity: 0.7, marginTop: 4 }}>
                           <span>🔥 Đã bán 240</span>
-                          <span style={{ color: effectivePrimary, fontWeight: 700 }}>Cháy hàng 92%</span>
+                          <span style={{ color: effectivePrimary, fontWeight: 700 }}>92%</span>
                         </div>
                       </div>
                     )}
@@ -1878,7 +1307,6 @@ export default function LandingPage() {
               {/* List View Mode */}
               {demoLayoutView === 'list' && (
                 <div className={styles.mockupListView}>
-                  {/* List Item 1 */}
                   <div
                     className={styles.mockupListCard}
                     style={{
@@ -1886,6 +1314,7 @@ export default function LandingPage() {
                       borderRadius: demoBorderRadius,
                     }}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=400&auto=format&fit=crop&q=80"
                       alt="Polo"
@@ -1893,7 +1322,7 @@ export default function LandingPage() {
                       style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
                     />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>Áo Polo Nam Phối Cổ Dệt Bo Cotton</div>
+                      <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>Áo Polo Nam Cotton Cao Cấp</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                         <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 17 }}>229.000₫</span>
                         <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>350.000₫</span>
@@ -1923,7 +1352,6 @@ export default function LandingPage() {
                     </button>
                   </div>
 
-                  {/* List Item 2 */}
                   <div
                     className={styles.mockupListCard}
                     style={{
@@ -1931,6 +1359,7 @@ export default function LandingPage() {
                       borderRadius: demoBorderRadius,
                     }}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400&auto=format&fit=crop&q=80"
                       alt="Charger"
@@ -1938,7 +1367,7 @@ export default function LandingPage() {
                       style={{ borderRadius: Math.min(demoBorderRadius, 8) }}
                     />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>Củ Sạc Nhanh GaN 65W 3 Cổng PD</div>
+                      <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>Củ Sạc GaN 65W 3 Cổng PD</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                         <span style={{ color: effectivePrimary, fontWeight: 900, fontSize: 17 }}>299.000₫</span>
                         <span style={{ fontSize: 12, textDecoration: 'line-through', opacity: 0.6 }}>490.000₫</span>
@@ -1970,19 +1399,18 @@ export default function LandingPage() {
                 </div>
               )}
 
-              {/* Mini Checkout & VietQR View Mode */}
+              {/* Mini Checkout & VietQR Mode */}
               {demoLayoutView === 'checkout' && (
                 <div style={{ padding: 24, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
-                  {/* Checkout Column 1: Order Summary & Carrier */}
                   <div style={{ background: effectiveCardBg, borderRadius: demoBorderRadius, padding: 20, border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>📦 Tóm Tắt Đơn Hàng & Vận Chuyển</div>
+                    <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>📦 Tóm Tắt Đơn Hàng</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 8 }}>
                       <span>Áo Polo Nam x 1</span>
                       <span style={{ fontWeight: 700 }}>229.000₫</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 14 }}>
-                      <span>Phí Vận Chuyển (GHTK Nhanh)</span>
-                      <span style={{ color: '#10b981', fontWeight: 700 }}>Miễn phí (Freeship)</span>
+                      <span>Phí Vận Chuyển (GHTK)</span>
+                      <span style={{ color: '#10b981', fontWeight: 700 }}>Miễn phí</span>
                     </div>
                     <div style={{ height: 1, background: 'rgba(128,128,128,0.2)', margin: '10px 0' }} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900 }}>
@@ -1991,22 +1419,20 @@ export default function LandingPage() {
                     </div>
                   </div>
 
-                  {/* Checkout Column 2: VietQR Payment Automation Box */}
                   <div style={{ background: effectiveCardBg, borderRadius: demoBorderRadius, padding: 20, border: `1px solid ${effectivePrimary}55`, textAlign: 'center' }}>
                     <div style={{ fontWeight: 800, fontSize: 14, color: effectivePrimary, marginBottom: 8 }}>
-                      💳 Thanh Toán VietQR Tự Động 100%
+                      💳 Thanh Toán VietQR Tự Động 1s
                     </div>
                     <div style={{ background: '#fff', padding: 12, borderRadius: 10, display: 'inline-block', marginBottom: 10 }}>
-                      {/* Simulated QR Code */}
                       <div style={{ width: 110, height: 110, background: '#000', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 800, textAlign: 'center', padding: 8 }}>
-                        [MÃ VIETQR NAPAS247]
+                        [VIETQR NAPAS247]
                       </div>
                     </div>
                     <div style={{ fontSize: 12, opacity: 0.8 }}>
                       Cú pháp: <strong style={{ color: effectivePrimary }}>ST88921</strong>
                     </div>
                     <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, marginTop: 8 }}>
-                      ✓ Khớp lệnh tự động qua SePay trong 1s
+                      ✓ Khớp lệnh tự động qua SePay 1s
                     </div>
                   </div>
                 </div>
@@ -2016,20 +1442,83 @@ export default function LandingPage() {
         </section>
 
         {/* ==========================================================================
-         6. METRICS & IMPACT STATS
-         ========================================================================== */}
+           SECTION 3: HỆ SINH THÁI ĐỐI TÁC & THỐNG KÊ HIỆU NĂNG (UY TÍN KỸ THUẬT)
+           ========================================================================== */}
+        <section id="orbit" className={styles.orbitSection}>
+          <div className={styles.floatLogoContainer}>
+            <div className={styles.floatLogoHeader}>
+              <h2 className={styles.floatLogoTitle}>
+                Hệ Sinh Thái Đối Tác & Công Nghệ Hàng Đầu
+              </h2>
+            </div>
+
+            {/* Orbiting Circles Container */}
+            <div className={styles.orbitContainer}>
+              {/* Center Core */}
+              <div className={styles.orbitCenterCore}>
+                <div className={styles.orbitCenterIcon}>
+                  <FiShoppingBag size={36} />
+                </div>
+                <span className={styles.orbitCenterText}>ShopTik Core</span>
+                <span className={styles.orbitCenterSub}>Next.js 16</span>
+              </div>
+
+              {/* Inner Orbit (Radius 180px) */}
+              <OrbitingCircles iconSize={82} radius={180} duration={28} speed={1}>
+                <div className={styles.orbitBadge} title="Giao Hàng Nhanh (GHN)">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/logo-ghn.png" alt="GHN" className={styles.orbitImg} />
+                </div>
+                <div className={styles.orbitBadge} title="Giao Hàng Tiết Kiệm (GHTK)">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/logo-ghtk.png" alt="GHTK" className={styles.orbitImg} />
+                </div>
+                <div className={styles.orbitBadge} title="Viettel Post">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/logo-viettelpost.svg" alt="Viettel Post" className={styles.orbitImg} />
+                </div>
+                <div className={styles.orbitBadge} title="SePay VietQR Napas247">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/logo-sepay.png" alt="SePay VietQR" className={styles.orbitImg} />
+                </div>
+              </OrbitingCircles>
+
+              {/* Outer Orbit (Radius 310px - Reverse) */}
+              <OrbitingCircles iconSize={92} radius={310} duration={38} speed={1} reverse>
+                <div className={styles.orbitBadge} title="Gmail SMTP Email">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/logo-gmail.png" alt="Gmail" className={styles.orbitImg} />
+                </div>
+                <div className={styles.orbitBadge} title="Hostinger Cloud">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/logo-hostinger.png" alt="Hostinger" className={styles.orbitImg} />
+                </div>
+                <div className={styles.orbitBadge} title="Meta Conversions API">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/logo-meta.png" alt="Meta Conversions API" className={styles.orbitImg} />
+                </div>
+                <div className={styles.orbitBadge} title="TikTok Events API">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/logo-tiktok.svg" alt="TikTok Events API" className={styles.orbitImg} />
+                </div>
+              </OrbitingCircles>
+            </div>
+          </div>
+        </section>
+
+        {/* METRICS & IMPACT STATS */}
         <section id="metrics" className={styles.statsSection}>
           <div className={styles.container}>
             <div className={styles.statsGrid}>
               <div className={styles.statItem}>
                 <div className={styles.statNumber}>+300%</div>
                 <div className={styles.statLabel}>Tăng Tỷ Lệ Chuyển Đổi</div>
-                <div className={styles.statDesc}>Nhờ luồng Checkout mượt mà & FOMO</div>
+                <div className={styles.statDesc}>Nhờ Quick Checkout 1-chạm & FOMO</div>
               </div>
               <div className={styles.statItem}>
                 <div className={styles.statNumber}>&lt; 1s</div>
-                <div className={styles.statLabel}>Khớp Lệnh Thanh Toán</div>
-                <div className={styles.statDesc}>Xử lý tự động 100% qua SePay Webhook</div>
+                <div className={styles.statLabel}>Khớp Lệnh VietQR</div>
+                <div className={styles.statDesc}>Xử lý tự động 100% qua SePay</div>
               </div>
               <div className={styles.statItem}>
                 <div className={styles.statNumber}>100%</div>
@@ -2039,180 +1528,27 @@ export default function LandingPage() {
               <div className={styles.statItem}>
                 <div className={styles.statNumber}>99.9%</div>
                 <div className={styles.statLabel}>Uptime Ổn Định</div>
-                <div className={styles.statDesc}>Next.js 15 & MongoDB Atlas Cloud</div>
+                <div className={styles.statDesc}>Next.js 16 & MongoDB Cloud</div>
               </div>
             </div>
           </div>
         </section>
 
         {/* ==========================================================================
-         HOSTINGER HOSTING & AUTO DEPLOYMENT SECTION
-         ========================================================================== */}
-        <section id="hosting" className={styles.hostingSection}>
-          {/* Ambient Lighting Glow */}
-          <div className={styles.hostingAmbientGlow} />
-
-          <div className={styles.container}>
-            {/* Prominent High-Impact Header */}
-            <div className={styles.hostingHeaderBlock}>
-              <div className={styles.hostingBadgeTop}>
-                <FiZap /> ĐỐI TÁC HẠ TẦNG CHÍNH THỨC • HOSTINGER CLOUD
-              </div>
-              <h2 className={styles.hostingMainTitle}>
-                Giải Pháp Hosting Hostinger <span className={styles.hostingTitleGradient}>Tối Ưu Vận Hành Cho ShopTik</span>
-              </h2>
-              <p className={styles.hostingSubtitle}>
-                Khởi chạy website bán hàng chuẩn SEO hoàn tất chỉ trong 5 phút. Tự động Deploy 1-Click bằng file ZIP hoặc Git, tặng kèm 1 Tên Miền Quốc Tế (.com) Miễn Phí và Giảm Thêm 10% trọn đời khi đăng ký qua đối tác độc quyền.
-              </p>
-
-              <div className={styles.hostingHighlightsRow}>
-                <span className={`${styles.hostingHighlightChip} ${styles.hostingChipActive}`}>
-                  🌐 Tặng 1 Tên Miền (.com) 0đ
-                </span>
-                <span className={`${styles.hostingHighlightChip} ${styles.hostingChipActive}`}>
-                  ⚡ Tự Động Deploy 1-Click (Kéo File ZIP)
-                </span>
-                <span className={`${styles.hostingHighlightChip} ${styles.hostingChipActive}`}>
-                  🛡️ Miễn Phí SSL HTTPS Trọn Đời
-                </span>
-                <span className={`${styles.hostingHighlightChip} ${styles.hostingChipActive}`}>
-                  🏷️ Giảm Thêm 10% Mã: BIGMANMARKETING10
-                </span>
-              </div>
-            </div>
-
-            {/* Hosting Main Promo Banner */}
-            <div className={styles.hostingBanner}>
-              <div className={styles.hostingBannerInner}>
-                <div style={{ maxWidth: 640 }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(168, 85, 247, 0.2)', color: '#d8b4fe', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 800, marginBottom: 12 }}>
-                    🎁 ƯU ĐÃI ĐẶC QUYỀN ĐỐI TÁC
-                  </div>
-                  <h3 style={{ fontSize: 26, fontWeight: 900, color: '#fff', marginBottom: 10, lineHeight: 1.3 }}>
-                    Tặng 1 Tên Miền Miễn Phí + Giảm Thêm 10% Hosting
-                  </h3>
-                  <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>
-                    Hosting Hostinger hỗ trợ kéo thả <strong>nguyên file ZIP</strong> hoặc kết nối <strong>Link Git</strong> là tự động Deploy và Setup website hoạt động ngay lập tức, không cần cấu hình dòng lệnh server phức tạp!
-                  </p>
-
-                  <div className={styles.hostingCouponBox}>
-                    <span style={{ fontSize: 13, color: '#94a3b8' }}>Mã giảm giá độc quyền:</span>
-                    <span className={styles.couponCodeText}>BIGMANMARKETING10</span>
-                    <button
-                      type="button"
-                      className={styles.btnCopyCoupon}
-                      onClick={handleCopyCoupon}
-                    >
-                      {copiedCouponToast ? '✓ Đã Copy!' : '📋 Sao Chép Mã'}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <a
-                    href="https://hostinger.com/BIGMANMARKETING10"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.btnHostingerPrimary}
-                  >
-                    <span>🚀 Đăng Ký Hosting Ưu Đãi Ngay</span>
-                    <FiExternalLink />
-                  </a>
-                  <div style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
-                    ✓ Đảm bảo hoàn tiền trong 30 ngày nếu không hài lòng
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 4 Feature Cards */}
-            <div className={styles.hostingFeaturesGrid}>
-              <div className={styles.hostingFeatureCard}>
-                <div style={{ fontSize: 28, marginBottom: 12 }}>⚡</div>
-                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Auto Setup 1-Click (ZIP & Git)</h4>
-                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
-                  Chỉ cần upload nguyên file ZIP mã nguồn hoặc dán Link Git Repository, hệ thống hPanel tự động nạp dependencies và khởi chạy.
-                </p>
-              </div>
-
-              <div className={styles.hostingFeatureCard}>
-                <div style={{ fontSize: 28, marginBottom: 12 }}>🎁</div>
-                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Tặng 1 Tên Miền Quốc Tế</h4>
-                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
-                  Miễn phí 100% tên miền (.com, .net, .org...) năm đầu tiên, tiết kiệm ngay hàng trăm nghìn đồng chi phí khởi tạo.
-                </p>
-              </div>
-
-              <div className={styles.hostingFeatureCard}>
-                <div style={{ fontSize: 28, marginBottom: 12 }}>💸</div>
-                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Giảm Thêm 10% Trực Tiếp</h4>
-                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
-                  Nhập mã <strong>BIGMANMARKETING10</strong> tại bước thanh toán để được giảm thêm 10% chồng lên mọi khuyến mãi.
-                </p>
-              </div>
-
-              <div className={styles.hostingFeatureCard}>
-                <div style={{ fontSize: 28, marginBottom: 12 }}>🔒</div>
-                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>SSL & Tốc Độ LiteSpeed</h4>
-                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
-                  Hạ tầng Cloud siêu tốc, chứng chỉ SSL miễn phí trọn đời, tải trang dưới 0.5 giây giúp tối ưu điểm SEO và giá thầu Ads.
-                </p>
-              </div>
-            </div>
-
-            {/* 3 Step Deployment Guide */}
-            <div style={{ marginTop: 50 }}>
-              <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', textAlign: 'center', marginBottom: 30 }}>
-                Hướng Dẫn 3 Bước Mua Hosting & Triển Khai Website Giá Rẻ Nhất
-              </h3>
-
-              <div className={styles.stepGuideGrid}>
-                <div className={styles.stepGuideCard}>
-                  <div className={styles.stepNumberBadge}>1</div>
-                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Truy Cập Link & Chọn Gói</h4>
-                  <p style={{ fontSize: 13.5, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-                    Truy cập 👉 <a href="https://hostinger.com/BIGMANMARKETING10" target="_blank" rel="noopener noreferrer" style={{ color: '#a855f7', fontWeight: 700 }}>hostinger.com/BIGMANMARKETING10</a> và chọn gói <strong>Premium</strong> hoặc <strong>Business Web Hosting</strong> (khuyên dùng gói 12/24 tháng để nhận tên miền miễn phí).
-                  </p>
-                </div>
-
-                <div className={styles.stepGuideCard}>
-                  <div className={styles.stepNumberBadge}>2</div>
-                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Áp Mã BIGMANMARKETING10</h4>
-                  <p style={{ fontSize: 13.5, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-                    Tại trang thanh toán, bấm vào ô <em>"Have a coupon code?"</em> và nhập <strong>BIGMANMARKETING10</strong> để giảm thêm 10%. Sau đó tiến hành thanh toán và nhận tên miền miễn phí.
-                  </p>
-                </div>
-
-                <div className={styles.stepGuideCard}>
-                  <div className={styles.stepNumberBadge}>3</div>
-                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Upload ZIP / Git & Chạy Web</h4>
-                  <p style={{ fontSize: 13.5, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-                    Vào <strong>hPanel</strong> ➔ Chọn File Manager (hoặc mục Node.js/Git) ➔ Kéo thả file ZIP mã nguồn ShopTik ➔ Nhập biến môi trường <code>MONGODB_URI</code> ➔ Bấm Khởi chạy là website hoạt động ngay!
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================================================
-         7. INTERACTIVE CAROUSEL TESTIMONIALS (KHÁCH HÀNG & CHỦ SHOP ĐÁNH GIÁ)
-         ========================================================================== */}
+           SECTION 4: ĐÁNH GIÁ KHÁCH HÀNG (SOCIAL PROOF & RATING 5 SAO)
+           ========================================================================== */}
         <section
+          id="danh-gia"
           className={styles.carouselTestimonialSection}
           onMouseEnter={() => setIsTestimonialHovered(true)}
           onMouseLeave={() => setIsTestimonialHovered(false)}
         >
           <div className={styles.container}>
             <div className={styles.carouselTestimonialWrapper}>
-              <span className={styles.carouselTestimonialTag}>
-                KHÁCH HÀNG & CHỦ SHOP ĐÁNH GIÁ
-              </span>
-              <h2 className={styles.sectionTitle} style={{ marginBottom: 32 }}>
-                Được Tin Dùng Bởi Các Nhà Bán Hàng
+              <h2 className={styles.sectionTitle} style={{ marginBottom: 28 }}>
+                Được Tin Dùng Bởi Hơn 500+ Chủ Shop & Doanh Nghiệp
               </h2>
 
-              {/* Testimonials List */}
               <div>
                 {testimonials.map((item, idx) => (
                   currentTestimonial === idx ? (
@@ -2224,14 +1560,23 @@ export default function LandingPage() {
                         </p>
                       </blockquote>
                       <div className={styles.carouselAuthorBox}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={item.avatar}
                           alt={item.name}
                           className={styles.carouselAvatar}
                         />
                         <div>
-                          <span className={styles.carouselAuthorName}>{item.name}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <span className={styles.carouselAuthorName}>{item.name}</span>
+                            <span style={{ fontSize: 11, background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '2px 8px', borderRadius: 9999, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                              <FiCheckCircle size={11} /> Đã xác minh mua hàng
+                            </span>
+                          </div>
                           <span className={styles.carouselAuthorRole}>{item.title}</span>
+                          <div style={{ color: '#fbbf24', fontSize: 13, marginTop: 4, letterSpacing: 2 }}>
+                            ★★★★★
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -2239,7 +1584,6 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              {/* Pagination Dots */}
               <ul className={styles.carouselDotsList}>
                 {testimonials.map((_, idx) => (
                   <li key={idx}>
@@ -2257,12 +1601,309 @@ export default function LandingPage() {
         </section>
 
         {/* ==========================================================================
-         8. INTERACTIVE FAQ ACCORDION
-         ========================================================================== */}
+           SECTION 5: BẢNG GIÁ GÓI BÁN HÀNG NGOẠI SÀN 399K & 799K
+           ========================================================================== */}
+        <section id="goi-ngoai-san" className={styles.floatPricingSection}>
+          <div className={styles.floatPricingGlow}></div>
+
+          <div className={styles.floatPricingContainer}>
+            <div className={styles.floatPricingHeader}>
+              <h2 className={styles.floatPricingTitle}>
+                Bảng Giá Sở Hữu Trọn Đời
+              </h2>
+            </div>
+
+            {/* Commitment Badge */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                background: 'rgba(99, 102, 241, 0.12)',
+                border: '1px solid rgba(99, 102, 241, 0.3)',
+                padding: '8px 18px',
+                borderRadius: 9999,
+                color: '#c7d2fe',
+                fontSize: 13,
+                fontWeight: 700,
+              }}>
+                <FiShield style={{ color: '#818cf8' }} size={16} />
+                <span>🛡️ Hỗ trợ Ultraviewer cài đặt thành công 100% • Bảo hành trọn đời</span>
+              </div>
+            </div>
+
+            <div className={styles.floatPricingGrid}>
+              {/* Plan 1: Gói 399K */}
+              <div className={`${styles.floatPlanCard} ${styles.floatPlanCardPopular}`}>
+                <div className={styles.floatPlanTopBanner}>
+                  🔥 BEST SELLER • SỞ HỮU TRỌN ĐỜI
+                </div>
+                <div className={styles.floatPlanCardHead}>
+                  <span className={styles.floatPlanName}>
+                    Gói Bán Hàng Ngoại Sàn
+                  </span>
+                  <div className={styles.floatPlanPriceWrap}>
+                    <span className={styles.floatPlanPrice}>399.000₫</span>
+                    <span className={styles.floatPlanPeriod}>/ trọn đời</span>
+                  </div>
+                  <CoolMode options={{ particle: "🔥" }}>
+                    <button
+                      type="button"
+                      className={`${styles.floatPlanBtn} ${styles.floatPlanBtnPopular}`}
+                      onClick={() => openOrderModal('399k')}
+                    >
+                      <FiZap size={16} /> ĐĂNG KÝ GÓI 399K NGAY
+                    </button>
+                  </CoolMode>
+                </div>
+
+                <ul className={styles.floatPlanFeatureList}>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Full source code Next.js 16 + React 19</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Thanh toán VietQR SePay tự động 1s</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Tích hợp bưu tá GHN / GHTK / Viettel Post</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Đo lường kép Meta CAPI & TikTok Events</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Bộ 7 giao diện tùy biến màu sắc 1-Click</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Video hướng dẫn cài đặt & vận hành A-Z</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Hỗ trợ kỹ thuật 1:1 qua Ultraviewer / Zalo</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Plan 2: Gói Setup A-Z */}
+              <div className={styles.floatPlanCard}>
+                <div className={styles.floatPlanCardHead}>
+                  <span className={styles.floatPlanName}>
+                    Gói Setup Trọn Gói A - Z
+                  </span>
+                  <div className={styles.floatPlanPriceWrap}>
+                    <span className={styles.floatPlanPrice} style={{ color: '#a5b4fc' }}>799.000₫</span>
+                    <span className={styles.floatPlanPeriod}>/ bàn giao</span>
+                  </div>
+                  <CoolMode options={{ particle: "⚡" }}>
+                    <button
+                      type="button"
+                      className={styles.floatPlanBtn}
+                      onClick={() => openOrderModal('799k')}
+                    >
+                      <FiCheck size={16} /> ĐẶT DỊCH VỤ SETUP A-Z
+                    </button>
+                  </CoolMode>
+                </div>
+
+                <ul className={styles.floatPlanFeatureList}>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Toàn bộ quyền lợi của Gói 399K</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Cài đặt tên miền riêng & SSL HTTPS</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Thiết lập Hosting hoàn chỉnh 100%</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Cấu hình VietQR & API bưu tá GHN / GHTK</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Hỗ trợ đăng tải sẵn 20 sản phẩm mẫu ban đầu</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Gắn Pixel Meta CAPI & TikTok Ads ID</span>
+                  </li>
+                  <li className={styles.floatPlanFeatureItem}>
+                    <svg className={styles.floatPlanCheckSvg} style={{ color: '#818cf8' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                    </svg>
+                    <span>Bàn giao chìa khóa trao tay - Bán hàng ngay</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ==========================================================================
+           SECTION 6: HOSTINGER HOSTING SECTION
+           ========================================================================== */}
+        <section id="hosting" className={styles.hostingSection}>
+          <div className={styles.hostingAmbientGlow} />
+
+          <div className={styles.container}>
+            <div className={styles.hostingHeaderBlock}>
+              <h2 className={styles.hostingMainTitle}>
+                Giải Pháp Hosting Cho <span className={styles.hostingTitleGradient}>ShopTik</span>
+              </h2>
+            </div>
+
+            {/* Hosting Banner */}
+            <div className={styles.hostingBanner}>
+              <div className={styles.hostingBannerInner}>
+                <div style={{ maxWidth: 640 }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(168, 85, 247, 0.2)', color: '#d8b4fe', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 800, marginBottom: 12 }}>
+                    🎁 ƯU ĐÃI ĐỐI TÁC ĐỘC QUYỀN
+                  </div>
+                  <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', marginBottom: 10, lineHeight: 1.3 }}>
+                    Tặng Tên Miền Miễn Phí + Giảm Thêm 10% Hosting
+                  </h3>
+
+                  <div className={styles.hostingCouponBox}>
+                    <span style={{ fontSize: 13, color: '#94a3b8' }}>Mã giảm giá:</span>
+                    <span className={styles.couponCodeText}>BIGMANMARKETING10</span>
+                    <button
+                      type="button"
+                      className={styles.btnCopyCoupon}
+                      onClick={handleCopyCoupon}
+                    >
+                      {copiedCouponToast ? '✓ Đã Copy!' : '📋 Sao Chép'}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <a
+                    href="https://hostinger.com/BIGMANMARKETING10"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.btnHostingerPrimary}
+                  >
+                    <span>🚀 Đăng Ký Hosting Ưu Đãi</span>
+                    <FiExternalLink />
+                  </a>
+                  <div style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
+                    ✓ Đảm bảo hoàn tiền trong 30 ngày
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 4 Feature Cards */}
+            <div className={styles.hostingFeaturesGrid}>
+              <div className={styles.hostingFeatureCard}>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>⚡</div>
+                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Auto Setup 1-Click</h4>
+                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                  Upload file ZIP hoặc link Git, hệ thống hPanel tự động nạp dependencies và chạy web.
+                </p>
+              </div>
+
+              <div className={styles.hostingFeatureCard}>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>🎁</div>
+                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Miễn Phí 1 Tên Miền</h4>
+                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                  Tặng 100% tên miền quốc tế (.com, .net...) năm đầu tiên khi đăng ký gói hosting.
+                </p>
+              </div>
+
+              <div className={styles.hostingFeatureCard}>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>💸</div>
+                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Giảm Thêm 10%</h4>
+                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                  Nhập mã <strong>BIGMANMARKETING10</strong> tại bước thanh toán để giảm thêm 10%.
+                </p>
+              </div>
+
+              <div className={styles.hostingFeatureCard}>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>🔒</div>
+                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>SSL & LiteSpeed</h4>
+                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                  Hạ tầng Cloud siêu tốc, chứng chỉ SSL miễn phí trọn đời, tải trang dưới 0.5s tối ưu SEO & Ads.
+                </p>
+              </div>
+            </div>
+
+            {/* 3 Step Deployment Guide */}
+            <div style={{ marginTop: 40 }}>
+              <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', textAlign: 'center', marginBottom: 24 }}>
+                3 Bước Triển Khai Website Đơn Giản
+              </h3>
+
+              <div className={styles.stepGuideGrid}>
+                <div className={styles.stepGuideCard}>
+                  <div className={styles.stepNumberBadge}>1</div>
+                  <h4 style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Chọn Gói Hosting</h4>
+                  <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                    Truy cập 👉 <a href="https://hostinger.com/BIGMANMARKETING10" target="_blank" rel="noopener noreferrer" style={{ color: '#a855f7', fontWeight: 700 }}>hostinger.com/BIGMANMARKETING10</a> và chọn gói Premium hoặc Business (12-24 tháng).
+                  </p>
+                </div>
+
+                <div className={styles.stepGuideCard}>
+                  <div className={styles.stepNumberBadge}>2</div>
+                  <h4 style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Nhập Mã Giảm Giá</h4>
+                  <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                    Tại trang thanh toán, nhập mã <strong>BIGMANMARKETING10</strong> để giảm thêm 10% và nhận tên miền miễn phí.
+                  </p>
+                </div>
+
+                <div className={styles.stepGuideCard}>
+                  <div className={styles.stepNumberBadge}>3</div>
+                  <h4 style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Upload & Khởi Chạy</h4>
+                  <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                    Upload file ZIP mã nguồn lên hPanel, điền thông tin MongoDB và website hoạt động ngay lập tức!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ==========================================================================
+           SECTION 7: FAQ ACCORDION
+           ========================================================================== */}
         <section id="faq" className={styles.faqSection}>
           <div className={styles.container}>
             <div className={styles.sectionTitleBlock}>
-              <span className={styles.sectionTag}>GIẢI ĐÁP THẮC MẮC</span>
+              <span className={styles.sectionTag}>GIẢI ĐÁP</span>
               <h2 className={styles.sectionTitle}>Câu Hỏi Thường Gặp</h2>
             </div>
 
@@ -2273,12 +1914,12 @@ export default function LandingPage() {
                   className={styles.faqQuestion}
                   onClick={() => toggleFaq(0)}
                 >
-                  <span>1. Hệ thống có yêu cầu khách hàng phải tạo tài khoản/đăng nhập khi mua hàng không?</span>
+                  <span>1. Mua hàng có bắt buộc phải tạo tài khoản không?</span>
                   {openFaq === 0 ? <FiChevronUp /> : <FiChevronDown />}
                 </button>
                 {openFaq === 0 && (
                   <div className={styles.faqAnswer}>
-                    Không! ShopTik áp dụng triết lý <strong>Quick Checkout 1-Chạm</strong>. Khách hàng chỉ cần nhập Tên, SĐT và Địa chỉ nhận hàng là có thể đặt hàng ngay mà không bị gián đoạn bởi form đăng ký rườm rà. Hệ thống vẫn tự động lưu trữ và tích lũy lịch sử đơn hàng vào CRM dựa trên số điện thoại của khách.
+                    Không! ShopTik áp dụng cơ chế <strong>Quick Checkout 1-Chạm</strong>. Khách chỉ cần nhập Tên, SĐT và Địa chỉ là có thể đặt hàng ngay mà không bị gián đoạn.
                   </div>
                 )}
               </div>
@@ -2294,7 +1935,7 @@ export default function LandingPage() {
                 </button>
                 {openFaq === 1 && (
                   <div className={styles.faqAnswer}>
-                    Tiền chuyển khoản của khách hàng sẽ <strong>vào trực tiếp 100% tài khoản ngân hàng cá nhân hoặc doanh nghiệp của bạn</strong> (MBBank, Vietcombank, Techcombank, MSB, ACB...). Nền tảng không giữ tiền hay đóng vai trò trung gian thu hộ, đảm bảo dòng tiền của bạn luôn chủ động và an toàn tuyệt đối.
+                    Tiền chuyển khoản vào trực tiếp 100% <strong>tài khoản ngân hàng của bạn</strong> (MBBank, Vietcombank, Techcombank...). Nền tảng không thu phí trung gian hay giữ tiền.
                   </div>
                 )}
               </div>
@@ -2305,12 +1946,12 @@ export default function LandingPage() {
                   className={styles.faqQuestion}
                   onClick={() => toggleFaq(2)}
                 >
-                  <span>3. Làm thế nào để cấu hình các hãng vận chuyển GHN, GHTK, Viettel Post?</span>
+                  <span>3. Cấu hình vận chuyển GHN, GHTK, Viettel Post thế nào?</span>
                   {openFaq === 2 ? <FiChevronUp /> : <FiChevronDown />}
                 </button>
                 {openFaq === 2 && (
                   <div className={styles.faqAnswer}>
-                    Rất đơn giản! Bạn chỉ cần vào trang quản trị <code>/admin/shipping</code>, nhập Token API và Shop ID do hãng vận chuyển cấp rồi bấm Lưu cấu hình. Website đã có sẵn nút "Kiểm Tra Kết Nối" để bạn xác thực trực tiếp trước khi vận hành thực tế.
+                    Bạn chỉ cần vào trang quản trị <code>/admin/shipping</code>, nhập Token API từ nhà vận chuyển và bấm Lưu. Có sẵn nút kiểm tra kết nối realtime.
                   </div>
                 )}
               </div>
@@ -2321,12 +1962,12 @@ export default function LandingPage() {
                   className={styles.faqQuestion}
                   onClick={() => toggleFaq(3)}
                 >
-                  <span>4. Hệ thống có hỗ trợ tùy chỉnh logo, tên thương hiệu và màu sắc riêng không?</span>
+                  <span>4. Có thể tùy chỉnh Logo, thương hiệu và màu sắc không?</span>
                   {openFaq === 3 ? <FiChevronUp /> : <FiChevronDown />}
                 </button>
                 {openFaq === 3 && (
                   <div className={styles.faqAnswer}>
-                    Có! Bạn có thể tùy chỉnh toàn diện: Tải lên Logo riêng, đổi tên shop, thay đổi màu chủ đạo (Primary Color), màu nền (Background), màu Header, màu Button và chọn các bộ theme Shopee, TikTok, Dark, Light bất cứ lúc nào trong mục <code>/admin/settings</code>.
+                    Có! Bạn có thể tải lên Logo riêng, đổi tên shop, thay đổi màu chủ đạo (Primary Color) và chọn 7 bộ theme có sẵn trong <code>/admin/settings</code>.
                   </div>
                 )}
               </div>
@@ -2337,12 +1978,12 @@ export default function LandingPage() {
                   className={styles.faqQuestion}
                   onClick={() => toggleFaq(4)}
                 >
-                  <span>5. Tính năng gửi email thông báo hoạt động thế nào và có mất phí không?</span>
+                  <span>5. Tính năng gửi email thông báo có mất phí không?</span>
                   {openFaq === 4 ? <FiChevronUp /> : <FiChevronDown />}
                 </button>
                 {openFaq === 4 && (
                   <div className={styles.faqAnswer}>
-                    Hệ thống sử dụng giao thức <strong>Gmail SMTP / Nodemailer hoàn toàn miễn phí</strong>. Khi khách đặt hàng thành công hoặc thanh toán, website sẽ tự động gửi email xác nhận kèm hóa đơn chi tiết về hòm thư của khách, đồng thời gửi email thông báo cho chủ shop. Bạn có thể dễ dàng cấu hình tài khoản Gmail và Mật khẩu ứng dụng trong mục <code>/admin/settings</code>.
+                    Hoàn toàn miễn phí! Hệ thống sử dụng <strong>Gmail SMTP</strong> để tự động gửi email xác nhận cho khách và thông báo đơn mới cho chủ shop 24/7.
                   </div>
                 )}
               </div>
@@ -2353,12 +1994,12 @@ export default function LandingPage() {
                   className={styles.faqQuestion}
                   onClick={() => toggleFaq(5)}
                 >
-                  <span>6. Tôi nên dùng gói Hosting nào để chạy web và có tự động cài đặt được không?</span>
+                  <span>6. Gói hosting nào phù hợp nhất để chạy ShopTik?</span>
                   {openFaq === 5 ? <FiChevronUp /> : <FiChevronDown />}
                 </button>
                 {openFaq === 5 && (
                   <div className={styles.faqAnswer}>
-                    Chúng tôi khuyến nghị sử dụng <strong>Hostinger Web Hosting</strong> thông qua liên kết đối tác <a href="https://hostinger.com/BIGMANMARKETING10" target="_blank" rel="noopener noreferrer" style={{ color: '#a855f7', fontWeight: 700 }}>hostinger.com/BIGMANMARKETING10</a>. Bạn sẽ được <strong>tặng 1 tên miền quốc tế miễn phí</strong> và <strong>giảm thêm 10%</strong> khi nhập mã <code>BIGMANMARKETING10</code>. Điểm vượt trội là bạn chỉ cần tải lên nguyên file ZIP mã nguồn hoặc dán link Git là hệ thống tự động build và chạy website ngay lập tức!
+                    Chúng tôi khuyến nghị sử dụng <strong>Hostinger Web Hosting</strong> qua link <a href="https://hostinger.com/BIGMANMARKETING10" target="_blank" rel="noopener noreferrer" style={{ color: '#a855f7', fontWeight: 700 }}>hostinger.com/BIGMANMARKETING10</a> để được tặng tên miền miễn phí và giảm thêm 10%.
                   </div>
                 )}
               </div>
@@ -2367,32 +2008,32 @@ export default function LandingPage() {
         </section>
 
         {/* ==========================================================================
-         9. FINAL CTA BANNER
-         ========================================================================== */}
+           SECTION 8: FINAL CTA BANNER & FOOTER
+           ========================================================================== */}
         <section className={styles.container}>
           <div className={styles.ctaBanner}>
             <h2 className={styles.ctaBannerTitle}>Sẵn Sàng Bùng Nổ Doanh Số Cùng ShopTik?</h2>
             <p className={styles.ctaBannerDesc}>
-              Cắt giảm 100% phí sàn 10-15%, sở hữu toàn bộ data khách hàng và tự động hóa hệ thống bán hàng độc lập ngay hôm nay!
+              Cắt giảm 100% phí sàn, sở hữu toàn bộ data khách hàng và tự động hóa hệ thống bán hàng ngay hôm nay!
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 14, flexWrap: 'wrap' }}>
               <CoolMode options={{ particle: "🔥" }}>
                 <button
                   type="button"
                   className={`${styles.btnPrimary} ${styles.btnHeroPrimary} ${styles.btnGradientShopee}`}
-                  onClick={() => setIsPackageModalOpen(true)}
+                  onClick={() => openOrderModal('399k')}
                 >
                   <FiZap size={18} /> Đăng Ký Gói Ngoại Sàn 399K
                 </button>
               </CoolMode>
               <CoolMode options={{ particle: "✨" }}>
-                <Link href="/" className={`${styles.btnSecondary} ${styles.btnHeroSecondary}`}>
-                  <FiShoppingBag size={18} /> Xem Cửa Hàng Live
+                <Link href="/" target="_blank" rel="noopener noreferrer" className={`${styles.btnSecondary} ${styles.btnHeroSecondary}`}>
+                  <FiShoppingBag size={18} /> Xem Cửa Hàng Live ↗
                 </Link>
               </CoolMode>
               <CoolMode options={{ particle: "⚡" }}>
-                <Link href="/admin" className={`${styles.btnSecondary} ${styles.btnHeroSecondary}`}>
-                  <FiZap size={18} /> Trang Quản Trị
+                <Link href="/admin" target="_blank" rel="noopener noreferrer" className={`${styles.btnSecondary} ${styles.btnHeroSecondary}`}>
+                  <FiZap size={18} /> Trang Quản Trị ↗
                 </Link>
               </CoolMode>
             </div>
@@ -2400,8 +2041,8 @@ export default function LandingPage() {
         </section>
 
         {/* ==========================================================================
-         10. FOOTER
-         ========================================================================== */}
+           FOOTER
+           ========================================================================== */}
         <footer className={styles.footer}>
           <div className={styles.container}>
             <div className={styles.footerGrid}>
@@ -2413,39 +2054,39 @@ export default function LandingPage() {
                   <span>ShopTik<span style={{ color: '#ee4d2d' }}>.</span></span>
                 </Link>
                 <p className={styles.footerBrandDesc}>
-                  Nền tảng E-Commerce thế hệ mới: Tối ưu chuyển đổi, đa giao diện thông minh, vận chuyển đa hãng và thanh toán VietQR tự động.
+                  Nền tảng E-Commerce tối ưu chuyển đổi, đa giao diện thông minh, vận chuyển đa hãng và thanh toán VietQR tự động.
                 </p>
               </div>
 
               <div>
                 <h4 className={styles.footerColTitle}>Khách Hàng</h4>
                 <ul className={styles.footerColLinks}>
-                  <li><Link href="/" className={styles.footerLink}>Trang Chủ Mua Sắm</Link></li>
-                  <li><Link href="/?tab=products" className={styles.footerLink}>Tất Cả Sản Phẩm</Link></li>
-                  <li><Link href="/?tab=categories" className={styles.footerLink}>Danh Mục Hàng</Link></li>
-                  <li><Link href="/tracking" className={styles.footerLink}>Tra Cứu Đơn Hàng</Link></li>
-                  <li><Link href="/cart" className={styles.footerLink}>Giỏ Hàng</Link></li>
+                  <li><Link href="/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Trang Chủ Mua Sắm ↗</Link></li>
+                  <li><Link href="/?tab=products" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Tất Cả Sản Phẩm ↗</Link></li>
+                  <li><Link href="/?tab=categories" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Danh Mục Hàng ↗</Link></li>
+                  <li><Link href="/tracking" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Tra Cứu Đơn Hàng ↗</Link></li>
+                  <li><Link href="/cart" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Giỏ Hàng ↗</Link></li>
                 </ul>
               </div>
 
               <div>
                 <h4 className={styles.footerColTitle}>Quản Trị Shop</h4>
                 <ul className={styles.footerColLinks}>
-                  <li><Link href="/admin" className={styles.footerLink}>Tổng Quan Báo Cáo</Link></li>
-                  <li><Link href="/admin/orders" className={styles.footerLink}>Quản Lý Đơn Hàng</Link></li>
-                  <li><Link href="/admin/products" className={styles.footerLink}>Quản Lý Sản Phẩm</Link></li>
-                  <li><Link href="/admin/marketing/flash-sale" className={styles.footerLink}>Flash Sale & FOMO</Link></li>
-                  <li><Link href="/admin/settings" className={styles.footerLink}>Cài Đặt Giao Diện Theme</Link></li>
+                  <li><Link href="/admin" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Tổng Quan Báo Cáo ↗</Link></li>
+                  <li><Link href="/admin/orders" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Quản Lý Đơn Hàng ↗</Link></li>
+                  <li><Link href="/admin/products" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Quản Lý Sản Phẩm ↗</Link></li>
+                  <li><Link href="/admin/marketing/flash-sale" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Flash Sale & FOMO ↗</Link></li>
+                  <li><Link href="/admin/settings" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Cài Đặt Giao Diện Theme ↗</Link></li>
                 </ul>
               </div>
 
               <div>
                 <h4 className={styles.footerColTitle}>Hỗ Trợ & Tích Hợp</h4>
                 <ul className={styles.footerColLinks}>
-                  <li><Link href="/chat" className={styles.footerLink}>Trò Chuyện Trực Tuyến</Link></li>
-                  <li><Link href="/admin/shipping" className={styles.footerLink}>Cấu Hình GHN / GHTK</Link></li>
-                  <li><Link href="/admin/payment" className={styles.footerLink}>Cấu Hình VietQR SePay</Link></li>
-                  <li><Link href="/admin/marketing" className={styles.footerLink}>Facebook & TikTok CAPI</Link></li>
+                  <li><Link href="/chat" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Trò Chuyện Trực Tuyến ↗</Link></li>
+                  <li><Link href="/admin/shipping" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Cấu Hình GHN / GHTK ↗</Link></li>
+                  <li><Link href="/admin/payment" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Cấu Hình VietQR SePay ↗</Link></li>
+                  <li><Link href="/admin/marketing" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Facebook & TikTok CAPI ↗</Link></li>
                 </ul>
               </div>
             </div>
@@ -2465,7 +2106,7 @@ export default function LandingPage() {
       </div>
 
       {/* ==========================================================================
-         11. MODAL ĐĂNG KÝ GÓI BÁN HÀNG NGOẠI SÀN 399.000₫
+         MODAL ĐĂNG KÝ GÓI (ĐỒNG BỘ 399K & 799K)
          ========================================================================== */}
       {isPackageModalOpen && (
         <div
@@ -2492,14 +2133,14 @@ export default function LandingPage() {
           <div
             style={{
               width: '100%',
-              maxWidth: 520,
+              maxWidth: 510,
               maxHeight: '92vh',
               overflowY: 'auto',
               WebkitOverflowScrolling: 'touch',
               background: 'linear-gradient(180deg, #131620 0%, #0d0f15 100%)',
-              border: '1px solid rgba(238, 77, 45, 0.45)',
+              border: selectedPlan === '799k' ? '1px solid rgba(99, 102, 241, 0.45)' : '1px solid rgba(238, 77, 45, 0.45)',
               borderRadius: 24,
-              boxShadow: '0 30px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(238, 77, 45, 0.25)',
+              boxShadow: selectedPlan === '799k' ? '0 30px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(99, 102, 241, 0.25)' : '0 30px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(238, 77, 45, 0.25)',
               display: 'flex',
               flexDirection: 'column',
               position: 'relative',
@@ -2511,8 +2152,10 @@ export default function LandingPage() {
             {/* Modal Header */}
             <div
               style={{
-                padding: '20px 24px',
-                background: 'linear-gradient(135deg, rgba(238, 77, 45, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%)',
+                padding: '18px 22px',
+                background: selectedPlan === '799k'
+                  ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%)'
+                  : 'linear-gradient(135deg, rgba(238, 77, 45, 0.15) 0%, rgba(249, 115, 22, 0.08) 100%)',
                 borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                 display: 'flex',
                 alignItems: 'center',
@@ -2523,26 +2166,28 @@ export default function LandingPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div
                   style={{
-                    width: 44,
-                    height: 44,
+                    width: 42,
+                    height: 42,
                     borderRadius: 12,
-                    background: 'linear-gradient(135deg, #ee4d2d, #f97316)',
+                    background: selectedPlan === '799k'
+                      ? 'linear-gradient(135deg, #6366f1, #4f46e5)'
+                      : 'linear-gradient(135deg, #ee4d2d, #f97316)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 22,
-                    boxShadow: '0 6px 16px rgba(238, 77, 45, 0.4)',
+                    fontSize: 20,
+                    boxShadow: selectedPlan === '799k' ? '0 6px 16px rgba(99, 102, 241, 0.4)' : '0 6px 16px rgba(238, 77, 45, 0.4)',
                     flexShrink: 0,
                   }}
                 >
-                  🚀
+                  {selectedPlan === '799k' ? '✨' : '🚀'}
                 </div>
                 <div>
-                  <h3 style={{ fontSize: 17, fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>
-                    Đăng Ký Gói Bán Hàng Ngoại Sàn
+                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>
+                    {currentPlanInfo.name}
                   </h3>
-                  <div style={{ fontSize: 12.5, color: '#f97316', fontWeight: 700, marginTop: 2 }}>
-                    ⚡ Ưu Đãi Trọn Gói: <span style={{ color: '#fff' }}>399.000₫</span> (Tiết Kiệm 85%)
+                  <div style={{ fontSize: 12, color: selectedPlan === '799k' ? '#a5b4fc' : '#f97316', fontWeight: 700, marginTop: 2 }}>
+                    ⚡ Ưu Đãi: <span style={{ color: '#fff' }}>{currentPlanInfo.priceStr}</span> (Gốc {currentPlanInfo.originalPriceStr})
                   </div>
                 </div>
               </div>
@@ -2550,8 +2195,8 @@ export default function LandingPage() {
                 type="button"
                 onClick={() => setIsPackageModalOpen(false)}
                 style={{
-                  width: 34,
-                  height: 34,
+                  width: 32,
+                  height: 32,
                   borderRadius: '50%',
                   background: 'rgba(255, 255, 255, 0.08)',
                   border: '1px solid rgba(255, 255, 255, 0.15)',
@@ -2560,8 +2205,7 @@ export default function LandingPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  fontSize: 16,
-                  transition: 'all 0.2s ease',
+                  fontSize: 15,
                   flexShrink: 0,
                 }}
                 aria-label="Đóng"
@@ -2571,13 +2215,55 @@ export default function LandingPage() {
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* Quick Plan Switcher */}
+              {!isOrderSubmitted && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, background: 'rgba(255, 255, 255, 0.04)', padding: 4, borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlan('399k')}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: 8,
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: 12.5,
+                      fontWeight: 800,
+                      background: selectedPlan === '399k' ? 'linear-gradient(135deg, #ee4d2d, #f97316)' : 'transparent',
+                      color: selectedPlan === '399k' ? '#fff' : '#94a3b8',
+                      boxShadow: selectedPlan === '399k' ? '0 4px 12px rgba(238, 77, 45, 0.3)' : 'none',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    ⚡ Gói Tự Cài 399K
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlan('799k')}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: 8,
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: 12.5,
+                      fontWeight: 800,
+                      background: selectedPlan === '799k' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'transparent',
+                      color: selectedPlan === '799k' ? '#fff' : '#94a3b8',
+                      boxShadow: selectedPlan === '799k' ? '0 4px 12px rgba(99, 102, 241, 0.3)' : 'none',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    ✨ Gói Setup A-Z 799K
+                  </button>
+                </div>
+              )}
+
               {isOrderSubmitted ? (
-                <div style={{ textAlign: 'center', padding: '10px 4px' }}>
+                <div style={{ textAlign: 'center', padding: '8px 0' }}>
                   <div
                     style={{
-                      width: 64,
-                      height: 64,
+                      width: 56,
+                      height: 56,
                       borderRadius: '50%',
                       background: 'rgba(16, 185, 129, 0.15)',
                       border: '2px solid #10b981',
@@ -2585,34 +2271,35 @@ export default function LandingPage() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      margin: '0 auto 14px',
-                      fontSize: 32,
+                      margin: '0 auto 12px',
+                      fontSize: 28,
                     }}
                   >
                     ✓
                   </div>
-                  <h4 style={{ fontSize: 20, fontWeight: 900, color: '#fff', marginBottom: 6 }}>
-                    Đăng Ký Nhận Gói 399K Thành Công!
+                  <h4 style={{ fontSize: 19, fontWeight: 900, color: '#fff', marginBottom: 4 }}>
+                    Đăng Ký {currentPlanInfo.shortName} Thành Công!
                   </h4>
-                  <p style={{ fontSize: 13.5, color: '#94a3b8', lineHeight: 1.5, marginBottom: 16 }}>
-                    Cảm ơn <strong>{orderName}</strong> ({orderPhone})! Thông tin đã được ghi nhận. Mã đơn: <strong style={{ color: '#f97316' }}>{orderCode}</strong>
+                  <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, marginBottom: 14 }}>
+                    Mã đơn: <strong style={{ color: selectedPlan === '799k' ? '#818cf8' : '#f97316' }}>{orderCode}</strong>
                   </p>
 
                   {/* Dynamic VietQR Preview */}
                   <div
                     style={{
                       background: '#ffffff',
-                      borderRadius: 16,
-                      padding: 14,
+                      borderRadius: 14,
+                      padding: 12,
                       width: 'fit-content',
-                      margin: '0 auto 16px',
+                      margin: '0 auto 14px',
                       boxShadow: '0 12px 30px rgba(0,0,0,0.6)',
                     }}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={`https://img.vietqr.io/image/MB-0973475484-compact2.png?amount=399000&addInfo=GOI399K%20${encodeURIComponent(orderPhone)}&accountName=SHOPTIK%20STORE`}
-                      alt="VietQR Chuyển Khoản 399K"
-                      style={{ width: 230, height: 'auto', display: 'block', borderRadius: 10 }}
+                      src={`https://img.vietqr.io/image/MB-0973475484-compact2.png?amount=${currentPlanInfo.priceNumber}&addInfo=${currentPlanInfo.memoPrefix}%20${encodeURIComponent(orderPhone)}&accountName=SHOPTIK%20STORE`}
+                      alt={`VietQR Chuyển Khoản ${currentPlanInfo.priceStr}`}
+                      style={{ width: 220, height: 'auto', display: 'block', borderRadius: 8 }}
                       onError={(e) => {
                         (e.currentTarget as HTMLElement).style.display = 'none';
                       }}
@@ -2621,35 +2308,35 @@ export default function LandingPage() {
 
                   <div
                     style={{
-                      background: 'rgba(238, 77, 45, 0.08)',
-                      border: '1px solid rgba(238, 77, 45, 0.3)',
-                      borderRadius: 14,
-                      padding: '14px 16px',
-                      fontSize: 13,
+                      background: selectedPlan === '799k' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(238, 77, 45, 0.08)',
+                      border: selectedPlan === '799k' ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid rgba(238, 77, 45, 0.3)',
+                      borderRadius: 12,
+                      padding: '12px 14px',
+                      fontSize: 12.5,
                       color: '#cbd5e1',
                       textAlign: 'left',
                       lineHeight: 1.6,
-                      marginBottom: 16,
+                      marginBottom: 14,
                     }}
                   >
-                    <div style={{ fontWeight: 800, color: '#f97316', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      💳 Thông Tin Chuyển Khoản Nhận Mã Nguồn:
+                    <div style={{ fontWeight: 800, color: selectedPlan === '799k' ? '#a5b4fc' : '#f97316', marginBottom: 4 }}>
+                      💳 Thông Tin Chuyển Khoản:
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0' }}>
                       <span>• Ngân hàng: <strong>MBBank (Quân Đội)</strong></span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
-                      <span>• Số tài khoản: <strong style={{ color: '#fff', fontSize: 14 }}>0973475484</strong></span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0' }}>
+                      <span>• STK: <strong style={{ color: '#fff' }}>0973475484</strong></span>
                       <button
                         type="button"
                         onClick={() => copyToClipboard('0973475484', 'stk')}
                         style={{
-                          background: 'rgba(238, 77, 45, 0.2)',
-                          border: '1px solid rgba(238, 77, 45, 0.4)',
-                          color: '#f97316',
-                          fontSize: 11.5,
+                          background: selectedPlan === '799k' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(238, 77, 45, 0.2)',
+                          border: selectedPlan === '799k' ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid rgba(238, 77, 45, 0.4)',
+                          color: selectedPlan === '799k' ? '#a5b4fc' : '#f97316',
+                          fontSize: 11,
                           fontWeight: 700,
-                          padding: '3px 10px',
+                          padding: '2px 8px',
                           borderRadius: 6,
                           cursor: 'pointer',
                         }}
@@ -2657,18 +2344,18 @@ export default function LandingPage() {
                         {copiedField === 'stk' ? '✓ Đã chép' : 'Sao chép'}
                       </button>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
-                      <span>• Số tiền: <strong style={{ color: '#ee4d2d', fontSize: 14 }}>399.000₫</strong></span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0' }}>
+                      <span>• Số tiền: <strong style={{ color: selectedPlan === '799k' ? '#818cf8' : '#ee4d2d' }}>{currentPlanInfo.priceStr}</strong></span>
                       <button
                         type="button"
-                        onClick={() => copyToClipboard('399000', 'money')}
+                        onClick={() => copyToClipboard(String(currentPlanInfo.priceNumber), 'money')}
                         style={{
-                          background: 'rgba(238, 77, 45, 0.2)',
-                          border: '1px solid rgba(238, 77, 45, 0.4)',
-                          color: '#f97316',
-                          fontSize: 11.5,
+                          background: selectedPlan === '799k' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(238, 77, 45, 0.2)',
+                          border: selectedPlan === '799k' ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid rgba(238, 77, 45, 0.4)',
+                          color: selectedPlan === '799k' ? '#a5b4fc' : '#f97316',
+                          fontSize: 11,
                           fontWeight: 700,
-                          padding: '3px 10px',
+                          padding: '2px 8px',
                           borderRadius: 6,
                           cursor: 'pointer',
                         }}
@@ -2676,18 +2363,18 @@ export default function LandingPage() {
                         {copiedField === 'money' ? '✓ Đã chép' : 'Sao chép'}
                       </button>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
-                      <span>• Nội dung: <strong style={{ color: '#fff', fontSize: 14 }}>GOI399K {orderPhone}</strong></span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0' }}>
+                      <span>• Nội dung: <strong style={{ color: '#fff' }}>{currentPlanInfo.memoPrefix} {orderPhone}</strong></span>
                       <button
                         type="button"
-                        onClick={() => copyToClipboard(`GOI399K ${orderPhone}`, 'memo')}
+                        onClick={() => copyToClipboard(`${currentPlanInfo.memoPrefix} ${orderPhone}`, 'memo')}
                         style={{
-                          background: 'rgba(238, 77, 45, 0.2)',
-                          border: '1px solid rgba(238, 77, 45, 0.4)',
-                          color: '#f97316',
-                          fontSize: 11.5,
+                          background: selectedPlan === '799k' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(238, 77, 45, 0.2)',
+                          border: selectedPlan === '799k' ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid rgba(238, 77, 45, 0.4)',
+                          color: selectedPlan === '799k' ? '#a5b4fc' : '#f97316',
+                          fontSize: 11,
                           fontWeight: 700,
-                          padding: '3px 10px',
+                          padding: '2px 8px',
                           borderRadius: 6,
                           cursor: 'pointer',
                         }}
@@ -2697,7 +2384,7 @@ export default function LandingPage() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <a
                       href="https://zalo.me/0973475484"
                       target="_blank"
@@ -2708,16 +2395,15 @@ export default function LandingPage() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: 8,
-                        padding: '14px 20px',
+                        padding: '12px 18px',
                         background: 'linear-gradient(135deg, #0068ff, #0084ff)',
                         color: '#fff',
                         borderRadius: 12,
                         fontWeight: 800,
-                        fontSize: 15,
-                        boxShadow: '0 6px 20px rgba(0, 104, 255, 0.4)',
+                        fontSize: 14,
                       }}
                     >
-                      💬 Nhắn Tin Zalo Nhận Source Code Ngay
+                      💬 Nhắn Zalo Nhận Bàn Giao Ngay
                     </a>
                     <button
                       type="button"
@@ -2729,10 +2415,10 @@ export default function LandingPage() {
                         background: 'rgba(255,255,255,0.06)',
                         border: '1px solid rgba(255,255,255,0.12)',
                         color: '#94a3b8',
-                        padding: '12px',
+                        padding: '10px',
                         borderRadius: 12,
                         cursor: 'pointer',
-                        fontSize: 13.5,
+                        fontSize: 13,
                         fontWeight: 700,
                       }}
                     >
@@ -2741,14 +2427,16 @@ export default function LandingPage() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleOrderSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {/* Order Summary Bar */}
+                <form onSubmit={handleOrderSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {/* Order Summary */}
                   <div
                     style={{
-                      background: 'linear-gradient(135deg, rgba(238, 77, 45, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%)',
-                      border: '1px solid rgba(238, 77, 45, 0.35)',
-                      borderRadius: 16,
-                      padding: '16px 18px',
+                      background: selectedPlan === '799k'
+                        ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%)'
+                        : 'linear-gradient(135deg, rgba(238, 77, 45, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%)',
+                      border: selectedPlan === '799k' ? '1px solid rgba(99, 102, 241, 0.35)' : '1px solid rgba(238, 77, 45, 0.35)',
+                      borderRadius: 14,
+                      padding: '14px 16px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
@@ -2756,27 +2444,27 @@ export default function LandingPage() {
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: 14.5, fontWeight: 800, color: '#ffffff', marginBottom: 4 }}>
-                        Gói Bán Hàng Ngoại Sàn Tự Động 100%
+                      <div style={{ fontSize: 14, fontWeight: 800, color: '#ffffff', marginBottom: 2 }}>
+                        {currentPlanInfo.name}
                       </div>
-                      <div style={{ fontSize: 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <FiCheckCircle size={14} /> Full Code Next.js + Hướng Dẫn Ads + Tự Động Hóa
+                      <div style={{ fontSize: 11.5, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <FiCheckCircle size={13} /> {currentPlanInfo.badge}
                       </div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#ee4d2d', letterSpacing: '-0.5px' }}>
-                        399.000₫
+                      <div style={{ fontSize: 20, fontWeight: 900, color: selectedPlan === '799k' ? '#818cf8' : '#ee4d2d' }}>
+                        {currentPlanInfo.priceStr}
                       </div>
-                      <div style={{ fontSize: 11.5, textDecoration: 'line-through', color: '#64748b' }}>
-                        2.490.000₫
+                      <div style={{ fontSize: 11, textDecoration: 'line-through', color: '#64748b' }}>
+                        {currentPlanInfo.originalPriceStr}
                       </div>
                     </div>
                   </div>
 
                   {/* Input 1: Name */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <label style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span>👤 Họ và Tên của bạn</span> <span style={{ color: '#ee4d2d' }}>*</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <label style={{ fontSize: 12.5, fontWeight: 700, color: '#e2e8f0' }}>
+                      Họ và Tên <span style={{ color: '#ee4d2d' }}>*</span>
                     </label>
                     <input
                       type="text"
@@ -2789,19 +2477,19 @@ export default function LandingPage() {
                         boxSizing: 'border-box',
                         background: 'rgba(255, 255, 255, 0.06)',
                         border: '1.5px solid rgba(255, 255, 255, 0.15)',
-                        borderRadius: 12,
-                        padding: '13px 16px',
+                        borderRadius: 10,
+                        padding: '11px 14px',
                         color: '#ffffff',
-                        fontSize: 14,
+                        fontSize: 13.5,
                         outline: 'none',
                       }}
                     />
                   </div>
 
                   {/* Input 2: Phone */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <label style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span>📱 Số điện thoại / Zalo để nhận mã nguồn</span> <span style={{ color: '#ee4d2d' }}>*</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <label style={{ fontSize: 12.5, fontWeight: 700, color: '#e2e8f0' }}>
+                      Số điện thoại / Zalo <span style={{ color: '#ee4d2d' }}>*</span>
                     </label>
                     <input
                       type="tel"
@@ -2814,23 +2502,23 @@ export default function LandingPage() {
                         boxSizing: 'border-box',
                         background: 'rgba(255, 255, 255, 0.06)',
                         border: '1.5px solid rgba(255, 255, 255, 0.15)',
-                        borderRadius: 12,
-                        padding: '13px 16px',
+                        borderRadius: 10,
+                        padding: '11px 14px',
                         color: '#ffffff',
-                        fontSize: 14,
+                        fontSize: 13.5,
                         outline: 'none',
                       }}
                     />
                   </div>
 
                   {/* Input 3: Email */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <label style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span>📧 Email nhận file ZIP mã nguồn</span> <span style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>(Khuyên dùng)</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <label style={{ fontSize: 12.5, fontWeight: 700, color: '#e2e8f0' }}>
+                      Email nhận mã nguồn & tài liệu <span style={{ fontSize: 11, color: '#10b981' }}>(Khuyên dùng)</span>
                     </label>
                     <input
                       type="email"
-                      placeholder="VD: nguyenvannam@gmail.com"
+                      placeholder="VD: name@gmail.com"
                       value={orderEmail}
                       onChange={(e) => setOrderEmail(e.target.value)}
                       style={{
@@ -2838,23 +2526,23 @@ export default function LandingPage() {
                         boxSizing: 'border-box',
                         background: 'rgba(255, 255, 255, 0.06)',
                         border: '1.5px solid rgba(255, 255, 255, 0.15)',
-                        borderRadius: 12,
-                        padding: '13px 16px',
+                        borderRadius: 10,
+                        padding: '11px 14px',
                         color: '#ffffff',
-                        fontSize: 14,
+                        fontSize: 13.5,
                         outline: 'none',
                       }}
                     />
                   </div>
 
                   {/* Input 4: Notes */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <label style={{ fontSize: 13, fontWeight: 700, color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span>📝 Ghi chú hoặc yêu cầu hỗ trợ</span> <span style={{ fontSize: 11, color: '#94a3b8' }}>(Tùy chọn)</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <label style={{ fontSize: 12.5, fontWeight: 700, color: '#cbd5e1' }}>
+                      Ghi chú hoặc yêu cầu hỗ trợ <span style={{ fontSize: 11, color: '#94a3b8' }}>(Tùy chọn)</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="VD: Hỗ trợ cài đặt giúp mình qua Ultraviewer..."
+                      placeholder={selectedPlan === '799k' ? 'VD: Setup tên miền myshop.vn giúp mình...' : 'VD: Cần hỗ trợ hướng dẫn cài đặt qua Ultraviewer...'}
                       value={orderNotes}
                       onChange={(e) => setOrderNotes(e.target.value)}
                       style={{
@@ -2862,32 +2550,13 @@ export default function LandingPage() {
                         boxSizing: 'border-box',
                         background: 'rgba(255, 255, 255, 0.06)',
                         border: '1.5px solid rgba(255, 255, 255, 0.15)',
-                        borderRadius: 12,
-                        padding: '13px 16px',
+                        borderRadius: 10,
+                        padding: '11px 14px',
                         color: '#ffffff',
-                        fontSize: 14,
+                        fontSize: 13.5,
                         outline: 'none',
                       }}
                     />
-                  </div>
-
-                  {/* Trust Banner */}
-                  <div
-                    style={{
-                      background: 'rgba(16, 185, 129, 0.08)',
-                      border: '1px solid rgba(16, 185, 129, 0.25)',
-                      borderRadius: 12,
-                      padding: '12px 14px',
-                      fontSize: 12,
-                      color: '#a7f3d0',
-                      lineHeight: 1.5,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                    }}
-                  >
-                    <span>🔒</span>
-                    <span>Cam kết bảo mật thông tin 100%. Hỗ trợ kỹ thuật 1:1 qua Ultraviewer / Zalo nếu gặp khó khăn khi cài đặt.</span>
                   </div>
 
                   {/* Submit Button */}
@@ -2897,25 +2566,26 @@ export default function LandingPage() {
                       disabled={isOrderSubmitting}
                       style={{
                         width: '100%',
-                        padding: '16px 20px',
-                        background: 'linear-gradient(135deg, #ee4d2d 0%, #ff5722 50%, #f97316 100%)',
+                        padding: '14px 18px',
+                        background: selectedPlan === '799k'
+                          ? 'linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%)'
+                          : 'linear-gradient(135deg, #ee4d2d 0%, #ff5722 50%, #f97316 100%)',
                         color: '#ffffff',
                         border: 'none',
-                        borderRadius: 14,
-                        fontSize: 16,
+                        borderRadius: 12,
+                        fontSize: 15,
                         fontWeight: 900,
                         cursor: isOrderSubmitting ? 'not-allowed' : 'pointer',
-                        boxShadow: '0 8px 25px rgba(238, 77, 45, 0.5)',
+                        boxShadow: selectedPlan === '799k' ? '0 8px 25px rgba(99, 102, 241, 0.5)' : '0 8px 25px rgba(238, 77, 45, 0.5)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: 10,
-                        letterSpacing: '0.2px',
+                        gap: 8,
                         transition: 'all 0.2s ease',
                       }}
                     >
-                      <FiZap size={18} />
-                      {isOrderSubmitting ? 'ĐANG XỬ LÝ ĐĂNG KÝ...' : 'XÁC NHẬN ĐĂNG KÝ GÓI 399.000₫'}
+                      <FiZap size={16} />
+                      {isOrderSubmitting ? 'ĐANG XỬ LÝ...' : `XÁC NHẬN ĐĂNG KÝ ${currentPlanInfo.priceStr}`}
                     </button>
                   </CoolMode>
                 </form>
@@ -2926,7 +2596,7 @@ export default function LandingPage() {
       )}
 
       {/* ==========================================================================
-         12. MOBILE STICKY FLOATING ACTION BAR
+         MOBILE STICKY BAR
          ========================================================================== */}
       <div className={styles.mobileBottomBar}>
         <div className={styles.mobileBottomBarInfo}>
@@ -2937,7 +2607,7 @@ export default function LandingPage() {
           <button
             type="button"
             className={styles.mobileBottomBarBtn}
-            onClick={() => setIsPackageModalOpen(true)}
+            onClick={() => openOrderModal('399k')}
           >
             <FiZap /> Mua Gói 399K
           </button>
@@ -2945,15 +2615,14 @@ export default function LandingPage() {
       </div>
 
       {/* ==========================================================================
-         13. LIGHTBOX / FULLSCREEN IMAGE PREVIEW MODAL
+         LIGHTBOX PREVIEW MODAL
          ========================================================================== */}
       {activePreviewIndex !== null && (
         <div className={styles.lightboxOverlay} onClick={closePreview}>
-          {/* Lightbox Header */}
           <div className={styles.lightboxHeader} onClick={(e) => e.stopPropagation()}>
             <div className={styles.lightboxTitleWrap}>
               <span className={styles.lightboxCounter}>
-                HÌNH ẢNH {activePreviewIndex + 1} / {heroGallery.length} • (DÙNG PHÍM MŨI TÊN ⬅️ ➡️ ĐỂ CHUYỂN)
+                {activePreviewIndex + 1} / {heroGallery.length} • (DÙNG PHÍM ⬅️ ➡️)
               </span>
               <h3 className={styles.lightboxTitle}>
                 {heroGallery[activePreviewIndex].title}
@@ -2970,13 +2639,12 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {/* Lightbox Main Image Body with Left / Right Navigation */}
           <div className={styles.lightboxBody} onClick={closePreview}>
             <button
               type="button"
               className={`${styles.lightboxNavBtn} ${styles.lightboxNavPrev}`}
               onClick={prevPreview}
-              title="Ảnh trước (Mũi tên trái)"
+              title="Ảnh trước"
               aria-label="Ảnh trước"
             >
               <FiChevronLeft />
@@ -2995,14 +2663,13 @@ export default function LandingPage() {
               type="button"
               className={`${styles.lightboxNavBtn} ${styles.lightboxNavNext}`}
               onClick={nextPreview}
-              title="Ảnh tiếp theo (Mũi tên phải)"
+              title="Ảnh tiếp theo"
               aria-label="Ảnh tiếp theo"
             >
               <FiChevronRight />
             </button>
           </div>
 
-          {/* Lightbox Footer with Description & Thumbnails */}
           <div className={styles.lightboxFooter} onClick={(e) => e.stopPropagation()}>
             <p className={styles.lightboxDesc}>
               {heroGallery[activePreviewIndex].desc}
