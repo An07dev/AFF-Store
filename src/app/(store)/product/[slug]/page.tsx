@@ -57,6 +57,34 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Handle Safe Back Navigation
+  const handleBack = () => {
+    if (typeof window !== 'undefined') {
+      const hasSameOriginReferrer =
+        Boolean(document.referrer) &&
+        (document.referrer.startsWith(window.location.origin) ||
+          document.referrer.includes(window.location.host));
+
+      if (hasSameOriginReferrer) {
+        router.back();
+        return;
+      }
+
+      const isExternalReferrer =
+        Boolean(document.referrer) &&
+        !document.referrer.includes(window.location.host);
+
+      if (isExternalReferrer || window.history.length <= 1) {
+        router.push('/');
+        return;
+      }
+
+      router.back();
+      return;
+    }
+    router.push('/');
+  };
+
   // Dynamic Selected Attributes state: { [optionName: string]: string }
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
@@ -660,7 +688,7 @@ export default function ProductDetailPage() {
         <nav className={styles.mobileTopNav}>
           <button
             className={styles.navBtn}
-            onClick={() => router.back()}
+            onClick={handleBack}
             aria-label="Quay lại"
           >
             <FiChevronLeft size={22} />
@@ -1118,7 +1146,7 @@ export default function ProductDetailPage() {
           <div className={styles.topNavLeft}>
             <button
               className={styles.navBtn}
-              onClick={() => router.back()}
+              onClick={handleBack}
               aria-label="Quay lại"
             >
               <FiChevronLeft size={22} />

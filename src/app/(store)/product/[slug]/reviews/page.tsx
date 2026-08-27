@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   FiArrowLeft,
+  FiChevronLeft,
   FiStar,
   FiThumbsUp,
   FiUploadCloud,
@@ -75,6 +76,35 @@ export default function ProductReviewsPage() {
 
   const [loading, setLoading] = useState(true);
   const [activeFilterStar, setActiveFilterStar] = useState<string>('all'); // 'all' | '5' | '4' | '3' | '2' | '1' | 'hasImage'
+
+  // Handle Safe Back Navigation
+  const handleBack = () => {
+    const fallbackUrl = slug ? `/product/${slug}` : '/';
+    if (typeof window !== 'undefined') {
+      const hasSameOriginReferrer =
+        Boolean(document.referrer) &&
+        (document.referrer.startsWith(window.location.origin) ||
+          document.referrer.includes(window.location.host));
+
+      if (hasSameOriginReferrer) {
+        router.back();
+        return;
+      }
+
+      const isExternalReferrer =
+        Boolean(document.referrer) &&
+        !document.referrer.includes(window.location.host);
+
+      if (isExternalReferrer || window.history.length <= 1) {
+        router.push(fallbackUrl);
+        return;
+      }
+
+      router.back();
+      return;
+    }
+    router.push(fallbackUrl);
+  };
 
   // Modal State
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
@@ -282,10 +312,11 @@ export default function ProductReviewsPage() {
         <button
           type="button"
           className={styles.backBtn}
-          onClick={() => router.push(`/product/${slug}`)}
-          aria-label="Quay lại sản phẩm"
+          onClick={handleBack}
+          aria-label="Quay lại"
+          title="Quay lại"
         >
-          <FiArrowLeft size={18} />
+          <FiChevronLeft size={22} />
         </button>
         <h1 className={styles.pageTitle}>Đánh Giá Sản Phẩm</h1>
         <div className={styles.headerSpacer} />
@@ -293,7 +324,15 @@ export default function ProductReviewsPage() {
 
       {/* 2. PRODUCT MINI BAR */}
       {product && (
-        <div className={styles.productBar}>
+        <div
+          className={styles.productBar}
+          onClick={() => router.push(`/product/${slug}`)}
+          style={{ cursor: 'pointer' }}
+          role="button"
+          tabIndex={0}
+          aria-label={`Xem chi tiết ${product.name}`}
+          title="Bấm để xem chi tiết sản phẩm"
+        >
           <img
             src={product.images?.[0] || 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'}
             alt={product.name}
