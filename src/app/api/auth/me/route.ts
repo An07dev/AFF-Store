@@ -16,9 +16,22 @@ export async function GET(request: Request) {
     const tokenData = getUserFromRequest(request);
     const targetId = tokenData?.id || queryId;
 
-    if (targetId) {
+    if (targetId && targetId !== 'guest_user') {
       const user = await User.findById(targetId).select('-password');
       if (user) {
+        if (user.isLocked) {
+          return NextResponse.json(
+            {
+              success: false,
+              isLocked: true,
+              message: user.lockReason
+                ? `Tài khoản của bạn đã bị khóa. Lý do: ${user.lockReason}. Vui lòng liên hệ CSKH!`
+                : 'Tài khoản của bạn đã bị tạm khóa bởi Quản trị viên.',
+            },
+            { status: 403 }
+          );
+        }
+
         const userData = {
           id: user._id,
           name: user.name,
@@ -26,6 +39,8 @@ export async function GET(request: Request) {
           phone: user.phone,
           role: user.role,
           avatar: user.avatar,
+          provider: user.provider || 'local',
+          isLocked: user.isLocked || false,
         };
         return NextResponse.json({
           success: true,
@@ -36,13 +51,29 @@ export async function GET(request: Request) {
 
       const customer = await Customer.findById(targetId);
       if (customer) {
+        if (customer.isLocked) {
+          return NextResponse.json(
+            {
+              success: false,
+              isLocked: true,
+              message: customer.lockReason
+                ? `Tài khoản của bạn đã bị khóa. Lý do: ${customer.lockReason}. Vui lòng liên hệ CSKH!`
+                : 'Tài khoản của bạn đã bị tạm khóa bởi Quản trị viên.',
+            },
+            { status: 403 }
+          );
+        }
+
         const customerData = {
           id: customer._id,
           name: customer.name,
-          email: customer.email || 'khachhang@shoptik.vn',
+          email: customer.email || '',
           phone: customer.phone,
           role: 'customer',
+          avatar: customer.avatar,
+          provider: customer.provider || 'local',
           address: customer.address,
+          isLocked: customer.isLocked || false,
         };
         return NextResponse.json({
           success: true,
@@ -58,14 +89,31 @@ export async function GET(request: Request) {
         ...(queryPhone ? { phone: queryPhone } : {}),
         ...(queryEmail ? { email: queryEmail } : {}),
       });
+
       if (customer) {
+        if (customer.isLocked) {
+          return NextResponse.json(
+            {
+              success: false,
+              isLocked: true,
+              message: customer.lockReason
+                ? `Tài khoản của bạn đã bị khóa. Lý do: ${customer.lockReason}. Vui lòng liên hệ CSKH!`
+                : 'Tài khoản của bạn đã bị tạm khóa bởi Quản trị viên.',
+            },
+            { status: 403 }
+          );
+        }
+
         const customerData = {
           id: customer._id,
           name: customer.name,
-          email: customer.email || 'khachhang@shoptik.vn',
+          email: customer.email || '',
           phone: customer.phone,
           role: 'customer',
+          avatar: customer.avatar,
+          provider: customer.provider || 'local',
           address: customer.address,
+          isLocked: customer.isLocked || false,
         };
         return NextResponse.json({
           success: true,
@@ -75,21 +123,10 @@ export async function GET(request: Request) {
       }
     }
 
-    // 3. Fallback to default customer profile without requiring token or login
-    const defaultUser = {
-      id: 'guest_user',
-      name: 'Khách hàng',
-      email: 'khachhang@shoptik.vn',
-      phone: '0988888888',
-      role: 'customer',
-      address: 'Số 10 Phạm Hùng, Cầu Giấy, Hà Nội',
-    };
-
-    return NextResponse.json({
-      success: true,
-      user: defaultUser,
-      data: defaultUser,
-    });
+    return NextResponse.json(
+      { success: false, message: 'Chưa đăng nhập' },
+      { status: 401 }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || 'Lỗi lấy thông tin' },

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
+import Customer from '@/models/Customer';
 import { comparePassword, generateToken } from '@/lib/auth';
 
 export async function POST(request: Request) {
@@ -31,6 +32,19 @@ export async function POST(request: Request) {
       );
     }
 
+    if (user.isLocked) {
+      return NextResponse.json(
+        {
+          success: false,
+          isLocked: true,
+          message: user.lockReason
+            ? `Tài khoản của bạn đã bị khóa. Lý do: ${user.lockReason}. Vui lòng liên hệ CSKH!`
+            : 'Tài khoản của bạn đã bị tạm khóa bởi Quản trị viên. Vui lòng liên hệ CSKH để được hỗ trợ!',
+        },
+        { status: 403 }
+      );
+    }
+
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
       return NextResponse.json(
@@ -38,6 +52,20 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     }
+
+    user.lastLoginAt = new Date();
+    await user.save();
+
+    // Also update customer lastLoginAt
+    await Customer.updateOne(
+      {
+        $or: [
+          { email: user.email },
+          ...(user.phone ? [{ phone: user.phone }] : []),
+        ],
+      },
+      { $set: { lastLoginAt: new Date() } }
+    );
 
     const token = generateToken({
       id: user._id,
@@ -58,7 +86,10 @@ export async function POST(request: Request) {
           name: user.name,
           email: user.email,
           phone: user.phone,
+          avatar: user.avatar,
           role: user.role,
+          provider: user.provider || 'local',
+          isLocked: user.isLocked,
         },
       },
     });

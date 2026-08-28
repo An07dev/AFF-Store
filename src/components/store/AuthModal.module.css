@@ -1,9 +1,9 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,24 +15,24 @@
 .modal {
   background: var(--bg-card, #13161f);
   border: 1px solid var(--border-color, #232838);
-  border-radius: var(--radius-lg, 16px);
+  border-radius: var(--radius-lg, 20px);
   width: 100%;
-  max-width: 380px;
+  max-width: 410px;
   max-height: 90vh;
   overflow-y: auto;
-  padding: 24px 20px;
+  padding: 26px 22px;
   position: relative;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(59, 130, 246, 0.15);
   animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   color: var(--text-main, #f8fafc);
 }
 
 .closeBtn {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 30px;
-  height: 30px;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--bg-main, #090a0f);
   border: 1px solid var(--border-color, #232838);
@@ -45,36 +45,131 @@
 }
 
 .closeBtn:hover {
-  color: var(--primary, #3b82f6);
+  color: #ffffff;
+  border-color: var(--primary, #3b82f6);
   transform: scale(1.08);
 }
 
 .promptBanner {
-  background: var(--bg-main, #090a0f);
+  background: rgba(59, 130, 246, 0.08);
   border: 1px dashed var(--primary, #3b82f6);
-  border-radius: var(--radius-md, 8px);
-  padding: 10px 12px;
+  border-radius: var(--radius-md, 10px);
+  padding: 11px 13px;
   margin-bottom: 16px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 600;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
   color: var(--primary, #3b82f6);
+  line-height: 1.4;
+}
+
+.promptBannerLock {
+  background: rgba(238, 77, 45, 0.1);
+  border-color: #ee4d2d;
+  color: #fb923c;
+}
+
+.promptIcon {
+  flex-shrink: 0;
 }
 
 .title {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: var(--text-main, #f8fafc);
-  margin-bottom: 4px;
+  margin-bottom: 5px;
+  letter-spacing: -0.3px;
 }
 
 .subtitle {
   color: var(--text-muted, #94a3b8);
   font-size: 0.8125rem;
   margin-bottom: 18px;
-  line-height: 1.4;
+  line-height: 1.45;
+}
+
+/* Social Login Group */
+.socialGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.socialBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  outline: none;
+}
+
+.googleBtn {
+  background: #ffffff;
+  color: #1f2937;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.googleBtn:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.facebookBtn {
+  background: #1877f2;
+  color: #ffffff;
+  border-color: #166fe5;
+  box-shadow: 0 4px 14px rgba(24, 119, 242, 0.35);
+}
+
+.facebookBtn:hover {
+  background: #166fe5;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(24, 119, 242, 0.45);
+}
+
+.socialBtn:active {
+  transform: scale(0.98);
+}
+
+.socialBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0 14px;
+  color: var(--text-muted, #64748b);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.divider span {
+  padding: 0 10px;
 }
 
 .tabs {
@@ -82,13 +177,13 @@
   background: var(--bg-main, #090a0f);
   padding: 3px;
   border-radius: var(--radius-md, 8px);
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   border: 1px solid var(--border-color, #232838);
 }
 
 .tab {
   flex: 1;
-  padding: 8px;
+  padding: 7px;
   font-size: 0.8125rem;
   font-weight: 700;
   color: var(--text-muted, #94a3b8);
@@ -145,7 +240,7 @@
   border-radius: var(--radius-md, 8px);
   font-weight: 700;
   font-size: 0.875rem;
-  margin-top: 6px;
+  margin-top: 4px;
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);

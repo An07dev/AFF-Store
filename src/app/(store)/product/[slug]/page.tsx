@@ -29,7 +29,10 @@ import {
   FiRefreshCw,
   FiMaximize2,
   FiUser,
+  FiLock,
 } from 'react-icons/fi';
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/contexts/CartContext';
@@ -52,10 +55,28 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const { cartCount, addToCart, buyNow } = useCart();
   const { theme } = useTheme();
-  const { user } = useCustomerAuth();
+  const { user, openAuthModal, loginWithSocial, isLoading: isAuthLoading } = useCustomerAuth();
+  const [socialLoading, setSocialLoading] = useState<'google' | 'facebook' | null>(null);
 
   const [product, setProduct] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Auto trigger auth modal when user visits product page without auth
+  useEffect(() => {
+    if (!isAuthLoading && !user && product) {
+      openAuthModal({
+        type: 'VIEW_PRODUCT',
+        product,
+        customMessage: `Vui lòng đăng nhập qua Google hoặc Facebook để xem chi tiết sản phẩm "${product.name}"!`,
+      });
+    }
+  }, [isAuthLoading, user, product]);
+
+  const handleSocialQuickLogin = async (provider: 'google' | 'facebook') => {
+    setSocialLoading(provider);
+    await loginWithSocial(provider);
+    setSocialLoading(null);
+  };
 
   // Handle Safe Back Navigation
   const handleBack = () => {
@@ -667,6 +688,152 @@ export default function ProductDetailPage() {
           >
             Quay lại trang chủ
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Strictly require Google/Facebook/Account login to view product details
+  if (!isAuthLoading && !user) {
+    return (
+      <div className={styles.page} style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 16px' }}>
+        <div style={{
+          width: '100%',
+          maxWidth: 460,
+          background: 'var(--bg-card, #13161f)',
+          border: '1px solid var(--border-color, #232838)',
+          borderRadius: 24,
+          padding: '30px 24px',
+          textAlign: 'center',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(59, 130, 246, 0.15)',
+        }}>
+          {/* Lock Icon */}
+          <div style={{
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, rgba(238, 77, 45, 0.2), rgba(249, 115, 22, 0.2))',
+            border: '2px solid #ee4d2d',
+            color: '#ee4d2d',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 28,
+            margin: '0 auto 16px',
+            boxShadow: '0 8px 20px rgba(238, 77, 45, 0.3)',
+          }}>
+            <FiLock size={28} />
+          </div>
+
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-main, #fff)', marginBottom: 8 }}>
+            Yêu Cầu Đăng Nhập
+          </h2>
+
+          <p style={{ fontSize: 13.5, color: 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: 20 }}>
+            Vui lòng đăng nhập qua <strong>Google</strong> hoặc <strong>Facebook</strong> để xem chi tiết sản phẩm <strong>"{product.name}"</strong>, bảng giá khuyến mãi và đánh giá thực tế.
+          </p>
+
+          {/* Product Teaser Preview */}
+          <div style={{
+            background: 'var(--bg-main, #090a0f)',
+            border: '1px solid var(--border-color, #232838)',
+            borderRadius: 14,
+            padding: 12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            marginBottom: 22,
+            textAlign: 'left',
+          }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images[0]}
+              alt={product.name}
+              style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', flexShrink: 0, filter: 'blur(1px)' }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--text-main, #fff)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {product.name}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--primary, #ee4d2d)', fontWeight: 800, marginTop: 2 }}>
+                🔒 Đăng nhập để mở khóa giá
+              </div>
+            </div>
+          </div>
+
+          {/* Social Login Buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+            <button
+              type="button"
+              onClick={() => handleSocialQuickLogin('google')}
+              disabled={socialLoading !== null}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 12,
+                padding: '12px 16px',
+                borderRadius: 12,
+                background: '#ffffff',
+                color: '#1f2937',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: 'none',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                transition: 'all 0.2s',
+              }}
+            >
+              <FcGoogle size={20} />
+              <span>{socialLoading === 'google' ? 'Đang kết nối...' : 'Tiếp tục với Google'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSocialQuickLogin('facebook')}
+              disabled={socialLoading !== null}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 12,
+                padding: '12px 16px',
+                borderRadius: 12,
+                background: '#1877f2',
+                color: '#ffffff',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: 'none',
+                boxShadow: '0 4px 14px rgba(24, 119, 242, 0.35)',
+                transition: 'all 0.2s',
+              }}
+            >
+              <FaFacebook size={20} />
+              <span>{socialLoading === 'facebook' ? 'Đang kết nối...' : 'Tiếp tục với Facebook'}</span>
+            </button>
+          </div>
+
+          {/* More options & Back Home */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: 12.5 }}>
+            <button
+              type="button"
+              onClick={() => openAuthModal({ type: 'VIEW_PRODUCT', product })}
+              style={{ color: 'var(--text-muted, #94a3b8)', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              Đăng nhập Email / SĐT
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              style={{ color: 'var(--text-muted, #94a3b8)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              ← Về trang chủ
+            </button>
+          </div>
         </div>
       </div>
     );

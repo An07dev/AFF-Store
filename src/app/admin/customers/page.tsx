@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   FiSearch,
@@ -18,7 +18,14 @@ import {
   FiPhone,
   FiMail,
   FiMapPin,
+  FiLock,
+  FiUnlock,
+  FiPackage,
+  FiAlertTriangle,
+  FiFilter,
 } from 'react-icons/fi';
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { formatPrice, formatDate } from '@/lib/utils';
 import Skeleton from '@/components/common/Skeleton';
@@ -30,9 +37,12 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'locked'>('all');
+  const [providerFilter, setProviderFilter] = useState<'all' | 'google' | 'facebook' | 'local'>('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCustomers, setTotalCustomers] = useState(0);
+  const [lockedCount, setLockedCount] = useState(0);
   const [isResetting, setIsResetting] = useState(false);
 
   // Modal State (Add / Edit)
@@ -49,27 +59,39 @@ export default function CustomersPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Lock / Unlock Modal State
+  const [lockTarget, setLockTarget] = useState<{ id: string; name: string; isLocked: boolean; reason: string } | null>(null);
+  const [lockReasonInput, setLockReasonInput] = useState('');
+  const [isLockSubmitting, setIsLockSubmitting] = useState(false);
+
   // Delete State
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Fetch Customers (API 6.1)
-  const fetchCustomers = async (overrides?: { page?: number; search?: string }) => {
+  // Fetch Customers
+  const fetchCustomers = useCallback(async (overrides?: { page?: number; search?: string; status?: string; provider?: string }) => {
     const curPage = overrides?.page !== undefined ? overrides.page : page;
     const curSearch = overrides?.search !== undefined ? overrides.search : search;
+    const curStatus = overrides?.status !== undefined ? overrides.status : statusFilter;
+    const curProvider = overrides?.provider !== undefined ? overrides.provider : providerFilter;
 
     try {
       setLoading(true);
       let url = `/api/customers?page=${curPage}&limit=10`;
       if (curSearch) url += `&search=${encodeURIComponent(curSearch)}`;
+      if (curStatus && curStatus !== 'all') url += `&status=${curStatus}`;
+      if (curProvider && curProvider !== 'all') url += `&provider=${curProvider}`;
 
       const res = await apiFetch(url);
       const data = await res.json();
       if (data.success) {
         setCustomers(data.data || []);
+        if (data.stats) {
+          setTotalCustomers(data.stats.totalCustomers || 0);
+          setLockedCount(data.stats.lockedCustomers || 0);
+        }
         if (data.pagination) {
           setTotalPages(data.pagination.totalPages || 1);
-          setTotalCustomers(data.pagination.total || 0);
         }
       }
     } catch (err) {
@@ -77,25 +99,27 @@ export default function CustomersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, search, statusFilter, providerFilter]);
 
   useEffect(() => {
     fetchCustomers();
-  }, [page, search]);
+  }, [fetchCustomers]);
 
   // Reset Filters
   const handleResetFilters = async () => {
     setIsResetting(true);
     setSearch('');
+    setStatusFilter('all');
+    setProviderFilter('all');
     setPage(1);
 
-    await fetchCustomers({ page: 1, search: '' });
+    await fetchCustomers({ page: 1, search: '', status: 'all', provider: 'all' });
 
     setIsResetting(false);
     toast.success('Đã làm mới danh sách khách hàng!');
   };
 
-  // Open Add Modal (API 6.3 POST)
+  // Open Add Modal
   const handleOpenAdd = () => {
     setEditingCustomer(null);
     setFormData({
@@ -110,7 +134,7 @@ export default function CustomersPage() {
     setIsModalOpen(true);
   };
 
-  // Open Edit Modal (API 6.3 PUT)
+  // Open Edit Modal
   const handleOpenEdit = (c: any) => {
     setEditingCustomer(c);
     setFormData({
@@ -128,8 +152,8 @@ export default function CustomersPage() {
   // Submit Form (Create / Update)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.phone.trim()) {
-      toast.error('Vui lòng nhập họ tên và số điện thoại');
+    if (!formData.name.trim()) {
+      toast.error('Vui lòng nhập họ tên khách hàng');
       return;
     }
 
@@ -158,7 +182,46 @@ export default function CustomersPage() {
     }
   };
 
-  // Delete Customer (API 6.3 DELETE)
+  // Open Lock / Unlock Modal
+  const handleOpenLockModal = (c: any) => {
+    setLockTarget({
+      id: c._id,
+      name: c.name,
+      isLocked: Boolean(c.isLocked),
+      reason: c.lockReason || '',
+    });
+    setLockReasonInput(c.lockReason || (c.isLocked ? '' : 'Vi phạm chính sách đặt hàng / bom hàng'));
+  };
+
+  // Confirm Lock / Unlock
+  const handleConfirmToggleLock = async () => {
+    if (!lockTarget) return;
+    setIsLockSubmitting(true);
+    try {
+      const res = await apiFetch(`/api/customers/${lockTarget.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isLocked: !lockTarget.isLocked,
+          lockReason: !lockTarget.isLocked ? lockReasonInput : '',
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(!lockTarget.isLocked ? `Đã khóa tài khoản "${lockTarget.name}"!` : `Đã mở khóa tài khoản "${lockTarget.name}"!`);
+        setLockTarget(null);
+        fetchCustomers();
+      } else {
+        toast.error(data.message || 'Lỗi xử lý');
+      }
+    } catch (err) {
+      toast.error('Lỗi kết nối máy chủ');
+    } finally {
+      setIsLockSubmitting(false);
+    }
+  };
+
+  // Delete Customer
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
@@ -182,15 +245,16 @@ export default function CustomersPage() {
   // Compute CRM Stats
   const vipCount = customers.filter((c) => (c.totalSpent || 0) >= 2000000).length;
   const totalRevenue = customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
+  const totalItemsSold = customers.reduce((sum, c) => sum + (c.totalItemsBought || 0), 0);
 
   return (
     <div className={styles.page}>
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.titleArea}>
-          <h1 className={styles.title}>Quản Lý Khách Hàng (CRM)</h1>
+          <h1 className={styles.title}>Quản Lý Khách Hàng & Tài Khoản (CRM)</h1>
           <p className={styles.subtitle}>
-            Kiểm soát thông tin người mua, theo dõi chi tiêu và lịch sử đơn hàng
+            Kiểm soát người dùng, số sản phẩm đã mua, trạng thái khóa tài khoản và phân loại Google/Facebook
           </p>
         </div>
 
@@ -212,6 +276,26 @@ export default function CustomersPage() {
         </div>
 
         <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ color: '#10b981', background: 'rgba(16, 185, 129, 0.12)' }}>
+            <FiPackage />
+          </div>
+          <div>
+            <div className={styles.statValue}>{totalItemsSold}</div>
+            <div className={styles.statLabel}>Sản phẩm đã mua (Trang hiện tại)</div>
+          </div>
+        </div>
+
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.12)' }}>
+            <FiLock />
+          </div>
+          <div>
+            <div className={styles.statValue}>{lockedCount}</div>
+            <div className={styles.statLabel}>Tài khoản bị khóa</div>
+          </div>
+        </div>
+
+        <div className={styles.statCard}>
           <div className={styles.statIcon} style={{ color: '#f59e0b', background: 'rgba(245, 158, 11, 0.12)' }}>
             <FiAward />
           </div>
@@ -220,26 +304,17 @@ export default function CustomersPage() {
             <div className={styles.statLabel}>Khách hàng VIP (≥ 2tr)</div>
           </div>
         </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ color: 'var(--accent, #10b981)', background: 'rgba(16, 185, 129, 0.12)' }}>
-            <FiDollarSign />
-          </div>
-          <div>
-            <div className={styles.statValue}>{formatPrice(totalRevenue)}</div>
-            <div className={styles.statLabel}>Doanh thu từ khách hàng</div>
-          </div>
-        </div>
       </div>
 
       {/* Main Customers Table Card */}
       <div className={styles.card}>
+        {/* Filters */}
         <div className={styles.filters}>
           <div className={styles.searchBox}>
             <FiSearch className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Tìm theo tên khách, số điện thoại, email..."
+              placeholder="Tìm theo tên khách, SĐT, email Google/Facebook..."
               className={styles.searchInput}
               value={search}
               onChange={(e) => {
@@ -249,6 +324,59 @@ export default function CustomersPage() {
             />
           </div>
 
+          {/* Status Filter */}
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button
+              type="button"
+              className={`${styles.filterBtn || styles.btnReset} ${statusFilter === 'all' ? styles.filterActive : ''}`}
+              style={statusFilter === 'all' ? { background: 'var(--primary, #3b82f6)', color: '#fff' } : {}}
+              onClick={() => {
+                setStatusFilter('all');
+                setPage(1);
+              }}
+            >
+              Tất cả
+            </button>
+            <button
+              type="button"
+              className={`${styles.filterBtn || styles.btnReset} ${statusFilter === 'active' ? styles.filterActive : ''}`}
+              style={statusFilter === 'active' ? { background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', borderColor: '#10b981' } : {}}
+              onClick={() => {
+                setStatusFilter('active');
+                setPage(1);
+              }}
+            >
+              🟢 Hoạt động
+            </button>
+            <button
+              type="button"
+              className={`${styles.filterBtn || styles.btnReset} ${statusFilter === 'locked' ? styles.filterActive : ''}`}
+              style={statusFilter === 'locked' ? { background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', borderColor: '#ef4444' } : {}}
+              onClick={() => {
+                setStatusFilter('locked');
+                setPage(1);
+              }}
+            >
+              🔴 Đã khóa
+            </button>
+          </div>
+
+          {/* Provider Filter */}
+          <select
+            value={providerFilter}
+            onChange={(e) => {
+              setProviderFilter(e.target.value as any);
+              setPage(1);
+            }}
+            className={styles.searchInput}
+            style={{ width: 'auto', padding: '9px 12px' }}
+          >
+            <option value="all">Tất cả nguồn đăng nhập</option>
+            <option value="google">🌐 Google Login</option>
+            <option value="facebook">🔵 Facebook Login</option>
+            <option value="local">📱 Số điện thoại / Web</option>
+          </select>
+
           <button
             type="button"
             className={styles.btnReset}
@@ -257,7 +385,7 @@ export default function CustomersPage() {
             title="Đặt lại bộ lọc & Tải lại"
           >
             <FiRotateCcw className={isResetting ? styles.spinning : ''} />
-            <span>{isResetting ? 'Đang làm mới...' : 'Đặt lại bộ lọc'}</span>
+            <span>{isResetting ? 'Đang làm mới...' : 'Đặt lại'}</span>
           </button>
         </div>
 
@@ -271,34 +399,55 @@ export default function CustomersPage() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Khách hàng</th>
+                  <th>Khách hàng & Nguồn</th>
                   <th>Liên hệ</th>
                   <th>Địa chỉ nhận hàng</th>
                   <th>Số đơn hàng</th>
+                  <th style={{ color: '#10b981' }}>📦 Số SP đã mua</th>
                   <th>Tổng chi tiêu</th>
-                  <th>Hạng CRM</th>
+                  <th>Trạng thái</th>
                   <th style={{ textAlign: 'right' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {customers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted, #9ca3af)', padding: 40 }}>
-                      Không tìm thấy khách hàng nào phù hợp
+                    <td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted, #9ca3af)', padding: 40 }}>
+                      Không tìm thấy khách hàng nào phù hợp với điều kiện tìm kiếm
                     </td>
                   </tr>
                 ) : (
                   customers.map((c) => {
                     const isVip = (c.totalSpent || 0) >= 2000000;
+                    const isLocked = Boolean(c.isLocked);
+                    const provider = c.provider || 'local';
+
                     return (
-                      <tr key={c._id}>
+                      <tr key={c._id} style={isLocked ? { opacity: 0.75, background: 'rgba(239, 68, 68, 0.04)' } : {}}>
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <div className={styles.customerAvatar}>
-                              {c.name?.charAt(0)?.toUpperCase() || 'U'}
+                            <div className={styles.customerAvatar} style={isLocked ? { border: '2px solid #ef4444' } : {}}>
+                              {c.avatar ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={c.avatar} alt={c.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                              ) : (
+                                c.name?.charAt(0)?.toUpperCase() || 'U'
+                              )}
                             </div>
                             <div>
-                              <div className={styles.customerName}>{c.name}</div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span className={styles.customerName}>{c.name}</span>
+                                {provider === 'google' && (
+                                  <span title="Đăng nhập qua Google" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                    <FcGoogle size={14} />
+                                  </span>
+                                )}
+                                {provider === 'facebook' && (
+                                  <span title="Đăng nhập qua Facebook" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                    <FaFacebook size={13} color="#1877f2" />
+                                  </span>
+                                )}
+                              </div>
                               <div className={styles.textMuted}>
                                 Tham gia: {c.createdAt ? formatDate(c.createdAt) : '-'}
                               </div>
@@ -306,33 +455,94 @@ export default function CustomersPage() {
                           </div>
                         </td>
                         <td>
-                          <strong style={{ color: 'var(--text-main, #ffffff)' }}>{c.phone}</strong>
+                          <strong style={{ color: 'var(--text-main, #ffffff)' }}>{c.phone || '-'}</strong>
                           {c.email && <div className={styles.textMuted}>{c.email}</div>}
                         </td>
-                        <td style={{ maxWidth: 220, color: 'var(--text-muted, #94a3b8)', fontSize: '0.8125rem' }}>
+                        <td style={{ maxWidth: 200, color: 'var(--text-muted, #94a3b8)', fontSize: '0.8125rem' }}>
                           {c.address || '-'}
                         </td>
                         <td>
                           <strong style={{ color: 'var(--text-main, #ffffff)' }}>{c.orderCount || 0}</strong> đơn
                         </td>
+                        <td>
+                          <span style={{
+                            background: 'rgba(16, 185, 129, 0.12)',
+                            color: '#10b981',
+                            padding: '4px 10px',
+                            borderRadius: 8,
+                            fontWeight: 800,
+                            fontSize: 13,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 5,
+                          }}>
+                            <FiPackage size={13} />
+                            <strong>{c.totalItemsBought || 0}</strong> món
+                          </span>
+                        </td>
                         <td className={styles.bold} style={{ color: 'var(--primary, #3b82f6)' }}>
                           {formatPrice(c.totalSpent || 0)}
                         </td>
                         <td>
-                          <span className={isVip ? styles.tagVip : styles.tagMember}>
-                            {isVip ? '★ VIP Member' : 'Thành viên'}
-                          </span>
+                          {isLocked ? (
+                            <span
+                              style={{
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                padding: '3px 9px',
+                                borderRadius: 9999,
+                                fontSize: 11.5,
+                                fontWeight: 800,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                              }}
+                              title={c.lockReason ? `Lý do: ${c.lockReason}` : 'Tài khoản đã bị khóa'}
+                            >
+                              <FiLock size={12} /> Đã khóa
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                background: 'rgba(16, 185, 129, 0.15)',
+                                color: '#10b981',
+                                padding: '3px 9px',
+                                borderRadius: 9999,
+                                fontSize: 11.5,
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                              }}
+                            >
+                              <FiCheck size={12} /> Hoạt động
+                            </span>
+                          )}
                         </td>
                         <td>
                           <div className={styles.actions}>
+                            {/* View Profile */}
                             <Link
                               href={`/admin/customers/${c._id}`}
                               className={styles.actionBtn}
-                              title="Xem hồ sơ & Lịch sử mua hàng"
+                              title="Xem hồ sơ & Lịch sử sản phẩm đã mua"
                             >
                               <FiEye />
                             </Link>
 
+                            {/* Lock / Unlock Toggle Button */}
+                            <button
+                              type="button"
+                              className={`${styles.actionBtn} ${isLocked ? styles.dangerBtn : ''}`}
+                              onClick={() => handleOpenLockModal(c)}
+                              title={isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản này'}
+                              style={isLocked ? { color: '#10b981' } : { color: '#f59e0b' }}
+                            >
+                              {isLocked ? <FiUnlock /> : <FiLock />}
+                            </button>
+
+                            {/* Edit */}
                             <button
                               type="button"
                               className={styles.actionBtn}
@@ -342,6 +552,7 @@ export default function CustomersPage() {
                               <FiEdit2 />
                             </button>
 
+                            {/* Delete */}
                             <button
                               type="button"
                               className={`${styles.actionBtn} ${styles.dangerBtn}`}
@@ -361,126 +572,196 @@ export default function CustomersPage() {
           </div>
         )}
 
-        {/* Pagination Bar */}
+        {/* Pagination */}
         {totalPages > 1 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderTop: '1px solid var(--border-color, #232838)', flexWrap: 'wrap', gap: 12 }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted, #9ca3af)' }}>
-              Trang <strong>{page}</strong> / <strong>{totalPages}</strong> (Hiển thị {customers.length} trên tổng số {totalCustomers} khách hàng)
+          <div className={styles.pagination}>
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className={styles.pageBtn}
+            >
+              Trang trước
+            </button>
+            <span className={styles.pageInfo}>
+              Trang {page} / {totalPages}
             </span>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: 'var(--radius-sm, 6px)',
-                  background: 'var(--bg-main, #090a0f)',
-                  color: 'var(--text-main, #fff)',
-                  border: '1px solid var(--border-color, #232838)',
-                  cursor: page <= 1 ? 'not-allowed' : 'pointer',
-                  opacity: page <= 1 ? 0.4 : 1,
-                  fontWeight: 600,
-                }}
-              >
-                ← Trước
-              </button>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pNum) => (
-                <button
-                  key={pNum}
-                  onClick={() => setPage(pNum)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: 'var(--radius-sm, 6px)',
-                    background: page === pNum ? 'var(--primary, #3b82f6)' : 'var(--bg-main, #090a0f)',
-                    color: page === pNum ? 'var(--primary-text, #fff)' : 'var(--text-main, #fff)',
-                    border: '1px solid var(--border-color, #232838)',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {pNum}
-                </button>
-              ))}
-
-              <button
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: 'var(--radius-sm, 6px)',
-                  background: 'var(--bg-main, #090a0f)',
-                  color: 'var(--text-main, #fff)',
-                  border: '1px solid var(--border-color, #232838)',
-                  cursor: page >= totalPages ? 'not-allowed' : 'pointer',
-                  opacity: page >= totalPages ? 0.4 : 1,
-                  fontWeight: 600,
-                }}
-              >
-                Sau →
-              </button>
-            </div>
+            <button
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className={styles.pageBtn}
+            >
+              Trang sau
+            </button>
           </div>
         )}
       </div>
 
-      {/* Modal Thêm / Chỉnh Sửa Khách Hàng (API 6.3) */}
-      {isModalOpen && (
-        <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      {/* Lock / Unlock Confirmation Modal */}
+      {lockTarget && (
+        <div className={styles.modalOverlay} onClick={() => setLockTarget(null)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>
-                {editingCustomer ? 'Chỉnh Sửa Thông Tin Khách Hàng' : 'Thêm Khách Hàng Mới'}
-              </h3>
-              <button className={styles.closeBtn} onClick={() => setIsModalOpen(false)} title="Đóng">
+              <h2 className={styles.modalTitle} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {lockTarget.isLocked ? <FiUnlock color="#10b981" /> : <FiLock color="#ef4444" />}
+                <span>{lockTarget.isLocked ? 'Mở Khóa Tài Khoản' : 'Khóa Tài Khoản Khách Hàng'}</span>
+              </h2>
+              <button
+                type="button"
+                className={styles.closeBtn}
+                onClick={() => setLockTarget(null)}
+              >
                 <FiX />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className={styles.modalBody}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Họ và tên khách hàng *</label>
-                  <input
-                    type="text"
-                    required
-                    className={styles.input}
-                    placeholder="VD: Nguyễn Văn An"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            <div style={{ padding: '16px 20px' }}>
+              <p style={{ fontSize: 13.5, color: 'var(--text-main, #fff)', lineHeight: 1.5, marginBottom: 14 }}>
+                Bạn có chắc chắn muốn {lockTarget.isLocked ? 'mở khóa' : 'khóa'} tài khoản của khách hàng <strong>"{lockTarget.name}"</strong>?
+              </p>
+
+              {!lockTarget.isLocked && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted, #94a3b8)' }}>
+                    Lý do khóa tài khoản:
+                  </label>
+                  <textarea
+                    rows={3}
+                    className={styles.formInput}
+                    placeholder="Ví dụ: Bom hàng nhiều lần, spam, vi phạm chính sách..."
+                    value={lockReasonInput}
+                    onChange={(e) => setLockReasonInput(e.target.value)}
+                    style={{ resize: 'vertical' }}
                   />
                 </div>
+              )}
 
+              {lockTarget.isLocked && lockTarget.reason && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: 10, borderRadius: 8, fontSize: 12.5, color: '#ef4444', marginBottom: 14 }}>
+                  Lý do đã khóa trước đó: <em>"{lockTarget.reason}"</em>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button
+                  type="button"
+                  className={styles.formBtnCancel}
+                  onClick={() => setLockTarget(null)}
+                  disabled={isLockSubmitting}
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmToggleLock}
+                  disabled={isLockSubmitting}
+                  style={{
+                    padding: '9px 18px',
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    fontSize: 13.5,
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: lockTarget.isLocked ? '#10b981' : '#ef4444',
+                    color: '#fff',
+                  }}
+                >
+                  {isLockSubmitting
+                    ? 'Đang xử lý...'
+                    : lockTarget.isLocked
+                    ? 'Xác Nhận Mở Khóa'
+                    : 'Xác Nhận Khóa Tài Khoản'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Customer Modal */}
+      {isModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>
+                {editingCustomer ? 'Chỉnh Sửa Khách Hàng' : 'Thêm Khách Hàng Mới'}
+              </h2>
+              <button
+                type="button"
+                className={styles.closeBtn}
+                onClick={() => setIsModalOpen(false)}
+              >
+                <FiX />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className={styles.modalForm}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Họ và tên *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ví dụ: Nguyễn Văn A"
+                  className={styles.formInput}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+
+              <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Số điện thoại *</label>
+                  <label className={styles.formLabel}>Số điện thoại *</label>
                   <input
                     type="tel"
                     required
-                    className={styles.input}
-                    placeholder="VD: 0987123456"
+                    placeholder="0988123456"
+                    className={styles.formInput}
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   />
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Địa chỉ Email</label>
+                  <label className={styles.formLabel}>Email</label>
                   <input
                     type="email"
-                    className={styles.input}
-                    placeholder="VD: nguyenvanan@gmail.com"
+                    placeholder="khachhang@gmail.com"
+                    className={styles.formInput}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
+              </div>
 
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Địa chỉ chi tiết</label>
+                <input
+                  type="text"
+                  placeholder="Số nhà, tên đường..."
+                  className={styles.formInput}
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                />
+              </div>
+
+              <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Địa chỉ giao hàng</label>
-                  <textarea
-                    className={styles.textarea}
-                    placeholder="VD: Số 15 Lê Văn Lương, Trung Hòa, Cầu Giấy, Hà Nội"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  <label className={styles.formLabel}>Tỉnh / Thành phố</label>
+                  <input
+                    type="text"
+                    placeholder="Hà Nội, TP.HCM..."
+                    className={styles.formInput}
+                    value={formData.province}
+                    onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Quận / Huyện</label>
+                  <input
+                    type="text"
+                    placeholder="Cầu Giấy, Quận 1..."
+                    className={styles.formInput}
+                    value={formData.district}
+                    onChange={(e) => setFormData({ ...formData, district: e.target.value })}
                   />
                 </div>
               </div>
@@ -488,14 +769,18 @@ export default function CustomersPage() {
               <div className={styles.modalFooter}>
                 <button
                   type="button"
-                  className={styles.cancelBtn}
+                  className={styles.formBtnCancel}
                   onClick={() => setIsModalOpen(false)}
                   disabled={isSubmitting}
                 >
                   Hủy bỏ
                 </button>
-                <button type="submit" className={styles.saveBtn} disabled={isSubmitting}>
-                  <FiCheck /> {isSubmitting ? 'Đang lưu...' : editingCustomer ? 'Lưu Cập Nhật' : 'Tạo Khách Hàng'}
+                <button
+                  type="submit"
+                  className={styles.formBtnSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Đang lưu...' : editingCustomer ? 'Cập nhật' : 'Thêm mới'}
                 </button>
               </div>
             </form>
@@ -503,12 +788,11 @@ export default function CustomersPage() {
         </div>
       )}
 
-      {/* Modal Xác Nhận Xóa Khách Hàng (API 6.3) */}
+      {/* Delete Confirmation Modal */}
       <DeleteConfirmModal
-        isOpen={!!deleteTarget}
-        title="Xác Nhận Xóa Khách Hàng"
-        message="Hành động này sẽ xóa hồ sơ khách hàng khỏi hệ thống CRM."
-        itemTitle={deleteTarget?.name}
+        isOpen={Boolean(deleteTarget)}
+        title="Xóa Khách Hàng"
+        message={`Bạn có chắc chắn muốn xóa khách hàng "${deleteTarget?.name}"? Mọi dữ liệu CRM sẽ bị gỡ bỏ.`}
         isDeleting={isDeleting}
         onConfirm={handleConfirmDelete}
         onClose={() => setDeleteTarget(null)}
