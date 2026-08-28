@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
 import { CustomerAuthProvider } from '@/contexts/CustomerAuthContext';
@@ -57,6 +58,12 @@ export default function RootLayout({
             </CartProvider>
           </CustomerAuthProvider>
         </ThemeProvider>
+
+        {/* Google Identity Services (GSI) */}
+        <Script
+          src="https://accounts.google.com/gsi/client"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

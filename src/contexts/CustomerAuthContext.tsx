@@ -175,6 +175,91 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     provider: 'google' | 'facebook',
     customData?: { name?: string; email?: string; avatar?: string }
   ): Promise<boolean> => {
+    // 1. REAL GOOGLE OAUTH 2.0 POPUP FLOW
+    if (provider === 'google' && !customData && typeof window !== 'undefined') {
+      const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '524386701634-hegni7ud3d2f4qbfgqm17dk75715cd4d.apps.googleusercontent.com';
+      const win = window as any;
+
+      if (win.google?.accounts?.oauth2 && googleClientId) {
+        return new Promise<boolean>((resolve) => {
+          try {
+            const client = win.google.accounts.oauth2.initTokenClient({
+              client_id: googleClientId,
+              scope: 'email profile openid',
+              callback: async (tokenResponse: any) => {
+                if (tokenResponse?.error) {
+                  toast.error('Đăng nhập Google bị hủy hoặc thất bại');
+                  resolve(false);
+                  return;
+                }
+
+                if (tokenResponse?.access_token) {
+                  try {
+                    const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                      headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                    });
+                    const googleUser = await userInfoRes.json();
+
+                    const payload = {
+                      provider: 'google',
+                      name: googleUser.name || googleUser.email?.split('@')[0] || 'Google User',
+                      email: googleUser.email,
+                      avatar: googleUser.picture,
+                    };
+
+                    const res = await apiFetch('/api/auth/social-login', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(payload),
+                    });
+                    const data = await res.json();
+
+                    if (!res.ok || !data.success) {
+                      toast.error(data.message || 'Đăng nhập Google thất bại');
+                      resolve(false);
+                      return;
+                    }
+
+                    setToken(data.data.token);
+                    setUser(data.data.user);
+                    localStorage.setItem('shoptik_token', data.data.token);
+                    localStorage.setItem('shoptik_user', JSON.stringify(data.data.user));
+                    toast.success(data.message || 'Đăng nhập qua Google thành công!');
+                    setIsAuthModalOpen(false);
+
+                    if (pendingAction) {
+                      setTimeout(() => executePendingAction(), 150);
+                    }
+                    resolve(true);
+                  } catch (fetchErr) {
+                    toast.error('Không thể lấy thông tin tài khoản Google');
+                    resolve(false);
+                  }
+                }
+              },
+            });
+
+            client.requestAccessToken({ prompt: 'select_account' });
+          } catch (initErr) {
+            console.error('Google OAuth init error:', initErr);
+            // Fallback to quick mock login
+            performFallbackSocialLogin(provider, customData, resolve);
+          }
+        });
+      }
+    }
+
+    // 2. FALLBACK / MOCK SOCIAL LOGIN
+    return new Promise<boolean>((resolve) => {
+      performFallbackSocialLogin(provider, customData, resolve);
+    });
+  };
+
+  const performFallbackSocialLogin = async (
+    provider: 'google' | 'facebook',
+    customData: { name?: string; email?: string; avatar?: string } | undefined,
+    resolve: (val: boolean) => void
+  ) => {
     try {
       const defaultMockEmail = provider === 'google' ? 'nguyenvana.google@gmail.com' : 'tranvanb.fb@facebook.com';
       const defaultMockName = provider === 'google' ? 'Nguyễn Văn An (Google)' : 'Trần Văn Bình (Facebook)';
@@ -198,7 +283,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
       if (!res.ok || !data.success) {
         toast.error(data.message || `Đăng nhập qua ${provider === 'google' ? 'Google' : 'Facebook'} thất bại`);
-        return false;
+        resolve(false);
+        return;
       }
 
       setToken(data.data.token);
@@ -209,14 +295,12 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       setIsAuthModalOpen(false);
 
       if (pendingAction) {
-        setTimeout(() => {
-          executePendingAction();
-        }, 150);
+        setTimeout(() => executePendingAction(), 150);
       }
-      return true;
+      resolve(true);
     } catch (err) {
       toast.error('Lỗi kết nối máy chủ');
-      return false;
+      resolve(false);
     }
   };
 
