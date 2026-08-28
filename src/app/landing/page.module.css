@@ -1,4 +1,25 @@
 /* ==========================================================================
+   PAGE CONTAINER & LUXURY DARK GRADIENT BACKGROUND
+   ========================================================================== */
+.page {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #080a12;
+  background-image: 
+    radial-gradient(1200px circle at 50% -5%, rgba(99, 102, 241, 0.22), transparent 65%),
+    radial-gradient(800px circle at 10% 25%, rgba(168, 85, 247, 0.14), transparent 55%),
+    radial-gradient(900px circle at 90% 45%, rgba(238, 77, 45, 0.12), transparent 55%),
+    radial-gradient(1100px circle at 50% 70%, rgba(79, 70, 229, 0.16), transparent 60%),
+    radial-gradient(900px circle at 15% 90%, rgba(16, 185, 129, 0.10), transparent 50%),
+    linear-gradient(180deg, #090b14 0%, #0c0e1a 25%, #080a12 50%, #0d0f1c 75%, #06070b 100%);
+  background-attachment: fixed;
+  background-size: 100% 100%;
+  color: #f8fafc;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ==========================================================================
    RAREBLOCKS CLARITY E-COMMERCE DESIGN SYSTEM & HERO
    ========================================================================== */
 .rareSection {
@@ -20,12 +41,12 @@
   left: 0;
   right: 0;
   width: 100%;
-  background-color: rgba(17, 24, 39, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background-color: rgba(9, 11, 20, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
 }
 
 .rareHeaderContainer {

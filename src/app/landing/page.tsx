@@ -23,13 +23,7 @@ import { OrbitingCircles } from '@/registry/magicui/orbiting-circles';
 import dynamic from 'next/dynamic';
 import { AnimatedList } from '@/registry/magicui/animated-list';
 import ImageCarouselHeroDemo from '@/components/ui/demo';
-import { Section3DCard } from '@/components/ui/Section3DCard';
 import styles from './page.module.css';
-
-const GlobalSpace3DCanvas = dynamic(
-  () => import('@/components/3d/GlobalSpace3DCanvas'),
-  { ssr: false }
-);
 
 interface ComparisonNotificationItem {
   name: string;
@@ -303,6 +297,18 @@ export default function LandingPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activePreviewIndex]);
 
+  // Set body background to dark base on landing page
+  useEffect(() => {
+    const origBodyBg = document.body.style.backgroundColor;
+    const origDocBg = document.documentElement.style.backgroundColor;
+    document.body.style.backgroundColor = '#080a12';
+    document.documentElement.style.backgroundColor = '#080a12';
+    return () => {
+      document.body.style.backgroundColor = origBodyBg;
+      document.documentElement.style.backgroundColor = origDocBg;
+    };
+  }, []);
+
   // Lock body scroll when modal is open
   useEffect(() => {
     if (isMobileMenuOpen || isPackageModalOpen || activePreviewIndex !== null) {
@@ -500,8 +506,6 @@ export default function LandingPage() {
 
   return (
     <div className={styles.page}>
-      {/* 3D Global Space Canvas Camera Fly-Through Background */}
-      <GlobalSpace3DCanvas />
 
       {/* ==========================================================================
          HEADER & HERO SECTION
@@ -788,12 +792,10 @@ export default function LandingPage() {
       </section>
 
       {/* AI Image Generator Carousel Hero Showcase */}
-      <Section3DCard intensity="subtle" cardMode={false}>
-        <ImageCarouselHeroDemo
-          onCardClick={(index) => openPreview(index)}
-          onCtaClick={() => openOrderModal('399k')}
-        />
-      </Section3DCard>
+      <ImageCarouselHeroDemo
+        onCardClick={(index) => openPreview(index)}
+        onCtaClick={() => openOrderModal('399k')}
+      />
 
       {/* ==========================================================================
          BODY CONTENT (CRO AIDA/PAS CONVERSION FLOW)
@@ -802,8 +804,7 @@ export default function LandingPage() {
         {/* ==========================================================================
            SECTION 1: BẢNG SO SÁNH: SÀN TMĐT VS BÁN NGOẠI SÀN (ĐÁNH TRÚNG NỖI ĐAU)
            ========================================================================== */}
-        <Section3DCard intensity="subtle" cardMode={false}>
-          <section id="so-sanh" className={styles.comparisonSection}>
+        <section id="so-sanh" className={styles.comparisonSection}>
             <div className={styles.container}>
               <div className={styles.compHeaderBlock}>
                 <h2 className={styles.compMainTitle}>
@@ -890,7 +891,6 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
-        </Section3DCard>
 
         {/* ==========================================================================
            SECTION 2: TRẢI NGHIỆM MULTI-THEME TRỰC TIẾP (GIÁ TRỊ & TÍNH NĂNG)
