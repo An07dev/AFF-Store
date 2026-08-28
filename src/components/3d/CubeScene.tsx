@@ -25,9 +25,15 @@ function InteractiveBox() {
         ref={meshRef}
         scale={clicked ? 1.4 : 1.1}
         onClick={() => setClick(!clicked)}
-        onPointerOver={() => setHover(true)}
-        onPointerOut={() => setHover(false)}
-        cursor="pointer"
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHover(true);
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={() => {
+          setHover(false);
+          document.body.style.cursor = "auto";
+        }}
       >
         <boxGeometry args={[2, 2, 2]} />
         <meshStandardMaterial
