@@ -858,9 +858,9 @@ export default function ProductDetailPage() {
           <div className={styles.navTitle}>Chi tiết sản phẩm</div>
 
           <div className={styles.navRight}>
-            <button className={styles.navBtn} onClick={handleShare} aria-label="Chia sẻ">
-              <FiShare2 size={20} />
-            </button>
+            <Link href="/profile" className={styles.navBtn} aria-label="Thông tin cá nhân" title="Thông tin cá nhân & Đơn hàng">
+              <FiUser size={20} />
+            </Link>
             <Link href="/cart" className={styles.navBtn} aria-label="Giỏ hàng">
               <FiShoppingCart size={20} />
               {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
@@ -1322,9 +1322,9 @@ export default function ProductDetailPage() {
           </div>
 
           <div className={styles.navRight}>
-            <button className={styles.navBtn} onClick={handleShare} aria-label="Chia sẻ" title="Chia sẻ sản phẩm">
-              <FiShare2 size={18} />
-            </button>
+            <Link href="/profile" className={styles.navBtn} aria-label="Thông tin cá nhân" title="Thông tin cá nhân & Đơn hàng">
+              <FiUser size={18} />
+            </Link>
             <Link href="/cart" className={styles.navBtn} aria-label="Giỏ hàng" title="Giỏ hàng">
               <FiShoppingCart size={18} />
               {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}

@@ -3,8 +3,8 @@
 import React, { useState, useEffect, memo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FiSearch, FiShare2, FiShoppingCart, FiMessageSquare } from 'react-icons/fi';
-import toast from 'react-hot-toast';
+import { FiSearch, FiUser, FiShoppingCart, FiMessageSquare } from 'react-icons/fi';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import styles from '@/app/(store)/page.module.css';
 
 interface StoreHeaderProps {
@@ -25,6 +25,8 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
   onClearSearch,
 }) => {
   const router = useRouter();
+  const { user } = useCustomerAuth();
+
   // Local input state to prevent top-level re-renders on each keystroke
   const [localSearch, setLocalSearch] = useState(searchQuery);
 
@@ -42,13 +44,6 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
     onClearSearch();
   };
 
-  const handleShare = () => {
-    if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success('Đã sao chép liên kết cửa hàng!');
-    }
-  };
-
   const avatarInitials = logoText ? logoText.substring(0, 2).toUpperCase() : 'ST';
 
   return (
@@ -56,6 +51,7 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
       {/* Desktop Logo Branding (Visible only on PC/Tablet) */}
       <Link href="/" className={styles.desktopLogoWrap}>
         {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={logoUrl}
             alt={logoText}
@@ -111,16 +107,33 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
           <span className={styles.headerIconLabel}>Giỏ Hàng</span>
         </Link>
 
-        <button
-          type="button"
+        {/* Replaced Share Button with Personal Profile / Account Link */}
+        <Link
+          href="/profile"
           className={styles.headerIconBtn}
-          onClick={handleShare}
-          aria-label="Chia sẻ"
-          title="Chia sẻ cửa hàng"
+          aria-label="Thông tin cá nhân"
+          title={user ? `Tài khoản: ${user.name}` : 'Thông tin cá nhân & Đơn hàng'}
         >
-          <FiShare2 size={17} />
-          <span className={styles.headerIconLabel}>Chia Sẻ</span>
-        </button>
+          {user?.avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.avatar}
+              alt={user.name}
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '1.5px solid var(--primary, #3b82f6)',
+              }}
+            />
+          ) : (
+            <FiUser size={18} />
+          )}
+          <span className={styles.headerIconLabel}>
+            {user ? (user.name.split(' ').pop() || 'Cá Nhân') : 'Cá Nhân'}
+          </span>
+        </Link>
       </div>
     </header>
   );
