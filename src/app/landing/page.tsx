@@ -20,9 +20,16 @@ import {
 } from 'react-icons/fi';
 import { CoolMode } from '@/registry/magicui/cool-mode';
 import { OrbitingCircles } from '@/registry/magicui/orbiting-circles';
+import dynamic from 'next/dynamic';
 import { AnimatedList } from '@/registry/magicui/animated-list';
 import ImageCarouselHeroDemo from '@/components/ui/demo';
+import { Section3DCard } from '@/components/ui/Section3DCard';
 import styles from './page.module.css';
+
+const GlobalSpace3DCanvas = dynamic(
+  () => import('@/components/3d/GlobalSpace3DCanvas'),
+  { ssr: false }
+);
 
 interface ComparisonNotificationItem {
   name: string;
@@ -493,10 +500,8 @@ export default function LandingPage() {
 
   return (
     <div className={styles.page}>
-      {/* Background Ambient Glows */}
-      <div className={styles.ambientGlowTop} />
-      <div className={styles.ambientGlowCenter} />
-      <div className={styles.ambientGlowBottom} />
+      {/* 3D Global Space Canvas Camera Fly-Through Background */}
+      <GlobalSpace3DCanvas />
 
       {/* ==========================================================================
          HEADER & HERO SECTION
@@ -783,10 +788,12 @@ export default function LandingPage() {
       </section>
 
       {/* AI Image Generator Carousel Hero Showcase */}
-      <ImageCarouselHeroDemo
-        onCardClick={(index) => openPreview(index)}
-        onCtaClick={() => openOrderModal('399k')}
-      />
+      <Section3DCard intensity="subtle" cardMode={false}>
+        <ImageCarouselHeroDemo
+          onCardClick={(index) => openPreview(index)}
+          onCtaClick={() => openOrderModal('399k')}
+        />
+      </Section3DCard>
 
       {/* ==========================================================================
          BODY CONTENT (CRO AIDA/PAS CONVERSION FLOW)
@@ -795,95 +802,95 @@ export default function LandingPage() {
         {/* ==========================================================================
            SECTION 1: BẢNG SO SÁNH: SÀN TMĐT VS BÁN NGOẠI SÀN (ĐÁNH TRÚNG NỖI ĐAU)
            ========================================================================== */}
-        <section id="so-sanh" className={styles.comparisonSection}>
-          <div className={styles.compAmbientGlow} />
-
-          <div className={styles.container}>
-            <div className={styles.compHeaderBlock}>
-              <h2 className={styles.compMainTitle}>
-                Bán Trên Sàn <span className={styles.compTitleVs}>VS</span> <span className={styles.compTitleGradient}>Bán Ngoại Sàn ShopTik</span>
-              </h2>
-            </div>
-
-            <div className={styles.animatedCompGrid}>
-              {/* Column 1 */}
-              <div className={`${styles.animatedCompCol} ${styles.compColNegative}`}>
-                <div className={styles.compColHeader}>
-                  <h3 className={styles.compColTitle}>
-                    <span style={{ color: '#ef4444' }}>❌</span> Bán Trên Sàn TMĐT
-                  </h3>
-                </div>
-
-                <div className={styles.animatedListContainer}>
-                  <AnimatedList delay={1600}>
-                    {painPointsList.map((item, idx) => (
-                      <div
-                        key={`neg-${idx}`}
-                        className={`${styles.animatedCard} ${styles.animatedCardNeg}`}
-                      >
-                        <div className={styles.animatedCardInner}>
-                          <div
-                            className={styles.animatedIconBox}
-                            style={{ backgroundColor: item.color }}
-                          >
-                            <span>{item.icon}</span>
-                          </div>
-                          <div className={styles.animatedCardContent}>
-                            <div className={styles.animatedCardHeader}>
-                              <span>{item.name}</span>
-                              <span style={{ opacity: 0.4 }}>•</span>
-                              <span className={styles.animatedTime}>{item.time}</span>
-                            </div>
-                            <p className={styles.animatedCardDesc}>{item.description}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </AnimatedList>
-                  <div className={styles.animatedFadeOverlay} />
-                </div>
+        <Section3DCard intensity="subtle" cardMode={false}>
+          <section id="so-sanh" className={styles.comparisonSection}>
+            <div className={styles.container}>
+              <div className={styles.compHeaderBlock}>
+                <h2 className={styles.compMainTitle}>
+                  Bán Trên Sàn <span className={styles.compTitleVs}>VS</span> <span className={styles.compTitleGradient}>Bán Ngoại Sàn ShopTik</span>
+                </h2>
               </div>
 
-              {/* Column 2 */}
-              <div className={`${styles.animatedCompCol} ${styles.compColPositive}`}>
-                <div className={styles.compColHeader}>
-                  <h3 className={styles.compColTitle}>
-                    <span style={{ color: '#10b981' }}>✅</span> Bán Ngoại Sàn ShopTik
-                  </h3>
-                </div>
+              <div className={styles.animatedCompGrid}>
+                {/* Column 1 */}
+                <div className={`${styles.animatedCompCol} ${styles.compColNegative}`}>
+                  <div className={styles.compColHeader}>
+                    <h3 className={styles.compColTitle}>
+                      <span style={{ color: '#ef4444' }}>❌</span> Bán Trên Sàn TMĐT
+                    </h3>
+                  </div>
 
-                <div className={styles.animatedListContainer}>
-                  <AnimatedList delay={1600}>
-                    {benefitsList.map((item, idx) => (
-                      <div
-                        key={`pos-${idx}`}
-                        className={`${styles.animatedCard} ${styles.animatedCardPos}`}
-                      >
-                        <div className={styles.animatedCardInner}>
-                          <div
-                            className={styles.animatedIconBox}
-                            style={{ backgroundColor: item.color }}
-                          >
-                            <span>{item.icon}</span>
-                          </div>
-                          <div className={styles.animatedCardContent}>
-                            <div className={styles.animatedCardHeader}>
-                              <span style={{ color: '#a7f3d0' }}>{item.name}</span>
-                              <span style={{ opacity: 0.4 }}>•</span>
-                              <span className={styles.animatedTime}>{item.time}</span>
+                  <div className={styles.animatedListContainer}>
+                    <AnimatedList delay={1600}>
+                      {painPointsList.map((item, idx) => (
+                        <div
+                          key={`neg-${idx}`}
+                          className={`${styles.animatedCard} ${styles.animatedCardNeg}`}
+                        >
+                          <div className={styles.animatedCardInner}>
+                            <div
+                              className={styles.animatedIconBox}
+                              style={{ backgroundColor: item.color }}
+                            >
+                              <span>{item.icon}</span>
                             </div>
-                            <p className={styles.animatedCardDesc}>{item.description}</p>
+                            <div className={styles.animatedCardContent}>
+                              <div className={styles.animatedCardHeader}>
+                                <span>{item.name}</span>
+                                <span style={{ opacity: 0.4 }}>•</span>
+                                <span className={styles.animatedTime}>{item.time}</span>
+                              </div>
+                              <p className={styles.animatedCardDesc}>{item.description}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </AnimatedList>
-                  <div className={styles.animatedFadeOverlay} />
+                      ))}
+                    </AnimatedList>
+                    <div className={styles.animatedFadeOverlay} />
+                  </div>
+                </div>
+
+                {/* Column 2 */}
+                <div className={`${styles.animatedCompCol} ${styles.compColPositive}`}>
+                  <div className={styles.compColHeader}>
+                    <h3 className={styles.compColTitle}>
+                      <span style={{ color: '#10b981' }}>✅</span> Bán Ngoại Sàn ShopTik
+                    </h3>
+                  </div>
+
+                  <div className={styles.animatedListContainer}>
+                    <AnimatedList delay={1600}>
+                      {benefitsList.map((item, idx) => (
+                        <div
+                          key={`pos-${idx}`}
+                          className={`${styles.animatedCard} ${styles.animatedCardPos}`}
+                        >
+                          <div className={styles.animatedCardInner}>
+                            <div
+                              className={styles.animatedIconBox}
+                              style={{ backgroundColor: item.color }}
+                            >
+                              <span>{item.icon}</span>
+                            </div>
+                            <div className={styles.animatedCardContent}>
+                              <div className={styles.animatedCardHeader}>
+                                <span style={{ color: '#a7f3d0' }}>{item.name}</span>
+                                <span style={{ opacity: 0.4 }}>•</span>
+                                <span className={styles.animatedTime}>{item.time}</span>
+                              </div>
+                              <p className={styles.animatedCardDesc}>{item.description}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </AnimatedList>
+                    <div className={styles.animatedFadeOverlay} />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </Section3DCard>
 
         {/* ==========================================================================
            SECTION 2: TRẢI NGHIỆM MULTI-THEME TRỰC TIẾP (GIÁ TRỊ & TÍNH NĂNG)

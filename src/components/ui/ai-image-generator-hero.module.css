@@ -6,7 +6,7 @@
   position: relative;
   width: 100%;
   min-height: 800px;
-  background: radial-gradient(circle at 50% 30%, #151b2e 0%, #0d121f 55%, #070a12 100%);
+  background: transparent;
   overflow: hidden;
   padding: 64px 16px 80px;
   display: flex;
