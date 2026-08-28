@@ -3,7 +3,7 @@
 import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { FiHome, FiGrid, FiLayers, FiTruck } from 'react-icons/fi';
+import { FiHome, FiGrid, FiLayers, FiUser } from 'react-icons/fi';
 import styles from './BottomNav.module.css';
 
 function BottomNavContent() {
@@ -29,7 +29,7 @@ function BottomNavContent() {
   const isHome = pathname === '/' && (!currentTab || currentTab === 'home');
   const isProducts = pathname === '/' && currentTab === 'products';
   const isCategories = pathname === '/' && currentTab === 'categories';
-  const isTracking = pathname === '/tracking';
+  const isAccount = pathname === '/profile' || pathname === '/tracking';
 
   const handleProductsClick = () => {
     if (typeof window !== 'undefined') {
@@ -71,9 +71,12 @@ function BottomNavContent() {
         <span>Danh mục</span>
       </Link>
 
-      <Link href="/tracking" className={`${styles.navItem} ${isTracking ? styles.active : ''}`}>
-        <FiTruck className={styles.icon} />
-        <span>Theo dõi đơn</span>
+      <Link
+        href="/profile"
+        className={`${styles.navItem} ${isAccount ? styles.active : ''}`}
+      >
+        <FiUser className={styles.icon} />
+        <span>Tài khoản</span>
       </Link>
     </nav>
   );

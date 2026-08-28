@@ -25,10 +25,14 @@ export async function GET(request: Request) {
 
     const filter: any = {};
 
-    if (phone) {
+    if (phone && email) {
+      filter.$or = [
+        { 'customer.phone': phone },
+        { 'customer.email': email },
+      ];
+    } else if (phone) {
       filter['customer.phone'] = phone;
-    }
-    if (email) {
+    } else if (email) {
       filter['customer.email'] = email;
     }
     if (userId) {
