@@ -1,7 +1,17 @@
+const fs = require('fs');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+let uri = 'mongodb+srv://levananbg03_db_user:ZVKH2iQyepPYqbFq@cluster0.d9p5c9d.mongodb.net/webstore?retryWrites=true&w=majority';
 
-const uri = 'mongodb+srv://bigmansale2_db_user:mjX8Z79pPTpiQLeq@cluster0.o9kuvob.mongodb.net/webstore?retryWrites=true&w=majority&appName=Cluster0';
+try {
+  if (fs.existsSync('.env.local')) {
+    const envContent = fs.readFileSync('.env.local', 'utf8');
+    const match = envContent.match(/MONGODB_URI=(.*)/);
+    if (match && match[1]) {
+      uri = match[1].trim().replace(/^["']|["']$/g, '');
+    }
+  }
+} catch (e) {}
 
 async function seedData() {
   console.log('Connecting to MongoDB Atlas...');
