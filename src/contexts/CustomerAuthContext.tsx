@@ -242,14 +242,98 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
             client.requestAccessToken({ prompt: 'select_account' });
           } catch (initErr) {
             console.error('Google OAuth init error:', initErr);
-            // Fallback to quick mock login
             performFallbackSocialLogin(provider, customData, resolve);
           }
         });
       }
     }
 
-    // 2. FALLBACK / MOCK SOCIAL LOGIN
+    // 2. REAL FACEBOOK LOGIN SDK FLOW
+    if (provider === 'facebook' && !customData && typeof window !== 'undefined') {
+      const fbAppId = process.env.NEXT_PUBLIC_FB_APP_ID || '2633642337077749';
+      const win = window as any;
+
+      if (win.FB && fbAppId) {
+        return new Promise<boolean>((resolve) => {
+          try {
+            if (!win.__fbInitialized) {
+              win.FB.init({
+                appId: fbAppId,
+                cookie: true,
+                xfbml: true,
+                version: 'v19.0',
+              });
+              win.__fbInitialized = true;
+            }
+
+            win.FB.login(
+              (response: any) => {
+                if (response.authResponse) {
+                  win.FB.api(
+                    '/me',
+                    { fields: 'id,name,email,picture.width(200).height(200)' },
+                    async (userInfo: any) => {
+                      if (!userInfo || userInfo.error) {
+                        toast.error('Không thể lấy thông tin tài khoản Facebook');
+                        resolve(false);
+                        return;
+                      }
+
+                      try {
+                        const payload = {
+                          provider: 'facebook',
+                          name: userInfo.name || 'Facebook User',
+                          email: userInfo.email || `fb_${userInfo.id}@facebook.user`,
+                          avatar: userInfo.picture?.data?.url,
+                          facebookId: userInfo.id,
+                        };
+
+                        const res = await apiFetch('/api/auth/social-login', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(payload),
+                        });
+                        const data = await res.json();
+
+                        if (!res.ok || !data.success) {
+                          toast.error(data.message || 'Đăng nhập Facebook thất bại');
+                          resolve(false);
+                          return;
+                        }
+
+                        setToken(data.data.token);
+                        setUser(data.data.user);
+                        localStorage.setItem('shoptik_token', data.data.token);
+                        localStorage.setItem('shoptik_user', JSON.stringify(data.data.user));
+                        toast.success(data.message || 'Đăng nhập qua Facebook thành công!');
+                        setIsAuthModalOpen(false);
+
+                        if (pendingAction) {
+                          setTimeout(() => executePendingAction(), 150);
+                        }
+                        resolve(true);
+                      } catch (apiErr) {
+                        toast.error('Lỗi kết nối máy chủ khi đăng nhập Facebook');
+                        resolve(false);
+                      }
+                    }
+                  );
+                } else {
+                  toast.error('Đăng nhập Facebook bị hủy');
+                  resolve(false);
+                }
+              },
+              { scope: 'public_profile,email' }
+            );
+          } catch (fbErr) {
+            console.error('Facebook OAuth error:', fbErr);
+            performFallbackSocialLogin(provider, customData, resolve);
+          }
+        });
+      }
+    }
+
+    // 3. FALLBACK / MOCK SOCIAL LOGIN
     return new Promise<boolean>((resolve) => {
       performFallbackSocialLogin(provider, customData, resolve);
     });

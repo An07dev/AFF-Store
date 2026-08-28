@@ -64,6 +64,12 @@ export default function RootLayout({
           src="https://accounts.google.com/gsi/client"
           strategy="lazyOnload"
         />
+
+        {/* Facebook SDK */}
+        <Script
+          src="https://connect.facebook.net/vi_VN/sdk.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );
