@@ -13,7 +13,10 @@ import {
   FiEdit3,
   FiX,
   FiShoppingBag,
+  FiLock,
 } from 'react-icons/fi';
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
@@ -123,7 +126,7 @@ function ChatContent() {
   const searchParams = useSearchParams();
   const productSlug = searchParams.get('product');
   const { theme } = useTheme();
-  const { user } = useCustomerAuth();
+  const { user, loginWithSocial, openAuthModal, isLoading: isAuthLoading } = useCustomerAuth();
 
   const shopName = theme?.pageTitles?.logoText || 'Football Store';
   const avatarInitials = shopName ? shopName.substring(0, 2).toUpperCase() : 'FS';
@@ -535,6 +538,97 @@ function ChatContent() {
     { label: '🔄 Chính sách đổi trả', prompt: 'Shop cho mình hỏi về chính sách đổi trả hàng ạ' },
     { label: '🚚 Phí vận chuyển', prompt: 'Phí ship và thời gian giao hàng thế nào ạ?' },
   ];
+
+  if (!isAuthLoading && !user) {
+    return (
+      <div className={styles.page}>
+        <header className={styles.topNav}>
+          <button className={styles.backBtn} onClick={() => router.back()} aria-label="Quay lại">
+            <FiChevronLeft size={22} />
+          </button>
+          <div className={styles.navShopInfo}>
+            <span className={styles.shopName}>CSKH & Tư Vấn Shop</span>
+          </div>
+        </header>
+
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 20px', textAlign: 'center' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(59, 130, 246, 0.15)', color: 'var(--primary, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, marginBottom: 16 }}>
+            <FiLock />
+          </div>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-main, #f8fafc)', margin: '0 0 8px' }}>
+            Đăng Nhập Để Bắt Đầu Chat
+          </h2>
+          <p style={{ fontSize: 13, color: 'var(--text-muted, #94a3b8)', maxWidth: 360, lineHeight: 1.5, margin: '0 0 24px' }}>
+            Vui lòng đăng nhập qua Google hoặc Facebook để bắt đầu trò chuyện trực tiếp với nhân viên tư vấn & AI trợ lý của Shop.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
+            <button
+              type="button"
+              onClick={() => loginWithSocial('google')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                padding: '12px 16px',
+                borderRadius: 10,
+                background: '#ffffff',
+                color: '#1f2937',
+                fontSize: 14,
+                fontWeight: 700,
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              }}
+            >
+              <FcGoogle size={20} />
+              <span>Tiếp tục với Google</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => loginWithSocial('facebook')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                padding: '12px 16px',
+                borderRadius: 10,
+                background: '#1877f2',
+                color: '#ffffff',
+                fontSize: 14,
+                fontWeight: 700,
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(24,119,242,0.3)',
+              }}
+            >
+              <FaFacebook size={20} />
+              <span>Tiếp tục với Facebook</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => openAuthModal()}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted, #94a3b8)',
+                textDecoration: 'underline',
+                fontSize: 12.5,
+                cursor: 'pointer',
+                marginTop: 6,
+              }}
+            >
+              Đăng nhập bằng Email / SĐT khác
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>

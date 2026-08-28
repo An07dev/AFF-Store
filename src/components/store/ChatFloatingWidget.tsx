@@ -45,7 +45,7 @@ export default function ChatFloatingWidget() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme } = useTheme();
-  const { user } = useCustomerAuth();
+  const { user, openAuthModal } = useCustomerAuth();
 
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -481,6 +481,16 @@ function parseBoldText(str: string, keyPrefix: string) {
       e.stopPropagation();
       return;
     }
+
+    if (!user) {
+      openAuthModal({
+        type: 'CUSTOM',
+        customMessage: 'Vui lòng đăng nhập để bắt đầu trò chuyện với nhân viên CSKH và AI tư vấn',
+        callback: () => setIsOpen(true),
+      });
+      return;
+    }
+
     setIsOpen(!isOpen);
   };
 

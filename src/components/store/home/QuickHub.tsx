@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import {
   QuickIconFreeship,
   QuickIconFlashSale,
@@ -26,6 +27,19 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
   onNavigateToProducts,
 }) => {
   const router = useRouter();
+  const { user, openAuthModal } = useCustomerAuth();
+
+  const handleConsultClick = () => {
+    if (!user) {
+      openAuthModal({
+        type: 'CUSTOM',
+        customMessage: 'Vui lòng đăng nhập để bắt đầu trò chuyện với CSKH và AI tư vấn',
+        redirectUrl: '/chat',
+      });
+      return;
+    }
+    router.push('/chat');
+  };
 
   return (
     <div className={styles.quickHubGrid}>
@@ -109,7 +123,7 @@ const QuickHubComponent: React.FC<QuickHubProps> = ({
       <button
         type="button"
         className={styles.quickHubItem}
-        onClick={() => router.push('/chat')}
+        onClick={handleConsultClick}
       >
         <div className={`${styles.quickIconWrap} ${styles.iconTransparent}`}>
           <QuickIconConsult />

@@ -25,7 +25,19 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
   onClearSearch,
 }) => {
   const router = useRouter();
-  const { user } = useCustomerAuth();
+  const { user, openAuthModal } = useCustomerAuth();
+
+  const handleChatClick = () => {
+    if (!user) {
+      openAuthModal({
+        type: 'CUSTOM',
+        customMessage: 'Vui lòng đăng nhập để bắt đầu trò chuyện với CSKH và AI tư vấn',
+        redirectUrl: '/chat',
+      });
+      return;
+    }
+    router.push('/chat');
+  };
 
   // Local input state to prevent top-level re-renders on each keystroke
   const [localSearch, setLocalSearch] = useState(searchQuery);
@@ -93,7 +105,7 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
         <button
           type="button"
           className={styles.headerIconBtn}
-          onClick={() => router.push('/chat')}
+          onClick={handleChatClick}
           aria-label="Tin nhắn"
           title="Chat với Shop"
         >

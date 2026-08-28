@@ -476,6 +476,19 @@ export default function ProductDetailPage() {
     return findMatchingVariant(variants, selectedAttributes);
   }, [variants, selectedAttributes]);
 
+  const handleChatWithShop = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!user) {
+      openAuthModal({
+        type: 'CUSTOM',
+        customMessage: 'Vui lòng đăng nhập để bắt đầu trò chuyện với shop',
+        redirectUrl: `/chat?product=${product?.slug || ''}`,
+      });
+      return;
+    }
+    router.push(`/chat?product=${product?.slug || ''}`);
+  };
+
   // Pricing calculation
   const basePrice = product?.price || 0;
   const baseOriginalPrice = product?.originalPrice || (product?.comparePrice ?? null);
@@ -1266,13 +1279,14 @@ export default function ProductDetailPage() {
 
         {/* Mobile Fixed Bottom Action Bar */}
         <div className={styles.mobileBottomBar}>
-          <Link
-            href={`/chat?product=${product.slug || ''}`}
+          <button
+            type="button"
+            onClick={handleChatWithShop}
             className={styles.actionIconBtn}
           >
             <FiMessageSquare size={18} />
             <span>Chat</span>
-          </Link>
+          </button>
           <Link href={`/product/${product.slug}/reviews`} className={styles.actionIconBtn}>
             <FiStar size={18} />
             <span>Đánh giá</span>
@@ -1606,14 +1620,15 @@ export default function ProductDetailPage() {
 
             {/* Desktop Action Buttons */}
             <div className={styles.pcActionButtons}>
-              <Link
-                href={`/chat?product=${product.slug || ''}`}
+              <button
+                type="button"
+                onClick={handleChatWithShop}
                 className={styles.pcChatBtn}
                 title="Chat với Shop"
               >
                 <FiMessageSquare size={17} />
                 <span>Chat Ngay</span>
-              </Link>
+              </button>
 
               <button
                 type="button"
