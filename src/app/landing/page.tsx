@@ -21,6 +21,7 @@ import {
 import { CoolMode } from '@/registry/magicui/cool-mode';
 import { OrbitingCircles } from '@/registry/magicui/orbiting-circles';
 import { AnimatedList } from '@/registry/magicui/animated-list';
+import ImageCarouselHeroDemo from '@/components/ui/demo';
 import styles from './page.module.css';
 
 interface ComparisonNotificationItem {
@@ -219,44 +220,44 @@ export default function LandingPage() {
 
   const heroGallery = [
     {
-      src: '/images/preview-admin-dashboard.png',
-      title: 'Báo Cáo Doanh Thu & Đơn Hàng Realtime',
-      desc: 'Bảng điều khiển trực quan: theo dõi doanh thu thực nhận, biểu đồ tăng trưởng và danh sách đơn mới.',
-      tag: 'Báo Cáo Doanh Thu',
-      badge: '7.358K',
-    },
-    {
-      src: '/images/preview-admin-theme.png',
-      title: 'Tùy Biến Giao Diện & 7 Multi-Themes',
-      desc: 'Tùy chỉnh màu sắc thương hiệu, đổi theme 1-Click và xem trước Live Preview realtime.',
-      tag: 'Đổi Theme Realtime',
-      badge: '7 Themes',
-    },
-    {
-      src: '/images/preview-product.png',
-      title: 'Chi Tiết Sản Phẩm & Biến Thể Size/Màu',
-      desc: 'Giao diện chuẩn sàn TMĐT: chọn phân loại hàng, voucher giảm giá và mua ngay 1-chạm.',
-      tag: 'Sản Phẩm & Phân Loại',
-      badge: '229K',
-    },
-    {
-      src: '/images/preview-mobile.png',
-      title: 'Mobile App & Popup FOMO Mua Hàng',
-      desc: 'Tối ưu 100% trải nghiệm di động kèm popup thông báo đơn hàng realtime kích thích chốt sale.',
-      tag: 'Mobile & FOMO Live',
-      badge: 'Live',
-    },
-    {
-      src: '/images/preview-feed.png',
+      src: '/images/hero-feed.png',
       title: 'Danh Mục & Gợi Ý Hôm Nay',
-      desc: 'Gợi ý sản phẩm thông minh, nhãn Freeship XTRA, flash sale và bộ lọc danh mục mượt mà.',
+      desc: 'Trang chủ chuẩn TMĐT với luồng gợi ý sản phẩm thông minh, nhãn Freeship XTRA, flash sale và bộ lọc danh mục mượt mà.',
       tag: 'Gợi Ý Sản Phẩm',
       badge: '-35%',
     },
     {
+      src: '/images/hero-product.png',
+      title: 'Chi Tiết Sản Phẩm & Biến Thể Size/Màu',
+      desc: 'Giao diện chuẩn sàn TMĐT: chọn phân loại hàng, bảng giá khuyến mãi, voucher giảm giá và mua ngay 1-chạm.',
+      tag: 'Sản Phẩm & Phân Loại',
+      badge: '229K',
+    },
+    {
+      src: '/images/hero-cart.png',
+      title: 'Giỏ Hàng Chuẩn TMĐT & Tóm Tắt Đơn Hàng',
+      desc: 'Quản lý số lượng, chọn xóa sản phẩm linh hoạt, tóm tắt tổng thanh toán và tiến hành đặt hàng nhanh chóng.',
+      tag: 'Giỏ Hàng Chuẩn',
+      badge: '7 Món',
+    },
+    {
+      src: '/images/hero-checkout.png',
+      title: 'Xác Nhận Đơn Hàng & Flash Sale Countdown',
+      desc: 'Form chốt đơn tối ưu tỷ lệ chuyển đổi: địa chỉ giao hàng, danh sách món hàng và đồng hồ đếm ngược FOMO 15 phút.',
+      tag: 'Quick Checkout',
+      badge: '14:58',
+    },
+    {
+      src: '/images/hero-chat.png',
+      title: 'AI Trợ Lý CSKH 24/7 & Tư Vấn Chốt Đơn',
+      desc: 'Trợ lý AI tự động tư vấn chọn size, kiểm tra tình trạng đơn hàng, giải đáp chính sách và gửi link mua hàng 1-chạm.',
+      tag: 'AI CSKH 24/7',
+      badge: 'AI Live',
+    },
+    {
       src: '/images/preview-tracking.png',
       title: 'Tra Cứu Vận Đơn & Cổng VietQR',
-      desc: 'Theo dõi tiến trình bưu tá GHN/GHTK 5 bước và cổng thanh toán VietQR tự động 1s.',
+      desc: 'Theo dõi tiến trình bưu tá GHN/GHTK 5 bước và cổng thanh toán VietQR tự động khớp lệnh 1s.',
       tag: 'Tra Cứu & VietQR',
       badge: '5 Bước',
     },
@@ -780,6 +781,12 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* AI Image Generator Carousel Hero Showcase */}
+      <ImageCarouselHeroDemo
+        onCardClick={(index) => openPreview(index)}
+        onCtaClick={() => openOrderModal('399k')}
+      />
 
       {/* ==========================================================================
          BODY CONTENT (CRO AIDA/PAS CONVERSION FLOW)
