@@ -17,7 +17,7 @@ import {
   FiCheck,
   FiPhone,
   FiMail,
-  FiMapPin,
+  FiClock,
   FiLock,
   FiUnlock,
   FiPackage,
@@ -45,17 +45,15 @@ export default function CustomersPage() {
   const [lockedCount, setLockedCount] = useState(0);
   const [isResetting, setIsResetting] = useState(false);
 
-  // Modal State (Add / Edit)
+  // Modal State (Add / Edit Account)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
-    address: '',
-    province: '',
-    district: '',
-    ward: '',
+    provider: 'local',
+    notes: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -68,7 +66,7 @@ export default function CustomersPage() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Fetch Customers
+  // Fetch Customers (Only login-based accounts)
   const fetchCustomers = useCallback(async (overrides?: { page?: number; search?: string; status?: string; provider?: string }) => {
     const curPage = overrides?.page !== undefined ? overrides.page : page;
     const curSearch = overrides?.search !== undefined ? overrides.search : search;
@@ -95,7 +93,7 @@ export default function CustomersPage() {
         }
       }
     } catch (err) {
-      toast.error('Lỗi tải danh sách khách hàng');
+      toast.error('Lỗi tải danh sách tài khoản khách hàng');
     } finally {
       setLoading(false);
     }
@@ -116,7 +114,7 @@ export default function CustomersPage() {
     await fetchCustomers({ page: 1, search: '', status: 'all', provider: 'all' });
 
     setIsResetting(false);
-    toast.success('Đã làm mới danh sách khách hàng!');
+    toast.success('Đã làm mới danh sách tài khoản khách hàng!');
   };
 
   // Open Add Modal
@@ -126,10 +124,8 @@ export default function CustomersPage() {
       name: '',
       phone: '',
       email: '',
-      address: '',
-      province: '',
-      district: '',
-      ward: '',
+      provider: 'local',
+      notes: '',
     });
     setIsModalOpen(true);
   };
@@ -141,19 +137,21 @@ export default function CustomersPage() {
       name: c.name || '',
       phone: c.phone || '',
       email: c.email || '',
-      address: c.address || '',
-      province: c.province || '',
-      district: c.district || '',
-      ward: c.ward || '',
+      provider: c.provider || 'local',
+      notes: c.notes || '',
     });
     setIsModalOpen(true);
   };
 
-  // Submit Form (Create / Update)
+  // Submit Form (Create / Update Account)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      toast.error('Vui lòng nhập họ tên khách hàng');
+      toast.error('Vui lòng nhập họ tên tài khoản');
+      return;
+    }
+    if (!formData.email.trim() && !formData.phone.trim()) {
+      toast.error('Vui lòng cung cấp Email hoặc Số điện thoại đăng nhập');
       return;
     }
 
@@ -169,11 +167,11 @@ export default function CustomersPage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(editingCustomer ? 'Cập nhật khách hàng thành công!' : 'Thêm khách hàng mới thành công!');
+        toast.success(editingCustomer ? 'Cập nhật tài khoản thành công!' : 'Thêm tài khoản mới thành công!');
         setIsModalOpen(false);
         fetchCustomers();
       } else {
-        toast.error(data.message || 'Lỗi xử lý khách hàng');
+        toast.error(data.message || 'Lỗi xử lý tài khoản');
       }
     } catch (err) {
       toast.error('Lỗi kết nối máy chủ');
@@ -190,7 +188,7 @@ export default function CustomersPage() {
       isLocked: Boolean(c.isLocked),
       reason: c.lockReason || '',
     });
-    setLockReasonInput(c.lockReason || (c.isLocked ? '' : 'Vi phạm chính sách đặt hàng / bom hàng'));
+    setLockReasonInput(c.lockReason || (c.isLocked ? '' : 'Vi phạm chính sách đặt hàng / spam'));
   };
 
   // Confirm Lock / Unlock
@@ -221,7 +219,7 @@ export default function CustomersPage() {
     }
   };
 
-  // Delete Customer
+  // Delete Customer Account
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
@@ -229,11 +227,11 @@ export default function CustomersPage() {
       const res = await apiFetch(`/api/customers/${deleteTarget.id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
-        toast.success(`Đã xóa khách hàng "${deleteTarget.name}" thành công!`);
+        toast.success(`Đã xóa tài khoản "${deleteTarget.name}" thành công!`);
         setDeleteTarget(null);
         fetchCustomers();
       } else {
-        toast.error(data.message || 'Lỗi xóa khách hàng');
+        toast.error(data.message || 'Lỗi xóa tài khoản');
       }
     } catch (err) {
       toast.error('Lỗi kết nối máy chủ');
@@ -244,7 +242,6 @@ export default function CustomersPage() {
 
   // Compute CRM Stats
   const vipCount = customers.filter((c) => (c.totalSpent || 0) >= 2000000).length;
-  const totalRevenue = customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
   const totalItemsSold = customers.reduce((sum, c) => sum + (c.totalItemsBought || 0), 0);
 
   return (
@@ -252,14 +249,14 @@ export default function CustomersPage() {
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.titleArea}>
-          <h1 className={styles.title}>Quản Lý Khách Hàng & Tài Khoản (CRM)</h1>
+          <h1 className={styles.title}>Quản Lý Tài Khoản Khách Hàng (CRM)</h1>
           <p className={styles.subtitle}>
-            Kiểm soát người dùng, số sản phẩm đã mua, trạng thái khóa tài khoản và phân loại Google/Facebook
+            Quản trị người dùng theo thông tin đăng nhập (Google, Facebook, Số điện thoại/Email), trạng thái khóa và lịch sử mua sắm
           </p>
         </div>
 
         <button className={styles.addBtn} onClick={handleOpenAdd}>
-          <FiPlus /> Thêm khách hàng mới
+          <FiPlus /> Thêm tài khoản mới
         </button>
       </div>
 
@@ -271,7 +268,7 @@ export default function CustomersPage() {
           </div>
           <div>
             <div className={styles.statValue}>{totalCustomers}</div>
-            <div className={styles.statLabel}>Tổng số khách hàng</div>
+            <div className={styles.statLabel}>Tổng tài khoản khách</div>
           </div>
         </div>
 
@@ -314,7 +311,7 @@ export default function CustomersPage() {
             <FiSearch className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Tìm theo tên khách, SĐT, email Google/Facebook..."
+              placeholder="Tìm theo tên tài khoản, email Google/FB, số điện thoại..."
               className={styles.searchInput}
               value={search}
               onChange={(e) => {
@@ -372,9 +369,9 @@ export default function CustomersPage() {
             style={{ width: 'auto', padding: '9px 12px' }}
           >
             <option value="all">Tất cả nguồn đăng nhập</option>
-            <option value="google">🌐 Google Login</option>
-            <option value="facebook">🔵 Facebook Login</option>
-            <option value="local">📱 Số điện thoại / Web</option>
+            <option value="google">🌐 Google Account</option>
+            <option value="facebook">🔵 Facebook Account</option>
+            <option value="local">📱 Email / SĐT Web</option>
           </select>
 
           <button
@@ -399,10 +396,11 @@ export default function CustomersPage() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Khách hàng & Nguồn</th>
-                  <th>Liên hệ</th>
-                  <th>Địa chỉ nhận hàng</th>
-                  <th>Số đơn hàng</th>
+                  <th>Tài khoản & Nguồn</th>
+                  <th>Email đăng nhập</th>
+                  <th>Số điện thoại</th>
+                  <th>Đăng nhập gần nhất</th>
+                  <th>Số đơn</th>
                   <th style={{ color: '#10b981' }}>📦 Số SP đã mua</th>
                   <th>Tổng chi tiêu</th>
                   <th>Trạng thái</th>
@@ -412,13 +410,12 @@ export default function CustomersPage() {
               <tbody>
                 {customers.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted, #9ca3af)', padding: 40 }}>
-                      Không tìm thấy khách hàng nào phù hợp với điều kiện tìm kiếm
+                    <td colSpan={9} style={{ textAlign: 'center', color: 'var(--text-muted, #9ca3af)', padding: 40 }}>
+                      Không tìm thấy tài khoản khách hàng nào phù hợp
                     </td>
                   </tr>
                 ) : (
                   customers.map((c) => {
-                    const isVip = (c.totalSpent || 0) >= 2000000;
                     const isLocked = Boolean(c.isLocked);
                     const provider = c.provider || 'local';
 
@@ -449,17 +446,45 @@ export default function CustomersPage() {
                                 )}
                               </div>
                               <div className={styles.textMuted}>
-                                Tham gia: {c.createdAt ? formatDate(c.createdAt) : '-'}
+                                Đăng ký: {c.createdAt ? formatDate(c.createdAt) : '-'}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td>
-                          <strong style={{ color: 'var(--text-main, #ffffff)' }}>{c.phone || '-'}</strong>
-                          {c.email && <div className={styles.textMuted}>{c.email}</div>}
+                          {c.email ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-main, #ffffff)', fontSize: '0.85rem' }}>
+                              <FiMail style={{ color: 'var(--primary, #3b82f6)', flexShrink: 0 }} />
+                              <span>{c.email}</span>
+                            </div>
+                          ) : (
+                            <span style={{ color: 'var(--text-dim, #64748b)' }}>-</span>
+                          )}
                         </td>
-                        <td style={{ maxWidth: 200, color: 'var(--text-muted, #94a3b8)', fontSize: '0.8125rem' }}>
-                          {c.address || '-'}
+                        <td>
+                          {c.phone ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-main, #ffffff)', fontSize: '0.85rem' }}>
+                              <FiPhone style={{ color: '#10b981', flexShrink: 0 }} />
+                              <strong>{c.phone}</strong>
+                            </div>
+                          ) : (
+                            <span style={{ color: 'var(--text-dim, #64748b)' }}>-</span>
+                          )}
+                        </td>
+                        <td style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #94a3b8)' }}>
+                          {c.lastLoginAt ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <FiClock size={12} color="#10b981" />
+                              <span>{formatDate(c.lastLoginAt)}</span>
+                            </div>
+                          ) : c.lastOrderAt ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <FiClock size={12} color="#f59e0b" />
+                              <span>{formatDate(c.lastOrderAt)}</span>
+                            </div>
+                          ) : (
+                            'Chưa hoạt động'
+                          )}
                         </td>
                         <td>
                           <strong style={{ color: 'var(--text-main, #ffffff)' }}>{c.orderCount || 0}</strong> đơn
@@ -547,7 +572,7 @@ export default function CustomersPage() {
                               type="button"
                               className={styles.actionBtn}
                               onClick={() => handleOpenEdit(c)}
-                              title="Chỉnh sửa thông tin"
+                              title="Chỉnh sửa thông tin tài khoản"
                             >
                               <FiEdit2 />
                             </button>
@@ -557,7 +582,7 @@ export default function CustomersPage() {
                               type="button"
                               className={`${styles.actionBtn} ${styles.dangerBtn}`}
                               onClick={() => setDeleteTarget({ id: c._id, name: c.name })}
-                              title="Xóa khách hàng"
+                              title="Xóa tài khoản"
                             >
                               <FiTrash2 />
                             </button>
@@ -677,13 +702,13 @@ export default function CustomersPage() {
         </div>
       )}
 
-      {/* Add / Edit Customer Modal */}
+      {/* Add / Edit Customer Login Account Modal */}
       {isModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2 className={styles.modalTitle}>
-                {editingCustomer ? 'Chỉnh Sửa Khách Hàng' : 'Thêm Khách Hàng Mới'}
+                {editingCustomer ? 'Chỉnh Sửa Tài Khoản Khách Hàng' : 'Thêm Tài Khoản Mới'}
               </h2>
               <button
                 type="button"
@@ -696,7 +721,7 @@ export default function CustomersPage() {
 
             <form onSubmit={handleSubmit} className={styles.modalForm}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Họ và tên *</label>
+                <label className={styles.formLabel}>Họ và tên hiển thị *</label>
                 <input
                   type="text"
                   required
@@ -709,61 +734,50 @@ export default function CustomersPage() {
 
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Số điện thoại *</label>
+                  <label className={styles.formLabel}>Email đăng nhập</label>
+                  <input
+                    type="email"
+                    placeholder="user@gmail.com"
+                    className={styles.formInput}
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Số điện thoại đăng nhập</label>
                   <input
                     type="tel"
-                    required
                     placeholder="0988123456"
                     className={styles.formInput}
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   />
                 </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Email</label>
-                  <input
-                    type="email"
-                    placeholder="khachhang@gmail.com"
-                    className={styles.formInput}
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-                </div>
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Địa chỉ chi tiết</label>
-                <input
-                  type="text"
-                  placeholder="Số nhà, tên đường..."
+                <label className={styles.formLabel}>Nguồn đăng nhập / Nhà cung cấp</label>
+                <select
                   className={styles.formInput}
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                />
+                  value={formData.provider}
+                  onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
+                >
+                  <option value="local">📱 Tài khoản thông thường (Email / SĐT)</option>
+                  <option value="google">🌐 Google Account</option>
+                  <option value="facebook">🔵 Facebook Account</option>
+                </select>
               </div>
 
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Tỉnh / Thành phố</label>
-                  <input
-                    type="text"
-                    placeholder="Hà Nội, TP.HCM..."
-                    className={styles.formInput}
-                    value={formData.province}
-                    onChange={(e) => setFormData({ ...formData, province: e.target.value })}
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Quận / Huyện</label>
-                  <input
-                    type="text"
-                    placeholder="Cầu Giấy, Quận 1..."
-                    className={styles.formInput}
-                    value={formData.district}
-                    onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                  />
-                </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Ghi chú nội bộ</label>
+                <input
+                  type="text"
+                  placeholder="Ghi chú về khách hàng (tuỳ chọn)..."
+                  className={styles.formInput}
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                />
               </div>
 
               <div className={styles.modalFooter}>
@@ -791,8 +805,8 @@ export default function CustomersPage() {
       {/* Delete Confirmation Modal */}
       <DeleteConfirmModal
         isOpen={Boolean(deleteTarget)}
-        title="Xóa Khách Hàng"
-        message={`Bạn có chắc chắn muốn xóa khách hàng "${deleteTarget?.name}"? Mọi dữ liệu CRM sẽ bị gỡ bỏ.`}
+        title="Xóa Tài Khoản"
+        message={`Bạn có chắc chắn muốn xóa tài khoản "${deleteTarget?.name}"? Dữ liệu tài khoản sẽ bị gỡ bỏ.`}
         isDeleting={isDeleting}
         onConfirm={handleConfirmDelete}
         onClose={() => setDeleteTarget(null)}

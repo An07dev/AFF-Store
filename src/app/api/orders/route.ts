@@ -208,27 +208,33 @@ export async function POST(request: Request) {
       ).catch((err) => console.error('Error updating voucher usedCount:', err));
     }
 
-    // Update customer stats
-    const phone = body.customer.phone.trim();
-    let customerDoc = await Customer.findOne({ phone });
-    if (!customerDoc) {
-      customerDoc = await Customer.create({
-        name: body.customer.name,
-        phone,
-        email: body.customer.email,
-        address: body.customer.address,
-        province: body.customer.province,
-        district: body.customer.district,
-        ward: body.customer.ward,
-        orderCount: 1,
-        totalSpent: totalAmount,
-        lastOrderAt: new Date(),
-      });
-    } else {
-      customerDoc.orderCount += 1;
-      customerDoc.totalSpent += totalAmount;
-      customerDoc.lastOrderAt = new Date();
-      await customerDoc.save();
+    // Update customer stats based on account credentials (phone/email)
+    const phone = body.customer.phone ? body.customer.phone.trim() : undefined;
+    const email = body.customer.email ? body.customer.email.toLowerCase().trim() : undefined;
+
+    const searchConditions: any[] = [];
+    if (phone) searchConditions.push({ phone });
+    if (email) searchConditions.push({ email });
+
+    if (searchConditions.length > 0) {
+      let customerDoc = await Customer.findOne({ $or: searchConditions });
+      if (!customerDoc) {
+        customerDoc = await Customer.create({
+          name: body.customer.name,
+          phone,
+          email,
+          provider: 'local',
+          isLocked: false,
+          orderCount: 1,
+          totalSpent: totalAmount,
+          lastOrderAt: new Date(),
+        });
+      } else {
+        customerDoc.orderCount = (customerDoc.orderCount || 0) + 1;
+        customerDoc.totalSpent = (customerDoc.totalSpent || 0) + totalAmount;
+        customerDoc.lastOrderAt = new Date();
+        await customerDoc.save();
+      }
     }
 
     // Update product soldCount & stock

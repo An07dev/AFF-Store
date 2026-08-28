@@ -103,9 +103,9 @@ export async function POST(request: Request) {
     await connectToDatabase();
     const body = await request.json();
 
-    if (!body.name || !body.phone) {
+    if (!body.name || (!body.phone && !body.email)) {
       return NextResponse.json(
-        { success: false, message: 'Tên và số điện thoại là bắt buộc' },
+        { success: false, message: 'Họ tên và Email hoặc Số điện thoại là bắt buộc' },
         { status: 400 }
       );
     }

@@ -249,9 +249,11 @@ export default function CustomerDetailPage() {
               </div>
             )}
 
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, color: 'var(--text-muted, #94a3b8)', fontSize: '0.875rem', lineHeight: 1.4 }}>
-              <FiMapPin style={{ color: 'var(--primary, #3b82f6)', fontSize: '1rem', marginTop: 2 }} />
-              <span>{customer.address || 'Chưa có thông tin địa chỉ'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--text-main, #fff)', fontSize: '0.875rem' }}>
+              <FiUser style={{ color: 'var(--primary, #3b82f6)', fontSize: '1rem' }} />
+              <span>
+                Nguồn đăng nhập: {provider === 'google' ? '🌐 Google Account' : provider === 'facebook' ? '🔵 Facebook Account' : '📱 Tài khoản Web (Email/SĐT)'}
+              </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--text-dim, #64748b)', fontSize: '0.8125rem' }}>
