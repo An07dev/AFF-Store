@@ -608,22 +608,6 @@ function ChatContent() {
               <FaFacebook size={20} />
               <span>Tiếp tục với Facebook</span>
             </button>
-
-            <button
-              type="button"
-              onClick={() => openAuthModal()}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted, #94a3b8)',
-                textDecoration: 'underline',
-                fontSize: 12.5,
-                cursor: 'pointer',
-                marginTop: 6,
-              }}
-            >
-              Đăng nhập bằng Email / SĐT khác
-            </button>
           </div>
         </div>
       </div>
