@@ -248,12 +248,13 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       }
     }
 
-    // 2. REAL FACEBOOK LOGIN SDK FLOW
+    // 2. REAL FACEBOOK LOGIN SDK FLOW (Requires HTTPS per Meta Security Policy)
     if (provider === 'facebook' && !customData && typeof window !== 'undefined') {
+      const isHttps = window.location.protocol === 'https:';
       const fbAppId = process.env.NEXT_PUBLIC_FB_APP_ID || '2633642337077749';
       const win = window as any;
 
-      if (win.FB && fbAppId) {
+      if (isHttps && win.FB && fbAppId) {
         return new Promise<boolean>((resolve) => {
           try {
             if (!win.__fbInitialized) {
@@ -330,6 +331,12 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
             performFallbackSocialLogin(provider, customData, resolve);
           }
         });
+      } else if (!isHttps) {
+        // Meta enforces HTTPS for FB.login. On HTTP / Localhost development:
+        // Gracefully simulate Facebook account login and notify developer
+        return new Promise<boolean>((resolve) => {
+          performFallbackSocialLogin(provider, customData, resolve, true);
+        });
       }
     }
 
@@ -342,7 +349,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
   const performFallbackSocialLogin = async (
     provider: 'google' | 'facebook',
     customData: { name?: string; email?: string; avatar?: string } | undefined,
-    resolve: (val: boolean) => void
+    resolve: (val: boolean) => void,
+    isHttpLocalMode?: boolean
   ) => {
     try {
       const defaultMockEmail = provider === 'google' ? 'nguyenvana.google@gmail.com' : 'tranvanb.fb@facebook.com';
@@ -375,7 +383,13 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       setUser(data.data.user);
       localStorage.setItem('shoptik_token', data.data.token);
       localStorage.setItem('shoptik_user', JSON.stringify(data.data.user));
-      toast.success(data.message || `Đăng nhập qua ${provider === 'google' ? 'Google' : 'Facebook'} thành công!`);
+
+      if (isHttpLocalMode) {
+        toast.success('Đăng nhập Facebook thành công! (Chế độ Localhost HTTP)', { duration: 4000 });
+      } else {
+        toast.success(data.message || `Đăng nhập qua ${provider === 'google' ? 'Google' : 'Facebook'} thành công!`);
+      }
+
       setIsAuthModalOpen(false);
 
       if (pendingAction) {
