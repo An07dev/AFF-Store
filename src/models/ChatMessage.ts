@@ -6,6 +6,9 @@ export interface IChatMessage extends Document {
   senderName: string;
   customerName?: string;
   customerPhone?: string;
+  customerEmail?: string;
+  customerAvatar?: string;
+  customerProvider?: 'google' | 'facebook' | 'local' | 'guest';
   text: string;
   image?: string;
   product?: {
@@ -33,6 +36,13 @@ const ChatMessageSchema = new Schema<IChatMessage>(
     senderName: { type: String, default: 'Khách hàng' },
     customerName: { type: String, default: 'Khách hàng' },
     customerPhone: { type: String, default: '' },
+    customerEmail: { type: String, default: '' },
+    customerAvatar: { type: String, default: '' },
+    customerProvider: {
+      type: String,
+      enum: ['google', 'facebook', 'local', 'guest'],
+      default: 'guest',
+    },
     text: { type: String, default: '' },
     image: { type: String, default: '' },
     product: {
@@ -59,5 +69,7 @@ if (mongoose.models && mongoose.models.ChatMessage) {
   delete (mongoose.models as any).ChatMessage;
 }
 
-const ChatMessage: Model<IChatMessage> = mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);
+const ChatMessage: Model<IChatMessage> =
+  mongoose.models.ChatMessage || mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);
+
 export default ChatMessage;

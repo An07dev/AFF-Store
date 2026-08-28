@@ -4,6 +4,10 @@ export interface IConversation extends Document {
   conversationId: string;
   customerName: string;
   customerPhone?: string;
+  customerEmail?: string;
+  customerAvatar?: string;
+  customerProvider?: 'google' | 'facebook' | 'local' | 'guest';
+  customerId?: string;
   deviceInfo?: string;
   status: 'unread' | 'active' | 'has_phone' | 'resolved';
   tags: string[];
@@ -32,6 +36,14 @@ const ConversationSchema = new Schema<IConversation>(
     conversationId: { type: String, required: true, unique: true, index: true },
     customerName: { type: String, default: 'Khách hàng' },
     customerPhone: { type: String, default: '' },
+    customerEmail: { type: String, default: '' },
+    customerAvatar: { type: String, default: '' },
+    customerProvider: {
+      type: String,
+      enum: ['google', 'facebook', 'local', 'guest'],
+      default: 'guest',
+    },
+    customerId: { type: String, default: '' },
     deviceInfo: { type: String, default: '' },
     status: {
       type: String,
@@ -64,6 +76,6 @@ if (mongoose.models && mongoose.models.Conversation) {
 }
 
 const Conversation: Model<IConversation> =
-  mongoose.model<IConversation>('Conversation', ConversationSchema);
+  mongoose.models.Conversation || mongoose.model<IConversation>('Conversation', ConversationSchema);
 
 export default Conversation;

@@ -11,6 +11,7 @@ import {
   FiImage,
 } from 'react-icons/fi';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { getSocket, initSocket } from '@/lib/socket';
 import { apiFetch } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -44,6 +45,7 @@ export default function ChatFloatingWidget() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme } = useTheme();
+  const { user } = useCustomerAuth();
 
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -134,6 +136,14 @@ export default function ChatFloatingWidget() {
       } catch (e) {}
     }
   }, []);
+
+  // Sync phone & identity when logged-in user changes
+  useEffect(() => {
+    if (user?.phone) {
+      setCustomerPhone(user.phone);
+      setPhoneSubmitted(true);
+    }
+  }, [user]);
 
   // 2. Initialize Default Position inside Viewport
   useEffect(() => {
@@ -481,15 +491,23 @@ function parseBoldText(str: string, keyPrefix: string) {
 
     const clientMsgId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const socket = getSocket();
-    const guestName = localStorage.getItem('shoptik_guest_name') || 'Khách hàng';
+    const activeName = user?.name || localStorage.getItem('shoptik_guest_name') || 'Khách hàng';
+    const activeEmail = user?.email || '';
+    const activeAvatar = user?.avatar || '';
+    const activeProvider = user ? (user.provider || 'local') : 'guest';
+    const activePhone = user?.phone || customerPhone;
 
     const payload = {
       clientMsgId,
       conversationId,
       sender: 'user',
-      senderName: guestName,
-      customerName: guestName,
-      customerPhone,
+      senderName: activeName,
+      customerName: activeName,
+      customerPhone: activePhone,
+      customerEmail: activeEmail,
+      customerAvatar: activeAvatar,
+      customerProvider: activeProvider,
+      customerId: user?.id || '',
       text: text.trim(),
       image: attachedImg || '',
     };
@@ -500,7 +518,7 @@ function parseBoldText(str: string, keyPrefix: string) {
       id: clientMsgId,
       clientMsgId,
       sender: 'user',
-      senderName: guestName,
+      senderName: activeName,
       text: payload.text,
       image: payload.image,
       time: 'Vừa xong',

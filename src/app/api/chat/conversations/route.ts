@@ -26,6 +26,7 @@ export async function GET(request: Request) {
       query.$or = [
         { customerName: searchRegex },
         { customerPhone: searchRegex },
+        { customerEmail: searchRegex },
         { conversationId: searchRegex },
         { tags: searchRegex },
         { 'lastMessage.text': searchRegex },
@@ -48,6 +49,9 @@ export async function GET(request: Request) {
             lastMessage: { $first: '$$ROOT' },
             customerName: { $first: '$customerName' },
             customerPhone: { $first: '$customerPhone' },
+            customerEmail: { $first: '$customerEmail' },
+            customerAvatar: { $first: '$customerAvatar' },
+            customerProvider: { $first: '$customerProvider' },
             productContext: { $first: '$product' },
             lastActive: { $first: '$createdAt' },
             unreadCountAdmin: {

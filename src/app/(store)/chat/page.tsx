@@ -16,6 +16,7 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { formatPrice } from '@/lib/utils';
 import { apiFetch } from '@/lib/api';
 import { initSocket, getSocket } from '@/lib/socket';
@@ -122,14 +123,18 @@ function ChatContent() {
   const searchParams = useSearchParams();
   const productSlug = searchParams.get('product');
   const { theme } = useTheme();
+  const { user } = useCustomerAuth();
 
   const shopName = theme?.pageTitles?.logoText || 'Football Store';
   const avatarInitials = shopName ? shopName.substring(0, 2).toUpperCase() : 'FS';
 
   const [conversationId, setConversationId] = useState<string>('');
-  const [customerInfo, setCustomerInfo] = useState<{ name: string; phone: string }>({
-    name: 'Khách hàng',
-    phone: '',
+  const [customerInfo, setCustomerInfo] = useState<{ name: string; phone: string; email?: string; avatar?: string; provider?: string }>({
+    name: user?.name || 'Khách hàng',
+    phone: user?.phone || '',
+    email: user?.email || '',
+    avatar: user?.avatar || '',
+    provider: user?.provider || 'local',
   });
 
   const [inputMsg, setInputMsg] = useState('');
@@ -383,17 +388,30 @@ function ChatContent() {
     setIsSending(true);
 
     const socket = getSocket();
+    const activeName = user?.name || customerInfo.name || 'Khách hàng';
+    const activeEmail = user?.email || customerInfo.email || '';
+    const activeAvatar = user?.avatar || customerInfo.avatar || '';
+    const activeProvider = user ? (user.provider || 'local') : (customerInfo.provider || 'guest');
+    const activePhone = user?.phone || customerInfo.phone || '';
+
     const payload = {
       conversationId,
       sender: 'user',
-      senderName: customerInfo.name || 'Khách hàng',
+      senderName: activeName,
+      customerName: activeName,
+      customerPhone: activePhone,
+      customerEmail: activeEmail,
+      customerAvatar: activeAvatar,
+      customerProvider: activeProvider,
+      customerId: user?.id || '',
       text: textToSend,
       image: customImage,
       product: customProduct,
       clientMsgId,
       customerInfo: {
-        name: customerInfo.name,
-        phone: customerInfo.phone,
+        name: activeName,
+        phone: activePhone,
+        email: activeEmail,
       },
     };
 

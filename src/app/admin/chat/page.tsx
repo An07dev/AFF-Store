@@ -16,6 +16,8 @@ import {
   FiEdit2,
   FiRefreshCw,
 } from 'react-icons/fi';
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
 import { apiFetch } from '@/lib/api';
@@ -27,6 +29,10 @@ interface Conversation {
   conversationId: string;
   customerName: string;
   customerPhone?: string;
+  customerEmail?: string;
+  customerAvatar?: string;
+  customerProvider?: 'google' | 'facebook' | 'local' | 'guest';
+  customerId?: string;
   status: 'unread' | 'active' | 'has_phone' | 'resolved';
   tags?: string[];
   adminNotes?: string;
@@ -699,18 +705,44 @@ export default function AdminChatPage() {
                   className={`${styles.convItem} ${isActive ? styles.activeConv : ''}`}
                   onClick={() => setActiveConvId(conv.conversationId)}
                 >
-                  <div className={styles.convAvatar}>
-                    {initial}
-                    <span className={styles.convAvatarBadge} />
+                  <div className={styles.convAvatar} style={{ overflow: 'hidden', position: 'relative' }}>
+                    {conv.customerAvatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={conv.customerAvatar} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      initial
+                    )}
+                    {conv.customerProvider === 'google' && (
+                      <span style={{ position: 'absolute', bottom: -2, right: -2, background: '#fff', borderRadius: '50%', padding: '1px', display: 'flex' }}>
+                        <FcGoogle size={11} />
+                      </span>
+                    )}
+                    {conv.customerProvider === 'facebook' && (
+                      <span style={{ position: 'absolute', bottom: -2, right: -2, background: '#1877f2', borderRadius: '50%', padding: '1px', display: 'flex' }}>
+                        <FaFacebook size={10} color="#fff" />
+                      </span>
+                    )}
+                    {(!conv.customerProvider || conv.customerProvider === 'guest' || conv.customerProvider === 'local') && (
+                      <span className={styles.convAvatarBadge} />
+                    )}
                   </div>
 
                   <div className={styles.convContent}>
                     <div className={styles.convNameRow}>
-                      <span className={styles.convName}>
-                        {name} {conv.customerPhone ? `(${conv.customerPhone})` : ''}
+                      <span className={styles.convName} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span>{name}</span>
+                        {conv.customerProvider === 'google' && <FcGoogle size={12} title="Đăng nhập qua Google" />}
+                        {conv.customerProvider === 'facebook' && <FaFacebook size={11} color="#1877f2" title="Đăng nhập qua Facebook" />}
+                        {conv.customerPhone ? <span style={{ color: '#10b981', fontSize: 11 }}>({conv.customerPhone})</span> : null}
                       </span>
                       <span className={styles.convTime}>{timeStr}</span>
                     </div>
+
+                    {conv.customerEmail && (
+                      <div style={{ fontSize: 11, color: '#60a5fa', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 2 }}>
+                        ✉️ {conv.customerEmail}
+                      </div>
+                    )}
 
                     <div className={styles.convLastMsgRow}>
                       <span className={styles.convLastMsg}>{lastMsgText}</span>
@@ -742,14 +774,47 @@ export default function AdminChatPage() {
           <>
             {/* Stream Header */}
             <div className={styles.chatStreamHeader}>
-              <div className={styles.chatUserMeta}>
+              <div className={styles.chatUserMeta} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className={styles.convAvatar} style={{ width: 38, height: 38, fontSize: 14, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+                  {currentConv.customerAvatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={currentConv.customerAvatar} alt={currentConv.customerName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    currentConv.customerName?.substring(0, 2).toUpperCase() || 'KH'
+                  )}
+                  {currentConv.customerProvider === 'google' && (
+                    <span style={{ position: 'absolute', bottom: -2, right: -2, background: '#fff', borderRadius: '50%', padding: '1px', display: 'flex' }}>
+                      <FcGoogle size={11} />
+                    </span>
+                  )}
+                  {currentConv.customerProvider === 'facebook' && (
+                    <span style={{ position: 'absolute', bottom: -2, right: -2, background: '#1877f2', borderRadius: '50%', padding: '1px', display: 'flex' }}>
+                      <FaFacebook size={10} color="#fff" />
+                    </span>
+                  )}
+                </div>
                 <div>
-                  <div className={styles.chatUserName}>
-                    {currentConv.customerName || 'Khách hàng'}
+                  <div className={styles.chatUserName} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span>{currentConv.customerName || 'Khách hàng'}</span>
+                    {currentConv.customerProvider === 'google' && (
+                      <span title="Đăng nhập qua Google" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        <FcGoogle size={14} />
+                      </span>
+                    )}
+                    {currentConv.customerProvider === 'facebook' && (
+                      <span title="Đăng nhập qua Facebook" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        <FaFacebook size={13} color="#1877f2" />
+                      </span>
+                    )}
                     {currentConv.customerPhone && (
                       <span className={styles.chatUserPhone}>📞 {currentConv.customerPhone}</span>
                     )}
                   </div>
+                  {currentConv.customerEmail && (
+                    <div style={{ fontSize: 11.5, color: '#94a3b8' }}>
+                      ✉️ {currentConv.customerEmail}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1020,6 +1085,36 @@ export default function AdminChatPage() {
                 >
                   💬 Chat Zalo
                 </a>
+              </div>
+            )}
+
+            {currentConv.customerEmail && (
+              <div className={styles.crmFieldRow}>
+                <span className={styles.crmFieldLabel}>Email đăng nhập:</span>
+                <div style={{ fontSize: 12.5, color: '#60a5fa', fontWeight: 600, padding: '4px 0', wordBreak: 'break-all' }}>
+                  ✉️ {currentConv.customerEmail}
+                </div>
+              </div>
+            )}
+
+            {currentConv.customerProvider && currentConv.customerProvider !== 'guest' && (
+              <div className={styles.crmFieldRow}>
+                <span className={styles.crmFieldLabel}>Nguồn tài khoản:</span>
+                <div style={{ fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5, padding: '4px 0' }}>
+                  {currentConv.customerProvider === 'google' && (
+                    <span style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <FcGoogle size={14} /> Google Account
+                    </span>
+                  )}
+                  {currentConv.customerProvider === 'facebook' && (
+                    <span style={{ color: '#1877f2', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <FaFacebook size={13} /> Facebook Account
+                    </span>
+                  )}
+                  {currentConv.customerProvider === 'local' && (
+                    <span style={{ color: '#10b981' }}>📱 Tài khoản Web</span>
+                  )}
+                </div>
               </div>
             )}
 

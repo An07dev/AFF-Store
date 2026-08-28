@@ -44,6 +44,10 @@ export async function POST(request: Request) {
       senderName,
       customerName,
       customerPhone,
+      customerEmail,
+      customerAvatar,
+      customerProvider,
+      customerId,
       text,
       image,
       product,
@@ -62,6 +66,9 @@ export async function POST(request: Request) {
       senderName: senderName || (sender === 'admin' ? 'Admin CSKH' : 'Khách hàng'),
       customerName: customerName || 'Khách hàng',
       customerPhone: customerPhone || '',
+      customerEmail: customerEmail || '',
+      customerAvatar: customerAvatar || '',
+      customerProvider: customerProvider || 'guest',
       text: text?.trim() || '',
       image: image || '',
       product: product || undefined,
@@ -85,6 +92,10 @@ export async function POST(request: Request) {
       convUpdate.customerPhone = customerPhone;
       convUpdate.status = 'has_phone';
     }
+    if (customerEmail) convUpdate.customerEmail = customerEmail;
+    if (customerAvatar) convUpdate.customerAvatar = customerAvatar;
+    if (customerProvider) convUpdate.customerProvider = customerProvider;
+    if (customerId) convUpdate.customerId = customerId;
     if (product) convUpdate.productContext = product;
 
     const incField = isUser ? { unreadCountAdmin: 1 } : { unreadCountUser: 1 };
