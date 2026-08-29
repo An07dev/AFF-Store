@@ -8,20 +8,23 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env.local if exists
+// Load .env.local / .env if exists
 function loadEnv() {
-  const envPath = path.join(__dirname, '.env.local');
-  if (fs.existsSync(envPath)) {
-    const content = fs.readFileSync(envPath, 'utf8');
-    content.split('\n').forEach((line) => {
-      const trimmed = line.trim();
-      if (trimmed && !trimmed.startsWith('#')) {
-        const [key, ...values] = trimmed.split('=');
-        if (key && values.length > 0) {
-          process.env[key.trim()] = values.join('=').trim();
+  const envFiles = ['.env.local', '.env'];
+  for (const file of envFiles) {
+    const envPath = path.join(__dirname, file);
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf8');
+      content.split('\n').forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#')) {
+          const [key, ...values] = trimmed.split('=');
+          if (key && values.length > 0 && !process.env[key.trim()]) {
+            process.env[key.trim()] = values.join('=').trim();
+          }
         }
-      }
-    });
+      });
+    }
   }
 }
 
@@ -29,7 +32,7 @@ loadEnv();
 
 const MONGODB_URI =
   process.env.MONGODB_URI ||
-  'mongodb+srv://bigmansale2_db_user:mjX8Z79pPTpiQLeq@cluster0.o9kuvob.mongodb.net/webstore?retryWrites=true&w=majority&appName=Cluster0';
+  'mongodb+srv://bigmansale2_db_user:LQBnps6DkzVpKe84@cluster0.o9kuvob.mongodb.net/webstore?retryWrites=true&w=majority&appName=Cluster0';
 const PORT = process.env.PORT_SOCKET || process.env.SOCKET_PORT || 3001;
 
 // Define Mongoose Models inside Socket Server

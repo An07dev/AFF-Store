@@ -218,6 +218,7 @@ export default function LandingPage() {
 
   // Lightbox / Image Preview State
   const [activePreviewIndex, setActivePreviewIndex] = useState<number | null>(null);
+  const [previewGalleryType, setPreviewGalleryType] = useState<'hero' | 'admin'>('hero');
 
   const heroGallery = [
     {
@@ -264,7 +265,69 @@ export default function LandingPage() {
     },
   ];
 
-  const openPreview = (index: number) => {
+  const adminGallery = [
+    {
+      src: '/images/preview-admin-dashboard-v2.png',
+      title: 'Tổng Quan Báo Cáo Kinh Doanh & Doanh Thu Realtime',
+      desc: 'Báo cáo doanh thu trực quan theo ngày/tháng, thống kê đơn hàng, top sản phẩm bán chạy và tỷ lệ chuyển đổi realtime.',
+      tag: 'Báo Cáo Realtime',
+      badge: 'Doanh Thu Live',
+    },
+    {
+      src: '/images/preview-admin-chat-v2.png',
+      title: 'Tin Nhắn CSKH & AI Trợ Lý Tự Động Chốt Đơn 24/7',
+      desc: 'Hộp thư trực tiếp với khách mua hàng, trợ lý AI thông minh tự động tư vấn size, gửi link sản phẩm và chốt đơn 24/7.',
+      tag: 'AI Trợ Lý CSKH',
+      badge: 'Realtime Chat',
+    },
+    {
+      src: '/images/preview-admin-products-v2.png',
+      title: 'Quản Lý Kho Hàng & Danh Sách 19+ Sản Phẩm Mẫu',
+      desc: 'Quản lý toàn diện biến thể màu sắc, kích cỡ, bảng giá, tồn kho và các thiết lập khuyến mãi flash sale.',
+      tag: 'Kho Hàng & Biến Thể',
+      badge: 'Multi-Variants',
+    },
+    {
+      src: '/images/preview-admin-orders-v2.png',
+      title: 'Quản Lý Đơn Hàng, Khách Hàng & Trạng Thái VietQR',
+      desc: 'Theo dõi chi tiết đơn hàng, khách hàng, tự động cập nhật trạng thái thanh toán VietQR qua SePay và xuất vận đơn.',
+      tag: 'Quản Lý Đơn Hàng',
+      badge: 'Khớp Lệnh 1s',
+    },
+    {
+      src: '/images/preview-admin-shipping-v2.png',
+      title: 'Quản Lý Vận Chuyển & Đẩy Đơn GHN / GHTK / Viettel Post',
+      desc: 'Kết nối API trực tiếp với các đơn vị vận chuyển hàng đầu, tự động tính phí ship, in tem vận đơn và đẩy đơn 1-chạm.',
+      tag: 'Vận Chuyển Đa Hãng',
+      badge: 'GHN / GHTK / VTP',
+    },
+    {
+      src: '/images/preview-admin-vietqr-v2.png',
+      title: 'Cổng Thanh Toán VietQR & SePay Webhook Tự Động',
+      desc: 'Cấu hình tài khoản ngân hàng nhận tiền trực tiếp 100%, sinh mã QR Napas247 động theo đơn và khớp lệnh 1 giây.',
+      tag: 'Cổng VietQR SePay',
+      badge: '0% Phí Sàn',
+    },
+    {
+      src: '/images/preview-admin-theme-v2.png',
+      title: 'Cấu Hình Giao Diện & Bộ 7 Multi-Themes Live Preview',
+      desc: 'Tùy chỉnh màu sắc chủ đạo, font chữ, logo thương hiệu và linh hoạt chuyển đổi giữa 7 bộ giao diện Shopee / TikTok / Dark.',
+      tag: 'Đa Giao Diện Multi-Theme',
+      badge: '7 Themes',
+    },
+    {
+      src: '/images/preview-admin-marketing-v2.png',
+      title: 'Báo Cáo Phễu Chuyển Đổi & Đo Lường Meta CAPI / TikTok Ads',
+      desc: 'Tích hợp Server-Side Meta Conversions API & TikTok Events API, bảo toàn 100% dữ liệu quảng cáo chống rớt đơn trên iOS.',
+      tag: 'Meta & TikTok CAPI',
+      badge: '100% Tracking',
+    },
+  ];
+
+  const currentGalleryList = previewGalleryType === 'admin' ? adminGallery : heroGallery;
+
+  const openPreview = (index: number, type: 'hero' | 'admin' = 'hero') => {
+    setPreviewGalleryType(type);
     setActivePreviewIndex(index);
   };
 
@@ -275,13 +338,13 @@ export default function LandingPage() {
   const nextPreview = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (activePreviewIndex === null) return;
-    setActivePreviewIndex((activePreviewIndex + 1) % heroGallery.length);
+    setActivePreviewIndex((activePreviewIndex + 1) % currentGalleryList.length);
   };
 
   const prevPreview = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (activePreviewIndex === null) return;
-    setActivePreviewIndex((activePreviewIndex - 1 + heroGallery.length) % heroGallery.length);
+    setActivePreviewIndex((activePreviewIndex - 1 + currentGalleryList.length) % currentGalleryList.length);
   };
 
   // Keyboard navigation for Lightbox Preview
@@ -764,7 +827,7 @@ export default function LandingPage() {
                     <div
                       key={item.src}
                       className={`${styles.rareIsoCard} ${styles[`rareIsoCard${idx + 1}` as keyof typeof styles]}`}
-                      onClick={() => openPreview(idx)}
+                      onClick={() => openPreview(idx, 'hero')}
                       title="Bấm để xem ảnh lớn"
                     >
                       <div className={styles.rareIsoZoomHint}>
@@ -793,7 +856,7 @@ export default function LandingPage() {
 
       {/* AI Image Generator Carousel Hero Showcase */}
       <ImageCarouselHeroDemo
-        onCardClick={(index) => openPreview(index)}
+        onCardClick={(index) => openPreview(index, 'admin')}
         onCtaClick={() => openOrderModal('399k')}
       />
 
@@ -2631,15 +2694,16 @@ export default function LandingPage() {
       {/* ==========================================================================
          LIGHTBOX PREVIEW MODAL
          ========================================================================== */}
-      {activePreviewIndex !== null && (
+      {activePreviewIndex !== null && currentGalleryList[activePreviewIndex] && (
         <div className={styles.lightboxOverlay} onClick={closePreview}>
           <div className={styles.lightboxHeader} onClick={(e) => e.stopPropagation()}>
             <div className={styles.lightboxTitleWrap}>
               <span className={styles.lightboxCounter}>
-                {activePreviewIndex + 1} / {heroGallery.length} • (DÙNG PHÍM ⬅️ ➡️)
+                {previewGalleryType === 'admin' ? '⚙️ HỆ THỐNG QUẢN TRỊ ADMIN • ' : '🛍️ GIAO DIỆN STOREFRONT • '}
+                {activePreviewIndex + 1} / {currentGalleryList.length} • (DÙNG PHÍM ⬅️ ➡️)
               </span>
               <h3 className={styles.lightboxTitle}>
-                {heroGallery[activePreviewIndex].title}
+                {currentGalleryList[activePreviewIndex].title}
               </h3>
             </div>
             <button
@@ -2667,8 +2731,8 @@ export default function LandingPage() {
             <div className={styles.lightboxImgWrap} onClick={(e) => e.stopPropagation()}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={heroGallery[activePreviewIndex].src}
-                alt={heroGallery[activePreviewIndex].title}
+                src={currentGalleryList[activePreviewIndex].src}
+                alt={currentGalleryList[activePreviewIndex].title}
                 className={styles.lightboxImg}
               />
             </div>
@@ -2686,11 +2750,11 @@ export default function LandingPage() {
 
           <div className={styles.lightboxFooter} onClick={(e) => e.stopPropagation()}>
             <p className={styles.lightboxDesc}>
-              {heroGallery[activePreviewIndex].desc}
+              {currentGalleryList[activePreviewIndex].desc}
             </p>
 
             <div className={styles.lightboxThumbnails}>
-              {heroGallery.map((item, idx) => (
+              {currentGalleryList.map((item, idx) => (
                 <button
                   key={item.src}
                   type="button"
