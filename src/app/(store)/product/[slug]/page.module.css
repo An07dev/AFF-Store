@@ -264,11 +264,12 @@
 /* Mobile Main Card */
 .mobileMainCard {
   background: var(--bg-card, #13161f);
-  padding: 14px 16px;
+  padding: 16px;
   border-bottom: 1px solid var(--border-color, #232838);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .mobilePriceRow {
@@ -279,14 +280,14 @@
 }
 
 .mobileCurrentPrice {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 900;
   color: var(--primary, #3b82f6);
   letter-spacing: -0.5px;
 }
 
 .mobileOldPrice {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--text-muted, #94a3b8);
   text-decoration: line-through;
 }
@@ -302,9 +303,9 @@
 }
 
 .mobileTitle {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.45;
   color: var(--text-main, #f8fafc);
   margin: 0;
 }
@@ -347,30 +348,32 @@
   font-size: 11.5px;
   color: #f97316;
   background: rgba(249, 115, 22, 0.1);
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 7px 12px;
+  border-radius: 8px;
   margin-top: 2px;
+  border: 1px solid rgba(249, 115, 22, 0.2);
 }
 
 /* Mobile Variant Card */
 .mobileVariantCard {
   background: var(--bg-card, #13161f);
-  padding: 14px 16px;
+  padding: 16px;
   border-top: 1px solid var(--border-color, #232838);
   border-bottom: 1px solid var(--border-color, #232838);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .variantSection {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .variantTitle {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-main, #f8fafc);
   display: flex;
@@ -385,14 +388,15 @@
 }
 
 .variantBtn {
-  background: var(--bg-main, #090a0f);
+  background: var(--bg-card-hover, #1a1e2b);
   border: 1px solid var(--border-color, #232838);
   color: var(--text-main, #f8fafc);
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
 .variantBtn:hover:not(:disabled) {
@@ -401,10 +405,11 @@
 }
 
 .activeVariant {
-  background: rgba(59, 130, 246, 0.15);
+  background: color-mix(in srgb, var(--primary, #3b82f6) 12%, var(--bg-card, #ffffff));
   border-color: var(--primary, #3b82f6);
   color: var(--primary, #3b82f6);
-  font-weight: 700;
+  font-weight: 800;
+  box-shadow: 0 0 0 1px var(--primary, #3b82f6);
 }
 
 .disabledVariant {
@@ -424,8 +429,8 @@
   display: flex;
   align-items: center;
   border: 1px solid var(--border-color, #232838);
-  border-radius: 6px;
-  background: var(--bg-main, #090a0f);
+  border-radius: 8px;
+  background: var(--bg-card-hover, #1a1e2b);
   overflow: hidden;
 }
 
@@ -433,7 +438,7 @@
   background: none;
   border: none;
   color: var(--text-main, #f8fafc);
-  padding: 6px 10px;
+  padding: 6px 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -442,7 +447,7 @@
 }
 
 .qtyBtn:hover:not(:disabled) {
-  background: var(--bg-card-hover, #1a1e2b);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .qtyBtn:disabled {
@@ -451,8 +456,8 @@
 }
 
 .qtyValue {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 800;
   padding: 0 10px;
   min-width: 32px;
   text-align: center;
@@ -461,42 +466,43 @@
 /* Mobile Shop Card */
 .mobileShopCard {
   background: var(--bg-card, #13161f);
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-top: 1px solid var(--border-color, #232838);
   border-bottom: 1px solid var(--border-color, #232838);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .shopLeft {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .shopAvatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   background: var(--primary, #3b82f6);
   color: var(--primary-text, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
   flex-shrink: 0;
 }
 
 .shopName {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--text-main, #f8fafc);
 }
 
 .shopMeta {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--text-muted, #94a3b8);
   margin-top: 2px;
 }
@@ -505,7 +511,7 @@
   background: none;
   border: 1px solid var(--border-color, #232838);
   color: var(--text-main, #f8fafc);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   padding: 6px 14px;
   border-radius: 999px;
@@ -521,16 +527,17 @@
 /* Mobile Description Card */
 .mobileDescCard {
   background: var(--bg-card, #13161f);
-  padding: 14px 16px;
+  padding: 16px;
   border-top: 1px solid var(--border-color, #232838);
   border-bottom: 1px solid var(--border-color, #232838);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .descTitle {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--text-main, #f8fafc);
   margin: 0;
@@ -546,8 +553,8 @@
 }
 
 .descContent {
-  font-size: 12.5px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.65;
   color: var(--text-muted, #cbd5e1);
   white-space: pre-line;
 }
@@ -579,12 +586,13 @@
 /* Mobile Reviews Card */
 .mobileReviewsCard {
   background: var(--bg-card, #13161f);
-  padding: 14px 16px;
+  padding: 16px;
   border-top: 1px solid var(--border-color, #232838);
   border-bottom: 1px solid var(--border-color, #232838);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .reviewsCardHeader {
@@ -594,7 +602,7 @@
 }
 
 .reviewsCardTitle {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--text-main, #f8fafc);
   margin: 0 0 4px 0;
@@ -639,13 +647,13 @@
 }
 
 .previewReviewItem {
-  background: var(--bg-main, #090a0f);
+  background: var(--bg-card-hover, #1a1e2b);
   border: 1px solid var(--border-color, #232838);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: 10px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .previewReviewHeader {
@@ -702,12 +710,12 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: var(--bg-main, #090a0f);
+  background: var(--bg-card-hover, #1a1e2b);
   border: 1px solid var(--border-color, #232838);
   color: var(--text-main, #f8fafc);
   font-size: 12px;
   font-weight: 700;
-  padding: 8px;
+  padding: 10px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s;
@@ -724,14 +732,16 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 56px;
-  background: var(--navbar-bg, #090a0f);
-  border-top: 1px solid var(--border-color, #232838);
+  height: 58px;
+  background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  gap: 8px;
+  padding: 0 12px;
+  gap: 10px;
   z-index: 50;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
 }
 
 .actionIconBtn {
@@ -740,35 +750,59 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-main, #334155);
   text-decoration: none;
   font-size: 10px;
-  font-weight: 600;
-  padding: 4px 8px;
+  font-weight: 700;
+  padding: 4px 6px;
+  min-width: 42px;
+  transition: color 0.15s ease;
+}
+
+.actionIconBtn:hover {
+  color: var(--primary, #3b82f6);
 }
 
 .addCartBtn {
   flex: 1;
-  height: 40px;
-  background: rgba(59, 130, 246, 0.15);
+  height: 42px;
+  background: color-mix(in srgb, var(--primary, #3b82f6) 12%, var(--bg-card, #ffffff));
   color: var(--primary, #3b82f6);
-  border: 1px solid var(--primary, #3b82f6);
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.buyNowBtn {
-  flex: 1.2;
-  height: 40px;
-  background: var(--primary, #3b82f6);
-  color: var(--primary-text, #ffffff);
-  border: none;
+  border: 1.5px solid var(--primary, #3b82f6);
   border-radius: 999px;
   font-size: 12.5px;
   font-weight: 800;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.addCartBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--primary, #3b82f6) 20%, var(--bg-card, #ffffff));
+}
+
+.buyNowBtn {
+  flex: 1.2;
+  height: 42px;
+  background: var(--primary, #3b82f6);
+  color: var(--primary-text, #ffffff);
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: all 0.2s ease;
+}
+
+.buyNowBtn:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
 }
 
 /* Mobile Related Products ("Có thể bạn cũng thích") */

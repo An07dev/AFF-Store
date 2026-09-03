@@ -203,7 +203,7 @@ export default function PaymentPage() {
         <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Trang chủ">
           <FiChevronLeft size={22} />
         </button>
-        <div className={styles.navTitle}>Thanh Toán VietQR Tự Động</div>
+        <div className={styles.navTitle}>Thanh Toán VietQR</div>
         <div className={styles.secureBadge}>
           <FiShield size={14} />
           <span>Bảo mật 256-bit</span>
@@ -348,16 +348,7 @@ export default function PaymentPage() {
                 <span>{isChecking ? 'Đang kiểm tra...' : 'Tôi Đã Chuyển Khoản'}</span>
               </button>
 
-              <button
-                type="button"
-                className={styles.demoBtn}
-                onClick={handleSimulatePayment}
-                disabled={simulating}
-                title="Nhấn để mô phỏng SePay gửi webhook thanh toán đơn hàng này"
-              >
-                <FiZap size={15} />
-                <span>{simulating ? 'Đang kích hoạt...' : 'Mô Phỏng Thanh Toán Thành Công (Demo)'}</span>
-              </button>
+
 
               <Link href="/" className={styles.homeLink}>
                 Quay về Trang Chủ
