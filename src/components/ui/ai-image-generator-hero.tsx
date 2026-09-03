@@ -1,21 +1,34 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import {
+  ArrowRight,
+  ZoomIn,
+  ChevronLeft,
+  ChevronRight,
+  BarChart3,
+  Bot,
+  Package,
+  ShoppingCart,
+  Truck,
+  Zap,
+  Palette,
+  Target,
+} from "lucide-react";
 import styles from "./ai-image-generator-hero.module.css";
 
 export interface ImageCard {
   id: string;
   src: string;
   alt: string;
-  rotation: number;
+  rotation?: number;
 }
 
 export interface ImageCarouselHeroProps {
   title: string;
   subtitle?: string;
-  description: string;
+  description?: string;
   ctaText: string;
   onCtaClick?: () => void;
   images: ImageCard[];
@@ -26,81 +39,112 @@ export interface ImageCarouselHeroProps {
   onCardClick?: (index: number) => void;
 }
 
+const TAB_ICONS: Record<string, React.ReactNode> = {
+  "admin-dashboard": <BarChart3 size={15} />,
+  "admin-chat": <Bot size={15} />,
+  "admin-products": <Package size={15} />,
+  "admin-orders": <ShoppingCart size={15} />,
+  "admin-shipping": <Truck size={15} />,
+  "admin-vietqr": <Zap size={15} />,
+  "admin-theme": <Palette size={15} />,
+  "admin-marketing": <Target size={15} />,
+};
+
+const TAB_SHORT_LABELS: Record<string, string> = {
+  "admin-dashboard": "Tổng Quan Báo Cáo",
+  "admin-chat": "AI CSKH 24/7",
+  "admin-products": "Kho Hàng & Biến Thể",
+  "admin-orders": "Quản Lý Đơn Hàng",
+  "admin-shipping": "Đẩy Đơn GHN / GHTK",
+  "admin-vietqr": "Cổng VietQR SePay",
+  "admin-theme": "7 Multi-Themes",
+  "admin-marketing": "Meta & TikTok CAPI",
+};
+
+const TAB_URLS: Record<string, string> = {
+  "admin-dashboard": "shoptik.vn/admin",
+  "admin-chat": "shoptik.vn/admin/chat",
+  "admin-products": "shoptik.vn/admin/products",
+  "admin-orders": "shoptik.vn/admin/orders",
+  "admin-shipping": "shoptik.vn/admin/shipping",
+  "admin-vietqr": "shoptik.vn/admin/payment",
+  "admin-theme": "shoptik.vn/admin/settings",
+  "admin-marketing": "shoptik.vn/admin/marketing",
+};
+
+const TAB_BADGES: Record<string, string> = {
+  "admin-dashboard": "Doanh Thu Realtime",
+  "admin-chat": "AI Live Chốt Đơn",
+  "admin-products": "Multi-Variants 19+ SP",
+  "admin-orders": "Khớp Lệnh 1s",
+  "admin-shipping": "GHN / GHTK / VTP",
+  "admin-vietqr": "0% Phí Sàn",
+  "admin-theme": "7 Themes Đa Sắc",
+  "admin-marketing": "100% Data CAPI",
+};
+
 export function ImageCarouselHero({
   title,
   subtitle,
   description,
   ctaText,
   onCtaClick,
-  images,
-  features = [
-    {
-      title: "Realistic Results",
-      description: "Realistic Results Photos that look professionally crafted",
-    },
-    {
-      title: "Fast Generation",
-      description: "Turn ideas into images in seconds.",
-    },
-    {
-      title: "Diverse Styles",
-      description: "Choose from a wide range of artistic options.",
-    },
-  ],
+  images = [],
+  features = [],
   onCardClick,
 }: ImageCarouselHeroProps) {
-  const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
-  const [isHovering, setIsHovering] = useState(false);
-  const [rotatingCards, setRotatingCards] = useState<number[]>([]);
-  const [radius, setRadius] = useState(300);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const tabListRef = useRef<HTMLDivElement>(null);
 
-  // Responsive radius calculation for landscape PC cards
+  // Auto-switch tabs every 4.5 seconds if not hovered
   useEffect(() => {
-    const handleResize = () => {
-      if (typeof window !== "undefined") {
-        if (window.innerWidth < 640) {
-          setRadius(190);
-        } else if (window.innerWidth < 1024) {
-          setRadius(270);
-        } else {
-          setRadius(350);
-        }
+    if (isPaused || images.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % images.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [isPaused, images.length]);
+
+  // Auto-scroll active tab into view inside the tab container ONLY (never scrolls window)
+  useEffect(() => {
+    if (tabListRef.current) {
+      const container = tabListRef.current;
+      const activeTabBtn = container.children[activeIndex] as HTMLElement;
+      if (activeTabBtn) {
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = activeTabBtn.getBoundingClientRect();
+        const currentScrollLeft = container.scrollLeft;
+        const targetScrollLeft =
+          currentScrollLeft +
+          (tabRect.left - containerRect.left) -
+          container.clientWidth / 2 +
+          tabRect.width / 2;
+
+        container.scrollTo({
+          left: Math.max(0, targetScrollLeft),
+          behavior: "smooth",
+        });
       }
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Continuous rotation animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRotatingCards((prev) =>
-        prev.map((val) => (val + 0.35) % 360)
-      );
-    }, 40);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Initialize rotating cards
-  useEffect(() => {
-    if (images.length > 0) {
-      setRotatingCards(images.map((_, i) => i * (360 / images.length)));
     }
-  }, [images.length]);
+  }, [activeIndex]);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePosition({
-      x: (e.clientX - rect.left) / rect.width,
-      y: (e.clientY - rect.top) / rect.height,
-    });
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % images.length);
   };
+
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const currentImage = images[activeIndex] || images[0];
+  const currentKey = currentImage?.id || "";
+  const currentUrl = TAB_URLS[currentKey] || "shoptik.vn/admin";
+  const currentBadge = TAB_BADGES[currentKey] || "ShopTik Admin";
 
   return (
     <div className={styles.heroWrapper}>
-      {/* Animated Background Lights */}
+      {/* Ambient Background Glows */}
       <div className={styles.ambientGlow1} />
       <div className={styles.ambientGlow2} />
 
@@ -112,101 +156,156 @@ export function ImageCarouselHero({
           </div>
         )}
 
-        {/* 3D Carousel Stage - Horizontal Landscape Cards */}
+        {/* Section Title & Description */}
+        <div className={styles.contentSection}>
+          <h2 className={styles.title}>{title}</h2>
+          {description ? (
+            <p className={styles.description}>{description}</p>
+          ) : (
+            <p className={styles.description}>
+              Hệ thống quản trị bán hàng ngoại sàn hoàn chỉnh: Báo cáo realtime, trợ lý AI CSKH chốt đơn, đẩy bưu tá 1-chạm và cổng thanh toán VietQR tự động 1s.
+            </p>
+          )}
+        </div>
+
+        {/* Interactive Showcase Container */}
         <div
-          className={styles.carouselContainer}
-          onMouseMove={handleMouseMove}
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => {
-            setIsHovering(false);
-            setMousePosition({ x: 0.5, y: 0.5 });
-          }}
+          className={styles.showcaseBox}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
         >
-          <div className={styles.stage3D}>
-            {images.map((image, index) => {
-              const currentAngleDeg =
-                rotatingCards[index] !== undefined
-                  ? rotatingCards[index]
-                  : index * (360 / images.length);
-              const angleRad = (currentAngleDeg * Math.PI) / 180;
-
-              // 3D Elliptical orbit calculations for landscape cards
-              const x = Math.cos(angleRad) * radius;
-              const y = Math.sin(angleRad) * (radius * 0.42);
-
-              // 3D perspective effect based on mouse hover position
-              const perspectiveX = isHovering ? (mousePosition.x - 0.5) * 20 : 0;
-              const perspectiveY = isHovering ? (mousePosition.y - 0.5) * 20 : 0;
-
-              // Depth scaling: front cards are larger, back cards are slightly smaller
-              const depthFactor = (Math.sin(angleRad) + 1) / 2; // 0 to 1
-              const scale = 0.84 + depthFactor * 0.3;
-              const zIndex = Math.round(depthFactor * 50);
-              const opacity = 0.65 + depthFactor * 0.35;
+          {/* 1. Horizontal Scrollable Feature Tabs */}
+          <div className={styles.tabsContainer} ref={tabListRef}>
+            {images.map((img, idx) => {
+              const isSelected = activeIndex === idx;
+              const icon = TAB_ICONS[img.id] || <BarChart3 size={15} />;
+              const label = TAB_SHORT_LABELS[img.id] || img.alt || `Tính năng ${idx + 1}`;
 
               return (
-                <div
-                  key={image.id || index}
-                  className={styles.cardWrapper}
-                  style={{
-                    transform: `
-                      translate(${x}px, ${y}px)
-                      scale(${scale})
-                      rotateX(${perspectiveY}deg)
-                      rotateY(${perspectiveX}deg)
-                      rotateZ(${image.rotation * 0.6}deg)
-                    `,
-                    zIndex,
-                    opacity,
+                <button
+                  key={img.id || idx}
+                  type="button"
+                  className={`${styles.tabBtn} ${isSelected ? styles.tabBtnActive : ""}`}
+                  onClick={() => {
+                    setActiveIndex(idx);
+                    setIsPaused(true);
                   }}
                 >
-                  <div
-                    className={styles.cardInner}
-                    onClick={() => onCardClick?.(index)}
-                    title={image.alt || "Bấm để xem ảnh lớn"}
-                  >
-                    {/* PC Window Top Chrome Bar */}
-                    <div className={styles.browserBar}>
-                      <div className={styles.browserDots}>
-                        <span className={styles.dotRed} />
-                        <span className={styles.dotYellow} />
-                        <span className={styles.dotGreen} />
-                      </div>
-                      <span className={styles.browserUrl}>
-                        shoptik.vn/admin
-                      </span>
-                    </div>
-
-                    {/* Screenshot Image Container */}
-                    <div className={styles.imageContainer}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={image.src}
-                        alt={image.alt || "ShopTik PC Screen"}
-                        className={styles.cardImage}
-                        loading="lazy"
-                      />
-                      <div className={styles.cardShine} />
-                      <div className={styles.cardGradient} />
-                      {image.alt && (
-                        <div className={styles.cardTitleOverlay}>
-                          {image.alt}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                  <span className={styles.tabIcon}>{icon}</span>
+                  <span className={styles.tabText}>{label}</span>
+                  {isSelected && <span className={styles.activeDot} />}
+                </button>
               );
             })}
           </div>
+
+          {/* 2. Main High-Definition Mockup Window Frame */}
+          <div className={styles.mockupWindowWrapper}>
+            <div className={styles.mockupWindow}>
+              {/* Window Top Chrome Bar */}
+              <div className={styles.browserBar}>
+                <div className={styles.browserDots}>
+                  <span className={styles.dotRed} />
+                  <span className={styles.dotYellow} />
+                  <span className={styles.dotGreen} />
+                </div>
+
+                <div className={styles.browserUrlBox}>
+                  <span className={styles.urlProtocol}>https://</span>
+                  <span className={styles.browserUrl}>{currentUrl}</span>
+                </div>
+
+                <div
+                  className={styles.zoomHintBtn}
+                  onClick={() => onCardClick?.(activeIndex)}
+                  title="Nhấn để phóng to ảnh xem chi tiết"
+                >
+                  <ZoomIn size={13} />
+                  <span className={styles.zoomHintText}>Phóng to ảnh</span>
+                </div>
+              </div>
+
+              {/* Main Image Stage */}
+              <div
+                className={styles.imageStage}
+                onClick={() => onCardClick?.(activeIndex)}
+                title="Bấm để mở xem ảnh kích thước lớn"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  key={currentImage?.src}
+                  src={currentImage?.src}
+                  alt={currentImage?.alt || "ShopTik Admin Feature"}
+                  className={styles.mockupImage}
+                />
+
+                <div className={styles.imageOverlayGradient} />
+
+                {/* Bottom Caption Pill & Counter */}
+                <div className={styles.imageCaptionBar}>
+                  <div className={styles.captionLeft}>
+                    <span className={styles.featureBadgePill}>{currentBadge}</span>
+                    <span className={styles.featureTitleText}>{currentImage?.alt}</span>
+                  </div>
+                  <span className={styles.counterBadge}>
+                    {activeIndex + 1} / {images.length}
+                  </span>
+                </div>
+
+                {/* Hover Quick Zoom Button */}
+                <div className={styles.hoverZoomOverlay}>
+                  <div className={styles.zoomCenterBadge}>
+                    <ZoomIn size={18} />
+                    <span>Xem Chi Tiết Màn Hình Này</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Arrows for Direct Control */}
+              <button
+                type="button"
+                className={`${styles.navArrowBtn} ${styles.navPrevBtn}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrev();
+                }}
+                aria-label="Tính năng trước"
+                title="Tính năng trước"
+              >
+                <ChevronLeft size={20} />
+              </button>
+
+              <button
+                type="button"
+                className={`${styles.navArrowBtn} ${styles.navNextBtn}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNext();
+                }}
+                aria-label="Tính năng tiếp theo"
+                title="Tính năng tiếp theo"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+
+            {/* Pagination Dots Bar */}
+            <div className={styles.dotsBar}>
+              {images.map((_, dotIdx) => (
+                <button
+                  key={dotIdx}
+                  type="button"
+                  aria-label={`Chuyển tới ảnh ${dotIdx + 1}`}
+                  className={`${styles.dotItem} ${activeIndex === dotIdx ? styles.dotItemActive : ""}`}
+                  onClick={() => setActiveIndex(dotIdx)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Content Section */}
-        <div className={styles.contentSection}>
-          <h2 className={styles.title}>{title}</h2>
-          <p className={styles.description}>{description}</p>
-
-          {/* Gradient CTA Button */}
+        {/* 3. Gradient Action CTA */}
+        <div className={styles.ctaWrap}>
           <button
             type="button"
             onClick={onCtaClick}
@@ -217,7 +316,7 @@ export function ImageCarouselHero({
           </button>
         </div>
 
-        {/* Features Section */}
+        {/* 4. Three Core Value Pillars */}
         {features && features.length > 0 && (
           <div className={styles.featuresGrid}>
             {features.map((feature, index) => (

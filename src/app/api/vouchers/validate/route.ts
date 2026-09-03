@@ -80,6 +80,10 @@ export async function POST(request: Request) {
         'customer.phone': cleanPhone,
         voucherCode: cleanCode,
         status: { $ne: 'cancelled' },
+        $or: [
+          { paymentMethod: { $nin: ['bank_transfer', 'online'] } },
+          { paymentStatus: 'paid' },
+        ],
       });
 
       if (usedByCustomer >= voucher.limitPerCustomer) {

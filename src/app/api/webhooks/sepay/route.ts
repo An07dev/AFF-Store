@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
+import Customer from '@/models/Customer';
+import Voucher from '@/models/Voucher';
 import { extractOrderCode } from '@/lib/payment/sepay';
 import { deductOrderInventory } from '@/lib/inventory-helper';
+import { sendOrderEmails } from '@/lib/email';
 import { createGHNOrder } from '@/lib/shipping/ghn';
 import { createGHTKOrder } from '@/lib/shipping/ghtk';
 import { createViettelPostOrder } from '@/lib/shipping/viettelpost';
@@ -61,6 +64,7 @@ export async function POST(request: Request) {
       );
     }
 
+    const wasAlreadyPaid = order.paymentStatus === 'paid';
     const receivedAmount = Number(transferAmount || amount || 0);
 
     // Update order payment status
@@ -78,11 +82,44 @@ export async function POST(request: Request) {
       await deductOrderInventory(order);
     }
 
+    // Cập nhật lượt sử dụng voucher nếu có
+    if (!wasAlreadyPaid && order.voucherCode) {
+      await Voucher.findOneAndUpdate(
+        { code: order.voucherCode },
+        { $inc: { usedCount: 1 } }
+      ).catch((err) => console.error('Error updating voucher usedCount:', err));
+    }
+
+    // Cập nhật thống kê chi tiêu khách hàng
+    if (!wasAlreadyPaid && order.customer?.phone) {
+      const phone = order.customer.phone.trim();
+      let customerDoc = await Customer.findOne({ phone });
+      if (!customerDoc) {
+        await Customer.create({
+          name: order.customer.name,
+          phone,
+          email: order.customer.email,
+          address: order.customer.address,
+          province: order.customer.province,
+          district: order.customer.district,
+          ward: order.customer.ward,
+          orderCount: 1,
+          totalSpent: order.totalAmount,
+          lastOrderAt: new Date(),
+        });
+      } else {
+        customerDoc.orderCount += 1;
+        customerDoc.totalSpent += order.totalAmount;
+        customerDoc.lastOrderAt = new Date();
+        await customerDoc.save();
+      }
+    }
+
     const newLog = {
       time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
       status: 'Đã thanh toán',
       location: 'Cổng thanh toán VietQR (SePay)',
-      description: `Khách hàng đã thanh toán thành công ${receivedAmount ? receivedAmount.toLocaleString('vi-VN') + '₫' : ''} qua mã VietQR. Đơn hàng đã được xác nhận và trừ tồn kho tự động.`,
+      description: `Khách hàng đã thanh toán thành công ${receivedAmount ? receivedAmount.toLocaleString('vi-VN') + '₫' : ''} qua mã VietQR. Đơn hàng đã được xác nhận và hiển thị trong Quản Lý Đơn Hàng.`,
       createdAt: new Date(),
     };
 
@@ -90,6 +127,13 @@ export async function POST(request: Request) {
     order.shippingLogs.push(newLog);
 
     await order.save();
+
+    // Gửi email xác nhận đơn hàng khi đã thanh toán thành công
+    if (!wasAlreadyPaid) {
+      sendOrderEmails(order.toObject ? order.toObject() : order).catch((e) => {
+        console.error('Email dispatch error on paid webhook:', e);
+      });
+    }
 
     return NextResponse.json({
       success: true,

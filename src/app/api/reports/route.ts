@@ -26,7 +26,17 @@ export async function GET(request: Request) {
       startDate.setDate(now.getDate() - 30);
     }
 
-    const orders = await Order.find({ createdAt: { $gte: startDate } });
+    const validPaymentFilter = {
+      $or: [
+        { paymentMethod: { $nin: ['bank_transfer', 'online'] } },
+        { paymentStatus: { $in: ['paid', 'refunded'] } },
+      ],
+    };
+
+    const orders = await Order.find({
+      createdAt: { $gte: startDate },
+      ...validPaymentFilter,
+    });
     const totalOrders = orders.length;
     const totalRevenue = orders
       .filter((o) => o.status !== 'cancelled')
@@ -69,7 +79,7 @@ export async function GET(request: Request) {
       .limit(5)
       .select('name soldCount price salePrice images');
 
-    const recentOrders = await Order.find({}).sort({ createdAt: -1 }).limit(5);
+    const recentOrders = await Order.find(validPaymentFilter).sort({ createdAt: -1 }).limit(5);
 
     return NextResponse.json({
       success: true,

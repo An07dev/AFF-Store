@@ -14,37 +14,48 @@ export async function GET(request: Request) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    const filter: any = {};
+    const andConditions: any[] = [
+      {
+        $or: [
+          { paymentMethod: { $nin: ['bank_transfer', 'online'] } },
+          { paymentStatus: { $in: ['paid', 'refunded'] } },
+        ],
+      },
+    ];
 
     if (orderIds) {
       const ids = orderIds.split(',').map((id) => id.trim()).filter(Boolean);
       if (ids.length > 0) {
-        filter._id = { $in: ids };
+        andConditions.push({ _id: { $in: ids } });
       }
     } else {
       if (status && status !== 'all') {
-        filter.status = status;
+        andConditions.push({ status });
       }
 
       if (search) {
-        filter.$or = [
-          { orderCode: { $regex: search, $options: 'i' } },
-          { 'customer.name': { $regex: search, $options: 'i' } },
-          { 'customer.phone': { $regex: search, $options: 'i' } },
-        ];
+        andConditions.push({
+          $or: [
+            { orderCode: { $regex: search, $options: 'i' } },
+            { 'customer.name': { $regex: search, $options: 'i' } },
+            { 'customer.phone': { $regex: search, $options: 'i' } },
+          ],
+        });
       }
 
       if (startDate || endDate) {
-        filter.createdAt = {};
-        if (startDate) filter.createdAt.$gte = new Date(startDate);
+        const dateFilter: any = {};
+        if (startDate) dateFilter.$gte = new Date(startDate);
         if (endDate) {
           const end = new Date(endDate);
           end.setHours(23, 59, 59, 999);
-          filter.createdAt.$lte = end;
+          dateFilter.$lte = end;
         }
+        andConditions.push({ createdAt: dateFilter });
       }
     }
 
+    const filter = andConditions.length > 0 ? { $and: andConditions } : {};
     const orders = await Order.find(filter).sort({ createdAt: -1 }).lean();
 
     // Map status and payment methods to Vietnamese

@@ -6,6 +6,7 @@ import Product from '@/models/Product';
 import Voucher from '@/models/Voucher';
 import { generateOrderCode } from '@/lib/utils';
 import { sendOrderEmails } from '@/lib/email';
+import { deductOrderInventory } from '@/lib/inventory-helper';
 
 export async function GET(request: Request) {
   try {
@@ -23,39 +24,53 @@ export async function GET(request: Request) {
     const email = searchParams.get('email');
     const userId = searchParams.get('userId');
 
-    const filter: any = {};
+    // Điều kiện lọc cốt lõi: Ẩn các đơn chuyển khoản VietQR chưa thanh toán (chưa quét mã QR).
+    // Chỉ hiển thị đơn COD hoặc đơn chuyển khoản đã quét mã thanh toán thành công (paid / refunded).
+    const andConditions: any[] = [
+      {
+        $or: [
+          { paymentMethod: { $nin: ['bank_transfer', 'online'] } },
+          { paymentStatus: { $in: ['paid', 'refunded'] } },
+        ],
+      },
+    ];
 
     if (phone) {
-      filter['customer.phone'] = phone;
+      andConditions.push({ 'customer.phone': phone });
     }
     if (email) {
-      filter['customer.email'] = email;
+      andConditions.push({ 'customer.email': email });
     }
     if (userId) {
-      filter['userId'] = userId;
+      andConditions.push({ userId });
     }
 
     if (status && status !== 'all') {
-      filter.status = status;
+      andConditions.push({ status });
     }
 
     if (search) {
-      filter.$or = [
-        { orderCode: { $regex: search, $options: 'i' } },
-        { 'customer.name': { $regex: search, $options: 'i' } },
-        { 'customer.phone': { $regex: search, $options: 'i' } },
-      ];
+      andConditions.push({
+        $or: [
+          { orderCode: { $regex: search, $options: 'i' } },
+          { 'customer.name': { $regex: search, $options: 'i' } },
+          { 'customer.phone': { $regex: search, $options: 'i' } },
+        ],
+      });
     }
 
     if (startDate || endDate) {
-      filter.createdAt = {};
-      if (startDate) filter.createdAt.$gte = new Date(startDate);
+      const dateFilter: any = {};
+      if (startDate) dateFilter.$gte = new Date(startDate);
       if (endDate) {
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
-        filter.createdAt.$lte = end;
+        dateFilter.$lte = end;
       }
+      andConditions.push({ createdAt: dateFilter });
     }
+
+    const filter = andConditions.length > 0 ? { $and: andConditions } : {};
 
     const total = await Order.countDocuments(filter);
     const orders = await Order.find(filter)
@@ -153,6 +168,10 @@ export async function POST(request: Request) {
           'customer.phone': phone,
           voucherCode: cleanCode,
           status: { $ne: 'cancelled' },
+          $or: [
+            { paymentMethod: { $nin: ['bank_transfer', 'online'] } },
+            { paymentStatus: 'paid' },
+          ],
         });
 
         if (phoneUsedCount >= voucher.limitPerCustomer) {
@@ -181,6 +200,9 @@ export async function POST(request: Request) {
     }
 
     const totalAmount = Math.max(0, subtotal + shippingFee - discountAmount);
+    const paymentMethod = body.paymentMethod || 'cod';
+    const isCOD = paymentMethod === 'cod';
+    const isAlreadyPaid = body.paymentStatus === 'paid';
 
     const newOrder = await Order.create({
       orderCode,
@@ -190,60 +212,61 @@ export async function POST(request: Request) {
       shippingFee,
       discountAmount,
       totalAmount,
-      paymentMethod: body.paymentMethod || 'cod',
-      paymentStatus: body.paymentStatus || 'unpaid',
+      paymentMethod,
+      paymentStatus: body.paymentStatus || (isAlreadyPaid ? 'paid' : 'unpaid'),
       status: body.status || 'pending',
       shippingProvider: body.shippingProvider || 'ghn',
       shippingCarrier: body.shippingCarrier || 'Giao Hàng Nhanh (GHN)',
       voucherCode: validVoucherCode,
       voucherDiscount: discountAmount,
       notes: body.notes,
+      inventoryDeducted: false,
     });
 
-    // If voucher was used, increment its usage count
-    if (validVoucherCode) {
-      await Voucher.findOneAndUpdate(
-        { code: validVoucherCode },
-        { $inc: { usedCount: 1 } }
-      ).catch((err) => console.error('Error updating voucher usedCount:', err));
-    }
-
-    // Update customer stats
-    const phone = body.customer.phone.trim();
-    let customerDoc = await Customer.findOne({ phone });
-    if (!customerDoc) {
-      customerDoc = await Customer.create({
-        name: body.customer.name,
-        phone,
-        email: body.customer.email,
-        address: body.customer.address,
-        province: body.customer.province,
-        district: body.customer.district,
-        ward: body.customer.ward,
-        orderCount: 1,
-        totalSpent: totalAmount,
-        lastOrderAt: new Date(),
-      });
-    } else {
-      customerDoc.orderCount += 1;
-      customerDoc.totalSpent += totalAmount;
-      customerDoc.lastOrderAt = new Date();
-      await customerDoc.save();
-    }
-
-    // Update product soldCount & stock
-    for (const item of body.items) {
-      if (item.productId) {
-        await Product.findByIdAndUpdate(item.productId, {
-          $inc: { soldCount: item.quantity, stock: -item.quantity },
-        });
+    // Chỉ thực hiện trừ tồn kho, cập nhật doanh số khách hàng, tăng lượt voucher và gửi email
+    // ngay lập tức nếu là đơn COD hoặc đơn đã thanh toán.
+    // Đối với đơn Chuyển khoản VietQR chưa quét mã (unpaid), các tác vụ này sẽ được kích hoạt
+    // tự động trong webhook SePay khi khách quét QR thanh toán thành công!
+    if (isCOD || isAlreadyPaid) {
+      // If voucher was used, increment its usage count
+      if (validVoucherCode) {
+        await Voucher.findOneAndUpdate(
+          { code: validVoucherCode },
+          { $inc: { usedCount: 1 } }
+        ).catch((err) => console.error('Error updating voucher usedCount:', err));
       }
-    }
 
-    // Gửi email thông báo đơn hàng ngầm (không bắt khách hàng phải chờ)
-    sendOrderEmails(newOrder.toObject ? newOrder.toObject() : newOrder).catch((e) => {
-      console.error('Email dispatch error:', e);
-    });
+      // Update customer stats
+      const phone = body.customer.phone.trim();
+      let customerDoc = await Customer.findOne({ phone });
+      if (!customerDoc) {
+        customerDoc = await Customer.create({
+          name: body.customer.name,
+          phone,
+          email: body.customer.email,
+          address: body.customer.address,
+          province: body.customer.province,
+          district: body.customer.district,
+          ward: body.customer.ward,
+          orderCount: 1,
+          totalSpent: totalAmount,
+          lastOrderAt: new Date(),
+        });
+      } else {
+        customerDoc.orderCount += 1;
+        customerDoc.totalSpent += totalAmount;
+        customerDoc.lastOrderAt = new Date();
+        await customerDoc.save();
+      }
+
+      // Tự động trừ tồn kho theo từng biến thể sản phẩm
+      await deductOrderInventory(newOrder);
+
+      // Gửi email thông báo đơn hàng ngầm (không bắt khách hàng phải chờ)
+      sendOrderEmails(newOrder.toObject ? newOrder.toObject() : newOrder).catch((e) => {
+        console.error('Email dispatch error:', e);
+      });
+    }
 
     return NextResponse.json(
       {

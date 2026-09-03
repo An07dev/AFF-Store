@@ -19,7 +19,13 @@ export async function GET(
       );
     }
 
-    const orders = await Order.find({ 'customer.phone': customer.phone }).sort({ createdAt: -1 });
+    const orders = await Order.find({
+      'customer.phone': customer.phone,
+      $or: [
+        { paymentMethod: { $nin: ['bank_transfer', 'online'] } },
+        { paymentStatus: { $in: ['paid', 'refunded'] } },
+      ],
+    }).sort({ createdAt: -1 });
 
     return NextResponse.json({
       success: true,

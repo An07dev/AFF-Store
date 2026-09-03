@@ -42,8 +42,13 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    // 1. Check if there are real recent orders in DB
-    const recentOrders = await Order.find()
+    // 1. Check if there are real recent orders in DB (only COD or paid bank transfers)
+    const recentOrders = await Order.find({
+      $or: [
+        { paymentMethod: { $nin: ['bank_transfer', 'online'] } },
+        { paymentStatus: { $in: ['paid', 'refunded'] } },
+      ],
+    })
       .sort({ createdAt: -1 })
       .limit(8)
       .select('customer items createdAt orderCode');
