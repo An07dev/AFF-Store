@@ -42,7 +42,7 @@ export const DEFAULT_SHIPPING_CONFIG: IDBCarrierConfig = {
     ghtk: {
       enabled: true,
       token: '4NH4Qx1qc4M1FRbYh1o2aRJgwWZH3Hc0xRVdMoG',
-      partnerId: 'PARTNER_SHOPTIK_01',
+      partnerId: 'PARTNER_SHOPBIG_01',
       environment: 'production',
     },
     viettelpost: {

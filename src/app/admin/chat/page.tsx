@@ -97,7 +97,7 @@ export default function AdminChatPage() {
   const [showBotModal, setShowBotModal] = useState(false);
   const [botConfig, setBotConfig] = useState({
     enabled: true,
-    botName: 'AI Trợ Lý ShopTik',
+    botName: 'AI Trợ Lý ShopBig',
     welcomeMessage: 'Dạ chào bạn! Em là Trợ lý AI của shop. Em có thể giúp bạn tư vấn chọn size chuẩn xác, tra cứu đơn hàng hoặc giải đáp chính sách cửa hàng 24/7 ạ!',
     geminiApiKey: '',
   });
@@ -1204,7 +1204,7 @@ export default function AdminChatPage() {
                   type="text"
                   value={botConfig.botName}
                   onChange={(e) => setBotConfig({ ...botConfig, botName: e.target.value })}
-                  placeholder="Ví dụ: AI Trợ Lý ShopTik"
+                  placeholder="Ví dụ: AI Trợ Lý ShopBig"
                   style={{
                     width: '100%',
                     padding: '8px 12px',

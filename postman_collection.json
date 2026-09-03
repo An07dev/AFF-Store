@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "9b12a843-shop-landing-webbanhang-api-v2",
-    "name": "ShopTik - WebBanHang Full API Collection",
-    "description": "Bộ sưu tập Postman Collection hoàn chỉnh 100% cho dự án ShopTik (Next.js Fullstack E-Commerce). Bao gồm tất cả các module: Auth, Products, Categories, Orders, Customers CRM, Reports, Shipping, SePay Webhook, Theme Settings, Upload.",
+    "name": "ShopBig - WebBanHang Full API Collection",
+    "description": "Bộ sưu tập Postman Collection hoàn chỉnh 100% cho dự án ShopBig (Next.js Fullstack E-Commerce). Bao gồm tất cả các module: Auth, Products, Categories, Orders, Customers CRM, Reports, Shipping, SePay Webhook, Theme Settings, Upload.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -70,7 +70,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@shoptik.vn\",\n  \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"email\": \"admin@shopbig.vn\",\n  \"password\": \"admin123\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/auth/login",
@@ -740,7 +740,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"themeMode\": \"dark\",\n  \"primaryColor\": \"#3b82f6\",\n  \"accentColor\": \"#10b981\",\n  \"siteTitle\": \"ShopTik - Cửa Hàng Thời Trang Cao Cấp\",\n  \"logoText\": \"ShopTik\",\n  \"bannerNotice\": \"🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ\",\n  \"showBannerNotice\": true,\n  \"contactHotline\": \"1900 6868\",\n  \"contactEmail\": \"support@shoptik.vn\",\n  \"contactAddress\": \"Số 18, Ngõ 45 Đường Cầu Giấy, Hà Nội\"\n}"
+              "raw": "{\n  \"themeMode\": \"dark\",\n  \"primaryColor\": \"#3b82f6\",\n  \"accentColor\": \"#10b981\",\n  \"siteTitle\": \"ShopBig - Cửa Hàng Thời Trang Cao Cấp\",\n  \"logoText\": \"ShopBig\",\n  \"bannerNotice\": \"🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ\",\n  \"showBannerNotice\": true,\n  \"contactHotline\": \"1900 6868\",\n  \"contactEmail\": \"support@shopbig.vn\",\n  \"contactAddress\": \"Số 18, Ngõ 45 Đường Cầu Giấy, Hà Nội\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/settings/theme",

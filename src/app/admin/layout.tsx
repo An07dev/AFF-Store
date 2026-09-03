@@ -120,7 +120,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {theme.pageTitles?.logoUrl ? (
             <img src={theme.pageTitles.logoUrl} alt="Logo" style={{ maxHeight: 32, objectFit: 'contain' }} />
           ) : (
-            <h2>{theme.pageTitles?.logoText || 'ShopTik'} Admin</h2>
+            <h2>{theme.pageTitles?.logoText || 'ShopBig'} Admin</h2>
           )}
         </div>
         <nav className={styles.sidebarNav}>

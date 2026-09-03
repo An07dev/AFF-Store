@@ -21,7 +21,7 @@ function getStoredUtm(): { utmSource: string; utmMedium: string; utmCampaign: st
     return { utmSource: '', utmMedium: '', utmCampaign: '', source: 'direct' };
   }
   try {
-    const raw = sessionStorage.getItem('shoptik_utm_data');
+    const raw = sessionStorage.getItem('shopbig_utm_data');
     if (raw) return JSON.parse(raw);
   } catch {}
   return { utmSource: '', utmMedium: '', utmCampaign: '', source: 'direct' };
@@ -56,10 +56,10 @@ export default function MarketingPixelTracker() {
         detectedSource = utmSource.toLowerCase();
       }
 
-      const currentStored = sessionStorage.getItem('shoptik_utm_data');
+      const currentStored = sessionStorage.getItem('shopbig_utm_data');
       if (!currentStored || utmSource || fbclid || ttclid || gclid) {
         sessionStorage.setItem(
-          'shoptik_utm_data',
+          'shopbig_utm_data',
           JSON.stringify({
             utmSource,
             utmMedium,
@@ -283,9 +283,9 @@ export default function MarketingPixelTracker() {
       }
     };
 
-    window.addEventListener('shoptik-track-event' as any, handleCustomTracking as any);
+    window.addEventListener('shopbig-track-event' as any, handleCustomTracking as any);
     return () => {
-      window.removeEventListener('shoptik-track-event' as any, handleCustomTracking as any);
+      window.removeEventListener('shopbig-track-event' as any, handleCustomTracking as any);
     };
   }, [config]);
 

@@ -6,11 +6,11 @@ export default function LoginPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h2 className={styles.title}>ShopTik Admin</h2>
+        <h2 className={styles.title}>ShopBig Admin</h2>
         <form className={styles.form}>
           <div className={styles.inputGroup}>
             <label>Email</label>
-            <input type="email" className={styles.input} placeholder="admin@shoptik.com" />
+            <input type="email" className={styles.input} placeholder="admin@shopbig.com" />
           </div>
           <div className={styles.inputGroup}>
             <label>Mật khẩu</label>

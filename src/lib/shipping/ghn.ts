@@ -56,9 +56,9 @@ export async function createGHNOrder(orderData: any) {
       // Normalize payload to GHN requirements
       const payload = {
         payment_type_id: orderData.paymentMethod === 'cod' ? 2 : 1,
-        note: orderData.notes || 'Đơn hàng từ ShopTik Store',
+        note: orderData.notes || 'Đơn hàng từ ShopBig Store',
         required_note: 'CHOXEMHANGKHONGTHU',
-        from_name: 'ShopTik Store',
+        from_name: 'ShopBig Store',
         from_phone: '0364978796',
         from_address: 'Số 10 Phạm Hùng, Mỹ Đình',
         from_ward_name: 'Mỹ Đình 2',

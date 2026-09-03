@@ -105,7 +105,7 @@ export default function CartPage() {
     toast.success('Đã xóa các sản phẩm đã chọn');
   };
 
-  const shopName = theme?.pageTitles?.logoText || 'ShopTik Store';
+  const shopName = theme?.pageTitles?.logoText || 'ShopBig Store';
 
   return (
     <div className={styles.page}>

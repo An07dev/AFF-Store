@@ -95,7 +95,7 @@ export default function PaymentAdminPage() {
   const [bankTransferEnabled, setBankTransferEnabled] = useState(true);
   const [bankName, setBankName] = useState('MBBank');
   const [accountNumber, setAccountNumber] = useState('0988123456');
-  const [accountName, setAccountName] = useState('SHOPTIK VIETNAM');
+  const [accountName, setAccountName] = useState('SHOPBIG VIETNAM');
   const [sepayToken, setSepayToken] = useState('SEPAY_API_TOKEN_983741');
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -368,7 +368,7 @@ export default function PaymentAdminPage() {
                 <input
                   type="text"
                   required
-                  placeholder="VD: SHOPTIK VIETNAM"
+                  placeholder="VD: SHOPBIG VIETNAM"
                   className={styles.input}
                   value={accountName}
                   onChange={(e) => setAccountName(e.target.value.toUpperCase())}

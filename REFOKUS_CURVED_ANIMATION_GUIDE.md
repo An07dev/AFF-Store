@@ -175,7 +175,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 const projects = [
-  { id: 1, title: 'ShopTik E-Commerce', tag: 'Next.js 16 • VietQR', img: '/images/hero-feed.png', color: '#6366f1' },
+  { id: 1, title: 'ShopBig E-Commerce', tag: 'Next.js 16 • VietQR', img: '/images/hero-feed.png', color: '#6366f1' },
   { id: 2, title: 'Automated CRM Engine', tag: 'FastAPI • Analytics', img: '/images/hero-cart.png', color: '#ec4899' },
   { id: 3, title: 'Cyberpunk Multi-Theme', tag: 'WebGL • Tailwind', img: '/images/hero-product.png', color: '#10b981' },
   { id: 4, title: 'Global Logistics CAPI', tag: 'GHN • GHTK API', img: '/images/hero-checkout.png', color: '#f59e0b' },
@@ -308,7 +308,7 @@ export default function RefokusStyleLandingPage() {
       </section>
 
       {/* MARQUEE RUNNER */}
-      <MarqueeStrip items={['ShopTik Next.js 16', 'VietQR SePay 1s', 'GHN & GHTK Auto-Ship', 'Meta CAPI & TikTok Ads', 'Zero Marketplace Fee']} />
+      <MarqueeStrip items={['ShopBig Next.js 16', 'VietQR SePay 1s', 'GHN & GHTK Auto-Ship', 'Meta CAPI & TikTok Ads', 'Zero Marketplace Fee']} />
 
       {/* SECTION 2: CURVED SECTION (TÔNG TÍM SẪM ĐẬM CHẤT AGENCY) */}
       <CurvedSection bgColor="#131127" className="py-32">

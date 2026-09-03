@@ -776,7 +776,7 @@ export default function ShippingAdminPage() {
                     <input
                       type="text"
                       className={styles.input}
-                      placeholder="VD: shoptik_vtp"
+                      placeholder="VD: shopbig_vtp"
                       value={config.carriers.viettelpost.username}
                       onChange={(e) =>
                         setConfig({
@@ -1186,7 +1186,7 @@ export default function ShippingAdminPage() {
                       <input
                         type="text"
                         className={styles.input}
-                        placeholder="VD: PARTNER_SHOPTIK_01"
+                        placeholder="VD: PARTNER_SHOPBIG_01"
                         value={config.carriers.ghtk.partnerId}
                         onChange={(e) =>
                           setConfig({

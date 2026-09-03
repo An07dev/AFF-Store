@@ -39,7 +39,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<CustomerProfile>({
     name: 'Khách hàng',
     phone: '0988888888',
-    email: 'khachhang@shoptik.vn',
+    email: 'khachhang@shopbig.vn',
     address: 'Số 10 Phạm Hùng, Cầu Giấy, Hà Nội',
   });
 
@@ -51,7 +51,7 @@ export default function ProfilePage() {
   // 1. Load profile from localStorage or fallback API (no token required)
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('shoptik_profile');
+      const saved = localStorage.getItem('shopbig_profile');
       if (saved) {
         const parsed = JSON.parse(saved);
         setProfile(parsed);
@@ -65,7 +65,7 @@ export default function ProfilePage() {
               const p = {
                 name: data.data.name || 'Khách hàng',
                 phone: data.data.phone || '0988888888',
-                email: data.data.email || 'khachhang@shoptik.vn',
+                email: data.data.email || 'khachhang@shopbig.vn',
                 address: data.data.address || 'Số 10 Phạm Hùng, Cầu Giấy, Hà Nội',
               };
               setProfile(p);
@@ -103,7 +103,7 @@ export default function ProfilePage() {
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     setProfile(editForm);
-    localStorage.setItem('shoptik_profile', JSON.stringify(editForm));
+    localStorage.setItem('shopbig_profile', JSON.stringify(editForm));
     setIsEditing(false);
     toast.success('Đã cập nhật thông tin cá nhân!');
   };

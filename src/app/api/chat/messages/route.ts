@@ -114,7 +114,7 @@ export async function POST(request: Request) {
           botReplyMsg = await ChatMessage.create({
             conversationId,
             sender: 'bot',
-            senderName: botResult.senderName || 'AI Trợ Lý ShopTik',
+            senderName: botResult.senderName || 'AI Trợ Lý ShopBig',
             customerName: customerName || 'Khách hàng',
             customerPhone: customerPhone || '',
             text: botResult.replyText,

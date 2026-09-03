@@ -5,7 +5,7 @@ import Order from '@/models/Order';
 export async function GET() {
   return NextResponse.json({
     success: true,
-    service: 'ShopTik Logistics 3rd-Party Webhook Listener',
+    service: 'ShopBig Logistics 3rd-Party Webhook Listener',
     supportedCarriers: ['GHN (Giao Hàng Nhanh)', 'GHTK (Giao Hàng Tiết Kiệm)', 'Viettel Post'],
     status: 'online',
     timestamp: new Date().toISOString(),

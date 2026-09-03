@@ -201,17 +201,17 @@ function generateRealisticTimeline(status: string, baseTime: number, carrierName
   const allSteps: Array<{ title: string; desc: string; location: string; coordinates: [number, number]; offsetHours: number; activeAt: string[] }> = [
     {
       title: 'Đơn hàng đã được đặt thành công',
-      desc: 'Hệ thống ShopTik đã tiếp nhận đơn hàng của quý khách.',
-      location: 'Hệ thống ShopTik Store',
-      coordinates: LOGISTICS_HUBS.kho_shoptik,
+      desc: 'Hệ thống ShopBig đã tiếp nhận đơn hàng của quý khách.',
+      location: 'Hệ thống ShopBig Store',
+      coordinates: LOGISTICS_HUBS.kho_shopbig,
       offsetHours: 0,
       activeAt: ['pending', 'confirmed', 'shipping', 'delivering', 'delivered'],
     },
     {
       title: 'Shop đã đóng gói & Bàn giao bưu tá',
       desc: `Đơn hàng đã bàn giao cho đơn vị vận chuyển ${carrierName}.`,
-      location: 'Kho hàng ShopTik (Mỹ Đình, Nam Từ Liêm)',
-      coordinates: LOGISTICS_HUBS.kho_shoptik,
+      location: 'Kho hàng ShopBig (Mỹ Đình, Nam Từ Liêm)',
+      coordinates: LOGISTICS_HUBS.kho_shopbig,
       offsetHours: 3,
       activeAt: ['confirmed', 'shipping', 'delivering', 'delivered'],
     },
@@ -255,8 +255,8 @@ function generateRealisticTimeline(status: string, baseTime: number, carrierName
         time: formatTime(baseTime),
         title: 'Đơn hàng đã đặt',
         desc: 'Hệ thống ghi nhận đơn hàng.',
-        location: 'ShopTik Store',
-        coordinates: LOGISTICS_HUBS.kho_shoptik,
+        location: 'ShopBig Store',
+        coordinates: LOGISTICS_HUBS.kho_shopbig,
         status: 'completed',
       },
       {
@@ -264,7 +264,7 @@ function generateRealisticTimeline(status: string, baseTime: number, carrierName
         title: 'Đơn hàng đã bị hủy',
         desc: 'Đơn hàng đã hủy theo yêu cầu hoặc quá hạn xử lý.',
         location: 'Hệ thống',
-        coordinates: LOGISTICS_HUBS.kho_shoptik,
+        coordinates: LOGISTICS_HUBS.kho_shopbig,
         status: 'current',
       },
     ];
@@ -309,12 +309,12 @@ function buildRoutePointsFromTimeline(
   // Point 1: Kho Shop (Xuất phát)
   const origin: RoutePoint = {
     id: 'pt_origin',
-    name: 'Kho ShopTik Store',
+    name: 'Kho ShopBig Store',
     title: 'Điểm xuất phát (Kho Shop)',
     desc: 'Số 10 Phạm Hùng, Mỹ Đình, Hà Nội',
     time: timeline[timeline.length - 1]?.time || '09:00',
-    lat: LOGISTICS_HUBS.kho_shoptik[0],
-    lng: LOGISTICS_HUBS.kho_shoptik[1],
+    lat: LOGISTICS_HUBS.kho_shopbig[0],
+    lng: LOGISTICS_HUBS.kho_shopbig[1],
     type: 'origin',
     status: isOriginDone ? 'completed' : 'current',
   };

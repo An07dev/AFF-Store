@@ -32,7 +32,7 @@ export async function getChatBotConfig() {
     if (setting && setting.value) {
       return {
         enabled: setting.value.enabled !== false,
-        botName: setting.value.botName || 'AI Trợ Lý ShopTik',
+        botName: setting.value.botName || 'AI Trợ Lý ShopBig',
         welcomeMessage:
           setting.value.welcomeMessage ||
           'Dạ chào bạn! Em là Trợ lý AI của shop. Em có thể giúp bạn tư vấn chọn size chuẩn xác, tìm kiếm sản phẩm, tra cứu đơn hàng hoặc giải đáp chính sách cửa hàng 24/7 ạ!',
@@ -45,7 +45,7 @@ export async function getChatBotConfig() {
 
   return {
     enabled: true,
-    botName: 'AI Trợ Lý ShopTik',
+    botName: 'AI Trợ Lý ShopBig',
     welcomeMessage:
       'Dạ chào bạn! Em là Trợ lý AI của shop. Em có thể giúp bạn tư vấn chọn size chuẩn xác, tìm kiếm sản phẩm, tra cứu đơn hàng hoặc giải đáp chính sách cửa hàng 24/7 ạ!',
     geminiApiKey: process.env.GEMINI_API_KEY || '',
@@ -383,7 +383,7 @@ export async function generateBotResponse(params: {
         console.warn('Could not load chat history:', hErr);
       }
 
-      const prompt = `Bạn là Chuyên Viên Tư Vấn Bán Hàng & Chuyên Gia Thể Thao Xuất Sắc của cửa hàng "ShopTik Store".
+      const prompt = `Bạn là Chuyên Viên Tư Vấn Bán Hàng & Chuyên Gia Thể Thao Xuất Sắc của cửa hàng "ShopBig Store".
 
 ${catalogDigest}
 
@@ -533,7 +533,7 @@ Quy tắc tư vấn bán hàng đỉnh cao (Elite Sales Consultant):
   if (lowerText.includes('mua ngay') || lowerText.includes('đặt hàng') || lowerText.includes('chốt đơn') || lowerText.includes('cách mua')) {
     return {
       shouldReply: true,
-      replyText: `🚀 **Cách Đặt Hàng Nhanh Chóng Tại ShopTik:**\n\n` +
+      replyText: `🚀 **Cách Đặt Hàng Nhanh Chóng Tại ShopBig:**\n\n` +
         `1. Bạn có thể bấm nút **"Mua Ngay"** trên trang sản phẩm để chọn size, điền địa chỉ nhận hàng và đặt đơn trong 30 giây.\n` +
         `2. Hoặc bạn có thể **nhắn tin SĐT + Địa chỉ** ngay tại đây, nhân viên CSKH của shop sẽ gọi điện xác nhận và gửi hàng nhanh cho bạn nhé!\n\n` +
         `🎁 Đơn hàng được **Freeship toàn quốc** và kiểm tra hàng trước khi thanh toán ạ!`,

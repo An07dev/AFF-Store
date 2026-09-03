@@ -1,10 +1,10 @@
-# 📋 DANH SÁCH TỔNG HỢP TOÀN BỘ API DỰ ÁN SHOPTIK
+# 📋 DANH SÁCH TỔNG HỢP TOÀN BỘ API DỰ ÁN SHOPBIG
 
 > **Cập nhật:** 2026-08-18  
 > **Base URL:** `https://your-domain.com` (hoặc `http://localhost:3000` khi chạy máy local)  
 > **Database:** MongoDB Atlas Cloud (`Cluster0` / `webstore`)  
 > **Authentication:** Bearer Token trong Header `Authorization: Bearer <token>` hoặc Cookie Session (NextAuth)  
-> **Tài khoản Admin mặc định:** `admin@shoptik.vn` / `admin123`
+> **Tài khoản Admin mặc định:** `admin@shopbig.vn` / `admin123`
 
 ---
 
@@ -31,7 +31,7 @@
 - **Request Body:**
 ```json
 {
-  "identifier": "admin@shoptik.vn",
+  "identifier": "admin@shopbig.vn",
   "password": "admin123"
 }
 ```
@@ -45,8 +45,8 @@
     "tokenType": "Bearer",
     "user": {
       "id": "67b...",
-      "name": "Admin ShopTik",
-      "email": "admin@shoptik.vn",
+      "name": "Admin ShopBig",
+      "email": "admin@shopbig.vn",
       "phone": "0988888888",
       "role": "admin"
     }
@@ -396,10 +396,10 @@
   "themeName": "modern-blue",
   "mode": "dark",
   "pageTitles": {
-    "siteTitle": "ShopTik - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp",
-    "homeTitle": "Trang Chủ | ShopTik",
-    "adminTitle": "ShopTik Quản Trị Hệ Thống",
-    "logoText": "ShopTik",
+    "siteTitle": "ShopBig - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp",
+    "homeTitle": "Trang Chủ | ShopBig",
+    "adminTitle": "ShopBig Quản Trị Hệ Thống",
+    "logoText": "ShopBig",
     "logoUrl": "/uploads/logo.png",
     "faviconUrl": "/favicon.ico",
     "metaDescription": "Trải nghiệm mua sắm thời trang trực tuyến thời thượng, giao hàng nhanh chóng toàn quốc.",
@@ -442,4 +442,4 @@
 ### 10.3. Nạp dữ liệu mẫu ban đầu (Seed Data)
 - **Method:** `POST`
 - **Endpoint:** `/api/seed`
-- **Mô tả:** Tự động tạo tài khoản Admin `admin@shoptik.vn`, 4 danh mục và 4 sản phẩm mẫu vào database.
+- **Mô tả:** Tự động tạo tài khoản Admin `admin@shopbig.vn`, 4 danh mục và 4 sản phẩm mẫu vào database.

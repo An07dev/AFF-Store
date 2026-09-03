@@ -285,10 +285,10 @@ function MacBookPro({
                   fontFamily: "monospace",
                 }}
               >
-                🔒 https://shoptik.vn{activeScreenUrl}
+                🔒 https://shopbig.vn{activeScreenUrl}
               </div>
               <div style={{ fontSize: "11px", color: "#10b981", fontWeight: 800 }}>
-                ● LIVE SHOPTIK
+                ● LIVE SHOPBIG
               </div>
             </div>
 
@@ -296,7 +296,7 @@ function MacBookPro({
             <div style={{ flex: 1, position: "relative", width: "100%", height: "100%" }}>
               <iframe
                 src={activeScreenUrl}
-                title="ShopTik 3D Live Screen"
+                title="ShopBig 3D Live Screen"
                 style={{
                   width: "100%",
                   height: "100%",

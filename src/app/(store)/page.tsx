@@ -68,7 +68,7 @@ function HomePageContent() {
   const [flashSaleConfig, setFlashSaleConfig] = useState<any>(null);
   const flashSaleRef = useRef<HTMLDivElement>(null);
 
-  const shopDisplayName = theme?.pageTitles?.logoText || 'ShopTik Store';
+  const shopDisplayName = theme?.pageTitles?.logoText || 'ShopBig Store';
   const avatarInitials = shopDisplayName ? shopDisplayName.substring(0, 2).toUpperCase() : 'ST';
   const heroBanners = theme?.banners && theme.banners.length > 0 ? theme.banners : defaultBanners;
   const subBanners = theme?.subBanners && theme.subBanners.length > 0 ? theme.subBanners : defaultSubBanners;
@@ -409,7 +409,7 @@ function HomePageContent() {
       {/* 1. OPTIMIZED STORE HEADER (MEMOIZED & DEBOUNCED SEARCH) */}
       <StoreHeader
         logoUrl={theme?.pageTitles?.logoUrl}
-        logoText={theme?.pageTitles?.logoText || 'ShopTik'}
+        logoText={theme?.pageTitles?.logoText || 'ShopBig'}
         cartCount={cartCount}
         searchQuery={searchQuery}
         onSearchSubmit={handleSearchSubmit}

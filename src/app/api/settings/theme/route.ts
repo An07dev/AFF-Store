@@ -16,10 +16,10 @@ export interface IThemeConfig {
 
   // 2. Title Pages & SEO & Logo
   pageTitles: {
-    siteTitle: string; // "ShopTik - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp"
-    homeTitle: string; // "Trang Chủ | ShopTik"
-    adminTitle: string; // "ShopTik Admin Portal"
-    logoText: string; // "ShopTik"
+    siteTitle: string; // "ShopBig - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp"
+    homeTitle: string; // "Trang Chủ | ShopBig"
+    adminTitle: string; // "ShopBig Admin Portal"
+    logoText: string; // "ShopBig"
     logoUrl: string; // URL hình ảnh logo
     faviconUrl: string; // URL favicon tab trình duyệt
     metaDescription: string; // "Trải nghiệm mua sắm thời trang trực tuyến thời thượng"
@@ -87,10 +87,10 @@ export const defaultThemeConfig: IThemeConfig = {
   themeName: 'modern-blue',
   mode: 'dark',
   pageTitles: {
-    siteTitle: 'ShopTik - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp',
-    homeTitle: 'Trang Chủ | ShopTik',
-    adminTitle: 'ShopTik Quản Trị Hệ Thống',
-    logoText: 'ShopTik',
+    siteTitle: 'ShopBig - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp',
+    homeTitle: 'Trang Chủ | ShopBig',
+    adminTitle: 'ShopBig Quản Trị Hệ Thống',
+    logoText: 'ShopBig',
     logoUrl: '',
     faviconUrl: '/favicon.ico',
     metaDescription: 'Trải nghiệm mua sắm thời trang trực tuyến thời thượng, giao hàng nhanh chóng toàn quốc.',

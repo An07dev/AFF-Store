@@ -57,7 +57,7 @@ function TrackingContent() {
   // Load recent order codes from local storage
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('shoptik_order_codes');
+      const stored = localStorage.getItem('shopbig_order_codes');
       if (stored) {
         setRecentCodes(JSON.parse(stored));
       } else {
@@ -90,7 +90,7 @@ function TrackingContent() {
         try {
           const updated = [cleanCode, ...recentCodes.filter((c) => c !== cleanCode)].slice(0, 8);
           setRecentCodes(updated);
-          localStorage.setItem('shoptik_order_codes', JSON.stringify(updated));
+          localStorage.setItem('shopbig_order_codes', JSON.stringify(updated));
         } catch (e) {
           console.error(e);
         }

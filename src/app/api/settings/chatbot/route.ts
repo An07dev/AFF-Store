@@ -30,7 +30,7 @@ export async function POST(request: Request) {
           key: 'chatbot_config',
           value: {
             enabled: body.enabled !== false,
-            botName: body.botName?.trim() || 'AI Trợ Lý ShopTik',
+            botName: body.botName?.trim() || 'AI Trợ Lý ShopBig',
             welcomeMessage:
               body.welcomeMessage?.trim() ||
               'Dạ chào bạn! Em là Trợ lý AI của shop. Em có thể giúp bạn tư vấn chọn size chuẩn xác, tra cứu đơn hàng hoặc giải đáp chính sách cửa hàng 24/7 ạ!',

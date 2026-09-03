@@ -30,7 +30,7 @@ export default function VoucherCollectionBar() {
       try {
         let phone = '';
         try {
-          const profile = JSON.parse(localStorage.getItem('shoptik_profile') || '{}');
+          const profile = JSON.parse(localStorage.getItem('shopbig_profile') || '{}');
           if (profile?.phone) phone = profile.phone;
         } catch (e) {}
 

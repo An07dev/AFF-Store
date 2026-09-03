@@ -13,7 +13,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const { theme } = useTheme();
 
-  const [identifier, setIdentifier] = useState('admin@shoptik.vn');
+  const [identifier, setIdentifier] = useState('admin@shopbig.vn');
   const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ export default function AdminLoginPage() {
   }, [router]);
 
   const handleFillDefault = () => {
-    setIdentifier('admin@shoptik.vn');
+    setIdentifier('admin@shopbig.vn');
     setPassword('admin123');
     toast.success('Đã điền tài khoản Admin mẫu!');
   };
@@ -97,7 +97,7 @@ export default function AdminLoginPage() {
             />
           ) : (
             <div className={styles.logoText}>
-              {theme.pageTitles?.logoText || 'ShopTik'}
+              {theme.pageTitles?.logoText || 'ShopBig'}
               <span className={styles.logoBadge}>Admin</span>
             </div>
           )}
@@ -118,7 +118,7 @@ export default function AdminLoginPage() {
                 type="text"
                 required
                 className={styles.input}
-                placeholder="admin@shoptik.vn hoặc SĐT"
+                placeholder="admin@shopbig.vn hoặc SĐT"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
               />
@@ -178,13 +178,13 @@ export default function AdminLoginPage() {
             </button>
           </div>
           <div className={styles.quickAccountInfo}>
-            <div>Email: admin@shoptik.vn</div>
+            <div>Email: admin@shopbig.vn</div>
             <div>Mật khẩu: admin123</div>
           </div>
         </div>
 
         <div className={styles.footerNote}>
-          © 2026 {theme.pageTitles?.logoText || 'ShopTik'} E-Commerce Portal. All rights reserved.
+          © 2026 {theme.pageTitles?.logoText || 'ShopBig'} E-Commerce Portal. All rights reserved.
         </div>
       </div>
     </div>

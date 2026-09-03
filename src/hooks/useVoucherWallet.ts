@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 
-const STORAGE_KEY = 'shoptik_saved_vouchers';
+const STORAGE_KEY = 'shopbig_saved_vouchers';
 
 export function useVoucherWallet() {
   const [savedVouchers, setSavedVouchers] = useState<string[]>([]);
@@ -34,10 +34,10 @@ export function useVoucherWallet() {
       } catch (e) {}
     };
 
-    window.addEventListener('shoptik_voucher_saved', handleSync);
+    window.addEventListener('shopbig_voucher_saved', handleSync);
     window.addEventListener('storage', handleSync);
     return () => {
-      window.removeEventListener('shoptik_voucher_saved', handleSync);
+      window.removeEventListener('shopbig_voucher_saved', handleSync);
       window.removeEventListener('storage', handleSync);
     };
   }, []);
@@ -55,7 +55,7 @@ export function useVoucherWallet() {
       const updated = [...prev, cleanCode];
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        window.dispatchEvent(new CustomEvent('shoptik_voucher_saved'));
+        window.dispatchEvent(new CustomEvent('shopbig_voucher_saved'));
       } catch (e) {}
       toast.success(`Đã lưu mã "${cleanCode}" vào ví voucher! 🎉`);
       return updated;
@@ -71,7 +71,7 @@ export function useVoucherWallet() {
       const updated = prev.filter((c) => c !== cleanCode);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        window.dispatchEvent(new CustomEvent('shoptik_voucher_saved'));
+        window.dispatchEvent(new CustomEvent('shopbig_voucher_saved'));
       } catch (e) {}
       return updated;
     });

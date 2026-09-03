@@ -84,7 +84,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     try {
-      const savedCheckout = sessionStorage.getItem('shoptik_checkout_items');
+      const savedCheckout = sessionStorage.getItem('shopbig_checkout_items');
       if (savedCheckout) {
         const parsed = JSON.parse(savedCheckout);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -109,7 +109,7 @@ export default function CheckoutPage() {
     if (activeItems.length > 0) {
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
-          new CustomEvent('shoptik-track-event', {
+          new CustomEvent('shopbig-track-event', {
             detail: {
               eventName: 'InitiateCheckout',
               customData: {
@@ -140,7 +140,7 @@ export default function CheckoutPage() {
   // Auto-fill from local profile with sanitization
   useEffect(() => {
     try {
-      const savedProfile = localStorage.getItem('shoptik_profile');
+      const savedProfile = localStorage.getItem('shopbig_profile');
       if (savedProfile) {
         const p = JSON.parse(savedProfile);
         setCustomer((prev) => ({
@@ -280,7 +280,7 @@ export default function CheckoutPage() {
         customer: {
           name: customer.name.trim(),
           phone: customer.phone.trim(),
-          email: customer.email.trim() || 'khachhang@shoptik.vn',
+          email: customer.email.trim() || 'khachhang@shopbig.vn',
           address: fullDisplayAddress,
           province: customer.province,
           district: customer.district,
@@ -321,7 +321,7 @@ export default function CheckoutPage() {
         // Dispatch Purchase event for 100% real tracking and Server-side CAPI
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
-            new CustomEvent('shoptik-track-event', {
+            new CustomEvent('shopbig-track-event', {
               detail: {
                 eventName: 'Purchase',
                 customData: {
@@ -343,11 +343,11 @@ export default function CheckoutPage() {
         // Save customer info locally for future visits without accumulating duplicate strings
         try {
           localStorage.setItem(
-            'shoptik_profile',
+            'shopbig_profile',
             JSON.stringify({
               name: customer.name.trim(),
               phone: customer.phone.trim(),
-              email: customer.email.trim() || 'khachhang@shoptik.vn',
+              email: customer.email.trim() || 'khachhang@shopbig.vn',
               streetAddress: customer.streetAddress.trim(),
               province: customer.province,
               district: customer.district,
@@ -357,18 +357,18 @@ export default function CheckoutPage() {
           );
           // Save order code for order tracking
           if (data.data.orderCode) {
-            const stored = JSON.parse(localStorage.getItem('shoptik_order_codes') || '[]');
+            const stored = JSON.parse(localStorage.getItem('shopbig_order_codes') || '[]');
             const updated = [data.data.orderCode, ...stored.filter((c: string) => c !== data.data.orderCode)].slice(0, 10);
-            localStorage.setItem('shoptik_order_codes', JSON.stringify(updated));
+            localStorage.setItem('shopbig_order_codes', JSON.stringify(updated));
           }
 
           // If voucher was applied, remove it from saved wallet in localStorage
           if (selectedVoucher) {
             try {
-              const storedVouchers = JSON.parse(localStorage.getItem('shoptik_saved_vouchers') || '[]');
+              const storedVouchers = JSON.parse(localStorage.getItem('shopbig_saved_vouchers') || '[]');
               const updatedVouchers = storedVouchers.filter((c: string) => c !== selectedVoucher.code);
-              localStorage.setItem('shoptik_saved_vouchers', JSON.stringify(updatedVouchers));
-              window.dispatchEvent(new CustomEvent('shoptik_voucher_saved'));
+              localStorage.setItem('shopbig_saved_vouchers', JSON.stringify(updatedVouchers));
+              window.dispatchEvent(new CustomEvent('shopbig_voucher_saved'));
             } catch (e) {}
           }
         } catch (e) {
@@ -378,7 +378,7 @@ export default function CheckoutPage() {
         if (paymentMethod === 'bank_transfer') {
           // Lưu danh sách sản phẩm chờ thanh toán vào sessionStorage
           try {
-            sessionStorage.setItem('shoptik_pending_payment_items', JSON.stringify(activeItems));
+            sessionStorage.setItem('shopbig_pending_payment_items', JSON.stringify(activeItems));
           } catch (e) {}
 
           // KHÔNG xóa sản phẩm khỏi giỏ hàng ngay để nếu khách chưa chuyển khoản và quay lại mua tiếp, sản phẩm vẫn còn trong giỏ
@@ -399,7 +399,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const shopName = theme?.pageTitles?.logoText || 'ShopTik Store';
+  const shopName = theme?.pageTitles?.logoText || 'ShopBig Store';
 
   if (isInitialized && activeItems.length === 0) {
     return (

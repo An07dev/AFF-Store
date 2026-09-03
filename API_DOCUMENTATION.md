@@ -1,5 +1,5 @@
 # 📚 TÀI LIỆU TỔNG HỢP TOÀN BỘ API (API DOCUMENTATION)
-> **Dự án**: ShopTik E-Commerce & Admin Management System  
+> **Dự án**: ShopBig E-Commerce & Admin Management System  
 > **Base URL**: `https://your-domain.com` (hoặc `http://localhost:3000` khi chạy máy local)  
 > **Authentication**: Bearer Token trong Header `Authorization: Bearer <token>` hoặc Cookie Session (NextAuth)  
 > **Định dạng dữ liệu**: `JSON`
@@ -512,12 +512,12 @@
     "themeMode": "dark",
     "primaryColor": "#3b82f6",
     "accentColor": "#10b981",
-    "siteTitle": "ShopTik - Cửa Hàng Thời Trang Cao Cấp",
-    "logoText": "ShopTik",
+    "siteTitle": "ShopBig - Cửa Hàng Thời Trang Cao Cấp",
+    "logoText": "ShopBig",
     "bannerNotice": "🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ",
     "showBannerNotice": true,
     "contactHotline": "1900 6868",
-    "contactEmail": "support@shoptik.vn",
+    "contactEmail": "support@shopbig.vn",
     "contactAddress": "Số 18, Ngõ 45 Đường Cầu Giấy, Hà Nội"
   }
 }
@@ -546,7 +546,7 @@
 
 ### 10.2. Khởi tạo dữ liệu mẫu (Seed Data)
 - **Endpoint**: `POST /api/seed`
-- **Chức năng**: Khởi tạo tài khoản Admin mặc định (`admin@shoptik.vn` / `admin123`), danh mục mẫu và sản phẩm mẫu ban đầu.
+- **Chức năng**: Khởi tạo tài khoản Admin mặc định (`admin@shopbig.vn` / `admin123`), danh mục mẫu và sản phẩm mẫu ban đầu.
 
 ---
 

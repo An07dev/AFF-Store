@@ -1,6 +1,6 @@
 # 🛍️ TỔNG QUAN LUỒNG NGƯỜI DÙNG (USER STOREFRONT FLOW) & UI/UX ARCHITECTURE
 
-> **Dự án:** ShopTik Web App  
+> **Dự án:** ShopBig Web App  
 > **Cập nhật:** 2026-08-18  
 > **Framework:** Next.js 16 (App Router) + TypeScript + Vanilla CSS Modules  
 > **Cơ sở dữ liệu:** MongoDB Atlas Cloud  

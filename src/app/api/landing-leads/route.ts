@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       items: [
         {
           productId: null,
-          title: 'Gói Bán Hàng Ngoại Sàn ShopTik (Full Code + Video + Ads)',
+          title: 'Gói Bán Hàng Ngoại Sàn ShopBig (Full Code + Video + Ads)',
           price: 399000,
           quantity: 1,
           image: '',

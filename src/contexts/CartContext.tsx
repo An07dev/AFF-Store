@@ -87,11 +87,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // 1. Load cart and checkout items from storage on client mount
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('shoptik_cart');
+      const saved = localStorage.getItem('shopbig_cart');
       if (saved) {
         setItems(JSON.parse(saved));
       }
-      const savedCheckout = sessionStorage.getItem('shoptik_checkout_items');
+      const savedCheckout = sessionStorage.getItem('shopbig_checkout_items');
       if (savedCheckout) {
         setCheckoutItemsState(JSON.parse(savedCheckout));
       }
@@ -106,7 +106,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoaded) return;
     try {
-      localStorage.setItem('shoptik_cart', JSON.stringify(items));
+      localStorage.setItem('shopbig_cart', JSON.stringify(items));
     } catch (e) {
       console.error('Error saving cart to localStorage:', e);
     }
@@ -116,9 +116,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCheckoutItemsState(list);
     try {
       if (list && list.length > 0) {
-        sessionStorage.setItem('shoptik_checkout_items', JSON.stringify(list));
+        sessionStorage.setItem('shopbig_checkout_items', JSON.stringify(list));
       } else {
-        sessionStorage.removeItem('shoptik_checkout_items');
+        sessionStorage.removeItem('shopbig_checkout_items');
       }
     } catch (e) {
       console.error('Error saving checkout items:', e);

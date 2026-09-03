@@ -13,13 +13,13 @@ const DEFAULT_SHIPPING_CONFIG = {
     ghtk: {
       enabled: true,
       token: 'ghtk_api_token_demo_982341',
-      partnerId: 'PARTNER_SHOPTIK_01',
+      partnerId: 'PARTNER_SHOPBIG_01',
       environment: 'production',
     },
     viettelpost: {
       enabled: true,
       token: 'vtp_secret_token_demo_109283',
-      username: 'shoptik_vtp',
+      username: 'shopbig_vtp',
       environment: 'production',
     },
   },

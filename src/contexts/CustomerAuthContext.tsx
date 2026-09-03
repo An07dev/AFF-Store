@@ -47,8 +47,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     try {
-      const savedToken = localStorage.getItem('shoptik_token');
-      const savedUser = localStorage.getItem('shoptik_user');
+      const savedToken = localStorage.getItem('shopbig_token');
+      const savedUser = localStorage.getItem('shopbig_user');
       if (savedToken && savedUser) {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
@@ -85,8 +85,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       }
       setToken(data.data.token);
       setUser(data.data.user);
-      localStorage.setItem('shoptik_token', data.data.token);
-      localStorage.setItem('shoptik_user', JSON.stringify(data.data.user));
+      localStorage.setItem('shopbig_token', data.data.token);
+      localStorage.setItem('shopbig_user', JSON.stringify(data.data.user));
       toast.success(data.message || 'Đăng nhập thành công!');
       setIsAuthModalOpen(false);
 
@@ -118,8 +118,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       }
       setToken(resData.data.token);
       setUser(resData.data.user);
-      localStorage.setItem('shoptik_token', resData.data.token);
-      localStorage.setItem('shoptik_user', JSON.stringify(resData.data.user));
+      localStorage.setItem('shopbig_token', resData.data.token);
+      localStorage.setItem('shopbig_user', JSON.stringify(resData.data.user));
       toast.success(resData.message || 'Đăng ký tài khoản thành công!');
       setIsAuthModalOpen(false);
 
@@ -141,8 +141,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     setToken(null);
     setUser(null);
     setPendingAction(null);
-    localStorage.removeItem('shoptik_token');
-    localStorage.removeItem('shoptik_user');
+    localStorage.removeItem('shopbig_token');
+    localStorage.removeItem('shopbig_user');
     toast.success('Đã đăng xuất');
   };
 

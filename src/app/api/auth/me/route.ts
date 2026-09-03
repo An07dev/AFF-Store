@@ -39,7 +39,7 @@ export async function GET(request: Request) {
         const customerData = {
           id: customer._id,
           name: customer.name,
-          email: customer.email || 'khachhang@shoptik.vn',
+          email: customer.email || 'khachhang@shopbig.vn',
           phone: customer.phone,
           role: 'customer',
           address: customer.address,
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
         const customerData = {
           id: customer._id,
           name: customer.name,
-          email: customer.email || 'khachhang@shoptik.vn',
+          email: customer.email || 'khachhang@shopbig.vn',
           phone: customer.phone,
           role: 'customer',
           address: customer.address,
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
     const defaultUser = {
       id: 'guest_user',
       name: 'Khách hàng',
-      email: 'khachhang@shoptik.vn',
+      email: 'khachhang@shopbig.vn',
       phone: '0988888888',
       role: 'customer',
       address: 'Số 10 Phạm Hùng, Cầu Giấy, Hà Nội',

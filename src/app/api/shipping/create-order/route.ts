@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       const initialLog = {
         time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         status: 'Bàn giao vận chuyển',
-        location: 'Kho tổng ShopTik',
+        location: 'Kho tổng ShopBig',
         description: `Đã tạo vận đơn thành công với ${carrierName}. Mã vận đơn: ${result.trackingCode}`,
         carrier: provider,
         createdAt: new Date(),

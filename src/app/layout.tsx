@@ -14,7 +14,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'ShopTik - Cửa Hàng Thời Trang & Công Nghệ',
+  title: 'ShopBig - Cửa Hàng Thời Trang & Công Nghệ',
   description: 'Trải nghiệm mua sắm trực tuyến cao cấp, giao hàng nhanh chóng toàn quốc.',
 };
 

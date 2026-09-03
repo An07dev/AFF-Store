@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       secure: body.port === 465 || !!body.secure,
       user: body.user?.trim() || '',
       pass: finalPass?.trim() || '',
-      senderName: body.senderName?.trim() || 'ShopTik Store',
+      senderName: body.senderName?.trim() || 'ShopBig Store',
       senderEmail: body.senderEmail?.trim() || body.user?.trim() || '',
       adminNotificationEmail: body.adminNotificationEmail?.trim() || body.user?.trim() || '',
       sendToCustomer: body.sendToCustomer !== undefined ? !!body.sendToCustomer : true,

@@ -60,13 +60,13 @@ function OrderSuccessContent() {
             cleanedUpRef.current = true;
             if (data.data.paymentStatus === 'paid' || data.data.paymentMethod === 'cod' || isPaidQuery) {
               try {
-                const pending = sessionStorage.getItem('shoptik_pending_payment_items');
+                const pending = sessionStorage.getItem('shopbig_pending_payment_items');
                 if (pending) {
                   const pendingItems = JSON.parse(pending);
                   if (Array.isArray(pendingItems) && pendingItems.length > 0) {
                     removeCheckedOutItems(pendingItems);
                   }
-                  sessionStorage.removeItem('shoptik_pending_payment_items');
+                  sessionStorage.removeItem('shopbig_pending_payment_items');
                 } else if (data.data.items && Array.isArray(data.data.items)) {
                   removeCheckedOutItems(data.data.items);
                 }
@@ -160,7 +160,7 @@ function OrderSuccessContent() {
 
   const orderCode = order?.orderCode || code;
   const isPaid = isPaidQuery || order?.paymentStatus === 'paid';
-  const shopName = theme?.pageTitles?.logoText || 'ShopTik Store';
+  const shopName = theme?.pageTitles?.logoText || 'ShopBig Store';
   const subtotal =
     order?.subtotal ||
     order?.items?.reduce((acc: number, i: any) => acc + (i.price * i.quantity), 0) ||

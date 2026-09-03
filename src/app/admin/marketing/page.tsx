@@ -118,7 +118,7 @@ export default function MarketingPage() {
         body: JSON.stringify({
           eventName: testEventName,
           eventId: `test_${Date.now()}`,
-          eventSourceUrl: 'https://shoptik.vn/test',
+          eventSourceUrl: 'https://shopbig.vn/test',
           userData: {
             email: testEmail,
             phone: testPhone,

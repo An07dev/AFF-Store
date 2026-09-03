@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       secure: Number(body.port) === 465 || currentVal.secure,
       user: body.user?.trim() || currentVal.user || '',
       pass: finalPass?.trim() || '',
-      senderName: body.senderName?.trim() || currentVal.senderName || 'ShopTik Store',
+      senderName: body.senderName?.trim() || currentVal.senderName || 'ShopBig Store',
       senderEmail: body.senderEmail?.trim() || body.user?.trim() || currentVal.user || '',
       adminNotificationEmail: targetEmail,
       sendToCustomer: true,

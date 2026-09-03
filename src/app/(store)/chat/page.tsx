@@ -177,18 +177,18 @@ function ChatContent() {
 
   // 1. Initialize Conversation ID & Customer Profile
   useEffect(() => {
-    let convId = localStorage.getItem('shoptik_chat_conv_id');
+    let convId = localStorage.getItem('shopbig_chat_conv_id');
     if (!convId) {
       convId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-      localStorage.setItem('shoptik_chat_conv_id', convId);
+      localStorage.setItem('shopbig_chat_conv_id', convId);
     }
     setConversationId(convId);
 
-    let gName = localStorage.getItem('shoptik_guest_name') || 'Khách hàng';
+    let gName = localStorage.getItem('shopbig_guest_name') || 'Khách hàng';
     let gPhone = '';
 
     try {
-      const savedProfile = localStorage.getItem('shoptik_profile');
+      const savedProfile = localStorage.getItem('shopbig_profile');
       if (savedProfile) {
         const p = JSON.parse(savedProfile);
         if (p.name) gName = p.name;
@@ -477,12 +477,12 @@ function ChatContent() {
     }
 
     setCustomerInfo({ name: cleanName, phone: cleanPhone });
-    localStorage.setItem('shoptik_guest_name', cleanName);
+    localStorage.setItem('shopbig_guest_name', cleanName);
     setShowPhoneModal(false);
 
     try {
       const p = { name: cleanName, phone: cleanPhone };
-      localStorage.setItem('shoptik_profile', JSON.stringify(p));
+      localStorage.setItem('shopbig_profile', JSON.stringify(p));
     } catch (e) {}
 
     const socket = getSocket();

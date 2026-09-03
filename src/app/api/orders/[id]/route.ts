@@ -124,7 +124,7 @@ export async function PUT(
           const newLog = {
             time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             status: 'Bàn giao vận chuyển',
-            location: 'Kho tổng ShopTik Store',
+            location: 'Kho tổng ShopBig Store',
             description: `Admin đã chuyển đơn sang Đang Giao Hàng. Hệ thống đã đẩy đơn sang ${order.shippingCarrier} (Mã vận đơn: ${result.trackingCode}) để Shipper đến lấy hàng.`,
             carrier: order.shippingCarrier,
             createdAt: new Date(),

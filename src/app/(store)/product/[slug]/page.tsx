@@ -926,7 +926,7 @@ export default function ProductDetailPage() {
                 {theme?.pageTitles?.logoUrl ? (
                   <img
                     src={theme.pageTitles.logoUrl}
-                    alt={theme?.pageTitles?.logoText || 'ShopTik Store'}
+                    alt={theme?.pageTitles?.logoText || 'ShopBig Store'}
                     style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 10 }}
                   />
                 ) : (
@@ -934,7 +934,7 @@ export default function ProductDetailPage() {
                 )}
               </div>
               <div>
-                <div className={styles.shopName}>{theme?.pageTitles?.logoText || 'ShopTik Store'}</div>
+                <div className={styles.shopName}>{theme?.pageTitles?.logoText || 'ShopBig Store'}</div>
                 <div className={styles.shopMeta}>⭐ 4.8 | 12.5K đã bán</div>
               </div>
             </div>
@@ -1266,7 +1266,7 @@ export default function ProductDetailPage() {
                   )}
                 </div>
                 <div>
-                  <div className={styles.shopName}>{theme?.pageTitles?.logoText || 'ShopTik Store'}</div>
+                  <div className={styles.shopName}>{theme?.pageTitles?.logoText || 'ShopBig Store'}</div>
                   <div className={styles.shopMeta}>⭐ 4.9 • 15.2K đã bán • Phản hồi 99%</div>
                 </div>
               </div>

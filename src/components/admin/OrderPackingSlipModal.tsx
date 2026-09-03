@@ -63,7 +63,7 @@ export default function OrderPackingSlipModal({
           <div class="slip-header">
             <div class="brand-info">
               <div class="shop-name">⚽ SHOTTIK STORE</div>
-              <div class="shop-details">Hotline: 0988.888.888 • www.shoptik.vn</div>
+              <div class="shop-details">Hotline: 0988.888.888 • www.shopbig.vn</div>
               <div class="shop-warehouse">Kho: Số 10 Phạm Hùng, Cầu Giấy, Hà Nội</div>
             </div>
 
@@ -77,7 +77,7 @@ export default function OrderPackingSlipModal({
           <div class="grid-sender-recipient">
             <div class="address-box">
               <div class="box-title">📤 Người gửi</div>
-              <div class="person-name">ShopTik Logistics</div>
+              <div class="person-name">ShopBig Logistics</div>
               <div class="person-phone">0988.888.888</div>
               <div class="person-address">Số 10 Phạm Hùng, Cầu Giấy, Hà Nội</div>
             </div>
@@ -141,7 +141,7 @@ export default function OrderPackingSlipModal({
           <div class="slip-footer">
             <div>
               <div>🛡️ <strong>Chính sách đổi trả:</strong> Đổi size miễn phí trong 7 ngày.</div>
-              <div>Cảm ơn quý khách đã mua sắm tại <strong>ShopTik Store</strong>!</div>
+              <div>Cảm ơn quý khách đã mua sắm tại <strong>ShopBig Store</strong>!</div>
             </div>
 
             <div class="signature-area">
@@ -159,7 +159,7 @@ export default function OrderPackingSlipModal({
       <html lang="vi">
       <head>
         <meta charset="UTF-8">
-        <title>In Phiếu Đóng Hàng ShopTik</title>
+        <title>In Phiếu Đóng Hàng ShopBig</title>
         <style>
           * {
             box-sizing: border-box;
@@ -468,7 +468,7 @@ export default function OrderPackingSlipModal({
                   <div className={styles.brandInfo}>
                     <div className={styles.shopName}>⚽ SHOTTIK STORE</div>
                     <div className={styles.shopDetails}>
-                      Hotline: 0988.888.888 • www.shoptik.vn
+                      Hotline: 0988.888.888 • www.shopbig.vn
                     </div>
                     <div style={{ fontSize: 9, color: '#444', marginTop: 1 }}>
                       Kho: Số 10 Phạm Hùng, Cầu Giấy, Hà Nội
@@ -492,7 +492,7 @@ export default function OrderPackingSlipModal({
                     <div className={styles.boxTitle}>
                       <span>📤 Người gửi</span>
                     </div>
-                    <div className={styles.personName}>ShopTik Logistics</div>
+                    <div className={styles.personName}>ShopBig Logistics</div>
                     <div className={styles.personPhone}>0988.888.888</div>
                     <div className={styles.personAddress}>
                       Số 10 Phạm Hùng, Cầu Giấy, Hà Nội
@@ -624,7 +624,7 @@ export default function OrderPackingSlipModal({
                 <div className={styles.slipFooter}>
                   <div>
                     <div>🛡️ <strong>Chính sách đổi trả:</strong> Đổi size miễn phí trong 7 ngày.</div>
-                    <div>Cảm ơn quý khách đã mua sắm tại <strong>ShopTik Store</strong>!</div>
+                    <div>Cảm ơn quý khách đã mua sắm tại <strong>ShopBig Store</strong>!</div>
                   </div>
 
                   <div className={styles.signatureArea}>

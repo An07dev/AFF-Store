@@ -98,7 +98,7 @@ export async function POST(request: Request) {
               event_name: eventName,
               event_time: Math.floor(Date.now() / 1000),
               event_id: eventId,
-              event_source_url: eventSourceUrl || 'https://shoptik.vn',
+              event_source_url: eventSourceUrl || 'https://shopbig.vn',
               action_source: 'website',
               user_data: {
                 em: userData.email ? [hashSha256(userData.email)] : undefined,

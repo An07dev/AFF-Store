@@ -1,5 +1,5 @@
 # 📋 TỔNG HỢP CÁC TÍNH NĂNG ĐÃ HOÀN THIỆN (COMPLETED FEATURES)
-> **Dự án:** ShopTik / Football Store - Nền tảng Thương mại Điện tử Đa kênh & Bán lẻ Trực tuyến  
+> **Dự án:** ShopBig / Football Store - Nền tảng Thương mại Điện tử Đa kênh & Bán lẻ Trực tuyến  
 > **Công nghệ:** Next.js (App Router), React, TypeScript, MongoDB Atlas (Mongoose), Socket.io, Nodemailer, VietQR & SePay Webhook.
 
 ---
@@ -210,7 +210,7 @@
 
 ### 8.3. Khởi Tạo Dữ Liệu Tự Động (Database Seeder - `/api/seed`)
 - Endpoint API khởi tạo toàn bộ dữ liệu mẫu ban đầu:
-  - Tài khoản Admin mặc định: `admin@shoptik.vn` / `admin123`.
+  - Tài khoản Admin mặc định: `admin@shopbig.vn` / `admin123`.
   - Danh mục mẫu: Thời Trang Nam, Thời Trang Nữ, Phụ Kiện & Giày Dép, Đồ Điện Tử.
   - Các sản phẩm mẫu đa dạng biến thể, hình ảnh sắc nét và số lượng tồn kho.
 

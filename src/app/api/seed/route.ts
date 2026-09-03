@@ -11,12 +11,12 @@ export async function POST() {
     await connectToDatabase();
 
     // 1. Seed Admin User
-    const adminEmail = 'admin@shoptik.vn';
+    const adminEmail = 'admin@shopbig.vn';
     let admin = await User.findOne({ email: adminEmail });
     const hashedPassword = await hashPassword('admin123');
     if (!admin) {
       admin = await User.create({
-        name: 'Admin ShopTik',
+        name: 'Admin ShopBig',
         email: adminEmail,
         phone: '0988888888',
         password: hashedPassword,
@@ -152,7 +152,7 @@ export async function POST() {
             likes: 12,
             verified: true,
             reply: {
-              content: 'ShopTik chân thành cảm ơn bạn Hoàng đã tin tưởng và ủng hộ shop. Chúc bạn luôn có những trải nghiệm tuyệt vời!',
+              content: 'ShopBig chân thành cảm ơn bạn Hoàng đã tin tưởng và ủng hộ shop. Chúc bạn luôn có những trải nghiệm tuyệt vời!',
               createdAt: new Date(),
             },
             status: 'approved',
@@ -189,7 +189,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: 'Khởi tạo dữ liệu mẫu thành công! Tài khoản admin: admin@shoptik.vn / admin123',
+      message: 'Khởi tạo dữ liệu mẫu thành công! Tài khoản admin: admin@shopbig.vn / admin123',
     });
   } catch (error: any) {
     return NextResponse.json(

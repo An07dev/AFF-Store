@@ -62,14 +62,14 @@ const TAB_SHORT_LABELS: Record<string, string> = {
 };
 
 const TAB_URLS: Record<string, string> = {
-  "admin-dashboard": "shoptik.vn/admin",
-  "admin-chat": "shoptik.vn/admin/chat",
-  "admin-products": "shoptik.vn/admin/products",
-  "admin-orders": "shoptik.vn/admin/orders",
-  "admin-shipping": "shoptik.vn/admin/shipping",
-  "admin-vietqr": "shoptik.vn/admin/payment",
-  "admin-theme": "shoptik.vn/admin/settings",
-  "admin-marketing": "shoptik.vn/admin/marketing",
+  "admin-dashboard": "shopbig.vn/admin",
+  "admin-chat": "shopbig.vn/admin/chat",
+  "admin-products": "shopbig.vn/admin/products",
+  "admin-orders": "shopbig.vn/admin/orders",
+  "admin-shipping": "shopbig.vn/admin/shipping",
+  "admin-vietqr": "shopbig.vn/admin/payment",
+  "admin-theme": "shopbig.vn/admin/settings",
+  "admin-marketing": "shopbig.vn/admin/marketing",
 };
 
 const TAB_BADGES: Record<string, string> = {
@@ -139,8 +139,8 @@ export function ImageCarouselHero({
 
   const currentImage = images[activeIndex] || images[0];
   const currentKey = currentImage?.id || "";
-  const currentUrl = TAB_URLS[currentKey] || "shoptik.vn/admin";
-  const currentBadge = TAB_BADGES[currentKey] || "ShopTik Admin";
+  const currentUrl = TAB_URLS[currentKey] || "shopbig.vn/admin";
+  const currentBadge = TAB_BADGES[currentKey] || "ShopBig Admin";
 
   return (
     <div className={styles.heroWrapper}>
@@ -163,7 +163,6 @@ export function ImageCarouselHero({
             <p className={styles.description}>{description}</p>
           ) : (
             <p className={styles.description}>
-              Hệ thống quản trị bán hàng ngoại sàn hoàn chỉnh: Báo cáo realtime, trợ lý AI CSKH chốt đơn, đẩy bưu tá 1-chạm và cổng thanh toán VietQR tự động 1s.
             </p>
           )}
         </div>
@@ -235,7 +234,7 @@ export function ImageCarouselHero({
                 <img
                   key={currentImage?.src}
                   src={currentImage?.src}
-                  alt={currentImage?.alt || "ShopTik Admin Feature"}
+                  alt={currentImage?.alt || "ShopBig Admin Feature"}
                   className={styles.mockupImage}
                 />
 

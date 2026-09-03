@@ -11,7 +11,7 @@ interface QuickSettingsModalProps {
 }
 
 export default function QuickSettingsModal({ isOpen, onClose }: QuickSettingsModalProps) {
-  const [siteTitle, setSiteTitle] = useState('ShopTik');
+  const [siteTitle, setSiteTitle] = useState('ShopBig');
   const [hotline, setHotline] = useState('1900 6868');
 
   if (!isOpen) return null;

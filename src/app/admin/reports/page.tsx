@@ -55,7 +55,7 @@ export default function ReportsPage() {
       const a = document.createElement('a');
       a.href = downloadUrl;
       const disposition = res.headers.get('content-disposition');
-      let filename = 'Bao_cao_don_hang_ShopTik.csv';
+      let filename = 'Bao_cao_don_hang_ShopBig.csv';
       if (disposition && disposition.includes('filename=')) {
         filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
       }

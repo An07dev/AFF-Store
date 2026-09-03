@@ -116,14 +116,14 @@ export default function ChatFloatingWidget() {
   // 1. Initialize Conversation ID & Saved Profile
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    let convId = localStorage.getItem('shoptik_chat_conv_id');
+    let convId = localStorage.getItem('shopbig_chat_conv_id');
     if (!convId) {
       convId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-      localStorage.setItem('shoptik_chat_conv_id', convId);
+      localStorage.setItem('shopbig_chat_conv_id', convId);
     }
     setConversationId(convId);
 
-    const savedProfile = localStorage.getItem('shoptik_profile');
+    const savedProfile = localStorage.getItem('shopbig_profile');
     if (savedProfile) {
       try {
         const p = JSON.parse(savedProfile);
@@ -199,7 +199,7 @@ export default function ChatFloatingWidget() {
         conversationId: conversationIdRef.current,
         role: 'user',
         customerInfo: {
-          name: localStorage.getItem('shoptik_guest_name') || 'Khách hàng',
+          name: localStorage.getItem('shopbig_guest_name') || 'Khách hàng',
           phone: customerPhone,
         },
       });
@@ -481,7 +481,7 @@ function parseBoldText(str: string, keyPrefix: string) {
 
     const clientMsgId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const socket = getSocket();
-    const guestName = localStorage.getItem('shoptik_guest_name') || 'Khách hàng';
+    const guestName = localStorage.getItem('shopbig_guest_name') || 'Khách hàng';
 
     const payload = {
       clientMsgId,

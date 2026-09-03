@@ -102,10 +102,10 @@ export const defaultTheme: ThemeConfig = {
   themeName: 'modern-blue',
   mode: 'dark',
   pageTitles: {
-    siteTitle: 'ShopTik - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp',
-    homeTitle: 'Trang Chủ | ShopTik',
-    adminTitle: 'ShopTik Quản Trị Hệ Thống',
-    logoText: 'ShopTik',
+    siteTitle: 'ShopBig - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp',
+    homeTitle: 'Trang Chủ | ShopBig',
+    adminTitle: 'ShopBig Quản Trị Hệ Thống',
+    logoText: 'ShopBig',
     logoUrl: '',
     faviconUrl: '/favicon.ico',
     metaDescription: 'Trải nghiệm mua sắm thời trang trực tuyến thời thượng, giao hàng nhanh chóng toàn quốc.',
@@ -143,7 +143,7 @@ export const defaultTheme: ThemeConfig = {
   },
 };
 
-const THEME_CACHE_KEY = 'shoptik_cached_theme_config';
+const THEME_CACHE_KEY = 'shopbig_cached_theme_config';
 
 interface ThemeContextType {
   theme: ThemeConfig;

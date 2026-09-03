@@ -18,7 +18,7 @@ interface StoreHeaderProps {
 
 const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
   logoUrl,
-  logoText = 'ShopTik',
+  logoText = 'ShopBig',
   cartCount,
   searchQuery,
   onSearchSubmit,

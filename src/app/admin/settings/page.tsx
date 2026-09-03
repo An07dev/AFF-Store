@@ -282,7 +282,7 @@ export default function AdminSettingsPage() {
     secure: true,
     user: '',
     pass: '',
-    senderName: 'ShopTik Store',
+    senderName: 'ShopBig Store',
     senderEmail: '',
     adminNotificationEmail: '',
     sendToCustomer: true,
@@ -1491,7 +1491,7 @@ export default function AdminSettingsPage() {
                       type="email"
                       required
                       className={styles.input}
-                      placeholder="vd: cuahang.shoptik@gmail.com"
+                      placeholder="vd: cuahang.shopbig@gmail.com"
                       value={emailForm.user}
                       onChange={(e) => setEmailForm({ ...emailForm, user: e.target.value })}
                     />
@@ -1520,7 +1520,7 @@ export default function AdminSettingsPage() {
                     <input
                       type="text"
                       className={styles.input}
-                      placeholder="vd: ShopTik Store"
+                      placeholder="vd: ShopBig Store"
                       value={emailForm.senderName}
                       onChange={(e) => setEmailForm({ ...emailForm, senderName: e.target.value })}
                     />
@@ -1532,7 +1532,7 @@ export default function AdminSettingsPage() {
                       type="email"
                       required
                       className={styles.input}
-                      placeholder="vd: admin@shoptik.vn"
+                      placeholder="vd: admin@shopbig.vn"
                       value={emailForm.adminNotificationEmail}
                       onChange={(e) => setEmailForm({ ...emailForm, adminNotificationEmail: e.target.value })}
                     />
@@ -1686,7 +1686,7 @@ export default function AdminSettingsPage() {
                         https://myaccount.google.com/apppasswords
                       </a>
                     </li>
-                    <li>Đặt tên ứng dụng (vd: <em>ShopTik Web</em>) ➔ Bấm <strong>Tạo</strong> ➔ Sao chép mã 16 chữ cái màu vàng và dán vào ô <strong>Mật khẩu ứng dụng SMTP</strong> ở trên.</li>
+                    <li>Đặt tên ứng dụng (vd: <em>ShopBig Web</em>) ➔ Bấm <strong>Tạo</strong> ➔ Sao chép mã 16 chữ cái màu vàng và dán vào ô <strong>Mật khẩu ứng dụng SMTP</strong> ở trên.</li>
                   </ol>
                 </div>
               </form>
@@ -1796,7 +1796,7 @@ export default function AdminSettingsPage() {
                     />
                   ) : (
                     <span>
-                      {theme.pageTitles.logoText || 'ShopTik'}
+                      {theme.pageTitles.logoText || 'ShopBig'}
                       <span style={{ color: theme.buttonColors.primaryBg }}>.vn</span>
                     </span>
                   )}

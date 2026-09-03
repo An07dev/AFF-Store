@@ -312,7 +312,7 @@ export default function HomePage() {
           🚀 Ready to Launch
         </span>
         <h2 style={{ fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, maxWidth: 900 }}>
-          Bùng nổ Sáng tạo cùng <span style={{ color: '#10b981' }}>ShopTik 3D</span>
+          Bùng nổ Sáng tạo cùng <span style={{ color: '#10b981' }}>ShopBig 3D</span>
         </h2>
         <button style={{ marginTop: 32, padding: '16px 40px', fontSize: 16, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: 9999, cursor: 'pointer', boxShadow: '0 0 30px rgba(16, 185, 129, 0.5)' }}>
           Trải Nghiệm Ngay ↗

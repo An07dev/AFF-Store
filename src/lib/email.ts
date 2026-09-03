@@ -24,7 +24,7 @@ export const defaultEmailSettings: IEmailSettings = {
   secure: true,
   user: process.env.SMTP_USER || '',
   pass: process.env.SMTP_PASS || '',
-  senderName: process.env.SMTP_SENDER_NAME || 'ShopTik Store',
+  senderName: process.env.SMTP_SENDER_NAME || 'ShopBig Store',
   senderEmail: process.env.SMTP_USER || '',
   adminNotificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL || process.env.SMTP_USER || '',
   sendToCustomer: true,
@@ -73,7 +73,7 @@ export async function createTransporter(customConfig?: IEmailSettings) {
 }
 
 // 3. HTML Template for Customer Order Confirmation
-export function generateCustomerOrderEmailHtml(order: any, shopName = 'ShopTik Store', siteUrl = 'http://localhost:3000') {
+export function generateCustomerOrderEmailHtml(order: any, shopName = 'ShopBig Store', siteUrl = 'http://localhost:3000') {
   const orderCode = order.orderCode || order._id;
   const customerName = order.customer?.name || 'Quý khách';
   const customerPhone = order.customer?.phone || '';
@@ -208,7 +208,7 @@ export function generateCustomerOrderEmailHtml(order: any, shopName = 'ShopTik S
 }
 
 // 4. HTML Template for Admin Order Alert
-export function generateAdminOrderAlertEmailHtml(order: any, shopName = 'ShopTik Store', siteUrl = 'http://localhost:3000') {
+export function generateAdminOrderAlertEmailHtml(order: any, shopName = 'ShopBig Store', siteUrl = 'http://localhost:3000') {
   const orderCode = order.orderCode || order._id;
   const customerName = order.customer?.name || 'Khách hàng';
   const customerPhone = order.customer?.phone || '';
@@ -275,7 +275,7 @@ export async function sendOrderEmails(order: any) {
       return;
     }
 
-    const shopName = config.senderName || 'ShopTik Store';
+    const shopName = config.senderName || 'ShopBig Store';
     const sender = `"${shopName}" <${config.user}>`;
 
     // 1. Send confirmation email to Customer (if valid email provided)
@@ -283,7 +283,7 @@ export async function sendOrderEmails(order: any) {
     const isRealCustomerEmail =
       customerEmail &&
       customerEmail.includes('@') &&
-      !customerEmail.endsWith('@shoptik.vn') &&
+      !customerEmail.endsWith('@shopbig.vn') &&
       !customerEmail.endsWith('@placeholder.vn');
 
     if (config.sendToCustomer && isRealCustomerEmail) {
@@ -331,7 +331,7 @@ export async function sendTestEmail(targetEmail: string, customConfig?: IEmailSe
     throw new Error('Chưa cấu hình tài khoản email hoặc mật khẩu ứng dụng SMTP');
   }
 
-  const shopName = config.senderName || 'ShopTik Store';
+  const shopName = config.senderName || 'ShopBig Store';
   const sender = `"${shopName}" <${config.user}>`;
 
   const info = await transporter.sendMail({

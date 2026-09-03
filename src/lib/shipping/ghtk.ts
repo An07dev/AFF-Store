@@ -63,7 +63,7 @@ export async function createGHTKOrder(orderData: any) {
         })),
         order: {
           id: orderData.orderCode || `ST_${Date.now()}`,
-          pick_name: 'ShopTik Store',
+          pick_name: 'ShopBig Store',
           pick_money: orderData.paymentMethod === 'cod' ? (orderData.totalAmount || 0) : 0,
           pick_address: 'Số 10 đường Phạm Hùng',
           pick_province: 'Hà Nội',

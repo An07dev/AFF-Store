@@ -80,8 +80,8 @@ export function ImageCarouselHeroDemo({
 }: ImageCarouselHeroDemoProps) {
   return (
     <ImageCarouselHero
-      title="Khám Phá Toàn Diện Hệ Thống Quản Trị ShopTik All-In-One"
-      subtitle="TÍCH HỢP TRỌN GÓI 100% • KHÔNG CẦN MUA LANDING PAGE HAY PHẦN MỀM CRM"
+      title="Khám Phá Toàn Diện Hệ Thống Quản Trị ShopBig All-In-One"
+      subtitle=""
       description=""
       ctaText="Trải Nghiệm Toàn Bộ Hệ Thống Demo Ngay"
       onCtaClick={onCtaClick || (() => {

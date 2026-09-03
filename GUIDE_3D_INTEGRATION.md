@@ -162,7 +162,7 @@ export default function SceneShowcase() {
     }}
   >
     <iframe
-      src="https://shoptik.vn"
+      src="https://shopbig.vn"
       style={{ width: "100%", height: "100%", border: "none" }}
     />
   </Html>
@@ -181,4 +181,4 @@ export default function SceneShowcase() {
 * [x] Luôn dùng `THREE.MathUtils.lerp` trong `useFrame` để chuyển động camera và góc xoay đạt chuẩn 60fps mượt mà.
 
 ---
-*Tài liệu được khởi tạo và chuẩn hóa bởi Antigravity AI Engineer cho dự án ShopTik Landing Page.*
+*Tài liệu được khởi tạo và chuẩn hóa bởi Antigravity AI Engineer cho dự án ShopBig Landing Page.*

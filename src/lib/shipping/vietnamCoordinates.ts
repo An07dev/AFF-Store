@@ -66,7 +66,7 @@ export const PROVINCE_COORDINATES: Record<string, [number, number]> = {
 };
 
 export const LOGISTICS_HUBS: Record<string, [number, number]> = {
-  'kho_shoptik': [21.0168, 105.7840], // Mỹ Đình, Nam Từ Liêm, Hà Nội
+  'kho_shopbig': [21.0168, 105.7840], // Mỹ Đình, Nam Từ Liêm, Hà Nội
   'kho_bac_ninh': [21.1450, 106.0520], // Kho tổng trung chuyển Bắc Ninh
   'kho_tan_trieu': [20.9780, 105.7980], // Kho trung chuyển Thanh Trì / Tân Triều
   'kho_tan_binh': [10.8010, 106.6530], // Kho tổng Tân Bình HCM
@@ -84,8 +84,8 @@ export function resolveCoordinates(
   if (lower.includes('bắc ninh') || lower.includes('kho trung chuyển tổng') || lower.includes('khai thác miền bắc')) {
     return LOGISTICS_HUBS.kho_bac_ninh;
   }
-  if (lower.includes('kho shoptik') || lower.includes('mỹ đình') || lower.includes('nam từ liêm')) {
-    return LOGISTICS_HUBS.kho_shoptik;
+  if (lower.includes('kho shopbig') || lower.includes('mỹ đình') || lower.includes('nam từ liêm')) {
+    return LOGISTICS_HUBS.kho_shopbig;
   }
   if (lower.includes('cầu giấy')) {
     return [21.0362, 105.7905];

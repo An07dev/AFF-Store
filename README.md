@@ -1,7 +1,7 @@
-# 🛍️ ShopTik - Nền Tảng Thương Mại Điện Tử & Vận Hành Tự Động Hóa Toàn Diện
+# 🛍️ ShopBig - Nền Tảng Thương Mại Điện Tử & Vận Hành Tự Động Hóa Toàn Diện
 
 <p align="center">
-  <img src="https://images.unsplash.com/photo-1557821552-17105176677c?w=1200&auto=format&fit=crop&q=80" alt="ShopTik Banner" width="100%" style="border-radius: 12px;" />
+  <img src="https://images.unsplash.com/photo-1557821552-17105176677c?w=1200&auto=format&fit=crop&q=80" alt="ShopBig Banner" width="100%" style="border-radius: 12px;" />
 </p>
 
 <p align="center">
@@ -155,7 +155,7 @@ npm run start
 
 ## ⚙️ HƯỚNG DẪN CẤU HÌNH TÍCH HỢP CHI TIẾT
 
-> 🌐 **Lưu ý:** Thay thế `<YOUR_DOMAIN>` bằng tên miền thật của bạn (Ví dụ: `https://shoptik.vn`).
+> 🌐 **Lưu ý:** Thay thế `<YOUR_DOMAIN>` bằng tên miền thật của bạn (Ví dụ: `https://shopbig.vn`).
 
 ---
 
@@ -230,7 +230,7 @@ npm run start
 #### 🔹 Bước 1: Tạo Tập Dữ Liệu (Dataset / Pixel) trên Meta
 1. Truy cập Cài đặt doanh nghiệp: 👉 [business.facebook.com/latest/settings/events_dataset_and_pixel](https://business.facebook.com/latest/settings/events_dataset_and_pixel).
 2. Tại mục **Tập dữ liệu và pixel** $\rightarrow$ Bấm **`[+ Thêm]`**.
-3. Đặt tên (Ví dụ: `ShopTik Pixel`) $\rightarrow$ Bấm **Tạo**.
+3. Đặt tên (Ví dụ: `ShopBig Pixel`) $\rightarrow$ Bấm **Tạo**.
 4. **Gán quyền Quản trị viên (Bắt buộc):** Tích chọn tên tài khoản Facebook của bạn ➔ Bật **Toàn quyền kiểm soát** ➔ Bấm **Chỉ định**.
 5. Copy **ID tập dữ liệu (Pixel ID)** *(Dãy số 15-16 chữ số, ví dụ: `1704901287459412`)*.
 
@@ -258,7 +258,7 @@ npm run start
 1. Truy cập: 👉 [ads.tiktok.com/i18n/event_manager](https://ads.tiktok.com/i18n/event_manager).
 2. Bấm **`[Connect data source]`** $\rightarrow$ Chọn **`Web`** $\rightarrow$ Bấm **Next**.
 3. Chọn **Thiết lập thủ công** $\rightarrow$ Chọn **`API Pixel và Sự kiện TikTok (Khuyến khích)`**.
-4. Đặt tên Pixel (Ví dụ: `ShopTik TikTok Pixel`) $\rightarrow$ Bấm **Tạo nên**.
+4. Đặt tên Pixel (Ví dụ: `ShopBig TikTok Pixel`) $\rightarrow$ Bấm **Tạo nên**.
 5. Copy **TikTok Pixel ID** *(Ví dụ: `DA3SC0BC77UC1JSQM8E0`)*.
 
 #### 🔹 Bước 2: Bật Đối Sánh Nâng Cao (AAM) & Chọn Phễu E-commerce
@@ -281,7 +281,7 @@ npm run start
 1. Đăng nhập Gmail gửi thư và bật **Xác minh 2 bước** tại: 👉 [myaccount.google.com/security](https://myaccount.google.com/security).
 2. Tạo mật khẩu ứng dụng tại: 👉 [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) ➔ Copy chuỗi 16 ký tự.
 3. Mở trang quản trị: 👉 **`https://<YOUR_DOMAIN>/admin/settings`** $\rightarrow$ Tab **Cấu Hình Email (SMTP)**:
-   - **Tài khoản Email gửi:** Điền địa chỉ Gmail (vd: `cuahang.shoptik@gmail.com`).
+   - **Tài khoản Email gửi:** Điền địa chỉ Gmail (vd: `cuahang.shopbig@gmail.com`).
    - **Mật khẩu SMTP:** Dán chuỗi 16 ký tự vừa tạo.
    - **Email Admin nhận thông báo:** Điền email của chủ shop.
 4. Bấm **Lưu Cấu Hình Email** và bấm **`[Gửi Thử Email]`** để kiểm tra gửi thư tức thì.
@@ -369,14 +369,14 @@ node scripts/add_two_categories_with_products.js
 
 - **Trang Quản Trị Hệ Thống:** `https://<YOUR_DOMAIN>/admin`
 - **Tài khoản Admin mặc định:**
-  - **Email:** `admin@shoptik.vn`
+  - **Email:** `admin@shopbig.vn`
   - **Mật khẩu:** `admin123` *(hoặc mật khẩu do quản trị viên thiết lập)*
 - **Tài khoản Nhân viên (Staff):**
-  - **Email:** `staff@shoptik.vn`
+  - **Email:** `staff@shopbig.vn`
   - **Mật khẩu:** `staff123`
 
 ---
 
 <p align="center">
-  Made with ❤️ by <strong>ShopTik Engineering Team</strong> • Sẵn sàng mở rộng và triển khai quy mô lớn.
+  Made with ❤️ by <strong>ShopBig Engineering Team</strong> • Sẵn sàng mở rộng và triển khai quy mô lớn.
 </p>

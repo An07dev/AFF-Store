@@ -83,13 +83,13 @@ export default function PaymentPage() {
 
           // Xóa sản phẩm đã thanh toán xong khỏi giỏ hàng
           try {
-            const pending = sessionStorage.getItem('shoptik_pending_payment_items');
+            const pending = sessionStorage.getItem('shopbig_pending_payment_items');
             if (pending) {
               const pendingItems = JSON.parse(pending);
               if (Array.isArray(pendingItems) && pendingItems.length > 0) {
                 removeCheckedOutItems(pendingItems);
               }
-              sessionStorage.removeItem('shoptik_pending_payment_items');
+              sessionStorage.removeItem('shopbig_pending_payment_items');
             } else if (data.data.items && Array.isArray(data.data.items)) {
               removeCheckedOutItems(data.data.items);
             }

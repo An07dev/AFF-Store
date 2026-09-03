@@ -164,7 +164,7 @@ export async function GET(request: Request) {
     const csvContent = '\uFEFF' + rows.join('\r\n');
     const now = new Date();
     const dateTag = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
-    const filename = `Danh_sach_don_hang_ShopTik_${dateTag}.csv`;
+    const filename = `Danh_sach_don_hang_ShopBig_${dateTag}.csv`;
 
     return new Response(csvContent, {
       status: 200,
