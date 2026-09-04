@@ -10,7 +10,7 @@ export default function LoginPage() {
         <form className={styles.form}>
           <div className={styles.inputGroup}>
             <label>Email</label>
-            <input type="email" className={styles.input} placeholder="admin@shopbig.com" />
+            <input type="email" className={styles.input} placeholder="admin@shopbig.vn" />
           </div>
           <div className={styles.inputGroup}>
             <label>Mật khẩu</label>
