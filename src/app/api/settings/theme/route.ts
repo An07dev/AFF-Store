@@ -90,7 +90,7 @@ export const defaultThemeConfig: IThemeConfig = {
     siteTitle: 'ShopBig - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp',
     homeTitle: 'Trang Chủ | ShopBig',
     adminTitle: 'ShopBig Quản Trị Hệ Thống',
-    logoText: 'SHOPPING',
+    logoText: 'ShopBig',
     logoUrl: '/images/logo.png',
     faviconUrl: '/favicon.ico',
     metaDescription: 'Trải nghiệm mua sắm thời trang trực tuyến thời thượng, giao hàng nhanh chóng toàn quốc.',
