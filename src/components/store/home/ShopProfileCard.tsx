@@ -29,12 +29,12 @@ const ShopProfileCardComponent: React.FC<ShopProfileCardProps> = ({
   return (
     <div className={styles.shopCard}>
       <div className={styles.shopLeft}>
-        <div className={styles.shopAvatar}>
+        <div className={`${styles.shopAvatar} ${logoUrl ? styles.shopAvatarWithImage : ''}`}>
           {logoUrl ? (
             <img
               src={logoUrl}
               alt={shopDisplayName}
-              style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }}
+              className={styles.shopAvatarImg}
               loading="lazy"
             />
           ) : (
