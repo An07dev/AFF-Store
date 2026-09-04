@@ -263,6 +263,7 @@ export default function Dashboard() {
                     ticks: { color: textMutedColor, font: { size: 12 } },
                   },
                   y: {
+                    beginAtZero: true,
                     grid: { color: gridLineColor },
                     ticks: {
                       color: textMutedColor,

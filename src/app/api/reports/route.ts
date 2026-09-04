@@ -12,18 +12,46 @@ export async function GET(request: Request) {
 
     const now = new Date();
     let startDate = new Date();
+    let endDate: Date | null = null;
+    const dateMap = new Map<string, { revenue: number; orders: number }>();
+    const isHourly = period === 'today' || period === 'yesterday';
 
     if (period === 'today') {
-      startDate.setHours(0, 0, 0, 0);
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      for (let h = 0; h < 24; h++) {
+        const hourKey = `${h.toString().padStart(2, '0')}:00`;
+        dateMap.set(hourKey, { revenue: 0, orders: 0 });
+      }
     } else if (period === 'yesterday') {
-      startDate.setDate(now.getDate() - 1);
-      startDate.setHours(0, 0, 0, 0);
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
+      for (let h = 0; h < 24; h++) {
+        const hourKey = `${h.toString().padStart(2, '0')}:00`;
+        dateMap.set(hourKey, { revenue: 0, orders: 0 });
+      }
     } else if (period === '7days') {
-      startDate.setDate(now.getDate() - 7);
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6, 0, 0, 0, 0);
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const dateKey = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+        dateMap.set(dateKey, { revenue: 0, orders: 0 });
+      }
     } else if (period === 'thisMonth') {
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+      const totalDays = now.getDate();
+      for (let day = 1; day <= totalDays; day++) {
+        const d = new Date(now.getFullYear(), now.getMonth(), day);
+        const dateKey = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+        dateMap.set(dateKey, { revenue: 0, orders: 0 });
+      }
     } else {
-      startDate.setDate(now.getDate() - 30);
+      // 30days default
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29, 0, 0, 0, 0);
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const dateKey = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+        dateMap.set(dateKey, { revenue: 0, orders: 0 });
+      }
     }
 
     const validPaymentFilter = {
@@ -33,8 +61,13 @@ export async function GET(request: Request) {
       ],
     };
 
+    const dateQuery: any = { createdAt: { $gte: startDate } };
+    if (endDate) {
+      dateQuery.createdAt.$lte = endDate;
+    }
+
     const orders = await Order.find({
-      createdAt: { $gte: startDate },
+      ...dateQuery,
       ...validPaymentFilter,
     });
     const totalOrders = orders.length;
@@ -43,7 +76,10 @@ export async function GET(request: Request) {
       .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
     const averageOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
 
-    const newCustomers = await Customer.countDocuments({ createdAt: { $gte: startDate } });
+    const customerQuery = endDate
+      ? { createdAt: { $gte: startDate, $lte: endDate } }
+      : { createdAt: { $gte: startDate } };
+    const newCustomers = await Customer.countDocuments(customerQuery);
 
     // Orders by status
     const ordersByStatus = {
@@ -54,17 +90,23 @@ export async function GET(request: Request) {
       cancelled: orders.filter((o) => o.status === 'cancelled').length,
     };
 
-    // Revenue by date
-    const dateMap = new Map<string, { revenue: number; orders: number }>();
+    // Revenue by date / hour
     orders.forEach((o) => {
       const d = new Date(o.createdAt);
-      const dateKey = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-      const curr = dateMap.get(dateKey) || { revenue: 0, orders: 0 };
-      if (o.status !== 'cancelled') {
-        curr.revenue += o.totalAmount || 0;
+      let key = '';
+      if (isHourly) {
+        key = `${d.getHours().toString().padStart(2, '0')}:00`;
+      } else {
+        key = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
       }
-      curr.orders += 1;
-      dateMap.set(dateKey, curr);
+
+      if (dateMap.has(key)) {
+        const curr = dateMap.get(key)!;
+        if (o.status !== 'cancelled') {
+          curr.revenue += o.totalAmount || 0;
+        }
+        curr.orders += 1;
+      }
     });
 
     const revenueByDate = Array.from(dateMap.entries()).map(([date, data]) => ({

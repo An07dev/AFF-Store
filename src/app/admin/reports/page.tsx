@@ -95,8 +95,14 @@ export default function ReportsPage() {
 
   const primaryColor = theme.buttonColors?.primaryBg || '#3b82f6';
 
-  const lineLabels = report?.revenueByDate?.map((r: any) => r.date) || ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-  const lineValues = report?.revenueByDate?.map((r: any) => r.revenue) || [0, 0, 0, 0, 0, 0, 0];
+  const lineLabels =
+    report?.revenueByDate?.length > 0
+      ? report.revenueByDate.map((r: any) => r.date)
+      : ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  const lineValues =
+    report?.revenueByDate?.length > 0
+      ? report.revenueByDate.map((r: any) => r.revenue)
+      : [0, 0, 0, 0, 0, 0, 0];
 
   const lineChartData = {
     labels: lineLabels,
@@ -107,7 +113,11 @@ export default function ReportsPage() {
         borderColor: primaryColor,
         backgroundColor: `${primaryColor}25`,
         fill: true,
-        tension: 0.3,
+        tension: 0.35,
+        pointBackgroundColor: primaryColor,
+        pointBorderColor: '#ffffff',
+        pointRadius: 4,
+        pointHoverRadius: 6,
       },
     ],
   };
@@ -188,9 +198,24 @@ export default function ReportsPage() {
               options={{
                 maintainAspectRatio: false,
                 responsive: true,
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) => `Doanh thu: ${formatPrice(ctx.parsed.y || 0)}`,
+                    },
+                  },
+                },
                 scales: {
                   x: { grid: { color: 'rgba(255,255,255,0.05)' } },
-                  y: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                  y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: {
+                      callback: (val: any) =>
+                        val >= 1000000 ? `${val / 1000000}M` : val >= 1000 ? `${val / 1000}k` : `${val}₫`,
+                    },
+                  },
                 },
               }}
             />
