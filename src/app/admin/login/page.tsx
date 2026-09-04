@@ -89,18 +89,17 @@ export default function AdminLoginPage() {
       <div className={styles.loginCard}>
         {/* Brand Logo & Title */}
         <div className={styles.logoArea}>
-          {theme.pageTitles?.logoUrl ? (
+          {theme.pageTitles?.logoUrl && (
             <img
               src={theme.pageTitles.logoUrl}
               alt="Logo"
               className={styles.logoImg}
             />
-          ) : (
-            <div className={styles.logoText}>
-              {theme.pageTitles?.logoText || 'ShopBig'}
-              <span className={styles.logoBadge}>Admin</span>
-            </div>
           )}
+          <div className={styles.logoText}>
+            {theme.pageTitles?.logoText || 'ShopBig'}
+            <span className={styles.logoBadge}>Admin</span>
+          </div>
         </div>
 
         <div className={styles.titleBox}>

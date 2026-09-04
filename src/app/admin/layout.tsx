@@ -21,6 +21,7 @@ import {
   FiLogOut,
   FiZap,
   FiGift,
+  FiExternalLink,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -111,17 +112,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const userInitial = currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'A';
   const roleLabel = currentUser?.role === 'staff' ? 'Nhân viên' : 'Quản trị viên';
+  const currentMenuItem = menuItems.find(
+    (item) => item.path === pathname || (item.path !== '/admin' && pathname.startsWith(item.path))
+  );
 
   return (
     <div className={`admin-theme ${styles.adminLayout}`}>
       {/* Sidebar Navigation */}
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
-          {theme.pageTitles?.logoUrl ? (
-            <img src={theme.pageTitles.logoUrl} alt="Logo" style={{ maxHeight: 32, objectFit: 'contain' }} />
-          ) : (
-            <h2>{theme.pageTitles?.logoText || 'ShopBig'} Admin</h2>
-          )}
+          <Link href="/admin" className={styles.sidebarLogoLink}>
+            <div className={styles.sidebarLogoIconBox}>
+              {theme.pageTitles?.logoUrl ? (
+                <img
+                  src={theme.pageTitles.logoUrl}
+                  alt={theme.pageTitles?.logoText || 'ShopBig'}
+                  className={styles.sidebarLogoImg}
+                />
+              ) : (
+                <span className={styles.sidebarFallbackIcon}>SB</span>
+              )}
+            </div>
+            <div className={styles.sidebarLogoTexts}>
+              <h2 className={styles.sidebarBrandTitle}>
+                {theme.pageTitles?.logoText || 'ShopBig'}
+              </h2>
+              <span className={styles.sidebarAdminSubtitle}>Hệ Thống Quản Trị</span>
+            </div>
+          </Link>
         </div>
         <nav className={styles.sidebarNav}>
           {menuItems.map((item) => {
@@ -179,16 +197,36 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main Content View */}
       <div className={styles.mainContent}>
         <header className={styles.header}>
-          <button
-            className={styles.menuToggle}
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            aria-label="Mở Menu"
-          >
-            <FiMenu />
-          </button>
+          <div className={styles.headerLeft}>
+            <button
+              className={styles.menuToggle}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Mở Menu"
+            >
+              <FiMenu />
+            </button>
+            <div className={styles.headerBreadcrumbs}>
+              <span className={styles.breadcrumbStore}>{theme.pageTitles?.logoText || 'ShopBig'}</span>
+              <span className={styles.breadcrumbSep}>/</span>
+              <span className={styles.breadcrumbActive}>
+                {currentMenuItem?.name || 'Dashboard'}
+              </span>
+            </div>
+          </div>
 
           <div className={styles.headerRight}>
-            <button className={styles.iconButton} aria-label="Thông báo">
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.viewStoreBtn}
+              title="Mở giao diện bán hàng khách hàng"
+            >
+              <FiExternalLink size={14} />
+              <span>Xem Cửa Hàng</span>
+            </Link>
+
+            <button className={styles.iconButton} aria-label="Thông báo" title="Thông báo hệ thống">
               <FiBell />
             </button>
 

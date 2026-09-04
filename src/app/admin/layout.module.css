@@ -24,19 +24,74 @@
 }
 
 .sidebarHeader {
-  height: 64px;
+  height: 68px;
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 18px;
   border-bottom: 1px solid var(--border-color, #232838);
   flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.15);
 }
 
-.sidebarHeader h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
+.sidebarLogoLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  min-width: 0;
+  flex: 1;
+}
+
+.sidebarLogoIconBox {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--bg-card, #13161f);
+  border: 1px solid var(--border-color, #232838);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 3px;
+  overflow: hidden;
+}
+
+.sidebarLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sidebarFallbackIcon {
+  font-size: 0.875rem;
+  font-weight: 900;
   color: var(--primary, #3b82f6);
+}
+
+.sidebarLogoTexts {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebarBrandTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main, #ffffff);
   margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebarAdminSubtitle {
+  font-size: 0.6875rem;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .sidebarNav {
@@ -96,7 +151,7 @@
 }
 
 .header {
-  height: 64px;
+  height: 68px;
   background-color: var(--bg-card, #13161f);
   border-bottom: 1px solid var(--border-color, #232838);
   display: flex;
@@ -105,6 +160,34 @@
   padding: 0 24px;
   flex-shrink: 0;
   z-index: 50;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.headerBreadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+
+.breadcrumbStore {
+  color: var(--text-muted, #94a3b8);
+  font-weight: 600;
+}
+
+.breadcrumbSep {
+  color: var(--border-color, #232838);
+  font-size: 0.8rem;
+}
+
+.breadcrumbActive {
+  color: var(--text-main, #ffffff);
+  font-weight: 700;
 }
 
 .menuToggle {
@@ -121,7 +204,28 @@
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+}
+
+.viewStoreBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--primary, #3b82f6);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.viewStoreBtn:hover {
+  background: var(--primary, #3b82f6);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .iconButton {
