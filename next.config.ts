@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['mongodb-memory-server', 'mongoose'],
+  outputFileTracingExcludes: {
+    '*': ['./data/**/*', 'data/**/*'],
+  },
   allowedDevOrigins: [
     'nicotine-mumbling-detract.ngrok-free.dev',
     '*.ngrok-free.dev',
@@ -25,3 +29,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
