@@ -1,13 +1,11 @@
 import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
-import { autoSeedIfNeeded } from './auto-seed';
 
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
   embeddedInstance: any | null;
-  hasAutoSeeded: boolean;
 }
 
 declare global {
@@ -18,7 +16,6 @@ let cached: MongooseCache = global.mongooseCache || {
   conn: null,
   promise: null,
   embeddedInstance: null,
-  hasAutoSeeded: false,
 };
 
 if (!global.mongooseCache) {
@@ -57,10 +54,6 @@ async function getEmbeddedMongoUri(): Promise<string> {
 
 async function connectToDatabase(): Promise<typeof mongoose> {
   if (cached.conn && cached.conn.connection.readyState === 1) {
-    if (!cached.hasAutoSeeded) {
-      cached.hasAutoSeeded = true;
-      autoSeedIfNeeded().catch(() => {});
-    }
     return cached.conn;
   }
 
@@ -95,10 +88,6 @@ async function connectToDatabase(): Promise<typeof mongoose> {
 
   try {
     cached.conn = await cached.promise;
-    if (!cached.hasAutoSeeded) {
-      cached.hasAutoSeeded = true;
-      autoSeedIfNeeded().catch(() => {});
-    }
   } catch (e) {
     cached.promise = null;
     throw e;
@@ -107,4 +96,4 @@ async function connectToDatabase(): Promise<typeof mongoose> {
   return cached.conn;
 }
 
-export default connectToDatabase;
+export default connectToDatabase;
