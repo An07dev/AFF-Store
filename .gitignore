@@ -40,6 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# scratch
+# scratch and test
 scratch/
+scripts/test*
+
+# local database
+/data/db/
+data/
 
