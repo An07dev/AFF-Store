@@ -14,8 +14,17 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'ShopBig - Cửa Hàng Thời Trang & Công Nghệ',
+  title: 'SHOPPING - Cửa Hàng Thời Trang & Công Nghệ',
   description: 'Trải nghiệm mua sắm trực tuyến cao cấp, giao hàng nhanh chóng toàn quốc.',
+  icons: {
+    icon: [
+      { url: '/images/logo.png' },
+      { url: '/icon.png', sizes: '256x256', type: 'image/png' },
+      { url: '/favicon.ico' },
+    ],
+    shortcut: '/images/logo.png',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({
