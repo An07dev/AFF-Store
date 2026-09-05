@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "socket": "node server-socket.mjs",
-    "build": "next build",
+    "build": "chmod -R 755 . && next build",
     "start": "next start",
     "lint": "eslint",
     "license:gen": "node scripts/license-cli.js gen",
