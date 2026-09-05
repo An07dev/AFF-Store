@@ -112,7 +112,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, isLoaded]);
 
-  const setCheckoutItems = (list: CartItem[]) => {
+  const setCheckoutItems = useCallback((list: CartItem[]) => {
     setCheckoutItemsState(list);
     try {
       if (list && list.length > 0) {
@@ -123,7 +123,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error('Error saving checkout items:', e);
     }
-  };
+  }, []);
 
   // Cart count represents the number of distinct product/variant items in cart
   const cartCount = items.length;
@@ -136,7 +136,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const totalAmount = subtotal + shippingFee;
 
   // 3. Add to Cart (With strict stock validation & clamping)
-  const addToCart = (product: any, quantity = 1, variant?: any): boolean => {
+  const addToCart = useCallback((product: any, quantity = 1, variant?: any): boolean => {
     const prodId = product._id || product.id;
     const variantName =
       variant?.title ||
@@ -229,10 +229,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     toast.success('Đã thêm sản phẩm vào giỏ hàng!');
     return true;
-  };
+  }, []);
 
   // 4. Buy Now (Isolates only this product for checkout, does not pollute or force other cart items)
-  const buyNow = (product: any, quantity = 1, variant?: any): CartItem | null => {
+  const buyNow = useCallback((product: any, quantity = 1, variant?: any): CartItem | null => {
     const prodId = product._id || product.id;
     const variantName =
       variant?.title ||
@@ -288,12 +288,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       selected: true,
     };
 
-    setCheckoutItems([singleCheckoutItem]);
+    setCheckoutItemsState([singleCheckoutItem]);
     return singleCheckoutItem;
-  };
+  }, []);
 
   // 5. Update Quantity (Strict stock limit enforcement)
-  const updateQuantity = (identifier: string | number, quantity: number) => {
+  const updateQuantity = useCallback((identifier: string | number, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(identifier);
       return;
@@ -319,20 +319,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (overStockMsg) {
       toast.error(overStockMsg);
     }
-  };
+  }, []);
 
   // 6. Remove Item (Local Only - No API call)
-  const removeFromCart = (identifier: string | number) => {
+  const removeFromCart = useCallback((identifier: string | number) => {
     setItems((prevItems) => {
       return prevItems.filter((item, idx) => item._id !== identifier && idx !== identifier);
     });
     toast.success('Đã xóa sản phẩm khỏi giỏ');
-  };
+  }, []);
 
   // 7. Clear Cart
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setItems([]);
-  };
+  }, []);
 
   // 8. Remove Checked Out Items (removes only items that were purchased)
   const removeCheckedOutItems = useCallback((checkedOutList: CartItem[]) => {
@@ -345,33 +345,52 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return !wasBought;
       });
     });
-    setCheckoutItems([]);
+    setCheckoutItemsState([]);
   }, []);
 
-  return (
-    <CartContext.Provider
-      value={{
-        items,
-        cartCount,
-        subtotal,
-        shippingFee,
-        totalAmount,
-        checkoutItems,
-        setCheckoutItems,
-        isDrawerOpen,
-        openDrawer: () => setIsDrawerOpen(true),
-        closeDrawer: () => setIsDrawerOpen(false),
-        addToCart,
-        buyNow,
-        updateQuantity,
-        removeFromCart,
-        clearCart,
-        removeCheckedOutItems,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+  const openDrawer = useCallback(() => setIsDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
+
+  const value = React.useMemo(
+    () => ({
+      items,
+      cartCount,
+      subtotal,
+      shippingFee,
+      totalAmount,
+      checkoutItems,
+      setCheckoutItems,
+      isDrawerOpen,
+      openDrawer,
+      closeDrawer,
+      addToCart,
+      buyNow,
+      updateQuantity,
+      removeFromCart,
+      clearCart,
+      removeCheckedOutItems,
+    }),
+    [
+      items,
+      cartCount,
+      subtotal,
+      shippingFee,
+      totalAmount,
+      checkoutItems,
+      setCheckoutItems,
+      isDrawerOpen,
+      openDrawer,
+      closeDrawer,
+      addToCart,
+      buyNow,
+      updateQuantity,
+      removeFromCart,
+      clearCart,
+      removeCheckedOutItems,
+    ]
   );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {

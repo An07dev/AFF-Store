@@ -268,9 +268,11 @@ export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<'titles' | 'banners' | 'mode' | 'buttons' | 'texts' | 'components' | 'email' | 'password'>('titles');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
   const [uploadingBannerIdx, setUploadingBannerIdx] = useState<number | null>(null);
   const [uploadingSubBannerIdx, setUploadingSubBannerIdx] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const faviconInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const subBannerInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -449,9 +451,17 @@ export default function AdminSettingsPage() {
       if (data.success && data.data?.url) {
         const updated: ThemeConfig = {
           ...theme,
-          pageTitles: { ...theme.pageTitles, logoUrl: data.data.url },
+          pageTitles: {
+            ...theme.pageTitles,
+            logoUrl: data.data.url,
+            faviconUrl:
+              !theme.pageTitles?.faviconUrl || theme.pageTitles.faviconUrl === '/favicon.ico'
+                ? data.data.url
+                : theme.pageTitles.faviconUrl,
+          },
         };
         setTheme(updated);
+        applyCSSVariables(updated);
         toast.success('Upload Logo thành công!');
       } else {
         toast.error(data.message || 'Lỗi upload ảnh');
@@ -460,6 +470,39 @@ export default function AdminSettingsPage() {
       toast.error('Lỗi khi tải ảnh lên');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  // Upload favicon
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setIsUploadingFavicon(true);
+    try {
+      const res = await apiFetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.data?.url) {
+        const updated: ThemeConfig = {
+          ...theme,
+          pageTitles: { ...theme.pageTitles, faviconUrl: data.data.url },
+        };
+        setTheme(updated);
+        applyCSSVariables(updated);
+        toast.success('Upload Favicon thành công!');
+      } else {
+        toast.error(data.message || 'Lỗi upload favicon');
+      }
+    } catch (err) {
+      toast.error('Lỗi khi tải favicon lên');
+    } finally {
+      setIsUploadingFavicon(false);
     }
   };
 
@@ -738,6 +781,39 @@ export default function AdminSettingsPage() {
                       style={{ display: 'none' }}
                       accept="image/*"
                       onChange={handleLogoUpload}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Favicon trình duyệt (Icon tab - URL hoặc Upload)</label>
+                  <div className={styles.uploadRow}>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      placeholder="/favicon.ico hoặc URL icon"
+                      value={theme.pageTitles?.faviconUrl || ''}
+                      onChange={(e) =>
+                        setTheme({
+                          ...theme,
+                          pageTitles: { ...theme.pageTitles, faviconUrl: e.target.value },
+                        })
+                      }
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      className={styles.uploadBtn}
+                      onClick={() => faviconInputRef.current?.click()}
+                    >
+                      <FiUploadCloud /> {isUploadingFavicon ? 'Đang tải...' : 'Upload icon'}
+                    </button>
+                    <input
+                      type="file"
+                      ref={faviconInputRef}
+                      style={{ display: 'none' }}
+                      accept="image/*"
+                      onChange={handleFaviconUpload}
                     />
                   </div>
                 </div>

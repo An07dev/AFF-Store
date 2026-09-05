@@ -41,6 +41,8 @@ function OrderSuccessContent() {
   const [copied, setCopied] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const cleanedUpRef = useRef(false);
+  const removeCheckedOutItemsRef = useRef(removeCheckedOutItems);
+  removeCheckedOutItemsRef.current = removeCheckedOutItems;
 
   useEffect(() => {
     async function fetchOrderDetail() {
@@ -64,11 +66,11 @@ function OrderSuccessContent() {
                 if (pending) {
                   const pendingItems = JSON.parse(pending);
                   if (Array.isArray(pendingItems) && pendingItems.length > 0) {
-                    removeCheckedOutItems(pendingItems);
+                    removeCheckedOutItemsRef.current(pendingItems);
                   }
                   sessionStorage.removeItem('shopbig_pending_payment_items');
                 } else if (data.data.items && Array.isArray(data.data.items)) {
-                  removeCheckedOutItems(data.data.items);
+                  removeCheckedOutItemsRef.current(data.data.items);
                 }
               } catch (e) {
                 console.error('Error cleaning up cart:', e);
@@ -87,7 +89,7 @@ function OrderSuccessContent() {
     }
 
     fetchOrderDetail();
-  }, [code, isPaidQuery, removeCheckedOutItems]);
+  }, [code, isPaidQuery]);
 
   const handleCopyCode = () => {
     const targetCode = order?.orderCode || code;

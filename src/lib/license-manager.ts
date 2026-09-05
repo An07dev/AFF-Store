@@ -12,7 +12,7 @@ export interface LicenseRecord {
   licenseKey: string;
   buyerName: string;
   note?: string;
-  status: 'available' | 'activated' | 'revoked';
+  status: 'available' | 'activated' | 'active' | 'revoked' | string;
   shopName?: string;
   assignedDb?: string;
   machineFingerprint?: string;
@@ -88,11 +88,116 @@ export async function getAllLicenses(): Promise<LicenseRecord[]> {
 export async function revokeLicense(key: string): Promise<boolean> {
   const conn = await getMasterConnection();
   const collection = conn.collection<LicenseRecord>(COLLECTION_NAME);
+  const normalizedKey = key.trim().toUpperCase();
   const res = await collection.updateOne(
-    { licenseKey: key.trim().toUpperCase() },
+    { licenseKey: normalizedKey },
     { $set: { status: 'revoked', updatedAt: new Date() } }
   );
+  delete licenseCache[normalizedKey];
   return res.modifiedCount > 0;
+}
+
+/**
+ * Reactivate a previously revoked license key
+ */
+export async function reactivateLicense(key: string): Promise<boolean> {
+  const conn = await getMasterConnection();
+  const collection = conn.collection<LicenseRecord>(COLLECTION_NAME);
+  const normalizedKey = key.trim().toUpperCase();
+  const res = await collection.updateOne(
+    { licenseKey: normalizedKey },
+    { $set: { status: 'activated', updatedAt: new Date() } }
+  );
+  delete licenseCache[normalizedKey];
+  return res.modifiedCount > 0;
+}
+
+export interface LicenseCheckResult {
+  valid: boolean;
+  status: 'available' | 'activated' | 'active' | 'revoked' | 'not_found' | 'offline_ok' | string;
+  licenseKey?: string;
+  buyerName?: string;
+  shopName?: string;
+  assignedDb?: string;
+  message?: string;
+}
+
+// In-memory cache to prevent overwhelming master cluster on every request
+const licenseCache: Record<string, { result: LicenseCheckResult; expiresAt: number }> = {};
+
+/**
+ * Realtime Runtime License Status Verification
+ */
+export async function checkLicenseStatus(rawKey?: string, forceFresh = false): Promise<LicenseCheckResult> {
+  const key = rawKey?.trim().toUpperCase();
+  if (!key) {
+    return {
+      valid: false,
+      status: 'not_found',
+      message: 'Không tìm thấy mã bản quyền trong cấu hình.',
+    };
+  }
+
+  // Cache hit check (unless forced fresh)
+  if (!forceFresh) {
+    const cached = licenseCache[key];
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.result;
+    }
+  }
+
+  try {
+    const conn = await getMasterConnection();
+    const collection = conn.collection<LicenseRecord>(COLLECTION_NAME);
+
+    const record = await collection.findOne({ licenseKey: key });
+
+    if (!record) {
+      const res: LicenseCheckResult = {
+        valid: false,
+        status: 'not_found',
+        licenseKey: key,
+        message: 'Mã bản quyền không tồn tại trên hệ thống máy chủ.',
+      };
+      licenseCache[key] = { result: res, expiresAt: Date.now() + 15000 };
+      return res;
+    }
+
+    if (record.status === 'revoked') {
+      const res: LicenseCheckResult = {
+        valid: false,
+        status: 'revoked',
+        licenseKey: key,
+        buyerName: record.buyerName,
+        shopName: record.shopName,
+        assignedDb: record.assignedDb,
+        message: 'Bản quyền này đã bị thu hồi hoặc tạm khóa bởi nhà phát hành.',
+      };
+      licenseCache[key] = { result: res, expiresAt: Date.now() + 5000 };
+      return res;
+    }
+
+    const isActive = record.status === 'activated' || record.status === 'active';
+    const res: LicenseCheckResult = {
+      valid: isActive,
+      status: record.status,
+      licenseKey: key,
+      buyerName: record.buyerName,
+      shopName: record.shopName,
+      assignedDb: record.assignedDb,
+      message: isActive ? 'Bản quyền hợp lệ và đang hoạt động.' : 'Mã chưa được kích hoạt.',
+    };
+    licenseCache[key] = { result: res, expiresAt: Date.now() + 20000 };
+    return res;
+  } catch (error: any) {
+    console.warn('⚠️ [License Check] Không thể kết nối Master DB:', error.message);
+    return {
+      valid: true,
+      status: 'offline_ok',
+      licenseKey: key,
+      message: 'Tạm thời không kết nối được máy chủ bản quyền.',
+    };
+  }
 }
 
 /**

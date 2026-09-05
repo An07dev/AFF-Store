@@ -157,6 +157,38 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+export function isColorLight(colorStr?: string): boolean {
+  if (!colorStr) return false;
+  const str = colorStr.trim().toLowerCase();
+  if (['white', '#fff', '#ffffff', '#f8fafc', '#f1f5f9', '#f5f5f5', '#fafafa', '#fefefe', 'transparent'].includes(str)) {
+    return true;
+  }
+  if (['black', '#000', '#000000', '#090a0f', '#121212', '#13161f'].includes(str)) {
+    return false;
+  }
+  if (str.startsWith('rgb')) {
+    const m = str.match(/\d+/g);
+    if (m && m.length >= 3) {
+      const yiq = (parseInt(m[0], 10) * 299 + parseInt(m[1], 10) * 587 + parseInt(m[2], 10) * 114) / 1000;
+      return yiq >= 165;
+    }
+  }
+  let hex = str.replace('#', '');
+  if (hex.length === 3 || hex.length === 4) {
+    hex = hex.substring(0, 3).split('').map((c) => c + c).join('');
+  }
+  if (hex.length >= 6) {
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+      return yiq >= 165;
+    }
+  }
+  return false;
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<ThemeConfig>(defaultTheme);
   // Non-blocking initialization for instant 0ms First Contentful Paint
@@ -171,50 +203,127 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.setAttribute('data-theme', config.mode);
 
     // Buttons
-    root.style.setProperty('--primary', config.buttonColors?.primaryBg || '#3b82f6');
-    root.style.setProperty('--primary-hover', config.buttonColors?.primaryHover || '#2563eb');
+    const primaryColor = config.buttonColors?.primaryBg || '#ee4d2d';
+    root.style.setProperty('--primary', primaryColor);
+    root.style.setProperty('--primary-hover', config.buttonColors?.primaryHover || '#d73211');
     root.style.setProperty('--primary-text', config.buttonColors?.primaryText || '#ffffff');
     root.style.setProperty('--secondary-btn-bg', config.buttonColors?.secondaryBg || '#1a1e2b');
     root.style.setProperty('--secondary-btn-text', config.buttonColors?.secondaryText || '#94a3b8');
     root.style.setProperty('--radius-md', config.buttonColors?.borderRadius || '10px');
 
-    // Texts
-    root.style.setProperty('--text-main', config.textColors?.textPrimary || '#f8fafc');
-    root.style.setProperty('--text-muted', config.textColors?.textSecondary || '#94a3b8');
-    root.style.setProperty('--text-dim', config.textColors?.textMuted || '#64748b');
-    root.style.setProperty('--text-accent', config.textColors?.textAccent || '#3b82f6');
+    const isDark = config.mode === 'dark';
 
-    // Components & Backgrounds
-    root.style.setProperty('--bg-main', config.componentColors?.background || '#090a0f');
-    root.style.setProperty('--bg-card', config.componentColors?.cardBackground || '#13161f');
-    root.style.setProperty('--bg-card-hover', config.componentColors?.cardHoverBg || '#1a1e2b');
-    root.style.setProperty('--navbar-bg', config.componentColors?.navbarBg || '#090a0f');
-    root.style.setProperty('--admin-sidebar-bg', config.componentColors?.sidebarBg || '#131826');
-    root.style.setProperty('--border-color', config.componentColors?.borderColor || '#232838');
-    root.style.setProperty('--accent', config.componentColors?.accentColor || '#10b981');
+    // Texts
+    let textMain = config.textColors?.textPrimary || (isDark ? '#f8fafc' : '#0f172a');
+    let textMuted = config.textColors?.textSecondary || (isDark ? '#94a3b8' : '#475569');
+    let textDim = config.textColors?.textMuted || (isDark ? '#64748b' : '#94a3b8');
+    let textAccent = config.textColors?.textAccent || primaryColor;
+
+    // Components & Backgrounds - Mode Harmony Check
+    let bgMain = config.componentColors?.background || (isDark ? '#090a0f' : '#f8fafc');
+    let bgCard = config.componentColors?.cardBackground || (isDark ? '#13161f' : '#ffffff');
+    let bgCardHover = config.componentColors?.cardHoverBg || (isDark ? '#1a1e2b' : '#f1f5f9');
+    let borderColor = config.componentColors?.borderColor || (isDark ? '#232838' : '#e2e8f0');
+    let navbarBg = config.componentColors?.navbarBg || (isDark ? '#090a0f' : '#ffffff');
+    let sidebarBg = config.componentColors?.sidebarBg || (isDark ? '#131826' : '#ffffff');
+    let accentColor = config.componentColors?.accentColor || '#10b981';
+
+    // Auto-harmonize if mode was toggled but componentColors had light/dark values
+    if (isDark) {
+      if (isColorLight(bgMain)) bgMain = '#090a0f';
+      if (isColorLight(bgCard)) bgCard = '#13161f';
+      if (isColorLight(bgCardHover)) bgCardHover = '#1a1e2b';
+      if (isColorLight(borderColor)) borderColor = '#232838';
+      if (isColorLight(sidebarBg)) sidebarBg = '#131826';
+      if (isColorLight(navbarBg)) navbarBg = '#090a0f';
+      if (!isColorLight(textMain)) textMain = '#f8fafc';
+      if (!isColorLight(textMuted)) textMuted = '#94a3b8';
+    } else {
+      if (!isColorLight(bgMain)) bgMain = '#f8fafc';
+      if (!isColorLight(bgCard)) bgCard = '#ffffff';
+      if (!isColorLight(bgCardHover)) bgCardHover = '#f1f5f9';
+      if (!isColorLight(borderColor)) borderColor = '#e2e8f0';
+      if (!isColorLight(sidebarBg)) sidebarBg = '#ffffff';
+      if (navbarBg === '#090a0f' || !isColorLight(navbarBg)) navbarBg = '#ffffff';
+      if (isColorLight(textMain)) textMain = '#0f172a';
+      if (isColorLight(textMuted)) textMuted = '#475569';
+    }
+
+    root.style.setProperty('--text-main', textMain);
+    root.style.setProperty('--text-muted', textMuted);
+    root.style.setProperty('--text-dim', textDim);
+    root.style.setProperty('--text-accent', textAccent);
+
+    root.style.setProperty('--bg-main', bgMain);
+    root.style.setProperty('--bg-card', bgCard);
+    root.style.setProperty('--bg-card-hover', bgCardHover);
+    root.style.setProperty('--navbar-bg', navbarBg);
+    root.style.setProperty('--admin-sidebar-bg', sidebarBg);
+    root.style.setProperty('--border-color', borderColor);
+    root.style.setProperty('--accent', accentColor);
+
+    // Also directly set body and html styles to guarantee 100% viewport coverage
+    if (document.body) {
+      document.body.style.backgroundColor = bgMain;
+      document.body.style.color = textMain;
+    }
+    if (document.documentElement) {
+      document.documentElement.style.backgroundColor = bgMain;
+      document.documentElement.style.color = textMain;
+    }
+
+    // Dynamic contrast-aware navbar text & elements
+    const currentNavbarBg = navbarBg;
+    const isNavbarLight = isColorLight(currentNavbarBg);
+    const navbarText = isNavbarLight ? '#0f172a' : '#ffffff';
+    const navbarTextMuted = isNavbarLight ? '#64748b' : 'rgba(255, 255, 255, 0.85)';
+    const navbarBorder = isNavbarLight ? (borderColor || '#e2e8f0') : 'rgba(255, 255, 255, 0.15)';
+    const navbarBtnHover = isNavbarLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.15)';
+    const navbarLogoColor = isNavbarLight ? primaryColor : '#ffffff';
+    const navbarBadgeBg = isNavbarLight ? primaryColor : '#ffffff';
+    const navbarBadgeText = isNavbarLight ? '#ffffff' : primaryColor;
+
+    root.style.setProperty('--navbar-text', navbarText);
+    root.style.setProperty('--navbar-text-muted', navbarTextMuted);
+    root.style.setProperty('--navbar-border', navbarBorder);
+    root.style.setProperty('--navbar-btn-hover', navbarBtnHover);
+    root.style.setProperty('--navbar-logo-color', navbarLogoColor);
+    root.style.setProperty('--navbar-badge-bg', navbarBadgeBg);
+    root.style.setProperty('--navbar-badge-text', navbarBadgeText);
 
     // Admin Theme specific variables
-    root.style.setProperty('--admin-bg', config.componentColors?.background || '#090a0f');
-    root.style.setProperty('--admin-card', config.componentColors?.cardBackground || '#13161f');
-    root.style.setProperty('--admin-border', config.componentColors?.borderColor || '#232838');
-    root.style.setProperty('--admin-text', config.textColors?.textPrimary || '#f8fafc');
-    root.style.setProperty('--admin-text-muted', config.textColors?.textSecondary || '#94a3b8');
-    root.style.setProperty('--admin-accent', config.buttonColors?.primaryBg || '#3b82f6');
+    root.style.setProperty('--admin-bg', bgMain);
+    root.style.setProperty('--admin-card', bgCard);
+    root.style.setProperty('--admin-border', borderColor);
+    root.style.setProperty('--admin-text', textMain);
+    root.style.setProperty('--admin-text-muted', textMuted);
+    root.style.setProperty('--admin-accent', primaryColor);
 
     // Page Title
     if (config.pageTitles?.siteTitle) {
       document.title = config.pageTitles.siteTitle;
     }
 
-    // Favicon
-    if (config.pageTitles?.faviconUrl) {
-      let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement('link');
+    // Dynamic Favicon & Browser Tab Icon Synchronization
+    const faviconToUse =
+      config.pageTitles?.faviconUrl && config.pageTitles.faviconUrl !== '/favicon.ico'
+        ? config.pageTitles.faviconUrl
+        : config.pageTitles?.logoUrl || config.pageTitles?.faviconUrl || '/images/logo.png';
+
+    if (faviconToUse) {
+      const iconLinks = document.querySelectorAll<HTMLLinkElement>(
+        "link[rel~='icon'], link[rel='shortcut icon'], link[rel='apple-touch-icon']"
+      );
+      if (iconLinks.length > 0) {
+        iconLinks.forEach((link) => {
+          link.href = faviconToUse;
+        });
+      } else {
+        const link = document.createElement('link');
         link.rel = 'icon';
+        link.href = faviconToUse;
         document.getElementsByTagName('head')[0]?.appendChild(link);
       }
-      link.href = config.pageTitles.faviconUrl;
     }
 
     // Meta Description
@@ -363,6 +472,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       applyCSSVariables(updated);
       try {
         localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('shopbig_theme_updated', { detail: updated }));
       } catch (err) {}
       return updated;
     });

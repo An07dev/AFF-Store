@@ -1,6 +1,7 @@
 'use client';
 
 import React, { memo } from 'react';
+import Image from 'next/image';
 import { FiLayers, FiChevronRight } from 'react-icons/fi';
 import styles from '@/app/(store)/page.module.css';
 
@@ -80,12 +81,13 @@ const HomeCategoryShowcaseComponent: React.FC<HomeCategoryShowcaseProps> = ({
                 style={!displayImage ? { background: gradient } : undefined}
               >
                 {displayImage ? (
-                  <img
+                  <Image
                     src={displayImage}
                     alt={cat.name}
+                    fill
+                    sizes="60px"
                     className={styles.homeCategoryImg}
                     loading="lazy"
-                    decoding="async"
                   />
                 ) : (
                   <span className={styles.homeCategoryFallbackIcon}>

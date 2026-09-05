@@ -1,6 +1,7 @@
 'use client';
 
-import React, { memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   FiTruck,
@@ -21,6 +22,8 @@ interface ShopProfileCardProps {
   logoUrl?: string;
   avatarInitials: string;
   productCount?: number;
+  coverImage?: string;
+  coverImages?: string[];
   socialLinks?: {
     tiktokUrl?: string;
     facebookUrl?: string;
@@ -32,31 +35,130 @@ const ShopProfileCardComponent: React.FC<ShopProfileCardProps> = ({
   logoUrl,
   avatarInitials = 'ST',
   productCount = 4,
+  coverImage,
+  coverImages,
 }) => {
   const router = useRouter();
+  const [avatarError, setAvatarError] = useState(false);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [logoUrl]);
+
+  // Consolidate banner images for the mobile background carousel
+  const bannerList = React.useMemo(() => {
+    if (coverImages && coverImages.length > 0) return coverImages;
+    if (coverImage) return [coverImage];
+    return [];
+  }, [coverImages, coverImage]);
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-slide every 4 seconds on mobile
+  useEffect(() => {
+    if (bannerList.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % bannerList.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [bannerList.length]);
+
+  // Touch Swipe Gesture Handlers
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEndX(null);
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null || bannerList.length <= 1) return;
+    const diff = touchStartX - touchEndX;
+    if (diff > 45) {
+      // Swiped Left -> Next Image
+      setCurrentSlide((prev) => (prev + 1) % bannerList.length);
+    } else if (diff < -45) {
+      // Swiped Right -> Previous Image
+      setCurrentSlide((prev) => (prev - 1 + bannerList.length) % bannerList.length);
+    }
+  };
 
   return (
     <div className={styles.shopeeShopCardWrapper}>
-      {/* LEFT BOX: DARK SHOP HERO CARD */}
-      <div className={styles.shopeeShopIdentityCard}>
+      {/* LEFT BOX: DARK SHOP HERO CARD WITH SLIDING BANNER BACKGROUND */}
+      <div
+        className={styles.shopeeShopIdentityCard}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {bannerList.length > 0 && (
+          <div className={styles.shopCoverBackground}>
+            <div
+              className={styles.shopCoverTrack}
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {bannerList.map((imgUrl, idx) => (
+                <div key={idx} className={styles.shopCoverSlide}>
+                  <Image
+                    src={imgUrl}
+                    alt={`${shopDisplayName} banner ${idx + 1}`}
+                    fill
+                    priority={idx === 0}
+                    sizes="(max-width: 599px) 100vw, 390px"
+                    className={styles.shopCoverImg}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {bannerList.length > 1 && (
+              <div className={styles.shopCoverDots}>
+                {bannerList.map((_, idx) => (
+                  <span
+                    key={idx}
+                    className={`${styles.shopCoverDot} ${idx === currentSlide ? styles.shopCoverDotActive : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentSlide(idx);
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <div className={styles.shopeeShopCoverOverlay} />
         
         <div className={styles.shopeeShopIdentityContent}>
-          {/* Avatar & Status */}
-          <div className={styles.shopeeAvatarWrap}>
-            {logoUrl ? (
-              <img src={logoUrl} alt={shopDisplayName} className={styles.shopeeAvatarImg} />
-            ) : (
-              <div className={styles.shopeeAvatarPlaceholder}>{avatarInitials}</div>
-            )}
-            <span className={styles.shopeeOfficialBadge}>Chính Hãng</span>
-          </div>
+          {/* Header Row: Avatar + Shop Title & Online Status */}
+          <div className={styles.shopeeIdentityHeaderRow}>
+            <div className={styles.shopeeAvatarWrap}>
+              {logoUrl && !avatarError ? (
+                <img
+                  src={logoUrl}
+                  alt={shopDisplayName}
+                  className={styles.shopeeAvatarImg}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', background: '#fff' }}
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                <div className={styles.shopeeAvatarPlaceholder}>{avatarInitials}</div>
+              )}
+              <span className={styles.shopeeOfficialBadge}>Chính Hãng</span>
+            </div>
 
-          <div className={styles.shopeeShopIdentityInfo}>
-            <h1 className={styles.shopeeShopTitle}>{shopDisplayName}</h1>
-            <p className={styles.shopeeShopStatus}>
-              <span className={styles.onlineDot} /> Online 18 phút trước
-            </p>
+            <div className={styles.shopeeShopIdentityInfo}>
+              <h1 className={styles.shopeeShopTitle}>{shopDisplayName}</h1>
+              <p className={styles.shopeeShopStatus}>
+                <span className={styles.onlineDot} /> Online 18 phút trước
+              </p>
+            </div>
           </div>
 
           {/* 2 Action Buttons: Theo Dõi Đơn & Chat */}

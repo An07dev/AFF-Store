@@ -293,24 +293,32 @@ export default function CartPage() {
         {/* Fixed Bottom Bar on Mobile */}
         {items.length > 0 && (
           <div className={styles.bottomBar}>
-            <label className={styles.selectAllGroup}>
-              <input
-                type="checkbox"
-                className={styles.checkbox}
-                checked={isAllSelected}
-                onChange={handleToggleSelectAll}
-              />
-              <span>Tất cả</span>
-            </label>
+            <div className={styles.bottomBarInner}>
+              <label className={styles.selectAllGroup} htmlFor="bottomSelectAll">
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={isAllSelected}
+                  onChange={handleToggleSelectAll}
+                  id="bottomSelectAll"
+                />
+                <span className={styles.selectAllText}>Tất cả</span>
+              </label>
 
-            <div className={styles.totalGroup}>
-              <span className={styles.totalLabel}>Tổng thanh toán</span>
-              <span className={styles.totalAmount}>{formatPrice(selectedTotalAmount)}</span>
+              <div className={styles.totalGroup}>
+                <span className={styles.totalLabel}>Tổng thanh toán</span>
+                <span className={styles.totalAmount}>{formatPrice(selectedTotalAmount)}</span>
+              </div>
+
+              <button
+                type="button"
+                className={styles.checkoutBtn}
+                onClick={handleProceedCheckout}
+                disabled={selectedCount === 0}
+              >
+                Mua Hàng ({selectedCount})
+              </button>
             </div>
-
-            <button className={styles.checkoutBtn} onClick={handleProceedCheckout}>
-              Mua Hàng ({selectedCount})
-            </button>
           </div>
         )}
       </div>

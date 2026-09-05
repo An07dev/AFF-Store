@@ -178,10 +178,17 @@ export async function GET() {
       componentColors: { ...defaultThemeConfig.componentColors, ...(setting.value.componentColors || {}) },
     };
 
-    return NextResponse.json({
-      success: true,
-      data: mergedData,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: mergedData,
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || 'Lỗi tải cấu hình theme giao diện' },

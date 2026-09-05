@@ -196,22 +196,29 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        _id: flashSale._id,
-        title: flashSale.title,
-        subtitle: flashSale.subtitle,
-        isActive: flashSale.isActive,
-        isLive,
-        activeSlot: isLive ? activeSlot : null,
-        nextSlot: nextUpcomingSlot,
-        slots: formattedSlots,
-        timeRemainingSeconds,
-        items: activeItems,
-        fomoSettings: flashSale.fomoSettings,
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          _id: flashSale._id,
+          title: flashSale.title,
+          subtitle: flashSale.subtitle,
+          isActive: flashSale.isActive,
+          isLive,
+          activeSlot: isLive ? activeSlot : null,
+          nextSlot: nextUpcomingSlot,
+          slots: formattedSlots,
+          timeRemainingSeconds,
+          items: activeItems,
+          fomoSettings: flashSale.fomoSettings,
+        },
       },
-    });
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=45',
+        },
+      }
+    );
   } catch (error: any) {
     console.error('Error fetching public flash sale:', error);
     return NextResponse.json(

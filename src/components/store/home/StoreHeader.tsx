@@ -43,7 +43,12 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
   const [localSearch, setLocalSearch] = useState(searchQuery);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [logoUrl]);
 
   // 1. Load search history from localStorage
   useEffect(() => {
@@ -149,8 +154,13 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
         <div className={styles.shopeeMainHeaderInner}>
           {/* Shopee Logo Brand */}
           <Link href="/" className={styles.shopeeLogoBrand}>
-            {logoUrl && logoUrl !== '/images/logo.png' ? (
-              <img src={logoUrl} alt={logoText || 'Logo'} className={styles.shopeeHeaderLogoImg} />
+            {logoUrl && !logoError ? (
+              <img
+                src={logoUrl}
+                alt={logoText || 'Logo'}
+                className={styles.shopeeHeaderLogoImg}
+                onError={() => setLogoError(true)}
+              />
             ) : (
               <div className={styles.shopeeBagIcon}>
                 <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
@@ -167,7 +177,7 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
               <input
                 type="text"
                 className={styles.shopeeSearchInput}
-                placeholder="Tìm kiếm trong Shop này..."
+                placeholder="Tìm kiếm trong Shop..."
                 value={localSearch}
                 onFocus={() => setIsDropdownOpen(true)}
                 onChange={(e) => {
@@ -182,7 +192,7 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
               </div>
 
               <button type="submit" className={styles.shopeeSearchBtn} aria-label="Tìm kiếm">
-                <FiSearch size={16} />
+                <FiSearch size={16} className={styles.shopeeSearchBtnIcon} />
               </button>
 
               {/* Shopee Search History & Suggestions Dropdown */}
@@ -265,7 +275,7 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
           {/* Shopee Cart Icon */}
           <div className={styles.shopeeCartWrap}>
             <Link href="/cart" className={styles.shopeeCartBtn} aria-label="Giỏ hàng">
-              <FiShoppingCart size={28} color="#ffffff" />
+              <FiShoppingCart className={styles.shopeeCartIconSvg} />
               {cartCount > 0 && <span className={styles.shopeeCartBadge}>{cartCount}</span>}
             </Link>
           </div>

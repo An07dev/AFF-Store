@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FiTruck, FiPlus, FiShoppingCart } from 'react-icons/fi';
 import styles from '@/app/(store)/page.module.css';
 
@@ -109,12 +110,13 @@ const StoreProductCardComponent: React.FC<StoreProductCardProps> = ({
     return (
       <Link href={`/product/${product.slug}`} className={styles.listCard}>
         <div className={styles.listImgWrap}>
-          <img
+          <Image
             src={displayImage}
             alt={product.name || ''}
+            fill
+            sizes="72px"
             className={styles.listImg}
             loading="lazy"
-            decoding="async"
           />
           {isFlash ? (
             <div className={styles.cardFlashBadge} style={{ transform: 'scale(0.85)', transformOrigin: 'top right' }}>
@@ -167,12 +169,13 @@ const StoreProductCardComponent: React.FC<StoreProductCardProps> = ({
   return (
     <Link href={`/product/${product.slug}`} className={styles.shopeeCard}>
       <div className={styles.cardImgWrap}>
-        <img
+        <Image
           src={displayImage}
           alt={product.name || ''}
+          fill
+          sizes="(max-width: 599px) 50vw, (max-width: 1199px) 25vw, 16vw"
           className={styles.cardImg}
           loading="lazy"
-          decoding="async"
         />
         <div className={styles.favoriteBadge}>Yêu Thích+</div>
         {isFlash ? (

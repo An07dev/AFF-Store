@@ -13,6 +13,13 @@
   --bg-card: #13161f;
   --bg-card-hover: #1a1e2b;
   --navbar-bg: #090a0f;
+  --navbar-text: #ffffff;
+  --navbar-text-muted: rgba(255, 255, 255, 0.75);
+  --navbar-border: rgba(255, 255, 255, 0.12);
+  --navbar-btn-hover: rgba(255, 255, 255, 0.15);
+  --navbar-logo-color: #ffffff;
+  --navbar-badge-bg: #ffffff;
+  --navbar-badge-text: #ee4d2d;
   --border-color: #232838;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
@@ -44,6 +51,13 @@
   --bg-card: #ffffff;
   --bg-card-hover: #f1f5f9;
   --navbar-bg: #ffffff;
+  --navbar-text: #0f172a;
+  --navbar-text-muted: #64748b;
+  --navbar-border: #e2e8f0;
+  --navbar-btn-hover: rgba(0, 0, 0, 0.06);
+  --navbar-logo-color: var(--primary, #ee4d2d);
+  --navbar-badge-bg: var(--primary, #ee4d2d);
+  --navbar-badge-text: #ffffff;
   --border-color: #e2e8f0;
   --text-main: #0f172a;
   --text-muted: #475569;

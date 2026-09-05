@@ -245,16 +245,6 @@
 
 @media (max-width: 599px) {
   .heroBannerSection {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .bannerCarousel {
-    height: 160px;
-    border-radius: 0;
-  }
-
-  .sideBannersColumn {
     display: none;
   }
 }

@@ -227,7 +227,9 @@ function TrackingContent() {
       </nav>
 
       {/* Scrolling Banner Notice */}
-      <BannerNotice />
+      <div className={styles.bannerNoticeWrap}>
+        <BannerNotice />
+      </div>
 
       <div className={styles.content}>
         {/* Search Header Card */}

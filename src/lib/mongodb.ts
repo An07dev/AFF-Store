@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
-import { getTenantConfig } from './tenant-config';
+import { getTenantConfig, buildMongoUriForDb, MASTER_CLUSTER_BASE } from './tenant-config';
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -48,22 +48,34 @@ export async function switchDatabaseConnection(newUri: string): Promise<typeof m
 }
 
 /**
- * Get or spawn a self-contained persistent embedded MongoDB instance
+ * Get or spawn a self-contained persistent embedded MongoDB instance (Local Development Only)
  */
 async function getEmbeddedMongoUri(): Promise<string> {
   if (cached.embeddedInstance) {
     return cached.embeddedInstance.getUri();
   }
 
+  const isServerless = Boolean(process.env.VERCEL || process.env.VERCEL_ENV || process.env.AWS_LAMBDA_FUNCTION_NAME);
+  if (isServerless) {
+    throw new Error('Embedded MongoDB cannot run in Serverless environment. Please use Cloud MongoDB Atlas.');
+  }
+
   const { MongoMemoryServer } = await import('mongodb-memory-server');
-  const dbDir = path.join(process.cwd(), 'data', 'db');
-  
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
+  let dbDir = path.join(process.cwd(), 'data', 'db');
+
+  try {
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+  } catch (e) {
+    dbDir = path.join('/tmp', 'db');
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
   }
 
   console.log('🚀 [Embedded DB] Đang khởi động cơ sở dữ liệu nhúng tại:', dbDir);
-  
+
   const mongod = await MongoMemoryServer.create({
     instance: {
       dbPath: dbDir,
@@ -94,24 +106,47 @@ async function connectToDatabase(): Promise<typeof mongoose> {
           console.log('🌐 [DB Connect] Đang kết nối CSDL:', targetUri.replace(/:([^:@]+)@/, ':****@'));
           const conn = await mongoose.connect(targetUri, {
             bufferCommands: false,
-            serverSelectionTimeoutMS: 6000,
+            serverSelectionTimeoutMS: 8000,
           });
           cached.activeUri = targetUri;
           console.log('✅ [DB Connect] Đã kết nối thành công tới Database!');
           return conn;
         } catch (err: any) {
           console.warn('⚠️ [DB Fallback] Không thể kết nối tới CSDL cấu hình:', err.message);
-          console.log('🔄 [DB Fallback] Tự động chuyển sang Cơ Sở Dữ Liệu Nhúng Cục Bộ (Embedded DB)...');
         }
       }
 
-      // Default / Zero-Config: Run Embedded MongoDB
-      const embeddedUri = await getEmbeddedMongoUri();
-      const conn = await mongoose.connect(embeddedUri, {
-        bufferCommands: false,
-      });
-      cached.activeUri = embeddedUri;
-      return conn;
+      // 2. If running on Vercel / Cloud or Master Cluster is available: use Cloud Atlas cluster
+      const isServerless = Boolean(process.env.VERCEL || process.env.VERCEL_ENV || process.env.AWS_LAMBDA_FUNCTION_NAME);
+      if (isServerless || (MASTER_CLUSTER_BASE && MASTER_CLUSTER_BASE.includes('mongodb+srv://'))) {
+        const fallbackDb = tenant?.dbName || 'webstore';
+        const cloudUri = buildMongoUriForDb(fallbackDb);
+        console.log('☁️ [Cloud Atlas Connect] Đang kết nối CSDL Cloud:', cloudUri.replace(/:([^:@]+)@/, ':****@'));
+        const conn = await mongoose.connect(cloudUri, {
+          bufferCommands: false,
+          serverSelectionTimeoutMS: 8000,
+        });
+        cached.activeUri = cloudUri;
+        return conn;
+      }
+
+      // 3. Default Local Development Only: Run Embedded MongoDB
+      try {
+        const embeddedUri = await getEmbeddedMongoUri();
+        const conn = await mongoose.connect(embeddedUri, {
+          bufferCommands: false,
+        });
+        cached.activeUri = embeddedUri;
+        return conn;
+      } catch (embErr: any) {
+        console.warn('⚠️ [Embedded DB Error]:', embErr.message);
+        const cloudUri = buildMongoUriForDb('webstore');
+        const conn = await mongoose.connect(cloudUri, {
+          bufferCommands: false,
+        });
+        cached.activeUri = cloudUri;
+        return conn;
+      }
     })();
   }
 

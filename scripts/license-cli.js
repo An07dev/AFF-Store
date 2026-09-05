@@ -156,8 +156,26 @@ Cách sử dụng:
       } else {
         console.log(`🚫 Đã thu hồi / khóa mã bản quyền: \x1b[31m\x1b[1m${keyToRevoke}\x1b[0m thành công!`);
       }
+    } else if (command === 'reactivate' || command === 'unrevoke') {
+      const keyToReactivate = args[0]?.trim().toUpperCase();
+      if (!keyToReactivate) {
+        console.error('❌ Vui lòng cung cấp mã Key cần mở khóa. Ví dụ: node scripts/license-cli.js reactivate "AFF-XXXX-XXXX-XXXX"');
+        process.exit(1);
+      }
+
+      const existing = await collection.findOne({ licenseKey: keyToReactivate });
+      if (!existing) {
+        console.log(`❌ Không tìm thấy mã Key: ${keyToReactivate}`);
+      } else {
+        const nextStatus = (existing.assignedDb || existing.shopName) ? 'activated' : 'available';
+        await collection.updateOne(
+          { licenseKey: keyToReactivate },
+          { $set: { status: nextStatus, updatedAt: new Date() } }
+        );
+        console.log(`🎉 Đã MỞ KHÓA bản quyền: \x1b[32m\x1b[1m${keyToReactivate}\x1b[0m (Trạng thái mới: ${nextStatus}) thành công!`);
+      }
     } else {
-      console.log(`Lệnh không hợp lệ: "${command}". Hãy dùng 'gen', 'list', hoặc 'revoke'.`);
+      console.log(`Lệnh không hợp lệ: "${command}". Hãy dùng 'gen', 'list', 'revoke', hoặc 'reactivate'.`);
     }
 
     await conn.close();

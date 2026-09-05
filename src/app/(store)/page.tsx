@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useRef, Suspense, useMemo, useCallback } from 'react';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FiGrid, FiList, FiChevronRight, FiChevronLeft, FiChevronDown, FiMessageSquare } from 'react-icons/fi';
+import { FiGrid, FiList, FiChevronRight, FiChevronLeft, FiChevronDown, FiMessageSquare, FiLayers } from 'react-icons/fi';
 import { useCart } from '@/contexts/CartContext';
 import { useTheme, defaultBanners, defaultSubBanners } from '@/contexts/ThemeContext';
 import StoreLoading from '@/components/store/StoreLoading';
@@ -33,6 +34,17 @@ interface Category {
   productCount?: number;
   image?: string;
 }
+
+const iconGradients = [
+  'linear-gradient(135deg, #ff5722 0%, #ee4d2d 100%)',
+  'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+  'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+  'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+  'linear-gradient(135deg, #a855f7 0%, #6b21a8 100%)',
+  'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
+  'linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)',
+  'linear-gradient(135deg, #64748b 0%, #334155 100%)',
+];
 
 const FILTER_PILLS = ['Tất cả', 'Flash Sale 🔥', 'Bán chạy', 'Hàng mới', 'Giá ↕'];
 
@@ -83,21 +95,26 @@ function HomePageContent() {
         setVisibleCatCount(categories?.length || 0);
         return;
       }
+
       const navWidth = navBarRef.current.clientWidth;
       if (navWidth <= 0) return;
 
-      // Base width: Home (~80px) + All Products (~120px) + nav padding (~24px)
-      let currentWidth = 224;
-      const seeMoreBtnWidth = 90;
+      const isMobile = window.innerWidth < 600;
+      // Base width: Home + All Products + padding
+      let currentWidth = isMobile ? 150 : 224;
+      const seeMoreBtnWidth = isMobile ? 65 : 90;
       let count = 0;
 
       // Check if ALL categories can fit directly without the "Thêm" button
       let totalAllWidth = currentWidth;
       for (const cat of categories) {
-        totalAllWidth += Math.max(65, (cat.name?.length || 5) * 8.5 + 36);
+        const tabWidth = isMobile
+          ? Math.max(50, (cat.name?.length || 5) * 7.5 + 20)
+          : Math.max(65, (cat.name?.length || 5) * 8.5 + 36);
+        totalAllWidth += tabWidth;
       }
 
-      if (totalAllWidth <= navWidth - 20) {
+      if (totalAllWidth <= navWidth - 10) {
         // Everything fits! No "Thêm" button needed
         setVisibleCatCount(categories.length);
         return;
@@ -106,9 +123,11 @@ function HomePageContent() {
       // Otherwise, calculate how many fit while reserving space for "Thêm ▾"
       for (let i = 0; i < categories.length; i++) {
         const cat = categories[i];
-        const tabWidth = Math.max(65, (cat.name?.length || 5) * 8.5 + 36);
+        const tabWidth = isMobile
+          ? Math.max(50, (cat.name?.length || 5) * 7.5 + 20)
+          : Math.max(65, (cat.name?.length || 5) * 8.5 + 36);
 
-        if (currentWidth + tabWidth + seeMoreBtnWidth <= navWidth - 20) {
+        if (currentWidth + tabWidth + seeMoreBtnWidth <= navWidth - 10) {
           currentWidth += tabWidth;
           count++;
         } else {
@@ -124,16 +143,20 @@ function HomePageContent() {
     return () => window.removeEventListener('resize', updateVisibleTabs);
   }, [categories]);
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click or touch
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e: Event) {
       if (seeMoreRef.current && !seeMoreRef.current.contains(e.target as Node)) {
         setIsSeeMoreOpen(false);
       }
     }
     if (isSeeMoreOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('touchstart', handleClickOutside);
+      };
     }
   }, [isSeeMoreOpen]);
 
@@ -254,6 +277,9 @@ function HomePageContent() {
       const targetCategory = catParam || 'all';
       setSelectedCategory(targetCategory);
       fetchProductsByParams(targetFilter, targetPriceAsc, searchQuery, targetCategory);
+    } else if (tabParam === 'categories') {
+      setActiveNavTab('categories');
+      setSelectedCategory('all');
     } else if (catParam) {
       setActiveNavTab(catParam);
       setSelectedCategory(catParam);
@@ -264,6 +290,31 @@ function HomePageContent() {
       fetchProductsByParams(0, false, '', 'all');
     }
   }, [tabParam, catParam, filterParam, fetchProductsByParams]);
+
+  // Listen to reset events from BottomNav
+  useEffect(() => {
+    const handleResetHome = () => {
+      setActiveNavTab('home');
+      setSelectedCategory('all');
+      setSearchQuery('');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      fetchProductsByParams(0, false, '', 'all');
+    };
+    const handleResetProducts = () => {
+      setActiveNavTab('products');
+      setSelectedCategory('all');
+      setSearchQuery('');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      fetchProductsByParams(0, false, '', 'all');
+    };
+
+    window.addEventListener('reset-store-home', handleResetHome);
+    window.addEventListener('reset-product-filters', handleResetProducts);
+    return () => {
+      window.removeEventListener('reset-store-home', handleResetHome);
+      window.removeEventListener('reset-product-filters', handleResetProducts);
+    };
+  }, [fetchProductsByParams]);
 
   const handleSearchSubmit = useCallback(
     (query: string) => {
@@ -294,6 +345,10 @@ function HomePageContent() {
         setSelectedCategory('all');
         router.push('/?tab=products');
         fetchProductsByParams(activeFilter, priceSortAsc, searchQuery, 'all');
+      } else if (catSlug === 'categories') {
+        setActiveNavTab('categories');
+        setSelectedCategory('all');
+        router.push('/?tab=categories');
       } else {
         setActiveNavTab(catSlug);
         setSelectedCategory(catSlug);
@@ -387,6 +442,8 @@ function HomePageContent() {
           logoUrl={theme?.pageTitles?.logoUrl}
           avatarInitials={avatarInitials}
           productCount={products.length || 4}
+          coverImages={heroBanners.map((b) => b.image).filter(Boolean)}
+          coverImage={heroBanners[0]?.image}
           socialLinks={theme?.socialLinks}
         />
 
@@ -431,13 +488,25 @@ function HomePageContent() {
                 <div
                   ref={seeMoreRef}
                   className={styles.seeMoreDropdownWrap}
-                  onMouseEnter={() => setIsSeeMoreOpen(true)}
-                  onMouseLeave={() => setIsSeeMoreOpen(false)}
+                  onMouseEnter={() => {
+                    if (typeof window !== 'undefined' && window.innerWidth >= 600) {
+                      setIsSeeMoreOpen(true);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (typeof window !== 'undefined' && window.innerWidth >= 600) {
+                      setIsSeeMoreOpen(false);
+                    }
+                  }}
                 >
                   <button
                     type="button"
                     className={`${styles.shopeeNavTab} ${isOverflowActive ? styles.shopeeNavTabActive : ''}`}
-                    onClick={() => setIsSeeMoreOpen((prev) => !prev)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsSeeMoreOpen((prev) => !prev);
+                    }}
                     aria-expanded={isSeeMoreOpen}
                   >
                     <span>{activeOverflowCat ? activeOverflowCat.name : 'Thêm'}</span>
@@ -451,13 +520,18 @@ function HomePageContent() {
                   </button>
 
                   {isSeeMoreOpen && (
-                    <div className={styles.seeMoreMenu}>
+                    <div
+                      className={styles.seeMoreMenu}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {overflowCats.map((cat) => (
                         <button
                           key={cat._id || cat.slug}
                           type="button"
                           className={`${styles.seeMoreMenuItem} ${selectedCategory === cat.slug && activeNavTab === 'products' ? styles.seeMoreMenuItemActive : ''}`}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             handleCategoryTabClick(cat.slug);
                             setIsSeeMoreOpen(false);
                           }}
@@ -498,7 +572,7 @@ function HomePageContent() {
               categories={categories}
               categoryImageMap={categoryImageMap}
               onCategorySelect={handleCategoryTabClick}
-              onSeeAll={() => handleCategoryTabClick('all')}
+              onSeeAll={() => handleCategoryTabClick('categories')}
             />
 
             {/* SHOPEE TRUST COMMITMENTS */}
@@ -567,8 +641,77 @@ function HomePageContent() {
           </div>
         )}
 
-        {/* 6. TAB VIEW 2: ALL PRODUCTS / CATEGORY FILTER */}
-        {activeNavTab !== 'home' && (
+        {/* 6. TAB VIEW 3: CATEGORIES VIEW */}
+        {activeNavTab === 'categories' && (
+          <div className={styles.shopeeCategoriesTabContainer}>
+            <div className={styles.categoriesPageHeader}>
+              <div className={styles.categoriesPageHeaderLeft}>
+                <div className={styles.categoriesHeaderIconWrap}>
+                  <FiLayers size={20} />
+                </div>
+                <div>
+                  <h2 className={styles.categoriesPageTitle}>Danh Mục Sản Phẩm</h2>
+                  <p className={styles.categoriesPageSubtitle}>
+                    Tất cả {categories.length} danh mục sản phẩm của shop
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.categoriesPageGrid}>
+              {categories.map((cat, idx) => {
+                const gradient = iconGradients[idx % iconGradients.length];
+                const catSlug = (cat.slug || '').toLowerCase().trim();
+                const catId = (cat._id || '').toString().trim();
+                const catName = (cat.name || '').toLowerCase().trim();
+                const displayImage =
+                  categoryImageMap[catId] ||
+                  categoryImageMap[catSlug] ||
+                  categoryImageMap[catName] ||
+                  cat.image;
+
+                return (
+                  <div
+                    key={cat._id || idx}
+                    className={styles.categoryPageCard}
+                    onClick={() => handleCategoryTabClick(cat.slug || cat._id)}
+                  >
+                    <div
+                      className={styles.categoryPageImgWrap}
+                      style={!displayImage ? { background: gradient } : undefined}
+                    >
+                      {displayImage ? (
+                        <Image
+                          src={displayImage}
+                          alt={cat.name}
+                          fill
+                          sizes="(max-width: 600px) 33vw, 200px"
+                          className={styles.categoryPageImg}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className={styles.categoryPageFallbackIcon}>
+                          <FiLayers size={26} />
+                        </span>
+                      )}
+                    </div>
+                    <div className={styles.categoryPageInfo}>
+                      <span className={styles.categoryPageName}>{cat.name}</span>
+                      <span className={styles.categoryPageCount}>
+                        {cat.productCount !== undefined && cat.productCount > 0
+                          ? `${cat.productCount} sản phẩm`
+                          : 'Xem ngay →'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 7. TAB VIEW 2: ALL PRODUCTS / CATEGORY FILTER */}
+        {activeNavTab !== 'home' && activeNavTab !== 'categories' && (
           <div ref={productsTabRef} className={styles.shopeeProductsTabContainer}>
             {/* Filter Pills Bar */}
             <div className={styles.shopeeFilterBar}>

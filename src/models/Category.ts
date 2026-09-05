@@ -17,10 +17,12 @@ const CategorySchema = new Schema<ICategory>(
     slug: { type: String, required: true, unique: true },
     description: { type: String },
     image: { type: String },
-    order: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: true },
+    order: { type: Number, default: 0, index: true },
+    isActive: { type: Boolean, default: true, index: true },
   },
   { timestamps: true }
 );
+
+CategorySchema.index({ isActive: 1, order: 1 });
 
 export default mongoose.models.Category || mongoose.model<ICategory>('Category', CategorySchema);

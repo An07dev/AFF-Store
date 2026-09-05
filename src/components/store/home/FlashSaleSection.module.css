@@ -422,27 +422,156 @@
 
 @media (max-width: 599px) {
   .flashSaleSection {
-    padding: 12px 10px 14px;
-    border-radius: 0;
+    padding: 10px 10px 12px;
+    border-radius: 8px;
+    gap: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
+
+  .flashHeader {
+    gap: 6px;
+    padding-bottom: 6px;
+  }
+
+  .flashHeaderTop {
+    gap: 6px;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .flashTitleGroup {
+    gap: 8px;
+  }
+
+  .flashLogo {
+    font-size: 14px;
+    gap: 2px;
+  }
+
+  .flashLogo svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .countdownTimer {
+    gap: 3px;
+  }
+
+  .countdownDigit {
+    font-size: 11px;
+    padding: 2px 4px;
+    min-width: 18px;
+    border-radius: 2px;
+  }
+
+  .countdownColon {
+    font-size: 11px;
+  }
+
+  .seeAllBtn {
+    font-size: 12px;
+    padding: 2px 4px;
+    gap: 2px;
+    white-space: nowrap;
+  }
+
+  .flashCampaignBanner {
+    padding: 4px 8px;
+    font-size: 11px;
+    gap: 4px;
+    border-radius: 3px;
+  }
+
+  .flashSlotTabs {
+    gap: 6px;
+    padding: 0 0 2px;
+  }
+
+  .flashSlotTab {
+    min-width: 95px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    gap: 1px;
+  }
+
+  .slotTime {
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+
+  .slotStatus {
+    font-size: 9px;
+  }
+
   .flashCarousel {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
-  .flashLogo {
-    font-size: 16px;
+
+  /* On mobile: Show at most 3 products + 1 "Xem tất cả" card (2x2 grid of 4 cards) */
+  .flashCard:nth-child(n+4) {
+    display: none;
   }
-  .flashSlotTab {
-    min-width: 110px;
-    padding: 6px 8px;
+
+  .flashCard {
+    border-radius: 6px;
   }
-  .slotTime {
-    font-size: 12.5px;
+
+  .flashSeeAllCard {
+    min-height: unset;
+    padding: 12px 8px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
-  .slotStatus {
-    font-size: 10px;
+
+  .flashSeeAllCircle {
+    width: 36px;
+    height: 36px;
   }
+
+  .flashSeeAllText {
+    font-size: 13px;
+  }
+
+  .flashSeeAllSubText {
+    font-size: 10.5px;
+  }
+
+  .shopeeDiscountFlag {
+    font-size: 9.5px;
+    padding: 2px 4px;
+  }
+
+  .flashInfo {
+    padding: 6px 6px 8px;
+    gap: 2px;
+  }
+
   .flashPrice {
     font-size: 14px;
+    font-weight: 800;
+  }
+
+  .flashOldPrice {
+    font-size: 10.5px;
+  }
+
+  .fireProgressBar {
+    height: 14px;
+    border-radius: 7px;
+    margin-top: 2px;
+  }
+
+  .fireText {
+    font-size: 8.5px;
+    letter-spacing: 0.2px;
+  }
+
+  .upcomingPill,
+  .passedPill {
+    height: 14px;
+    font-size: 8.5px;
+    border-radius: 7px;
+    margin-top: 2px;
   }
 }

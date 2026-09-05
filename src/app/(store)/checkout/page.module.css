@@ -22,7 +22,8 @@
   justify-content: space-between;
   padding: 12px 16px;
   background: var(--navbar-bg, #ffffff);
-  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  color: var(--navbar-text, #0f172a);
+  border-bottom: 1px solid var(--navbar-border, #e2e8f0);
   z-index: 50;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
@@ -30,24 +31,25 @@
 .backBtn {
   background: none;
   border: none;
-  color: var(--text-main, #f8fafc);
+  color: var(--navbar-text, #0f172a);
   padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   border-radius: 50%;
-  transition: color 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
 .backBtn:hover {
-  color: var(--primary, #3b82f6);
+  background: var(--navbar-btn-hover, rgba(0, 0, 0, 0.06));
+  color: var(--navbar-text, #0f172a);
 }
 
 .navTitle {
   font-size: 15px;
-  font-weight: 800;
-  color: var(--text-main, #f8fafc);
+  font-weight: 700;
+  color: var(--navbar-text, #0f172a);
 }
 
 .secureBadge {

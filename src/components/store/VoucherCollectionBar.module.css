@@ -239,16 +239,117 @@
 
 @media (max-width: 599px) {
   .wrapper {
-    padding: 12px 10px;
-    border-radius: 0;
+    padding: 10px 10px 10px;
+    border-radius: 8px;
+    gap: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
+
+  .sectionHeader {
+    padding-bottom: 6px;
+    gap: 4px;
+  }
+
+  .titleGroup {
+    gap: 6px;
+  }
+
+  .iconBadge {
+    font-size: 15px;
+  }
+
+  .title {
+    font-size: 13px;
+    letter-spacing: 0.2px;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .carousel {
+    gap: 8px;
+    padding-bottom: 2px;
+  }
+
   .voucherCard {
-    width: 220px;
+    width: 195px;
+    border-radius: 5px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   }
+
   .leftBadge {
-    width: 65px;
+    width: 58px;
+    padding: 6px 4px;
   }
+
   .badgeValue {
-    font-size: 12.5px;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .badgeLabel {
+    font-size: 8px;
+    margin-top: 1px;
+  }
+
+  .rightContent {
+    padding: 5px 8px;
+  }
+
+  .codeName {
+    font-size: 11.5px;
+  }
+
+  .minSpend {
+    font-size: 10px;
+    margin-top: 1px;
+  }
+
+  .bottomRow {
+    margin-top: 3px;
+    gap: 4px;
+  }
+
+  .expiry {
+    font-size: 9px;
+  }
+
+  .saveBtn {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    height: 20px;
+    line-height: 16px;
+  }
+
+  .savedBtn {
+    font-size: 9.5px;
+    padding: 2px 5px;
+    border-radius: 2px;
+    height: 20px;
+    line-height: 16px;
+  }
+
+  .usedBtn {
+    font-size: 9.5px;
+    padding: 2px 5px;
+    border-radius: 2px;
+    height: 20px;
+  }
+
+  .dashedDivider::before,
+  .dashedDivider::after {
+    width: 8px;
+    height: 8px;
+    left: -4px;
+  }
+
+  .dashedDivider::before {
+    top: -5px;
+  }
+
+  .dashedDivider::after {
+    bottom: -5px;
   }
 }

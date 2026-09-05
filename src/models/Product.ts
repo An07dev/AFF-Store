@@ -89,6 +89,14 @@ const ProductSchema = new Schema<IProduct>(
   { timestamps: true, toJSON: { getters: true }, toObject: { getters: true } }
 );
 
+// High-performance compound & text indexes
+ProductSchema.index({ status: 1, category: 1, createdAt: -1 });
+ProductSchema.index({ status: 1, isFeatured: 1, createdAt: -1 });
+ProductSchema.index({ status: 1, soldCount: -1 });
+ProductSchema.index({ status: 1, minPrice: 1 });
+ProductSchema.index({ status: 1, maxPrice: -1 });
+ProductSchema.index({ name: 'text', slug: 'text' });
+
 ProductSchema.pre('save', function () {
   if (this.variants && this.variants.length > 0) {
     let calculatedStock = 0;

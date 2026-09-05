@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, memo } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import styles from './HeroBannerCarousel.module.css';
@@ -79,13 +80,14 @@ const HeroBannerCarouselComponent: React.FC<HeroBannerCarouselProps> = ({
                 }
               }}
             >
-              <img
+              <Image
                 src={slide.image}
                 alt={slide.title || 'Banner'}
+                fill
+                sizes="(max-width: 859px) 100vw, 66vw"
                 className={styles.carouselImg}
-                loading={idx === 0 ? 'eager' : 'lazy'}
-                decoding="async"
-                fetchPriority={idx === 0 ? 'high' : 'auto'}
+                priority={idx === 0}
+                quality={85}
               />
               {(slide.tag || slide.title) && (
                 <div className={styles.carouselOverlay}>
@@ -153,12 +155,14 @@ const HeroBannerCarouselComponent: React.FC<HeroBannerCarouselProps> = ({
                 }
               }}
             >
-              <img
+              <Image
                 src={sub.image}
                 alt={sub.title || `Banner phụ ${idx + 1}`}
+                fill
+                sizes="(max-width: 859px) 50vw, 33vw"
                 className={styles.sideBannerImg}
                 loading="lazy"
-                decoding="async"
+                quality={80}
               />
               {(sub.tag || sub.title) && (
                 <div className={styles.sideBannerOverlay}>

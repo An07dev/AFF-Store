@@ -5,10 +5,11 @@
 .shopeePageContainer {
   width: 100%;
   min-height: 100vh;
-  background-color: var(--bg-main, #f5f5f5);
-  color: var(--text-main, #222222);
+  background-color: var(--bg-main, #090a0f);
+  color: var(--text-main, #f8fafc);
   display: flex;
   flex-direction: column;
+  align-items: center;
   position: relative;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   transition: background-color 0.25s ease, color 0.25s ease;
@@ -21,18 +22,39 @@
 .shopeeHeaderWrapper {
   width: 100%;
   background: var(--navbar-bg, #ee4d2d);
-  color: #ffffff;
+  color: var(--navbar-text, #ffffff);
+  border-bottom: 1px solid var(--navbar-border, rgba(255, 255, 255, 0.15));
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   transition: background 0.25s ease;
+}
+
+@media (min-width: 768px) {
+  .shopeeHeaderWrapper {
+    width: 70% !important;
+    max-width: 70% !important;
+    margin: 14px auto 12px auto !important;
+    border-radius: var(--radius-lg, 12px) !important;
+    border: 1px solid var(--navbar-border, rgba(255, 255, 255, 0.15)) !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08) !important;
+    top: 10px !important;
+  }
+  .shopeeMainHeaderInner {
+    max-width: 100% !important;
+    padding: 0 16px !important;
+  }
+  .shopeeTopBarInner {
+    max-width: 100% !important;
+    padding: 6px 16px !important;
+  }
 }
 
 /* Topbar */
 .shopeeTopBar {
   width: 100%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid var(--navbar-border, rgba(255, 255, 255, 0.15));
   font-size: 12px;
 }
 
@@ -53,7 +75,7 @@
 }
 
 .topBarLink {
-  color: #ffffff;
+  color: var(--navbar-text, #ffffff);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -68,14 +90,14 @@
 }
 
 .topBarDivider {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--navbar-text-muted, rgba(255, 255, 255, 0.4));
   user-select: none;
 }
 
 .topBarAuthBtn {
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: var(--navbar-text, #ffffff);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -98,8 +120,8 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #ffffff;
-  color: #ee4d2d;
+  background: var(--navbar-logo-color, #ee4d2d);
+  color: #ffffff;
   font-size: 10px;
   font-weight: 800;
   display: flex;
@@ -114,19 +136,20 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--navbar-text, #ffffff);
 }
 
 .btnLogoutMini {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--navbar-text-muted, rgba(255, 255, 255, 0.85));
   font-size: 11px;
   cursor: pointer;
   margin-left: 2px;
 }
 
 .btnLogoutMini:hover {
-  color: #ffffff;
+  color: var(--navbar-text, #ffffff);
   text-decoration: underline;
 }
 
@@ -151,7 +174,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #ffffff;
+  color: var(--navbar-logo-color, var(--primary, #ee4d2d));
   text-decoration: none;
   flex-shrink: 0;
 }
@@ -160,6 +183,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--navbar-logo-color, var(--primary, #ee4d2d));
 }
 
 .shopeeHeaderLogoImg {
@@ -173,7 +197,7 @@
   font-size: 26px;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: #ffffff;
+  color: var(--navbar-logo-color, var(--primary, #ee4d2d));
 }
 
 /* Search Container */
@@ -347,16 +371,16 @@
 .shopeeKeywordTag {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--navbar-text-muted, #64748b);
   font-size: 11.5px;
   cursor: pointer;
   white-space: nowrap;
   padding: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, color 0.2s;
 }
 
 .shopeeKeywordTag:hover {
-  color: #ffffff;
+  color: var(--navbar-text, var(--primary, #ee4d2d));
   text-decoration: underline;
 }
 
@@ -374,12 +398,18 @@
   text-decoration: none;
 }
 
+.shopeeCartIconSvg {
+  width: 28px;
+  height: 28px;
+  color: var(--navbar-logo-color, var(--primary, #ee4d2d));
+}
+
 .shopeeCartBadge {
   position: absolute;
   top: -4px;
   right: -10px;
-  background: var(--primary-text, #ffffff);
-  color: var(--primary, #ee4d2d);
+  background: var(--navbar-badge-bg, var(--primary, #ee4d2d));
+  color: var(--navbar-badge-text, #ffffff);
   font-size: 11px;
   font-weight: 800;
   height: 18px;
@@ -389,7 +419,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--primary, #ee4d2d);
+  border: 1.5px solid var(--navbar-bg, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 /* ======================================================== */
@@ -404,6 +435,16 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .shopeeMainContent {
+    width: 70% !important;
+    max-width: 70% !important;
+    margin: 0 auto 32px auto !important;
+    padding: 0 !important;
+  }
 }
 
 /* ======================================================== */
@@ -419,7 +460,7 @@
   border: 1px solid var(--border-color, #e5e7eb);
 }
 
-/* Left Box */
+/* Left Box (PC Desktop Default) */
 .shopeeShopIdentityCard {
   width: 390px;
   min-width: 340px;
@@ -430,6 +471,67 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  overflow: hidden;
+}
+
+/* Cover background image is hidden on PC, only active on mobile */
+.shopCoverBackground {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.shopCoverTrack {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.shopCoverSlide {
+  min-width: 100%;
+  height: 100%;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.shopCoverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+  transform: none;
+}
+
+.shopCoverDots {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+.shopCoverDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.shopCoverDotActive {
+  width: 14px;
+  border-radius: 3px;
+  background: var(--primary, #ee4d2d);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .shopeeShopCoverOverlay {
@@ -438,12 +540,19 @@
   background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
   background-size: 12px 12px;
   opacity: 0.7;
+  z-index: 1;
   pointer-events: none;
 }
 
 .shopeeShopIdentityContent {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shopeeIdentityHeaderRow {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -646,7 +755,7 @@
 
 .seeMoreMenu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 2px);
   left: 0;
   min-width: 200px;
   max-width: 260px;
@@ -654,11 +763,10 @@
   overflow-y: auto;
   background: var(--bg-card, #ffffff);
   border-radius: 4px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
   border: 1px solid var(--border-color, #e5e7eb);
-  z-index: 100;
+  z-index: 9999;
   padding: 6px 0;
-  margin-top: 2px;
   scrollbar-width: thin;
 }
 
@@ -1119,9 +1227,9 @@
 /* ======================================================== */
 
 .shopeeCard {
-  background: var(--bg-card, #ffffff);
+  background: var(--bg-card, #13161f);
   border-radius: 3px;
-  border: 1px solid var(--border-color, #eaeaea);
+  border: 1px solid var(--border-color, #232838);
   overflow: hidden;
   text-decoration: none;
   display: flex;
@@ -1132,7 +1240,7 @@
 
 .shopeeCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
   border-color: var(--primary, #ee4d2d);
 }
 
@@ -1140,7 +1248,7 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   position: relative;
-  background: var(--bg-card-hover, #f8fafc);
+  background: var(--bg-card-hover, #1a1e2b);
   overflow: hidden;
 }
 
@@ -1224,12 +1332,13 @@
   justify-content: space-between;
   flex: 1;
   gap: 6px;
+  background: var(--bg-card, #13161f);
 }
 
 .cardName {
   font-size: 12.5px;
   font-weight: 500;
-  color: var(--text-main, #333333);
+  color: var(--text-main, #f8fafc);
   margin: 0;
   line-height: 1.35;
   display: -webkit-box;
@@ -1253,7 +1362,7 @@
 }
 
 .cardOldPrice {
-  color: #94a3b8;
+  color: var(--text-muted, #94a3b8);
   font-size: 11px;
   text-decoration: line-through;
 }
@@ -1262,7 +1371,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-color, #232838);
   padding-top: 6px;
   margin-top: 4px;
 }
@@ -1283,12 +1392,12 @@
 }
 
 .starEmpty {
-  color: #cbd5e1;
+  color: var(--border-color, #232838);
 }
 
 .cardSold {
   font-size: 10px;
-  color: var(--text-muted, #777777);
+  color: var(--text-muted, #94a3b8);
 }
 
 .cardAddBtn {
@@ -1302,6 +1411,135 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+/* ======================================================== */
+/* 6.5. CATEGORIES FULL TAB VIEW                            */
+/* ======================================================== */
+
+.shopeeCategoriesTabContainer {
+  background: var(--bg-card, #ffffff);
+  border-radius: 6px;
+  padding: 20px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.categoriesPageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
+}
+
+.categoriesPageHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.categoriesHeaderIconWrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(238, 77, 45, 0.1);
+  color: var(--primary, #ee4d2d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.categoriesPageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main, #1e293b);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.categoriesPageSubtitle {
+  font-size: 13px;
+  color: var(--text-muted, #64748b);
+  margin: 3px 0 0 0;
+}
+
+.categoriesPageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+}
+
+.categoryPageCard {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.categoryPageCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary, #ee4d2d);
+}
+
+.categoryPageImgWrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.categoryPageImg {
+  object-fit: cover;
+}
+
+.categoryPageFallbackIcon {
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.categoryPageInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.categoryPageName {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-main, #1e293b);
+  line-height: 1.3;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.categoryPageCount {
+  font-size: 11.5px;
+  color: var(--primary, #ee4d2d);
+  font-weight: 500;
 }
 
 /* ======================================================== */
@@ -1656,6 +1894,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .homeCategoryImg {
@@ -1744,6 +1984,11 @@
 }
 
 @media (max-width: 599px) {
+  .shopeeMainContent {
+    margin: 0 auto 16px auto;
+    padding: 0 8px;
+    gap: 12px;
+  }
   .shopee6ColGrid,
   .flashCarousel {
     grid-template-columns: repeat(2, 1fr);
@@ -1751,41 +1996,405 @@
   .shopeeTopBar {
     display: none;
   }
-  .shopeeShopCardWrapper {
-    flex-direction: column;
+
+  /* Shopee Mobile Header Bar */
+  .shopeeMainHeader {
+    padding: 8px 0;
   }
-  .shopeeShopIdentityCard {
+  .shopeeMainHeaderInner {
+    padding: 0 10px;
+    gap: 8px;
     width: 100%;
-    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
-  .shopeeMetricsGrid {
-    grid-template-columns: 1fr;
-    padding: 14px;
+  .shopeeLogoBrand {
+    gap: 5px;
+    max-width: 110px;
+    flex-shrink: 0;
+    color: var(--navbar-logo-color, var(--primary, #ee4d2d));
+  }
+  .shopeeBagIcon {
+    color: var(--navbar-logo-color, var(--primary, #ee4d2d));
+  }
+  .shopeeBagIcon svg {
+    width: 22px;
+    height: 22px;
+  }
+  .shopeeLogoText {
+    font-size: 14px;
+    font-weight: 700;
+    max-width: 75px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--navbar-logo-color, var(--primary, #ee4d2d));
+  }
+  .shopeeHeaderLogoImg {
+    max-height: 26px;
+    max-width: 60px;
+  }
+  .shopeeSearchContainer {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+  }
+  .shopeeSearchForm {
+    height: 34px;
+    padding: 2px 2px 2px 8px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    width: 100%;
+    background: var(--bg-card, #ffffff);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--navbar-border, var(--primary, #ee4d2d));
+  }
+  .shopeeSearchInput {
+    padding: 4px 6px 4px 2px;
+    font-size: 12px;
+    flex: 1;
+    min-width: 0;
+    color: var(--text-main, #333333);
   }
   .shopeeScopeDropdown {
     display: none;
   }
+  .shopeeSearchBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    padding: 0;
+  }
+  .shopeeSearchBtnIcon {
+    width: 13px;
+    height: 13px;
+  }
+  .shopeeSearchHistoryDropdown {
+    top: calc(100% + 2px);
+    border-radius: 4px;
+  }
   .shopeeKeywordRow {
     display: none;
   }
-  .shopeeLogoText {
-    font-size: 20px;
+  .shopeeCartWrap {
+    padding-right: 0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .shopeeCartIconSvg {
+    width: 22px !important;
+    height: 22px !important;
+    color: var(--navbar-logo-color, var(--primary, #ee4d2d)) !important;
+  }
+  .shopeeCartBadge {
+    top: -5px;
+    right: -6px;
+    min-width: 15px;
+    height: 15px;
+    font-size: 9px;
+    line-height: 15px;
+    padding: 0 3px;
+    background: var(--navbar-badge-bg, var(--primary, #ee4d2d));
+    color: var(--navbar-badge-text, #ffffff);
+    border: 1px solid var(--navbar-bg, #ffffff);
+  }
+
+  /* Shopee Mobile Category Nav Tabs (Fixed single row, NO horizontal scroll, popup dropdown for Thêm) */
+  .shopeeShopNavBar {
+    padding: 0 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: visible;
+    position: relative;
+    z-index: 50;
+  }
+  .shopeeNavTab {
+    padding: 10px 8px;
+    font-size: 12.5px;
+    flex-shrink: 0;
+    gap: 3px;
+  }
+  .seeMoreDropdownWrap {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .seeMoreMenu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    left: auto;
+    min-width: 175px;
+    max-width: 240px;
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--bg-card, #ffffff);
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color, #e2e8f0);
+    z-index: 9999;
+    padding: 4px 0;
+  }
+  .seeMoreMenuItem {
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--text-main, #333333);
+  }
+
+  /* Shopee Mobile Shop Identity Card */
+  .shopeeShopCardWrapper {
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+  .shopeeShopIdentityCard {
+    width: 100%;
+    min-width: 0;
+    min-height: 155px;
+    padding: 14px 14px 12px;
+    justify-content: flex-end;
+    background: transparent;
+  }
+  .shopCoverBackground {
+    display: block;
+  }
+  .shopCoverImg {
+    filter: none;
+    transform: none;
+    object-fit: cover;
+    object-position: center;
+  }
+  .shopeeShopCoverOverlay {
+    background-image: none;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.02) 0%,
+      rgba(0, 0, 0, 0.18) 35%,
+      rgba(0, 0, 0, 0.68) 100%
+    );
+    opacity: 1;
+  }
+  .shopeeShopIdentityContent {
+    gap: 10px;
+  }
+  .shopeeIdentityHeaderRow {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .shopeeAvatarWrap {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+  }
+  .shopeeAvatarImg,
+  .shopeeAvatarPlaceholder {
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+    border-width: 2px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  }
+  .shopeeOfficialBadge {
+    font-size: 8px;
+    padding: 1px 4px;
+    bottom: -3px;
+  }
+  .shopeeShopIdentityInfo {
+    flex: 1;
+    min-width: 0;
+    gap: 2px;
+  }
+  .shopeeShopTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .shopeeShopStatus {
+    font-size: 11.5px;
+    color: #e2e8f0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  }
+  .shopeeShopActions {
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .btnShopeeFollow,
+  .btnShopeeChat {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  }
+  .btnShopeeFollow:hover,
+  .btnShopeeChat:hover {
+    background: rgba(0, 0, 0, 0.65);
+  }
+  .shopeeMetricsGrid {
+    display: none;
   }
   .quickHubGrid {
     grid-template-columns: repeat(4, 1fr);
   }
+  .homeCategorySection {
+    padding: 10px 10px 12px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  .homeCategoryHeader {
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+  }
+  .homeCategoryTitle {
+    font-size: 13px;
+  }
+  .homeCategorySeeAll {
+    font-size: 11.5px;
+    padding: 2px 4px;
+  }
   .homeCategoryGrid {
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    width: 100%;
   }
+  .homeCategoryGrid::-webkit-scrollbar {
+    display: none;
+  }
+  .homeCategoryCard {
+    flex-shrink: 0;
+    width: 88px;
+    min-width: 88px;
+    padding: 8px 6px 6px;
+    border-radius: 6px;
+    gap: 4px;
+    border: 1px solid var(--border-color, #f1f5f9);
+    background: var(--bg-card, #ffffff);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+  .homeCategoryImgWrap {
+    width: 48px;
+    height: 48px;
+  }
+  .homeCategoryName {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+    min-height: 28px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    width: 100%;
+    color: var(--text-main, #333333);
+  }
+  .homeCategoryCount {
+    font-size: 9.5px;
+    color: var(--text-muted, #94a3b8);
+  }
+
+  /* Mobile Trust Bar */
+  .trustBar {
+    padding: 7px 10px;
+    border-radius: 6px;
+    background: var(--bg-card, #ffffff);
+    border: 1px solid var(--border-color, #f1f5f9);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .trustItem {
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-main, #334155);
+    white-space: nowrap;
+  }
+  .trustIcon {
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  /* Mobile Categories Page */
+  .shopeeCategoriesTabContainer {
+    margin-top: 8px;
+    padding: 12px 10px;
+    border-radius: 6px;
+  }
+  .categoriesPageHeader {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+  }
+  .categoriesHeaderIconWrap {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+  }
+  .categoriesPageTitle {
+    font-size: 13.5px;
+  }
+  .categoriesPageSubtitle {
+    font-size: 11px;
+  }
+  .categoriesPageGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .categoryPageCard {
+    padding: 10px 4px;
+    border-radius: 8px;
+  }
+  .categoryPageImgWrap {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 6px;
+  }
+  .categoryPageName {
+    font-size: 11px;
+    line-height: 1.25;
+    min-height: 28px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .categoryPageCount {
+    font-size: 9.5px;
+  }
+
   .heroBannerSection {
-    grid-template-columns: 1fr;
-    gap: 0;
+    display: none;
   }
-  .bannerCarousel {
-    height: 160px;
-    border-radius: 0;
-  }
-  .sideBannersColumn {
+  .shopeeFloatingChatBtn {
     display: none;
   }
 }

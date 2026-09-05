@@ -152,6 +152,8 @@ const FlashSaleSchema = new Schema<IFlashSale>(
   { timestamps: true }
 );
 
+FlashSaleSchema.index({ isActive: 1 });
+
 if (mongoose.models && mongoose.models.FlashSale) {
   delete (mongoose.models as any).FlashSale;
 }

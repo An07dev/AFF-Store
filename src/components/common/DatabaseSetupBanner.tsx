@@ -33,6 +33,9 @@ interface DbStatus {
   };
   isConnected: boolean;
   isSeeded: boolean;
+  isLocked?: boolean;
+  isRevoked?: boolean;
+  licenseStatus?: string;
   errorMessage: string | null;
   stats: {
     users: number;
@@ -60,18 +63,19 @@ export default function DatabaseSetupBanner() {
   const [showAdvancedUri, setShowAdvancedUri] = useState(false);
   const [customUri, setCustomUri] = useState('');
   const [testingUri, setTestingUri] = useState(false);
+  const [recheckingLicense, setRecheckingLicense] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
   const [isModalClosed, setIsModalClosed] = useState(false);
 
-  // Do not show modal when on /setup page or /admin pages
+  // Do not show modal when on /setup page
   const isSetupPage = pathname === '/setup';
   const isAdminPage = pathname?.startsWith('/admin');
 
-  const checkDb = async () => {
+  const checkDb = async (forceFresh = false) => {
     try {
-      const res = await apiFetch('/api/system/db-status');
+      const res = await apiFetch(`/api/system/db-status${forceFresh ? '?fresh=1' : ''}`);
       const data = await res.json();
       if (data.success && data.data) {
         setStatus(data.data);
@@ -147,7 +151,7 @@ export default function DatabaseSetupBanner() {
       toast.success(`🎉 Kích hoạt bản quyền cho "${name}" thành công!`);
 
       // Refresh database status
-      checkDb();
+      checkDb(true);
     } catch (err: any) {
       toast.error(err.message || 'Lỗi kích hoạt bản quyền');
       setProgressText(`❌ Lỗi: ${err.message || 'Thất bại'}`);
@@ -214,6 +218,112 @@ export default function DatabaseSetupBanner() {
     router.refresh();
   };
 
+  // 1. CRITICAL: If the store's license is REVOKED or LOCKED, block 100% access everywhere!
+  if (status?.isRevoked || status?.isLocked || status?.licenseStatus === 'revoked') {
+    return (
+      <div className={styles.modalBackdrop}>
+        <div className={`${styles.modalCard} ${styles.lockoutModalCard}`}>
+          <div className={styles.modalHeaderCenter}>
+            <div className={styles.iconLockoutGlow}>
+              <FiLock size={36} color="#ef4444" />
+            </div>
+            <div className={styles.lockoutBadge}>
+              <FiAlertTriangle size={13} /> TRẠNG THÁI: TẠM KHÓA BẢN QUYỀN
+            </div>
+            <h2 className={styles.modalTitle} style={{ color: '#fca5a5' }}>
+              Cửa Hàng Tạm Ngưng Hoạt Động
+            </h2>
+            <p className={styles.modalDesc}>
+              Mã bản quyền của website này đã bị tạm khóa hoặc thu hồi từ máy chủ quản trị trung tâm.
+            </p>
+          </div>
+
+          <div className={styles.lockoutDetailsCard}>
+            <div className={styles.credRow}>
+              <span className={styles.credLabel}>
+                <FiKey size={15} /> Mã Bản Quyền:
+              </span>
+              <strong className={styles.credValHighlight} style={{ color: '#ef4444' }}>
+                {status.tenant?.licenseKey || 'AFF-UNKNOWN'}
+              </strong>
+            </div>
+            <div className={styles.credRow}>
+              <span className={styles.credLabel}>
+                <FiShoppingBag size={15} /> Tên Cửa Hàng:
+              </span>
+              <strong className={styles.credVal}>{status.tenant?.shopName || 'Shop Của Tôi'}</strong>
+            </div>
+            <div className={styles.credRow}>
+              <span className={styles.credLabel}>
+                <FiAlertTriangle size={15} /> Lý Do:
+              </span>
+              <span style={{ color: '#fca5a5', fontSize: '13px' }}>
+                {status.errorMessage || 'Bản quyền bị thu hồi bởi nhà phát hành do vi phạm chính sách hoặc hết hạn sử dụng.'}
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
+            <button
+              type="button"
+              className={styles.btnSubmitLarge}
+              style={{
+                background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                boxShadow: '0 8px 25px rgba(239, 68, 68, 0.4)',
+              }}
+              disabled={recheckingLicense}
+              onClick={async () => {
+                setRecheckingLicense(true);
+                try {
+                  const res = await apiFetch('/api/system/db-status?fresh=1');
+                  const data = await res.json();
+                  if (data.success && data.data) {
+                    setStatus(data.data);
+                    if (!data.data.isLocked && !data.data.isRevoked && data.data.licenseStatus !== 'revoked') {
+                      toast.success('🎉 Bản quyền đã được mở khóa thành công!');
+                    } else {
+                      toast.error('Mã bản quyền vẫn đang trong trạng thái bị khóa trên máy chủ.');
+                    }
+                  }
+                } catch (e) {
+                  toast.error('Không thể kết nối máy chủ bản quyền.');
+                } finally {
+                  setRecheckingLicense(false);
+                }
+              }}
+            >
+              <FiRefreshCw size={16} className={recheckingLicense ? styles.spin : ''} />
+              <span>{recheckingLicense ? 'Đang kiểm tra máy chủ...' : 'Kiểm Tra Lại Trạng Thái Bản Quyền'}</span>
+            </button>
+
+            <a
+              href="https://zalo.me/0973475484"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '12px',
+                borderRadius: 10,
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                color: '#94a3b8',
+                fontSize: 13.5,
+                fontWeight: 700,
+              }}
+            >
+              💬 Liên Hệ Nhà Phát Hành Để Mở Khóa
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Normal Setup Checks
   if (isSetupPage || isAdminPage || loading || !status || isModalClosed) {
     return null;
   }

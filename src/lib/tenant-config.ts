@@ -7,6 +7,11 @@ export const MASTER_CLUSTER_BASE =
   'mongodb+srv://bigmansale2_db_user:LQBnps6DkzVpKe84@cluster0.o9kuvob.mongodb.net/{DB_NAME}?retryWrites=true&w=majority&appName=Cluster0';
 
 const CONFIG_FILE = path.join(process.cwd(), 'data', 'tenant_config.json');
+const TMP_CONFIG_FILE = path.join('/tmp', 'tenant_config.json');
+
+declare global {
+  var activeTenantConfig: TenantConfig | null | undefined;
+}
 
 export interface TenantConfig {
   shopName: string;
@@ -17,16 +22,56 @@ export interface TenantConfig {
 }
 
 export function getTenantConfig(): TenantConfig | null {
+  // 1. In-memory global cache
+  if (global.activeTenantConfig) {
+    return global.activeTenantConfig;
+  }
+
+  // 2. Environment Variables
+  if (process.env.TENANT_DB_NAME || process.env.LICENSE_KEY) {
+    const dbName = process.env.TENANT_DB_NAME || 'shop_primary';
+    const config: TenantConfig = {
+      shopName: process.env.SHOP_NAME || 'ShopBig',
+      dbName: dbName,
+      mongoUri: buildMongoUriForDb(dbName),
+      createdAt: new Date().toISOString(),
+      licenseKey: process.env.LICENSE_KEY,
+    };
+    global.activeTenantConfig = config;
+    return config;
+  }
+
+  // 3. Local data/tenant_config.json (VPS / Local)
   try {
     if (fs.existsSync(CONFIG_FILE)) {
       const raw = fs.readFileSync(CONFIG_FILE, 'utf-8');
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.dbName) {
+        global.activeTenantConfig = parsed;
+        return parsed;
+      }
     }
   } catch (e) {}
+
+  // 4. /tmp/tenant_config.json (Vercel Serverless)
+  try {
+    if (fs.existsSync(TMP_CONFIG_FILE)) {
+      const raw = fs.readFileSync(TMP_CONFIG_FILE, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.dbName) {
+        global.activeTenantConfig = parsed;
+        return parsed;
+      }
+    }
+  } catch (e) {}
+
   return null;
 }
 
 export function saveTenantConfig(config: TenantConfig): void {
+  global.activeTenantConfig = config;
+
+  // Try saving to data/tenant_config.json (Local / VPS)
   try {
     const dir = path.dirname(CONFIG_FILE);
     if (!fs.existsSync(dir)) {
@@ -34,7 +79,14 @@ export function saveTenantConfig(config: TenantConfig): void {
     }
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');
   } catch (e) {
-    console.warn('Could not save tenant config file:', e);
+    // Expected on Vercel / read-only filesystem
+  }
+
+  // Try saving to /tmp/tenant_config.json (Vercel Serverless)
+  try {
+    fs.writeFileSync(TMP_CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');
+  } catch (e) {
+    // Ignore on systems where /tmp doesn't exist
   }
 }
 

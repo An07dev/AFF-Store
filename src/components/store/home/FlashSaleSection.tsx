@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, memo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FiChevronRight, FiArrowRight, FiZap } from 'react-icons/fi';
 import styles from './FlashSaleSection.module.css';
 
@@ -272,16 +273,17 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
               >
                 {/* 1:1 Image with Zoom */}
                 <div className={styles.flashImgWrap}>
-                  <img
+                  <Image
                     src={
                       item.image ||
                       item.images?.[0] ||
                       'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
                     }
                     alt={item.name || 'Sản phẩm Flash Sale'}
+                    fill
+                    sizes="(max-width: 599px) 50vw, (max-width: 1199px) 25vw, 16vw"
                     className={styles.flashImg}
                     loading="lazy"
-                    decoding="async"
                   />
                   {discount > 0 && (
                     <div className={styles.shopeeDiscountFlag}>
