@@ -205,6 +205,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (config.pageTitles?.siteTitle) {
       document.title = config.pageTitles.siteTitle;
     }
+
+    // Favicon
+    if (config.pageTitles?.faviconUrl) {
+      let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0]?.appendChild(link);
+      }
+      link.href = config.pageTitles.faviconUrl;
+    }
+
+    // Meta Description
+    if (config.pageTitles?.metaDescription) {
+      let meta: HTMLMetaElement | null = document.querySelector("meta[name='description']");
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'description';
+        document.getElementsByTagName('head')[0]?.appendChild(meta);
+      }
+      meta.content = config.pageTitles.metaDescription;
+    }
   }, []);
 
   // 1. Initial Mount: Load cached theme from localStorage synchronously to eliminate flash / delay

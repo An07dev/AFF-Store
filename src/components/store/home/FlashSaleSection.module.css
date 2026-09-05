@@ -1,0 +1,448 @@
+/* ======================================================== */
+/* SHOPEE FLASH SALE SECTION STYLES                         */
+/* ======================================================== */
+
+.flashSaleSection {
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 16px 18px 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+/* 1. Header: Logo + Countdown + See All */
+.flashHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 12px;
+}
+
+.flashHeaderTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.flashTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.flashLogo {
+  font-size: 19px;
+  font-weight: 900;
+  color: #ee4d2d;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-style: italic;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Countdown Timer */
+.flashCountdownBox {
+  display: inline-flex;
+  align-items: center;
+}
+
+.countdownTimer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.countdownDigit {
+  background: #000000;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 3px;
+  min-width: 24px;
+  text-align: center;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.countdownColon {
+  color: #000000;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+/* See All Button */
+.seeAllBtn {
+  background: transparent;
+  border: none;
+  color: #ee4d2d;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.seeAllBtn:hover {
+  background: rgba(238, 77, 45, 0.08);
+  text-decoration: underline;
+}
+
+/* Campaign Tagline Banner */
+.flashCampaignBanner {
+  background: #fff7ed;
+  border-left: 3px solid #ee4d2d;
+  padding: 7px 14px;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  color: #c2410c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.flashCampaignTitle {
+  font-weight: 700;
+}
+
+.flashCampaignSubtitle {
+  font-weight: 500;
+  color: #ea580c;
+}
+
+/* 2. Slot Selector Tabs */
+.flashSlotTabs {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 0 6px;
+}
+
+.flashSlotTabs::-webkit-scrollbar {
+  display: none;
+}
+
+.flashSlotTab {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  user-select: none;
+}
+
+.flashSlotTab:hover {
+  border-color: #ee4d2d;
+  background: #fff7ed;
+}
+
+.flashSlotTabActive {
+  background: #ee4d2d !important;
+  border-color: #ee4d2d !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.28);
+}
+
+.slotTime {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.flashSlotTabActive .slotTime {
+  color: #ffffff;
+}
+
+.slotStatus {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.flashSlotTabActive .slotStatus {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* 3. Product Carousel Grid */
+.carouselWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.flashCarousel {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+/* Individual Flash Card */
+.flashCard {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+
+.flashCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-color: #ffd8d0;
+}
+
+/* Image Container */
+.flashImgWrap {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* 1:1 Aspect Ratio */
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.flashImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.flashCard:hover .flashImg {
+  transform: scale(1.05);
+}
+
+/* Discount Badge */
+.shopeeDiscountFlag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #ffd839;
+  color: #ee4d2d;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 5px;
+  border-bottom-left-radius: 3px;
+  z-index: 2;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Content Info */
+.flashInfo {
+  padding: 10px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.flashPrice {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ee4d2d;
+  line-height: 1.2;
+}
+
+.flashOldPrice {
+  font-size: 11.5px;
+  color: #94a3b8;
+  text-decoration: line-through;
+  line-height: 1;
+}
+
+/* Fire Progress Bar (Thanh nhiệt Shopee) */
+.fireProgressBar {
+  width: 100%;
+  height: 18px;
+  background: #ffbda6;
+  border-radius: 9px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.fireFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #ff5722 0%, #ee4d2d 100%);
+  border-radius: 9px;
+  transition: width 0.4s ease;
+}
+
+.fireText {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Sắp Mở Bán / Đã Kết Thúc Pill */
+.upcomingPill {
+  width: 100%;
+  height: 18px;
+  background: #ffedd5;
+  border: 1px solid #fed7aa;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #ea580c;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.passedPill {
+  width: 100%;
+  height: 18px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+/* 4. See All Card (Shopee Style at end of list) */
+.flashSeeAllCard {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 180px;
+}
+
+.flashSeeAllCard:hover {
+  border-color: #ee4d2d;
+  background: #fff7ed;
+}
+
+.flashSeeAllCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ee4d2d;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(238, 77, 45, 0.3);
+}
+
+.flashSeeAllCard:hover .flashSeeAllCircle {
+  transform: scale(1.1);
+}
+
+.flashSeeAllText {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ee4d2d;
+}
+
+.flashSeeAllSubText {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* ======================================================== */
+/* 5. RESPONSIVE BREAKPOINTS                                */
+/* ======================================================== */
+
+@media (max-width: 1199px) and (min-width: 860px) {
+  .flashCarousel {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 859px) and (min-width: 600px) {
+  .flashCarousel {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .flashSlotTab {
+    min-width: 120px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 599px) {
+  .flashSaleSection {
+    padding: 12px 10px 14px;
+    border-radius: 0;
+  }
+  .flashCarousel {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .flashLogo {
+    font-size: 16px;
+  }
+  .flashSlotTab {
+    min-width: 110px;
+    padding: 6px 8px;
+  }
+  .slotTime {
+    font-size: 12.5px;
+  }
+  .slotStatus {
+    font-size: 10px;
+  }
+  .flashPrice {
+    font-size: 14px;
+  }
+}

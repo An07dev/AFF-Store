@@ -1,82 +1,137 @@
 'use client';
 
 import React, { memo } from 'react';
-import { FaTiktok, FaFacebook } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
+import {
+  FiTruck,
+  FiMessageSquare,
+  FiShoppingBag,
+  FiUsers,
+  FiUserCheck,
+  FiStar,
+  FiMessageCircle,
+  FiCalendar,
+  FiMapPin,
+  FiBriefcase,
+} from 'react-icons/fi';
 import styles from '@/app/(store)/page.module.css';
 
 interface ShopProfileCardProps {
   shopDisplayName: string;
   logoUrl?: string;
   avatarInitials: string;
+  productCount?: number;
   socialLinks?: {
     tiktokUrl?: string;
     facebookUrl?: string;
   };
 }
 
-const SHOP_INFO = {
-  rating: 4.9,
-  totalSold: '15.8K',
-  followers: '10.2K',
-};
-
 const ShopProfileCardComponent: React.FC<ShopProfileCardProps> = ({
-  shopDisplayName,
+  shopDisplayName = 'Shop Của Tôi',
   logoUrl,
-  avatarInitials,
-  socialLinks,
+  avatarInitials = 'ST',
+  productCount = 4,
 }) => {
+  const router = useRouter();
+
   return (
-    <div className={styles.shopCard}>
-      <div className={styles.shopLeft}>
-        <div className={`${styles.shopAvatar} ${logoUrl ? styles.shopAvatarWithImage : ''}`}>
-          {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt={shopDisplayName}
-              className={styles.shopAvatarImg}
-              loading="lazy"
-            />
-          ) : (
-            avatarInitials
-          )}
-        </div>
-        <div className={styles.shopInfo}>
-          <div className={styles.shopNameRow}>
-            <span className={styles.mallBadge}>Mall</span>
-            <span className={styles.shopName}>{shopDisplayName}</span>
+    <div className={styles.shopeeShopCardWrapper}>
+      {/* LEFT BOX: DARK SHOP HERO CARD */}
+      <div className={styles.shopeeShopIdentityCard}>
+        <div className={styles.shopeeShopCoverOverlay} />
+        
+        <div className={styles.shopeeShopIdentityContent}>
+          {/* Avatar & Status */}
+          <div className={styles.shopeeAvatarWrap}>
+            {logoUrl ? (
+              <img src={logoUrl} alt={shopDisplayName} className={styles.shopeeAvatarImg} />
+            ) : (
+              <div className={styles.shopeeAvatarPlaceholder}>{avatarInitials}</div>
+            )}
+            <span className={styles.shopeeOfficialBadge}>Chính Hãng</span>
           </div>
-          <div className={styles.shopMeta}>
-            <span>⭐ {SHOP_INFO.rating}</span>
-            <span>•</span>
-            <span>{SHOP_INFO.totalSold} đã bán</span>
-            <span>•</span>
-            <span>{SHOP_INFO.followers} theo dõi</span>
+
+          <div className={styles.shopeeShopIdentityInfo}>
+            <h1 className={styles.shopeeShopTitle}>{shopDisplayName}</h1>
+            <p className={styles.shopeeShopStatus}>
+              <span className={styles.onlineDot} /> Online 18 phút trước
+            </p>
+          </div>
+
+          {/* 2 Action Buttons: Theo Dõi Đơn & Chat */}
+          <div className={styles.shopeeShopActions}>
+            <button
+              type="button"
+              className={styles.btnShopeeFollow}
+              onClick={() => router.push('/tracking')}
+            >
+              <FiTruck size={14} />
+              <span>Theo Dõi Đơn</span>
+            </button>
+
+            <button
+              type="button"
+              className={styles.btnShopeeChat}
+              onClick={() => router.push('/chat')}
+            >
+              <FiMessageSquare size={13} />
+              <span>Chat</span>
+            </button>
           </div>
         </div>
       </div>
 
-      <div className={styles.shopRight}>
-        {socialLinks?.tiktokUrl && (
-          <a
-            href={socialLinks.tiktokUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.socialBtn}
-          >
-            <FaTiktok size={11} /> TikTok
-          </a>
-        )}
-        {socialLinks?.facebookUrl && (
-          <a
-            href={socialLinks.facebookUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.socialBtn}
-          >
-            <FaFacebook size={11} /> FB
-          </a>
-        )}
+      {/* RIGHT BOX: 8 METRICS GRID (2 COLUMNS X 4 ROWS) */}
+      <div className={styles.shopeeMetricsGrid}>
+        {/* Column 1 */}
+        <div className={styles.metricItem}>
+          <span className={styles.metricIcon}><FiShoppingBag size={14} /></span>
+          <span className={styles.metricLabel}>Sản phẩm:</span>
+          <span className={styles.metricValueHighlight}>{productCount}</span>
+        </div>
+
+        <div className={styles.metricItem}>
+          <span className={styles.metricIcon}><FiUsers size={14} /></span>
+          <span className={styles.metricLabel}>Người theo dõi:</span>
+          <span className={styles.metricValueHighlight}>7.3k</span>
+        </div>
+
+        <div className={styles.metricItem}>
+          <span className={styles.metricIcon}><FiUserCheck size={14} /></span>
+          <span className={styles.metricLabel}>Đang theo dõi:</span>
+          <span className={styles.metricValueHighlight}>8</span>
+        </div>
+
+        <div className={styles.metricItem}>
+          <span className={styles.metricIcon}><FiStar size={14} color="#f59e0b" /></span>
+          <span className={styles.metricLabel}>Đánh giá:</span>
+          <span className={styles.metricValueHighlight}>4.9 (15.4k Đánh giá)</span>
+        </div>
+
+        <div className={styles.metricItem}>
+          <span className={styles.metricIcon}><FiMessageCircle size={14} /></span>
+          <span className={styles.metricLabel}>Tỉ lệ phản hồi Chat:</span>
+          <span className={styles.metricValueHighlight}>98% (Trong vài giờ)</span>
+        </div>
+
+        <div className={styles.metricItem}>
+          <span className={styles.metricIcon}><FiCalendar size={14} /></span>
+          <span className={styles.metricLabel}>Tham gia:</span>
+          <span className={styles.metricValueHighlight}>5 năm trước</span>
+        </div>
+
+        <div className={styles.metricItem}>
+          <span className={styles.metricIcon}><FiMapPin size={14} /></span>
+          <span className={styles.metricLabel}>Địa chỉ:</span>
+          <span className={styles.metricValueHighlight}>Hà Nội, Việt Nam</span>
+        </div>
+
+        <div className={styles.metricItem}>
+          <span className={styles.metricIcon}><FiBriefcase size={14} /></span>
+          <span className={styles.metricLabel}>Tên doanh nghiệp:</span>
+          <span className={styles.metricValueHighlight}>{shopDisplayName} Store</span>
+        </div>
       </div>
     </div>
   );

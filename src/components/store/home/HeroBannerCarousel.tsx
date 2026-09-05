@@ -3,7 +3,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import styles from '@/app/(store)/page.module.css';
+import styles from './HeroBannerCarousel.module.css';
 
 interface BannerItem {
   image: string;
@@ -17,6 +17,21 @@ interface HeroBannerCarouselProps {
   subBanners?: BannerItem[];
   onNavigateToProducts?: () => void;
 }
+
+const DEFAULT_SUB_BANNERS: BannerItem[] = [
+  {
+    tag: '9.9 Siêu Sale',
+    title: 'Ăn Sáng Ngon Rẻ - Chỉ từ 10.000đ',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80',
+    link: '/?tab=products',
+  },
+  {
+    tag: 'Hàng Việt Tôi Yêu',
+    title: 'Chất Lượng Chính Hãng - Freeship 0Đ',
+    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&auto=format&fit=crop&q=80',
+    link: '/?tab=products&filter=flash-sale',
+  },
+];
 
 const HeroBannerCarouselComponent: React.FC<HeroBannerCarouselProps> = ({
   banners,
@@ -37,7 +52,10 @@ const HeroBannerCarouselComponent: React.FC<HeroBannerCarouselProps> = ({
 
   if (!banners || banners.length === 0) return null;
 
-  const validSubBanners = subBanners && subBanners.length > 0 ? subBanners.slice(0, 2) : [];
+  const validSubBanners =
+    subBanners && subBanners.length > 0
+      ? subBanners.slice(0, 2)
+      : DEFAULT_SUB_BANNERS;
 
   return (
     <div className={styles.heroBannerSection}>

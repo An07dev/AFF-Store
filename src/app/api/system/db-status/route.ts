@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/mongodb';
+import { getTenantConfig, MASTER_CLUSTER_BASE } from '@/lib/tenant-config';
 import User from '@/models/User';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
@@ -9,7 +10,10 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
-  const hasUriConfigured = Boolean(process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== '');
+  const tenant = getTenantConfig();
+  const hasUriConfigured = Boolean(
+    tenant?.mongoUri || (process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== '')
+  );
 
   let isConnected = false;
   let isSeeded = false;
@@ -28,7 +32,7 @@ export async function GET() {
         stats.users = await User.countDocuments();
         stats.products = await Product.countDocuments();
         stats.categories = await Category.countDocuments();
-        isSeeded = stats.users > 0 && stats.categories > 0;
+        isSeeded = stats.users > 0;
       } catch (err: any) {
         console.warn('Error reading stats:', err.message);
       }
@@ -43,6 +47,8 @@ export async function GET() {
     data: {
       isVercel,
       hasUriConfigured,
+      hasMasterCluster: Boolean(MASTER_CLUSTER_BASE && MASTER_CLUSTER_BASE.includes('mongodb')),
+      tenant,
       isConnected,
       isSeeded,
       stats,

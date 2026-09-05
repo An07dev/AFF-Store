@@ -1,0 +1,260 @@
+.heroBannerSection {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+/* ======================================================== */
+/* 1. MAIN BANNER CAROUSEL (Left ~66%)                      */
+/* ======================================================== */
+
+.bannerCarousel {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #f1f5f9;
+}
+
+.carouselTrack {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.carouselSlide {
+  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  user-select: none;
+}
+
+.carouselImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.carouselOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 16px 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.25) 60%, transparent 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.carouselTag {
+  background: #ee4d2d;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 2px;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.carouselTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.carouselNavBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 48px;
+  background: rgba(0, 0, 0, 0.25);
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 3;
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+.carouselNavBtn:hover {
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 1;
+}
+
+.carouselPrevBtn {
+  left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.carouselNextBtn {
+  right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.carouselDots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 3;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.activeDot {
+  background: #ee4d2d;
+  width: 18px;
+  border-radius: 4px;
+}
+
+/* ======================================================== */
+/* 2. 2 SUB-BANNERS STACKED (Right ~33%)                    */
+/* ======================================================== */
+
+.sideBannersColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 240px;
+  width: 100%;
+}
+
+.sideBannerItem {
+  flex: 1;
+  height: calc(50% - 5px);
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #f1f5f9;
+}
+
+.sideBannerItem:hover .sideBannerImg {
+  transform: scale(1.03);
+}
+
+.sideBannerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.sideBannerOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 12px 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sideBannerTag {
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+  width: fit-content;
+  text-transform: uppercase;
+}
+
+.sideBannerTitle {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* ======================================================== */
+/* 3. RESPONSIVE BREAKPOINTS                                */
+/* ======================================================== */
+
+@media (max-width: 859px) and (min-width: 600px) {
+  .heroBannerSection {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .bannerCarousel {
+    height: 200px;
+  }
+
+  .sideBannersColumn {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    height: 110px;
+    gap: 8px;
+  }
+
+  .sideBannerItem {
+    height: 110px;
+  }
+}
+
+@media (max-width: 599px) {
+  .heroBannerSection {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .bannerCarousel {
+    height: 160px;
+    border-radius: 0;
+  }
+
+  .sideBannersColumn {
+    display: none;
+  }
+}

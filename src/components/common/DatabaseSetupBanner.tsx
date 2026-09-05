@@ -8,12 +8,15 @@ import {
   FiAlertTriangle,
   FiArrowRight,
   FiCheckCircle,
-  FiX,
   FiRefreshCw,
   FiZap,
   FiShield,
   FiCheck,
   FiCopy,
+  FiShoppingBag,
+  FiLock,
+  FiKey,
+  FiUserCheck,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { apiFetch } from '@/lib/api';
@@ -22,6 +25,12 @@ import styles from './DatabaseSetupBanner.module.css';
 interface DbStatus {
   isVercel: boolean;
   hasUriConfigured: boolean;
+  hasMasterCluster: boolean;
+  tenant?: {
+    shopName: string;
+    dbName: string;
+    licenseKey?: string;
+  };
   isConnected: boolean;
   isSeeded: boolean;
   errorMessage: string | null;
@@ -36,21 +45,29 @@ export default function DatabaseSetupBanner() {
   const router = useRouter();
   const pathname = usePathname();
   const [status, setStatus] = useState<DbStatus | null>(null);
-  const [dismissed, setDismissed] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Minimal Inline Setup & Progress State
+  // Form & License States
+  const [shopName, setShopName] = useState('Shop Của Tôi');
+  const [licenseKey, setLicenseKey] = useState('');
   const [seeding, setSeeding] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [progressText, setProgressText] = useState('');
+  const [createdDbName, setCreatedDbName] = useState('');
+  const [activatedKey, setActivatedKey] = useState('');
+  const [buyerName, setBuyerName] = useState('');
   const [setupDone, setSetupDone] = useState(false);
-  const [showUriInput, setShowUriInput] = useState(false);
+  const [showAdvancedUri, setShowAdvancedUri] = useState(false);
   const [customUri, setCustomUri] = useState('');
   const [testingUri, setTestingUri] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copiedPass, setCopiedPass] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
+  const [isModalClosed, setIsModalClosed] = useState(false);
 
-  // Do not show banner when already on /setup page
+  // Do not show modal when on /setup page or /admin pages
   const isSetupPage = pathname === '/setup';
+  const isAdminPage = pathname?.startsWith('/admin');
 
   const checkDb = async () => {
     try {
@@ -63,6 +80,7 @@ export default function DatabaseSetupBanner() {
       setStatus({
         isVercel: false,
         hasUriConfigured: false,
+        hasMasterCluster: true,
         isConnected: false,
         isSeeded: false,
         errorMessage: 'Không thể kết nối máy chủ CSDL',
@@ -78,60 +96,69 @@ export default function DatabaseSetupBanner() {
     checkDb();
   }, [pathname, isSetupPage]);
 
-  // Handle 1-Click Minimal Initialize directly on Home Page
-  const handleInlineInitialize = async () => {
+  // Handle License Validation & 1-Click Provisioning
+  const handleActivateAndProvision = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    const name = shopName.trim() || 'Shop Mới';
+    const key = licenseKey.trim().toUpperCase();
+
+    if (!key) {
+      toast.error('Vui lòng nhập Mã Kích Hoạt Bản Quyền (License Key)!');
+      return;
+    }
+
     setSeeding(true);
     setSetupDone(false);
     setProgressPercent(15);
-    setProgressText('[1/3] Đang kết nối CSDL...');
+    setProgressText(`[1/4] Đang xác thực Mã Bản Quyền trên Master Server...`);
 
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     try {
       await delay(400);
-      setProgressPercent(45);
-      setProgressText('[2/3] Đang tạo Admin: admin@shopbig.vn...');
+      setProgressPercent(35);
+      setProgressText(`[2/4] Mã hợp lệ! Đang cấp phát CSDL MongoDB riêng cho "${name}"...`);
 
-      // Call setup API in background
-      const apiPromise = apiFetch('/api/setup/initialize', { method: 'POST' });
+      // Call Provisioning API with License Key
+      const res = await apiFetch('/api/setup/provision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shopName: name, licenseKey: key }),
+      });
 
-      await delay(500);
-      setProgressPercent(80);
-      setProgressText('[3/3] Đang nạp danh mục, banner & sản phẩm mẫu...');
-
-      const res = await apiPromise;
       const data = await res.json();
 
-      await delay(400);
-      if (data.success) {
-        setProgressPercent(100);
-        setProgressText('🎉 Khởi tạo hoàn tất 100%!');
-        setSetupDone(true);
-        toast.success('🎉 Khởi tạo CSDL thành công!');
-
-        // Refresh database status and reload page data smoothly after 1.5s
-        setTimeout(() => {
-          checkDb();
-          router.refresh();
-        }, 1500);
-      } else {
-        throw new Error(data.message || 'Lỗi khởi tạo CSDL');
+      if (!data.success) {
+        throw new Error(data.message || 'Kích hoạt bản quyền thất bại');
       }
+
+      await delay(500);
+      setProgressPercent(75);
+      setProgressText(`[3/4] Đang tạo tài khoản Quản trị viên tối cao: admin@shopbig.vn...`);
+
+      await delay(500);
+      setProgressPercent(100);
+      setCreatedDbName(data.data?.dbName || '');
+      setActivatedKey(data.data?.licenseKey || key);
+      setBuyerName(data.data?.buyerName || '');
+      setProgressText(`🎉 Kích hoạt bản quyền và cấp CSDL (${data.data?.dbName || ''}) thành công 100%!`);
+      setSetupDone(true);
+      toast.success(`🎉 Kích hoạt bản quyền cho "${name}" thành công!`);
+
+      // Refresh database status
+      checkDb();
     } catch (err: any) {
-      toast.error(err.message || 'Lỗi khi khởi tạo CSDL');
+      toast.error(err.message || 'Lỗi kích hoạt bản quyền');
       setProgressText(`❌ Lỗi: ${err.message || 'Thất bại'}`);
       setTimeout(() => {
         setSeeding(false);
-      }, 3000);
-    } finally {
-      if (!setupDone) {
-        setTimeout(() => setSeeding(false), 2500);
-      }
+      }, 4000);
     }
   };
 
-  // Handle Test / Connect Custom URI directly
-  const handleTestAndSaveUri = async (e: React.FormEvent) => {
+  // Handle Manual Custom URI (Alternative)
+  const handleConnectCustomUri = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customUri.trim()) {
       toast.error('Vui lòng dán link MONGODB_URI');
@@ -147,9 +174,8 @@ export default function DatabaseSetupBanner() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success('Kết nối MongoDB thành công! Đang khởi tạo dữ liệu...');
-        setShowUriInput(false);
-        handleInlineInitialize();
+        toast.success('Kết nối MongoDB thành công! Hãy nhập License Key để tiếp tục.');
+        setShowAdvancedUri(false);
       } else {
         toast.error(data.message || 'Kết nối thất bại');
       }
@@ -160,149 +186,284 @@ export default function DatabaseSetupBanner() {
     }
   };
 
-  const copyAdminPass = () => {
-    navigator.clipboard.writeText('admin123');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    toast.success('Đã copy mật khẩu: admin123');
+  const copyToClipboard = (text: string, type: 'email' | 'pass' | 'key') => {
+    navigator.clipboard.writeText(text);
+    if (type === 'email') {
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2000);
+    } else if (type === 'pass') {
+      setCopiedPass(true);
+      setTimeout(() => setCopiedPass(false), 2000);
+    } else {
+      setCopiedKey(true);
+      setTimeout(() => setCopiedKey(false), 2000);
+    }
+    toast.success(`Đã copy vào Clipboard!`);
   };
 
-  if (isSetupPage || loading || !status || dismissed) {
+  // Go to admin page and hide modal
+  const handleGoToAdmin = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setIsModalClosed(true);
+    router.push('/admin/login');
+  };
+
+  // Complete and enter store
+  const handleFinishAndEnterStore = () => {
+    setIsModalClosed(true);
+    router.refresh();
+  };
+
+  if (isSetupPage || isAdminPage || loading || !status || isModalClosed) {
     return null;
   }
 
-  // If connected and seeded, no banner needed
+  // If connected and seeded, no modal needed
   if (status.isConnected && status.isSeeded && !setupDone) {
     return null;
   }
 
-  const isNotConnected = !status.isConnected;
-
   return (
-    <div className={styles.bannerWrapper}>
-      <div className={styles.bannerBar}>
-        {/* State 1: Active Loading Progress (Minimal) */}
+    <div className={styles.modalBackdrop}>
+      <div className={styles.modalCard}>
+        {/* State 1: Active Setup Progress / Success */}
         {seeding || setupDone ? (
-          <div className={styles.progressRow}>
-            <div className={styles.progressLeft}>
-              {setupDone ? (
-                <div className={styles.iconDone}>
-                  <FiCheck size={14} />
-                </div>
-              ) : (
-                <div className={styles.miniSpinner}></div>
-              )}
-              <div className={styles.progressTextWrap}>
-                <span className={styles.progressTitle}>{progressText}</span>
-                {setupDone && (
-                  <span className={styles.credSnippet}>
-                    Admin: <strong>admin@shopbig.vn</strong> | Pass:{' '}
-                    <button type="button" className={styles.copyPassBtn} onClick={copyAdminPass}>
-                      <strong>admin123</strong> {copied ? <FiCheck size={11} color="#10b981" /> : <FiCopy size={11} />}
-                    </button>
-                  </span>
-                )}
+          <div className={styles.progressModalBody}>
+            {/* Header */}
+            <div className={styles.modalHeaderCenter}>
+              <div className={setupDone ? styles.iconCelebration : styles.iconPulseBox}>
+                {setupDone ? <FiCheckCircle size={36} /> : <FiRefreshCw className={styles.spin} size={32} />}
               </div>
+              <h2 className={styles.modalTitle}>
+                {setupDone ? '🎉 Kích Hoạt Bản Quyền Thành Công!' : 'Đang Xác Thực Bản Quyền & Khởi Tạo...'}
+              </h2>
+              <p className={styles.modalDesc}>
+                {setupDone
+                  ? 'Hệ thống đã xác thực bản quyền, cấp CSDL riêng và tạo tài khoản Quản trị viên thành công.'
+                  : 'Vui lòng giữ nguyên trình duyệt trong giây lát để hệ thống hoàn tất.'}
+              </p>
             </div>
 
-            <div className={styles.progressRight}>
-              <div className={styles.percentText}>{progressPercent}%</div>
-              <div className={styles.miniBarTrack}>
+            {/* Progress Bar & Status Text */}
+            <div className={styles.progressSection}>
+              <div className={styles.progressTrack}>
                 <div
-                  className={`${styles.miniBarFill} ${setupDone ? styles.miniBarSuccess : ''}`}
+                  className={`${styles.progressFill} ${setupDone ? styles.progressSuccess : ''}`}
                   style={{ width: `${progressPercent}%` }}
-                ></div>
+                >
+                  <div className={styles.progressShimmer}></div>
+                </div>
               </div>
-              {setupDone && (
-                <Link href="/admin/login" className={styles.btnAdminQuick}>
-                  <FiShield size={13} /> Admin
-                </Link>
-              )}
-            </div>
-          </div>
-        ) : showUriInput ? (
-          /* State 2: Minimal URI Input Row */
-          <form className={styles.uriInputForm} onSubmit={handleTestAndSaveUri}>
-            <span className={styles.uriLabel}>Nhập MONGODB_URI:</span>
-            <input
-              type="text"
-              className={styles.uriInput}
-              placeholder="mongodb+srv://user:pass@cluster0.mongodb.net/webbanhang"
-              value={customUri}
-              onChange={(e) => setCustomUri(e.target.value)}
-              autoFocus
-            />
-            <button type="submit" className={styles.btnUriSubmit} disabled={testingUri}>
-              {testingUri ? 'Đang thử...' : '⚡ Kết nối & Tạo'}
-            </button>
-            <button
-              type="button"
-              className={styles.btnUriCancel}
-              onClick={() => setShowUriInput(false)}
-            >
-              Hủy
-            </button>
-          </form>
-        ) : (
-          /* State 3: Normal Minimalist Banner Prompt */
-          <div className={styles.normalRow}>
-            <div className={styles.leftInfo}>
-              <span className={styles.statusDot}></span>
-              <span className={styles.badgeLabel}>
-                {isNotConnected ? 'CSDL Chưa Kết Nối' : 'CSDL Trống'}
-              </span>
-              <span className={styles.mainText}>
-                {isNotConnected
-                  ? (status.isVercel
-                      ? 'Chưa cấu hình MONGODB_URI trên Cloud.'
-                      : 'Hệ thống chưa kết nối được cơ sở dữ liệu.')
-                  : 'Cơ sở dữ liệu đã kết nối nhưng chưa có tài khoản Admin & sản phẩm mẫu.'}
-              </span>
+              <div className={styles.progressLabelRow}>
+                <span className={styles.progressText}>{progressText}</span>
+                <span className={styles.percentText}>{progressPercent}%</span>
+              </div>
             </div>
 
-            <div className={styles.rightActions}>
-              {status.isConnected ? (
-                /* 1-Click Initialize right here */
+            {/* Success Credentials Card */}
+            {setupDone && (
+              <div className={styles.credentialsCard}>
+                <div className={styles.credRow}>
+                  <span className={styles.credLabel}>
+                    <FiKey size={15} /> Mã Bản Quyền:
+                  </span>
+                  <div className={styles.credValWrap}>
+                    <strong className={styles.credValHighlight}>{activatedKey}</strong>
+                    <button
+                      type="button"
+                      className={styles.btnCopy}
+                      onClick={() => copyToClipboard(activatedKey, 'key')}
+                      title="Copy Key"
+                    >
+                      {copiedKey ? <FiCheck size={13} color="#10b981" /> : <FiCopy size={13} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.credRow}>
+                  <span className={styles.credLabel}>
+                    <FiDatabase size={15} /> Tên CSDL Riêng:
+                  </span>
+                  <strong className={styles.credValHighlight}>{createdDbName || 'shop_primary'}</strong>
+                </div>
+
+                <div className={styles.credRow}>
+                  <span className={styles.credLabel}>
+                    <FiUserCheck size={15} /> Email Quản Trị (Admin):
+                  </span>
+                  <div className={styles.credValWrap}>
+                    <strong className={styles.credVal}>admin@shopbig.vn</strong>
+                    <button
+                      type="button"
+                      className={styles.btnCopy}
+                      onClick={() => copyToClipboard('admin@shopbig.vn', 'email')}
+                      title="Copy Email"
+                    >
+                      {copiedEmail ? <FiCheck size={13} color="#10b981" /> : <FiCopy size={13} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.credRow}>
+                  <span className={styles.credLabel}>
+                    <FiLock size={15} /> Mật Khẩu Admin:
+                  </span>
+                  <div className={styles.credValWrap}>
+                    <strong className={styles.credVal}>admin123</strong>
+                    <button
+                      type="button"
+                      className={styles.btnCopy}
+                      onClick={() => copyToClipboard('admin123', 'pass')}
+                      title="Copy Mật khẩu"
+                    >
+                      {copiedPass ? <FiCheck size={13} color="#10b981" /> : <FiCopy size={13} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            {setupDone && (
+              <div className={styles.modalActionButtons}>
                 <button
                   type="button"
-                  className={styles.btnActionPrimary}
-                  onClick={handleInlineInitialize}
-                  disabled={seeding}
+                  className={styles.btnPrimaryLarge}
+                  onClick={handleGoToAdmin}
                 >
-                  <FiZap size={14} />
-                  <span>Khởi tạo CSDL ngay</span>
+                  <FiShield size={18} />
+                  <span>Đăng Nhập Trang Quản Trị (Admin)</span>
+                  <FiArrowRight size={16} />
                 </button>
-              ) : (
-                /* Prompt to configure URI or open full setup */
-                <>
-                  <button
-                    type="button"
-                    className={styles.btnActionPrimary}
-                    onClick={() => setShowUriInput(true)}
-                  >
-                    <FiDatabase size={14} />
-                    <span>Nhập MONGODB_URI</span>
-                  </button>
-                  <Link href="/setup" className={styles.btnActionSecondary}>
-                    <span>Hướng dẫn</span>
-                    <FiArrowRight size={12} />
-                  </Link>
-                </>
-              )}
+                <button
+                  type="button"
+                  className={styles.btnSecondaryLarge}
+                  onClick={handleFinishAndEnterStore}
+                >
+                  <FiShoppingBag size={18} />
+                  <span>Vào Xem Cửa Hàng (Storefront)</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : showAdvancedUri ? (
+          /* State 2: Advanced Manual URI Form */
+          <form className={styles.advancedForm} onSubmit={handleConnectCustomUri}>
+            <div className={styles.modalHeaderCenter}>
+              <div className={styles.iconBoxMini}>
+                <FiDatabase size={26} color="#3b82f6" />
+              </div>
+              <h2 className={styles.modalTitle}>Cấu Hình MONGODB_URI Thủ Công</h2>
+              <p className={styles.modalDesc}>
+                Dành cho nhà phát triển muốn sử dụng chuỗi kết nối MongoDB Atlas riêng của mình.
+              </p>
+            </div>
 
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Chuỗi kết nối MongoDB của bạn:</label>
+              <input
+                type="text"
+                className={styles.formInput}
+                placeholder="mongodb+srv://user:password@cluster0.mongodb.net/dbname"
+                value={customUri}
+                onChange={(e) => setCustomUri(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className={styles.advancedButtons}>
               <button
                 type="button"
-                className={styles.btnClose}
-                onClick={() => setDismissed(true)}
-                title="Đóng thông báo"
+                className={styles.btnBack}
+                onClick={() => setShowAdvancedUri(false)}
               >
-                <FiX size={14} />
+                Quay lại
+              </button>
+              <button
+                type="submit"
+                className={styles.btnSubmit}
+                disabled={testingUri}
+              >
+                {testingUri ? 'Đang kết nối...' : '⚡ Kiểm Tra Kết Nối'}
               </button>
             </div>
-          </div>
+          </form>
+        ) : (
+          /* State 3: Normal License Key & Setup Form (Unskippable) */
+          <form className={styles.initialForm} onSubmit={handleActivateAndProvision}>
+            {/* Top Icon */}
+            <div className={styles.modalHeaderCenter}>
+              <div className={styles.iconBoxGlow}>
+                <FiKey size={32} color="#3b82f6" />
+              </div>
+              <div className={styles.requiredBadge}>
+                <FiShield size={13} /> Kích Hoạt Bản Quyền • Cấp CSDL Riêng
+              </div>
+              <h2 className={styles.modalTitle}>Kích Hoạt Cửa Hàng & Khởi Tạo CSDL</h2>
+              <p className={styles.modalDesc}>
+                Nhập Mã Bản Quyền (License Key) được cấp khi mua mã nguồn để mở khóa và khởi tạo CSDL riêng cho cửa hàng.
+              </p>
+            </div>
+
+            {/* Shop Name Input */}
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Tên cửa hàng / Thương hiệu của bạn:</label>
+              <div className={styles.inputWithIcon}>
+                <FiShoppingBag className={styles.inputInnerIcon} size={18} />
+                <input
+                  type="text"
+                  required
+                  className={styles.formInput}
+                  placeholder="Ví dụ: Shop Thời Trang Nam Phong"
+                  value={shopName}
+                  onChange={(e) => setShopName(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* License Key Input */}
+            <div className={styles.formGroup}>
+              <div className={styles.labelRow}>
+                <label className={styles.formLabel}>Mã kích hoạt bản quyền (License Key):</label>
+                <span className={styles.oneTimeTag}>Dùng 1 lần duy nhất</span>
+              </div>
+              <div className={styles.inputWithIcon}>
+                <FiKey className={styles.inputInnerIcon} size={18} />
+                <input
+                  type="text"
+                  required
+                  className={`${styles.formInput} ${styles.inputLicense}`}
+                  placeholder="AFF-XXXX-XXXX-XXXX"
+                  value={licenseKey}
+                  onChange={(e) => setLicenseKey(e.target.value.toUpperCase())}
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* 1-Click Submit Button */}
+            <button
+              type="submit"
+              className={styles.btnSubmitLarge}
+              disabled={seeding}
+            >
+              <FiZap size={20} />
+              <span>⚡ Kích Hoạt Bản Quyền & Tạo CSDL Riêng</span>
+            </button>
+
+            {/* Footer options */}
+            <div className={styles.modalFooter}>
+              <button
+                type="button"
+                className={styles.btnAdvancedToggle}
+                onClick={() => setShowAdvancedUri(true)}
+              >
+                ⚙️ Tùy chọn nâng cao: Nhập MONGODB_URI thủ công
+              </button>
+            </div>
+          </form>
         )}
       </div>
     </div>
   );
 }
-

@@ -7,7 +7,11 @@
     "socket": "node server-socket.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "license:gen": "node scripts/license-cli.js gen",
+    "license:list": "node scripts/license-cli.js list",
+    "license:revoke": "node scripts/license-cli.js revoke",
+    "seed:products": "node scripts/seed-sample-products.js"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

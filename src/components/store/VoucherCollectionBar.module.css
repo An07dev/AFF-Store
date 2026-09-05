@@ -1,129 +1,128 @@
-.wrapper {
-  margin: 10px 10px 14px;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  box-sizing: border-box;
-}
+/* ======================================================== */
+/* SHOPEE VOUCHER COLLECTION BAR STYLES                     */
+/* ======================================================== */
 
-@media (min-width: 1024px) {
-  .wrapper {
-    margin: 2px 0 6px;
-  }
+.wrapper {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 14px 16px 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-  width: 100%;
-}
-
-@media (min-width: 1024px) {
-  .sectionHeader {
-    margin-bottom: 4px;
-  }
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .titleGroup {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .iconBadge {
-  font-size: 16px;
-  color: var(--primary, #f97316);
+  font-size: 18px;
+  color: #ee4d2d;
   display: flex;
   align-items: center;
 }
 
 .title {
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 800;
-  color: var(--text-main, #0f172a);
+  color: #1e293b;
   text-transform: uppercase;
-  letter-spacing: -0.2px;
+  letter-spacing: 0.3px;
 }
 
 .subtitle {
-  font-size: 11px;
-  color: var(--text-muted, #94a3b8);
+  font-size: 12px;
+  color: #64748b;
   font-weight: 500;
 }
 
+/* Horizontal Scroll List */
 .carousel {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 4px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
 }
 
 .carousel::-webkit-scrollbar {
   display: none;
 }
 
-/* Shopee Ticket Card */
+/* Shopee Ticket Voucher Card */
 .voucherCard {
   flex-shrink: 0;
-  width: 220px;
+  width: 250px;
   display: flex;
-  background: var(--bg-card, #141722);
-  border: 1px solid var(--border-color, #232838);
-  border-radius: var(--radius-md, 10px);
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  border-radius: 6px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .voucherCard:hover {
   transform: translateY(-2px);
-  border-color: var(--primary, #f97316);
+  box-shadow: 0 4px 14px rgba(238, 77, 45, 0.16);
+  border-color: #ee4d2d;
 }
 
 /* Left side: Discount badge */
 .leftBadge {
-  width: 68px;
-  background: linear-gradient(135deg, var(--primary, #f97316) 0%, #ea580c 100%);
-  color: var(--primary-text, #ffffff);
+  width: 76px;
+  background: linear-gradient(135deg, #ee4d2d 0%, #ff5722 100%);
+  color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px 4px;
+  padding: 10px 6px;
   text-align: center;
   position: relative;
+  flex-shrink: 0;
 }
 
 .badgeValue {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 900;
   line-height: 1.1;
+  color: #ffffff;
 }
 
 .badgeLabel {
-  font-size: 8.5px;
+  font-size: 9px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.2px;
-  opacity: 0.95;
-  margin-top: 2px;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.92);
+  margin-top: 3px;
 }
 
-/* Dashed divider between left and right */
+/* Dashed divider between left and right with ticket punch holes */
 .dashedDivider {
   position: relative;
   width: 1px;
-  border-left: 1px dashed var(--border-color, rgba(255, 255, 255, 0.15));
+  border-left: 1px dashed #fdba74;
 }
 
 .dashedDivider::before,
@@ -133,7 +132,8 @@
   left: -5px;
   width: 10px;
   height: 10px;
-  background: var(--bg-main, #090a0f);
+  background: #ffffff;
+  border: 1px solid #fed7aa;
   border-radius: 50%;
   z-index: 2;
 }
@@ -149,17 +149,18 @@
 /* Right side: Voucher details & action */
 .rightContent {
   flex: 1;
-  padding: 8px 8px 8px 10px;
+  padding: 8px 10px 8px 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-width: 0;
+  background: #fffaf5;
 }
 
 .codeName {
-  font-size: 11.5px;
-  font-weight: 800;
-  color: var(--text-main, #f8fafc);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e293b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -167,8 +168,8 @@
 }
 
 .minSpend {
-  font-size: 10px;
-  color: var(--text-muted, #94a3b8);
+  font-size: 11px;
+  color: #64748b;
   margin-top: 2px;
   line-height: 1.2;
 }
@@ -178,24 +179,26 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 6px;
+  gap: 6px;
 }
 
 .expiry {
-  font-size: 9px;
-  color: var(--text-dim, #64748b);
+  font-size: 10px;
+  color: #94a3b8;
   display: flex;
   align-items: center;
   gap: 3px;
+  white-space: nowrap;
 }
 
 .saveBtn {
-  background: var(--primary, #f97316);
-  color: var(--primary-text, #ffffff);
+  background: #ee4d2d;
+  color: #ffffff;
   border: none;
-  font-size: 9.5px;
-  font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s ease;
@@ -203,33 +206,49 @@
 }
 
 .saveBtn:hover {
-  opacity: 0.9;
-  transform: scale(1.04);
+  background: #d73211;
+  transform: scale(1.03);
 }
 
 .savedBtn {
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.35);
-  font-size: 9.5px;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  font-size: 10.5px;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
+  padding: 2px 8px;
+  border-radius: 3px;
   cursor: default;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   white-space: nowrap;
 }
 
 .usedBtn {
-  background: rgba(148, 163, 184, 0.15);
+  background: #f1f5f9;
   color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  font-size: 9.5px;
+  border: 1px solid #e2e8f0;
+  font-size: 10.5px;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
+  padding: 2px 8px;
+  border-radius: 3px;
   cursor: not-allowed;
   white-space: nowrap;
+}
+
+@media (max-width: 599px) {
+  .wrapper {
+    padding: 12px 10px;
+    border-radius: 0;
+  }
+  .voucherCard {
+    width: 220px;
+  }
+  .leftBadge {
+    width: 65px;
+  }
+  .badgeValue {
+    font-size: 12.5px;
+  }
 }

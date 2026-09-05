@@ -245,3 +245,166 @@
   font-size: 0.75rem;
   color: var(--text-dim, #64748b);
 }
+
+/* Auto Setup Modal Overlay */
+.autoSetupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.autoSetupCard {
+  width: 100%;
+  max-width: 480px;
+  background: #13161f;
+  border: 1px solid #232838;
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.autoSetupHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.autoSetupIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.autoSetupTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.autoSetupSub {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  background: #1a1e2b;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.progressSuccess {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%) !important;
+}
+
+.progressStatusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+}
+
+.statusText {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.percentBadge {
+  color: #38bdf8;
+  font-weight: 800;
+  font-family: monospace;
+}
+
+/* Unconnected DB Box */
+.dbUnconnectedBox {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.unconnectedHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.unconnectedInput {
+  background: #090a0f;
+  border: 1px solid #333c52;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  outline: none;
+}
+
+.unconnectedInput:focus {
+  border-color: #f59e0b;
+}
+
+.btnConnectDb {
+  background: #f59e0b;
+  color: #000000;
+  font-weight: 800;
+  font-size: 0.8125rem;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnConnectDb:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+

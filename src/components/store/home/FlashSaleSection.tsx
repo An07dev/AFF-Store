@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, memo } from 'react';
 import Link from 'next/link';
-import { FiChevronRight, FiClock, FiZap, FiArrowRight } from 'react-icons/fi';
-import styles from '@/app/(store)/page.module.css';
+import { FiChevronRight, FiArrowRight, FiZap } from 'react-icons/fi';
+import styles from './FlashSaleSection.module.css';
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat('vi-VN', {
@@ -33,10 +33,11 @@ function getSlotStatus(slot: any): 'live' | 'upcoming' | 'passed' {
 
 interface FlashSaleCountdownProps {
   slots?: any[];
+  selectedSlotId?: string | null;
 }
 
-// Subcomponent that isolates the 1000ms tick to ONLY 3 digital numbers
-const FlashSaleCountdown: React.FC<FlashSaleCountdownProps> = memo(({ slots }) => {
+// Subcomponent that isolates countdown timer tick
+const FlashSaleCountdown: React.FC<FlashSaleCountdownProps> = memo(({ slots, selectedSlotId }) => {
   const [countdown, setCountdown] = useState({ hours: '00', minutes: '00', seconds: '00' });
 
   useEffect(() => {
@@ -50,15 +51,12 @@ const FlashSaleCountdown: React.FC<FlashSaleCountdownProps> = memo(({ slots }) =
       const currentTotalMinutes = curHour * 60 + curMin;
       const curTotalSeconds = curHour * 3600 + curMin * 60 + curSec;
 
-      // 1. Check if there is an active LIVE slot
-      const liveSlot = slots.find((s: any) => {
-        if (!s.startTime || !s.endTime) return false;
-        const [sh, sm] = s.startTime.split(':').map((n: string) => parseInt(n, 10) || 0);
-        const [eh, em] = s.endTime.split(':').map((n: string) => parseInt(n, 10) || 0);
-        const startTotal = sh * 60 + (sm || 0);
-        const endTotal = eh * 60 + (em || 0);
-        return currentTotalMinutes >= startTotal && currentTotalMinutes < endTotal;
-      });
+      // 1. Check target slot: either currently selected live slot, or any live slot
+      const selectedSlot = slots.find((s: any) => s.id === selectedSlotId);
+      const liveSlot =
+        selectedSlot && getSlotStatus(selectedSlot) === 'live'
+          ? selectedSlot
+          : slots.find((s: any) => getSlotStatus(s) === 'live');
 
       if (liveSlot) {
         const [eh, em] = liveSlot.endTime.split(':').map((n: string) => parseInt(n, 10) || 0);
@@ -102,7 +100,7 @@ const FlashSaleCountdown: React.FC<FlashSaleCountdownProps> = memo(({ slots }) =
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [slots]);
+  }, [slots, selectedSlotId]);
 
   return (
     <div className={styles.flashCountdownBox}>
@@ -168,25 +166,30 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
   const selectedStatus = selectedSlot ? getSlotStatus(selectedSlot) : 'upcoming';
   const isLiveSlot = selectedStatus === 'live';
   const isUpcomingSlot = selectedStatus === 'upcoming';
-  const isPassedSlot = selectedStatus === 'passed';
 
-  const itemsToRender =
+  const rawItems =
     selectedSlot && selectedSlot.items && selectedSlot.items.length > 0
       ? selectedSlot.items
       : flashSaleConfig?.items && flashSaleConfig.items.length > 0
         ? flashSaleConfig.items
         : [];
 
+  const displayItems = rawItems.slice(0, 5);
+  const remainingCount = Math.max(0, rawItems.length - displayItems.length);
+
   return (
     <div ref={sectionRef} className={styles.flashSaleSection}>
+      {/* 1. FLASH SALE HEADER: Logo + Countdown Clock + "Xem tất cả" */}
       <div className={styles.flashHeader}>
-        {/* Top Bar: Brand Logo + Countdown Clock + "Xem tất cả" Pill Button */}
         <div className={styles.flashHeaderTop}>
           <div className={styles.flashTitleGroup}>
             <span className={styles.flashLogo}>
-              ⚡ FLASH SALE
+              <FiZap size={20} color="#ee4d2d" /> FLASH SALE
             </span>
-            <FlashSaleCountdown slots={flashSaleConfig.slots} />
+            <FlashSaleCountdown
+              slots={flashSaleConfig.slots}
+              selectedSlotId={selectedSlotId}
+            />
           </div>
 
           <button
@@ -195,16 +198,16 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
             onClick={onSeeAll}
           >
             <span>Xem tất cả</span>
-            <FiChevronRight size={12} />
+            <FiChevronRight size={14} />
           </button>
         </div>
 
-        {/* Campaign Tagline / Subtitle Banner (Customized from Admin) */}
+        {/* Optional Campaign Tagline Banner */}
         {(flashSaleConfig.title || flashSaleConfig.subtitle) && (
           <div className={styles.flashCampaignBanner}>
             {flashSaleConfig.title && (
               <span className={styles.flashCampaignTitle}>
-                {flashSaleConfig.title}
+                ⚡ {flashSaleConfig.title}
               </span>
             )}
             {flashSaleConfig.subtitle && (
@@ -216,7 +219,7 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
         )}
       </div>
 
-      {/* Time Slots Selector Tabs (Shopee Style) */}
+      {/* 2. SHOPEE TIME SLOTS TABS */}
       {flashSaleConfig?.slots && flashSaleConfig.slots.length > 0 && (
         <div className={styles.flashSlotTabs}>
           {flashSaleConfig.slots.map((slot: any) => {
@@ -226,7 +229,7 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
               status === 'live'
                 ? '🔥 Đang diễn ra'
                 : status === 'passed'
-                  ? 'Đã qua'
+                  ? 'Đã kết thúc'
                   : 'Sắp diễn ra';
 
             return (
@@ -247,208 +250,59 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
         </div>
       )}
 
-      {/* Slot Status Notice & Carousel */}
-      {(() => {
-        if (isUpcomingSlot) {
-          return (
-            <>
-              <div className={styles.slotUpcomingBox}>
-                <div className={styles.slotUpcomingIconCircle}>
-                  <FiClock size={22} />
-                </div>
-                <div className={styles.slotNoticeBody}>
-                  <div className={styles.slotNoticeHeadRow}>
-                    <span className={styles.slotUpcomingTag}>Sắp mở bán</span>
-                    <span className={styles.slotNoticeTimeText}>
-                      {selectedSlot?.startTime || '00:00'} - {selectedSlot?.endTime || '00:00'}
-                    </span>
-                  </div>
-                  <p className={styles.slotNoticeMessage}>
-                    Khung giờ này sắp diễn ra với mức giá ưu đãi cực sốc. Hãy chuẩn bị sẵn sàng và quay lại đúng giờ để săn deal bạn nhé!
-                  </p>
-                </div>
-              </div>
+      {/* 3. PRODUCT CAROUSEL GRID (Clean 6-Column Layout) */}
+      <div className={styles.carouselWrapper}>
+        <div className={styles.flashCarousel}>
+          {displayItems.map((item: any, i: number) => {
+            const originalPrice = item.originalPrice || item.price || 0;
+            const salePrice = item.flashPrice || item.salePrice || item.price || 0;
+            const discount =
+              item.discountPercent ||
+              (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
+            const soldPercent =
+              item.soldPercent ||
+              Math.min(95, Math.max(25, ((i + 3) * 18) % 100));
+            const soldText = item.soldCount ? `Đã bán ${item.soldCount}` : 'Đang bán chạy';
 
-              {/* Preview Upcoming Items (Horizontal Scroll) */}
-              {itemsToRender.length > 0 && (
-                <div className={styles.flashCarousel}>
-                  {itemsToRender.slice(0, 6).map((item: any, i: number) => {
-                    const originalPrice = item.originalPrice || item.price || 0;
-                    const salePrice = item.flashPrice || item.salePrice || item.price || 0;
-                    const discount =
-                      item.discountPercent ||
-                      (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
-
-                    return (
-                      <Link
-                        href={`/product/${item.slug}`}
-                        key={item._id || i}
-                        className={styles.flashCard}
-                      >
-                        <div className={styles.flashImgWrap}>
-                          <img
-                            src={
-                              item.image ||
-                              item.images?.[0] ||
-                              'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
-                            }
-                            alt={item.name || ''}
-                            className={styles.flashImg}
-                            loading="lazy"
-                            decoding="async"
-                          />
-                          {discount > 0 && (
-                            <div className={styles.shopeeDiscountFlag}>
-                              -{discount}%
-                            </div>
-                          )}
-                        </div>
-                        <div className={styles.flashInfo}>
-                          <div className={styles.flashPrice} style={{ color: '#f97316' }}>
-                            {formatPrice(salePrice)}
-                          </div>
-                          {originalPrice > salePrice && (
-                            <div className={styles.flashOldPrice}>
-                              {formatPrice(originalPrice)}
-                            </div>
-                          )}
-                          <div className={styles.fireProgressBar}>
-                            <div
-                              className={styles.fireFill}
-                              style={{ width: '0%', background: '#94a3b8' }}
-                            />
-                            <span className={styles.fireText} style={{ color: '#64748b' }}>
-                              ⏰ Sắp mở bán
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-
-                  {/* See All Card at the end of the scroll */}
-                  <div
-                    className={styles.flashSeeAllCard}
-                    onClick={onSeeAll}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <div className={styles.flashSeeAllCircle}>
-                      <FiArrowRight size={18} />
+            return (
+              <Link
+                href={`/product/${item.slug}`}
+                key={item._id || item.productId || i}
+                className={styles.flashCard}
+              >
+                {/* 1:1 Image with Zoom */}
+                <div className={styles.flashImgWrap}>
+                  <img
+                    src={
+                      item.image ||
+                      item.images?.[0] ||
+                      'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
+                    }
+                    alt={item.name || 'Sản phẩm Flash Sale'}
+                    className={styles.flashImg}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {discount > 0 && (
+                    <div className={styles.shopeeDiscountFlag}>
+                      -{discount}%
                     </div>
-                    <span className={styles.flashSeeAllText}>Xem tất cả</span>
-                    <span className={styles.flashSeeAllSubText}>
-                      {itemsToRender.length > 6 ? `+${itemsToRender.length - 6} deal nữa` : 'Sắp diễn ra'}
-                    </span>
+                  )}
+                </div>
+
+                {/* Info: Price + Shopee Fire Bar */}
+                <div className={styles.flashInfo}>
+                  <div className={styles.flashPrice}>
+                    {formatPrice(salePrice)}
                   </div>
-                </div>
-              )}
-            </>
-          );
-        }
-
-        if (isPassedSlot) {
-          const liveSlot = flashSaleConfig?.slots?.find(
-            (s: any) => getSlotStatus(s) === 'live'
-          );
-
-          return (
-            <div className={styles.slotPassedBox}>
-              <div className={styles.slotPassedIconCircle}>
-                <FiClock size={22} />
-              </div>
-              <div className={styles.slotNoticeBody}>
-                <div className={styles.slotNoticeHeadRow}>
-                  <span className={styles.slotPassedTag}>Khung giờ đã kết thúc</span>
-                  <span className={styles.slotNoticeTimeText}>
-                    {selectedSlot?.startTime || '00:00'} - {selectedSlot?.endTime || '00:00'}
-                  </span>
-                </div>
-                <p className={styles.slotNoticeMessage}>
-                  Ưu đãi Flash Sale cho khung giờ này đã khép lại. Vui lòng chọn khung giờ đang diễn ra để không bỏ lỡ các deal giảm giá cực sốc!
-                </p>
-                {liveSlot && (
-                  <button
-                    type="button"
-                    className={styles.slotSwitchActionBtn}
-                    onClick={() => setSelectedSlotId(liveSlot.id)}
-                  >
-                    <FiZap size={14} className={styles.flashIconPulse} />
-                    <span>Săn deal khung giờ đang diễn ra ({liveSlot.startTime} - {liveSlot.endTime})</span>
-                    <FiArrowRight size={13} />
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        }
-
-        // LIVE SLOT: Render products with Flash Price & Fire progress bar
-        if (itemsToRender.length === 0) {
-          return (
-            <div className={styles.slotEmptyBox}>
-              <div className={styles.slotEmptyIconCircle}>
-                <FiClock size={22} />
-              </div>
-              <div className={styles.slotNoticeBody}>
-                <div className={styles.slotNoticeHeadRow}>
-                  <span className={styles.slotEmptyTag}>Đang cập nhật</span>
-                </div>
-                <p className={styles.slotNoticeMessage}>
-                  Sản phẩm trong khung giờ này đang được chuẩn bị và cập nhật, bạn vui lòng quay lại sau ít phút nhé!
-                </p>
-              </div>
-            </div>
-          );
-        }
-
-        const displayLiveItems = itemsToRender.slice(0, 6);
-        const remainingLiveCount = Math.max(0, itemsToRender.length - displayLiveItems.length);
-
-        return (
-          <div className={styles.flashCarousel}>
-            {displayLiveItems.map((item: any, i: number) => {
-              const originalPrice = item.originalPrice || item.price || 0;
-              const salePrice = item.flashPrice || item.salePrice || item.price || 0;
-              const discount =
-                item.discountPercent ||
-                (originalPrice > salePrice ? calcDiscount(originalPrice, salePrice) : 0);
-              const soldPercent = item.soldPercent || Math.min(95, Math.max(25, ((i + 3) * 18) % 100));
-              const soldText = item.soldCount ? `Đã bán ${item.soldCount}` : 'Đang bán chạy';
-
-              return (
-                <Link
-                  href={`/product/${item.slug}`}
-                  key={item._id || i}
-                  className={styles.flashCard}
-                >
-                  <div className={styles.flashImgWrap}>
-                    <img
-                      src={
-                        item.image ||
-                        item.images?.[0] ||
-                        'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400'
-                      }
-                      alt={item.name || ''}
-                      className={styles.flashImg}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    {discount > 0 && (
-                      <div className={styles.shopeeDiscountFlag}>
-                        -{discount}%
-                      </div>
-                    )}
-                  </div>
-                  <div className={styles.flashInfo}>
-                    <div className={styles.flashPrice} style={{ color: '#f97316' }}>
-                      {formatPrice(salePrice)}
+                  {originalPrice > salePrice && (
+                    <div className={styles.flashOldPrice}>
+                      {formatPrice(originalPrice)}
                     </div>
-                    {originalPrice > salePrice && (
-                      <div className={styles.flashOldPrice}>
-                        {formatPrice(originalPrice)}
-                      </div>
-                    )}
+                  )}
+
+                  {/* Thanh nhiệt theo trạng thái Slot */}
+                  {isLiveSlot ? (
                     <div className={styles.fireProgressBar}>
                       <div
                         className={styles.fireFill}
@@ -458,29 +312,37 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
                         🔥 {soldText}
                       </span>
                     </div>
-                  </div>
-                </Link>
-              );
-            })}
+                  ) : isUpcomingSlot ? (
+                    <div className={styles.upcomingPill}>
+                      ⏰ SẮP MỞ BÁN
+                    </div>
+                  ) : (
+                    <div className={styles.passedPill}>
+                      ĐÃ KẾT THÚC
+                    </div>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
 
-            {/* See All Card at the end of the scroll */}
-            <div
-              className={styles.flashSeeAllCard}
-              onClick={onSeeAll}
-              role="button"
-              tabIndex={0}
-            >
-              <div className={styles.flashSeeAllCircle}>
-                <FiArrowRight size={18} />
-              </div>
-              <span className={styles.flashSeeAllText}>Xem tất cả</span>
-              <span className={styles.flashSeeAllSubText}>
-                {remainingLiveCount > 0 ? `+${remainingLiveCount} deal nữa` : 'Flash Sale'}
-              </span>
+          {/* Shopee "Xem tất cả" Card at the end */}
+          <div
+            className={styles.flashSeeAllCard}
+            onClick={onSeeAll}
+            role="button"
+            tabIndex={0}
+          >
+            <div className={styles.flashSeeAllCircle}>
+              <FiArrowRight size={18} />
             </div>
+            <span className={styles.flashSeeAllText}>Xem tất cả</span>
+            <span className={styles.flashSeeAllSubText}>
+              {remainingCount > 0 ? `+${remainingCount} deal nữa` : 'Flash Sale'}
+            </span>
           </div>
-        );
-      })()}
+        </div>
+      </div>
     </div>
   );
 };

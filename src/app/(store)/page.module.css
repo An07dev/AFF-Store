@@ -1,293 +1,718 @@
-/* ===== ULTRA-SOFT, THEME-DRIVEN SHOPEE STORE HOMEPAGE ===== */
+/* ======================================================== */
+/* SHOPEE OFFICIAL SHOP DESKTOP & MOBILE CLONE STYLING      */
+/* ======================================================== */
 
-.page {
+.shopeePageContainer {
   width: 100%;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  color: #222222;
   display: flex;
   flex-direction: column;
-  background-color: transparent;
-  color: var(--text-main, #0f172a);
   position: relative;
-  font-family: inherit;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* ==========================================================================
-   1. SHOPEE INTEGRATED HEADER (SEARCH INPUT + 3 ACTION ICONS ON 1 SINGLE ROW)
-   ========================================================================== */
-.header {
+/* ======================================================== */
+/* 1. SHOPEE HEADER (TOPBAR + ORANGE SEARCH ROW)            */
+/* ======================================================== */
+
+.shopeeHeaderWrapper {
+  width: 100%;
+  background: linear-gradient(-180deg, #f53d2d, #f63);
+  color: #ffffff;
   position: sticky;
   top: 0;
+  z-index: 1000;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Topbar */
+.shopeeTopBar {
   width: 100%;
-  background: var(--navbar-bg, var(--bg-card, #ffffff));
-  border-bottom: 1px solid var(--border-color, #e2e8f0);
-  color: var(--text-main, #0f172a);
-  z-index: 100;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 12px;
+}
+
+.shopeeTopBarInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 10px 14px;
-  flex-wrap: nowrap;
-  transition: all 0.25s ease;
 }
 
-@media (min-width: 768px) {
-  .header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-radius: 0 0 var(--radius-lg, 16px) var(--radius-lg, 16px);
-    margin-top: 0;
-    margin-bottom: 10px;
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-top: none;
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
-    padding: 12px 18px;
-  }
-}
-
-/* Desktop Logo Branding (Visible only on PC/Tablet) */
-.desktopLogoWrap {
-  display: none;
+.topBarLeft,
+.topBarRight {
+  display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+
+.topBarLink {
+  color: #ffffff;
   text-decoration: none;
-  flex-shrink: 0;
-  padding-right: 8px;
-}
-
-@media (min-width: 768px) {
-  .desktopLogoWrap {
-    display: flex;
-  }
-}
-
-.desktopLogoImg {
-  height: 38px;
-  width: 38px;
-  object-fit: contain;
-  border-radius: 10px;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  padding: 3px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.desktopLogoAvatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: var(--primary, #ee4d2d);
-  color: var(--primary-text, #ffffff);
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 900;
-  box-shadow: 0 3px 10px rgba(238, 77, 45, 0.25);
+  gap: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
 }
 
-.desktopLogoTexts {
-  display: flex;
-  flex-direction: column;
+.topBarLink:hover {
+  opacity: 0.85;
 }
 
-.desktopLogoTitle {
-  font-size: 14px;
-  font-weight: 900;
-  color: var(--text-main, #0f172a);
-  line-height: 1.2;
+.topBarDivider {
+  color: rgba(255, 255, 255, 0.4);
+  user-select: none;
 }
 
-.desktopLogoSubtitle {
-  font-size: 10.5px;
-  color: var(--text-muted, #94a3b8);
-  font-weight: 600;
-}
-
-.headerIconLabel {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .headerIconBtn {
-    width: auto !important;
-    padding: 0 12px !important;
-    border-radius: 9999px !important;
-    gap: 6px !important;
-  }
-
-  .headerIconLabel {
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-main, #0f172a);
-  }
-
-  .headerIconBtn:hover .headerIconLabel {
-    color: var(--primary, #ee4d2d);
-  }
-}
-
-/* Search Form (Shrinkable, Always on the same row with icons) */
-.headerSearchForm {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  background: var(--bg-main, #f8fafc);
-  border: 1.5px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-md, 9999px);
-  padding: 6px 12px 6px 14px;
-  gap: 8px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  min-width: 0;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
-.headerSearchForm:focus-within {
-  border-color: var(--primary, #ee4d2d);
-  background: var(--bg-card, #ffffff);
-  box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.12);
-}
-
-.searchIcon {
-  color: var(--primary, #ee4d2d);
-  font-size: 15px;
-  flex-shrink: 0;
-}
-
-.headerSearchInput {
-  flex: 1;
+.topBarAuthBtn {
   background: transparent;
   border: none;
-  outline: none;
-  font-size: 13px;
-  color: var(--text-main, #0f172a);
-  min-width: 0;
-  padding: 0;
-}
-
-.headerSearchInput::placeholder {
-  color: var(--text-muted, #94a3b8);
-  font-size: 12.5px;
-}
-
-.clearSearchBtn {
-  background: none;
-  border: none;
-  color: var(--text-muted, #94a3b8);
+  color: #ffffff;
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  padding: 2px 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.topBarAuthBtn:hover {
+  opacity: 0.85;
+}
+
+.userProfilePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.userAvatarMini {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  transition: all 0.15s;
-  flex-shrink: 0;
+  background: #ffffff;
+  color: #ee4d2d;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.clearSearchBtn:hover {
-  color: var(--text-main, #0f172a);
-  background: var(--border-color, #e2e8f0);
+.userNameText {
+  font-weight: 600;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 3 Header Action Icons (Chat, Cart, Share - Strictly On the Same Row) */
-.headerActions {
+.btnLogoutMini {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: 2px;
+}
+
+.btnLogoutMini:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* Main Search Header */
+.shopeeMainHeader {
+  width: 100%;
+  padding: 18px 0 14px 0;
+}
+
+.shopeeMainHeaderInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* Logo Brand */
+.shopeeLogoBrand {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: #ffffff;
+  text-decoration: none;
   flex-shrink: 0;
 }
 
-.headerIconBtn {
+.shopeeBagIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shopeeHeaderLogoImg {
+  max-height: 38px;
+  max-width: 120px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.shopeeLogoText {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+
+/* Search Container */
+.shopeeSearchContainer {
+  flex: 1;
+  max-width: 780px;
+}
+
+.shopeeSearchForm {
+  background: #ffffff;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
   position: relative;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  color: var(--text-main, #0f172a);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+}
+
+.shopeeSearchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  color: #333333;
+}
+
+.shopeeSearchInput::placeholder {
+  color: #888888;
+}
+
+.shopeeScopeDropdown {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-left: 1px solid #e5e7eb;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #555555;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+}
+
+.shopeeSearchBtn {
+  background: #ee4d2d;
+  border: none;
+  color: #ffffff;
+  width: 60px;
+  height: 34px;
+  border-radius: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  text-decoration: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background 0.2s;
   flex-shrink: 0;
 }
 
-.headerIconBtn:hover {
-  background: var(--bg-card-hover, #f1f5f9);
-  color: var(--primary, #ee4d2d);
-  border-color: var(--primary, #ee4d2d);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(238, 77, 45, 0.18);
+.shopeeSearchBtn:hover {
+  background: #d73211;
 }
 
-.cartBadge {
+/* Shopee Search History & Suggestions Dropdown */
+.shopeeSearchHistoryDropdown {
   position: absolute;
-  top: -3px;
-  right: -3px;
-  background: var(--primary, #ee4d2d);
-  color: var(--primary-text, #ffffff);
-  font-size: 9.5px;
-  font-weight: 800;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 9999px;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.16);
+  border: 1px solid #e5e7eb;
+  z-index: 1000;
+  overflow: hidden;
+  text-align: left;
+}
+
+.searchHistoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: #fafafa;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 11.5px;
+  color: #888888;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.clearHistoryBtn {
+  background: transparent;
+  border: none;
+  color: #ee4d2d;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.clearHistoryBtn:hover {
+  text-decoration: underline;
+}
+
+.searchHistoryList {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.searchHistoryItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  font-size: 13px;
+  color: #333333;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid #fafafa;
+}
+
+.searchHistoryItem:hover {
+  background: #fff8f6;
+  color: #ee4d2d;
+}
+
+.historyItemText {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deleteHistoryItemBtn {
+  background: transparent;
+  border: none;
+  color: #999999;
+  cursor: pointer;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 3px;
-  border: 2px solid var(--bg-card, #ffffff);
-  box-shadow: 0 2px 6px rgba(238, 77, 45, 0.35);
-  animation: pulseBadge 2s infinite;
+  border-radius: 50%;
+  transition: all 0.15s;
 }
 
-@keyframes pulseBadge {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.12); }
-  100% { transform: scale(1); }
+.deleteHistoryItemBtn:hover {
+  color: #ee4d2d;
+  background: rgba(238, 77, 45, 0.12);
 }
 
-/* ==========================================================================
-   2. SCROLLABLE CONTENT & MAIN CONTAINER
-   ========================================================================== */
-.scrollContent {
+.shopeeKeywordRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.shopeeKeywordRow::-webkit-scrollbar {
+  display: none;
+}
+
+.shopeeKeywordTag {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 11.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.shopeeKeywordTag:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* Cart Icon */
+.shopeeCartWrap {
+  flex-shrink: 0;
+  padding-right: 12px;
+}
+
+.shopeeCartBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.shopeeCartBadge {
+  position: absolute;
+  top: -4px;
+  right: -10px;
+  background: #ffffff;
+  color: #ee4d2d;
+  font-size: 11px;
+  font-weight: 800;
+  height: 18px;
+  min-width: 22px;
+  padding: 0 4px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ee4d2d;
+}
+
+/* ======================================================== */
+/* 2. MAIN 1200PX CONTAINER                                 */
+/* ======================================================== */
+
+.shopeeMainContent {
   width: 100%;
+  max-width: 1200px;
+  margin: 16px auto 30px auto;
+  padding: 0 12px;
   display: flex;
   flex-direction: column;
+  gap: 16px;
 }
 
-/* ==========================================================================
-   3. HERO BANNER CAROUSEL (MAIN CAROUSEL + 2 PC SUB-BANNERS)
-   ========================================================================== */
-.heroBannerSection {
+/* ======================================================== */
+/* 3. SHOPEE SHOP PROFILE HEADER CARD                       */
+/* ======================================================== */
+
+.shopeeShopCardWrapper {
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+/* Left Box */
+.shopeeShopIdentityCard {
+  width: 390px;
+  min-width: 340px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  position: relative;
+  color: #ffffff;
+  padding: 18px 22px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+}
+
+.shopeeShopCoverOverlay {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
+  background-size: 12px 12px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.shopeeShopIdentityContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shopeeAvatarWrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
+.shopeeAvatarImg,
+.shopeeAvatarPlaceholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid #ee4d2d;
+  object-fit: cover;
+  background: #ff5722;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shopeeOfficialBadge {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ee4d2d;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.shopeeShopIdentityInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.shopeeShopTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.shopeeShopStatus {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.onlineDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.shopeeShopActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btnShopeeFollow,
+.btnShopeeChat {
+  flex: 1;
+  padding: 7px 12px;
+  border-radius: 2px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.btnShopeeFollow {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+
+.btnShopeeFollow:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btnShopeeFollowActive {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff;
+}
+
+.btnShopeeChat {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.btnShopeeChat:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Right Box (8 Metrics Grid) */
+.shopeeMetricsGrid {
+  flex: 1;
+  padding: 18px 26px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 32px;
+  align-content: center;
+  background: #ffffff;
+}
+
+.metricItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.metricIcon {
+  color: #666666;
+  display: flex;
+  align-items: center;
+  width: 16px;
+}
+
+.metricLabel {
+  color: #555555;
+  font-weight: 400;
+}
+
+.metricValueHighlight {
+  color: #ee4d2d;
+  font-weight: 700;
+}
+
+/* ======================================================== */
+/* 4. SHOPEE SHOP NAVIGATION TABS BAR                       */
+/* ======================================================== */
+
+.shopeeShopNavBar {
+  background: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  position: relative;
+  z-index: 30;
+}
+
+.shopeeNavTab {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 14px 18px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #333333;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.shopeeNavTab:hover {
+  color: #ee4d2d;
+}
+
+.shopeeNavTabActive {
+  color: #ee4d2d !important;
+  border-bottom-color: #ee4d2d !important;
+  font-weight: 700;
+}
+
+/* See More Categories Dropdown */
+.seeMoreDropdownWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.seeMoreMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 200px;
+  max-width: 260px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  z-index: 100;
+  padding: 6px 0;
+  margin-top: 2px;
+  scrollbar-width: thin;
+}
+
+.seeMoreMenuItem {
+  width: 100%;
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #333333;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seeMoreMenuItem:hover {
+  background: #fff7ed;
+  color: #ee4d2d;
+}
+
+.seeMoreMenuItemActive {
+  color: #ee4d2d !important;
+  font-weight: 700;
+  background: #fff1ee;
+}
+
+/* ======================================================== */
+/* 4.1 HERO BANNER (1 LARGE + 2 SMALL SHOPEE LAYOUT)        */
+/* ======================================================== */
+
+.heroBannerSection {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
   gap: 10px;
   width: 100%;
-  margin-top: 10px;
-  margin-bottom: 16px;
+  margin-top: 2px;
 }
 
 .bannerCarousel {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 8;
+  height: 240px;
+  border-radius: 4px;
   overflow: hidden;
-  border-radius: var(--radius-lg, 14px);
-  background: var(--bg-card, #ffffff);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
-  border: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #f1f5f9;
 }
 
 .carouselTrack {
   display: flex;
   width: 100%;
   height: 100%;
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .carouselSlide {
@@ -296,7 +721,8 @@
   height: 100%;
   position: relative;
   cursor: pointer;
-  text-decoration: none;
+  overflow: hidden;
+  user-select: none;
 }
 
 .carouselImg {
@@ -308,129 +734,126 @@
 
 .carouselOverlay {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.65) 100%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 16px 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.25) 60%, transparent 100%);
+  color: #ffffff;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 16px 20px;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .carouselTag {
-  align-self: flex-start;
-  background: var(--primary, #ee4d2d);
-  color: var(--primary-text, #ffffff);
-  font-size: 10.5px;
-  font-weight: 800;
-  padding: 3px 9px;
-  border-radius: 6px;
-  margin-bottom: 5px;
+  background: #ee4d2d;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 2px;
+  width: fit-content;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
 }
 
 .carouselTitle {
-  font-size: 15.5px;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 700;
   color: #ffffff;
   margin: 0;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-  line-height: 1.3;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.carouselDots {
-  position: absolute;
-  bottom: 10px;
-  right: 14px;
-  display: flex;
-  gap: 5px;
-  z-index: 10;
-}
-
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.5);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.activeDot {
-  width: 20px;
-  background: var(--primary, #ee4d2d);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-}
-
-/* Banner Carousel Navigation Arrows */
 .carouselNavBtn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 32px;
+  height: 48px;
+  background: rgba(0, 0, 0, 0.25);
+  border: none;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 15;
-  transition: all 0.2s ease;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.bannerCarousel:hover .carouselNavBtn {
-  opacity: 1;
-  pointer-events: auto;
+  transition: background 0.2s;
+  z-index: 3;
+  border-radius: 2px;
+  opacity: 0.8;
 }
 
 .carouselNavBtn:hover {
-  background: var(--primary, #ee4d2d);
-  color: var(--primary-text, #ffffff);
-  border-color: transparent;
-  transform: translateY(-50%) scale(1.1);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 1;
 }
 
 .carouselPrevBtn {
-  left: 12px;
+  left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .carouselNextBtn {
-  right: 12px;
+  right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
-/* Side Banners Column (2 Sub-Banners on PC) */
+.carouselDots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 3;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.activeDot {
+  background: #ee4d2d;
+  width: 18px;
+  border-radius: 4px;
+}
+
 .sideBannersColumn {
-  display: none; /* Hidden on Mobile */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 240px;
+  width: 100%;
 }
 
 .sideBannerItem {
+  flex: 1;
+  height: calc(50% - 5px);
   position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: var(--radius-lg, 14px);
+  border-radius: 4px;
   overflow: hidden;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-card, #ffffff);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
   cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  display: block;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #f1f5f9;
 }
 
-.sideBannerItem:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+.sideBannerItem:hover .sideBannerImg {
+  transform: scale(1.03);
 }
 
 .sideBannerImg {
@@ -438,1333 +861,339 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.35s ease;
-}
-
-.sideBannerItem:hover .sideBannerImg {
-  transform: scale(1.03);
+  transition: transform 0.3s ease;
 }
 
 .sideBannerOverlay {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 0.6) 100%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 12px 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%);
+  color: #ffffff;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 10px 14px;
+  gap: 2px;
   pointer-events: none;
+  z-index: 2;
 }
 
 .sideBannerTag {
-  align-self: flex-start;
-  background: var(--primary, #ee4d2d);
-  color: var(--primary-text, #ffffff);
-  font-size: 9px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-bottom: 3px;
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 2px;
+  width: fit-content;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 
 .sideBannerTitle {
-  font-size: 12px;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-  line-height: 1.25;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ==========================================================================
-   DESKTOP / PC VIEW (>= 768px): Dual Layout with Left Carousel & Right 2 Banners
-   ========================================================================== */
-@media (min-width: 768px) {
-  .heroBannerSection {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 10px;
-    align-items: stretch;
-  }
-
-  .bannerCarousel {
-    aspect-ratio: 16 / 7.6;
-    height: 100%;
-  }
-
-  .sideBannersColumn {
-    display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: 10px;
-    height: 100%;
-  }
-}
-
-/* ==========================================================================
-   4. SHOPEE 8-ICON QUICK ACTION HUB (3D VIVID ICONS)
-   ========================================================================== */
-.quickHubGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px 8px;
-  padding: 18px 12px;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-lg, 18px);
-  margin-bottom: 18px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
-}
-
-.quickHubItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  text-decoration: none;
-  color: var(--text-main, #0f172a);
-  cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  border: none;
-  background: transparent;
-  padding: 0;
-  position: relative;
-}
-
-.quickHubItem:active {
-  transform: scale(0.92);
-}
-
-.quickIconWrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 8px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* 3D Glare Sheen Reflection */
-.quickIconWrap::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 42%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 100%);
-  border-radius: 16px 16px 50% 50%;
-  pointer-events: none;
-}
-
-.quickHubItem:hover .quickIconWrap {
-  transform: translateY(-4px) scale(1.06);
-}
-
-.quickHubLabel {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--text-main, #0f172a);
-  max-width: 84px;
-  transition: color 0.2s ease;
-}
-
-.quickHubItem:hover .quickHubLabel {
-  color: var(--primary, #ee4d2d);
-}
-
-.iconTransparent {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.iconTransparent::after {
-  display: none !important;
-}
-
-/* 3D Rich Icon Gradients with Colored Glow */
-.iconOrange {
-  background: linear-gradient(145deg, #ff6b35 0%, #ee4d2d 55%, #c42709 100%);
-  box-shadow: 0 6px 16px rgba(238, 77, 45, 0.38), inset 0 1.5px 2px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.15);
-}
-
-.iconYellow {
-  background: linear-gradient(145deg, #fbb034 0%, #f59e0b 55%, #d97706 100%);
-  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.38), inset 0 1.5px 2px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.15);
-}
-
-.iconRed {
-  background: linear-gradient(145deg, #ff416c 0%, #ef4444 55%, #b91c1c 100%);
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.38), inset 0 1.5px 2px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.15);
-}
-
-.iconPink {
-  background: linear-gradient(145deg, #ff2a7a 0%, #ec4899 55%, #be185d 100%);
-  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.38), inset 0 1.5px 2px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.15);
-}
-
-.iconGreen {
-  background: linear-gradient(145deg, #00b09b 0%, #10b981 55%, #047857 100%);
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.38), inset 0 1.5px 2px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.15);
-}
-
-.iconPurple {
-  background: linear-gradient(145deg, #b05cff 0%, #a855f7 55%, #7e22ce 100%);
-  box-shadow: 0 6px 16px rgba(168, 85, 247, 0.38), inset 0 1.5px 2px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.15);
-}
-
-.iconCyan {
-  background: linear-gradient(145deg, #00d2ff 0%, #06b6d4 55%, #0891b2 100%);
-  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.38), inset 0 1.5px 2px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.15);
-}
-
-.iconBlue {
-  background: linear-gradient(145deg, #2193b0 0%, #3b82f6 55%, #1d4ed8 100%);
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.38), inset 0 1.5px 2px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.15);
-}
-
-@media (min-width: 768px) {
-  .quickHubGrid {
-    grid-template-columns: repeat(8, 1fr);
-    padding: 20px 14px;
-    gap: 12px;
-  }
-  .quickIconWrap {
-    width: 52px;
-    height: 52px;
-    border-radius: 17px;
-  }
-  .quickHubLabel {
-    font-size: 12px;
-  }
-}
-
-/* ==========================================================================
-   5. SHOPEE FLASH SALE SECTION
-   ========================================================================== */
-.flashSaleSection {
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-lg, 16px);
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
-  position: relative;
-  overflow: hidden;
-}
-
-.flashSaleSection::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary, #ee4d2d), #ff6b4a, #fbbf24, var(--primary, #ee4d2d));
-  background-size: 200% 100%;
-  animation: flashGlowMove 4s linear infinite;
-}
-
-@keyframes flashGlowMove {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 200% 0%; }
-}
-
-.flashHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.flashHeaderTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.flashTitleGroup {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.flashLogo {
-  font-size: 16.5px;
-  font-weight: 900;
-  color: var(--primary, #ee4d2d);
-  letter-spacing: -0.3px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.flashCountdownBox {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.countdownTimer {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.countdownDigit {
-  background: #0f172a;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 800;
-  padding: 3px 6px;
-  border-radius: 5px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  line-height: 1;
-  min-width: 22px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.countdownColon {
-  color: var(--primary, #ee4d2d);
-  font-weight: 900;
-  font-size: 13px;
-}
-
-.seeAllBtn {
-  background: none;
-  border: none;
-  color: var(--primary, #ee4d2d);
   font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  padding: 3px 8px;
-  border-radius: var(--radius-md, 9999px);
-  transition: all 0.2s ease;
-}
-
-.seeAllBtn:hover {
-  background: rgba(238, 77, 45, 0.08);
-  transform: translateX(2px);
-}
-
-.flashCampaignBanner {
-  background: rgba(238, 77, 45, 0.06);
-  border: 1px dashed rgba(238, 77, 45, 0.25);
-  padding: 7px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  color: var(--text-main, #0f172a);
-}
-
-.flashCampaignTitle {
-  font-weight: 700;
-  color: var(--primary, #ee4d2d);
-  margin-right: 6px;
-}
-
-.flashCampaignSubtitle {
-  color: var(--text-muted, #64748b);
-}
-
-/* Flash Slot Selector Tabs */
-.flashSlotTabs {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  margin-bottom: 12px;
-  padding-bottom: 4px;
-}
-
-.flashSlotTabs::-webkit-scrollbar {
-  display: none;
-}
-
-.flashSlotTab {
-  flex-shrink: 0;
-  padding: 7px 12px;
-  border-radius: var(--radius-md, 10px);
-  background: var(--bg-main, #f8fafc);
-  border: 1px solid var(--border-color, #e2e8f0);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.flashSlotTab:hover {
-  border-color: var(--primary, #ee4d2d);
-  transform: translateY(-1px);
-}
-
-.flashSlotTabActive {
-  background: rgba(238, 77, 45, 0.1);
-  border-color: var(--primary, #ee4d2d);
-  box-shadow: 0 2px 10px rgba(238, 77, 45, 0.15);
-}
-
-.slotTime {
-  font-size: 12.5px;
-  font-weight: 800;
-  color: var(--text-main, #0f172a);
-}
-
-.flashSlotTabActive .slotTime {
-  color: var(--primary, #ee4d2d);
-}
-
-.slotStatus {
-  font-size: 10px;
-  color: var(--text-muted, #64748b);
-}
-
-/* Flash Sale Slot Status Cards (Passed, Upcoming, Empty) */
-.slotPassedBox,
-.slotUpcomingBox,
-.slotEmptyBox {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px 18px;
-  border-radius: var(--radius-md, 14px);
-  margin-top: 6px;
-  margin-bottom: 12px;
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.slotPassedBox {
-  background: linear-gradient(135deg, rgba(241, 245, 249, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
-  border: 1px solid var(--border-color, #e2e8f0);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-}
-
-.slotUpcomingBox {
-  background: linear-gradient(135deg, rgba(239, 246, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.04);
-}
-
-.slotEmptyBox {
-  background: linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
-  border: 1px solid rgba(238, 77, 45, 0.18);
-  box-shadow: 0 2px 10px rgba(238, 77, 45, 0.03);
-}
-
-.slotPassedIconCircle,
-.slotUpcomingIconCircle,
-.slotEmptyIconCircle {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.slotPassedIconCircle {
-  background: rgba(100, 116, 139, 0.12);
-  color: #64748b;
-}
-
-.slotUpcomingIconCircle {
-  background: rgba(59, 130, 246, 0.12);
-  color: #2563eb;
-}
-
-.slotEmptyIconCircle {
-  background: rgba(238, 77, 45, 0.12);
-  color: #ee4d2d;
-}
-
-.slotNoticeBody {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.slotNoticeHeadRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 4px;
-}
-
-.slotPassedTag,
-.slotUpcomingTag,
-.slotEmptyTag {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
-  letter-spacing: 0.2px;
-  text-transform: uppercase;
-}
-
-.slotPassedTag {
-  background: #e2e8f0;
-  color: #475569;
-}
-
-.slotUpcomingTag {
-  background: rgba(59, 130, 246, 0.15);
-  color: #1d4ed8;
-}
-
-.slotEmptyTag {
-  background: rgba(238, 77, 45, 0.12);
-  color: #ee4d2d;
-}
-
-.slotNoticeTimeText {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text-main, #0f172a);
-}
-
-.slotNoticeMessage {
-  font-size: 12.5px;
-  color: var(--text-muted, #64748b);
-  line-height: 1.5;
-  margin: 0 0 10px 0;
-}
-
-.slotSwitchActionBtn {
-  align-self: flex-start;
-  background: linear-gradient(135deg, #ee4d2d 0%, #f97316 100%);
-  color: #ffffff;
-  border: none;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 7px 15px;
-  border-radius: 9999px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 3px 12px rgba(238, 77, 45, 0.3);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  margin-top: 2px;
-}
-
-.slotSwitchActionBtn:hover {
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 18px rgba(238, 77, 45, 0.4);
-}
-
-.flashIconPulse {
-  animation: pulseFlash 1.5s infinite;
-}
-
-@keyframes pulseFlash {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.8;
-  }
-}
-
-/* Flash Sale Horizontal Scroll Carousel */
-.flashCarousel {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 6px;
-  scrollbar-width: none;
-}
-
-.flashCarousel::-webkit-scrollbar {
-  display: none;
-}
-
-.flashCard {
-  flex: 0 0 135px;
-  width: 135px;
-  scroll-snap-align: start;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-md, 12px);
-  overflow: hidden;
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-@media (min-width: 768px) {
-  .flashCard {
-    flex: 0 0 160px;
-    width: 160px;
-  }
-}
-
-.flashCard:hover {
-  transform: translateY(-3px);
-  border-color: var(--primary, #ee4d2d);
-  box-shadow: 0 8px 20px -2px rgba(238, 77, 45, 0.15);
-}
-
-.flashSeeAllCard {
-  flex: 0 0 110px;
-  width: 110px;
-  scroll-snap-align: start;
-  background: var(--bg-main, #f8fafc);
-  border: 1.5px dashed var(--border-color, #cbd5e1);
-  border-radius: var(--radius-md, 12px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 6px;
-  padding: 12px 8px;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  user-select: none;
-}
-
-@media (min-width: 768px) {
-  .flashSeeAllCard {
-    flex: 0 0 130px;
-    width: 130px;
-  }
-}
-
-.flashSeeAllCard:hover {
-  border-color: var(--primary, #ee4d2d);
-  background: rgba(238, 77, 45, 0.06);
-  transform: translateY(-2px);
-}
-
-.flashSeeAllCircle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(238, 77, 45, 0.12);
-  color: var(--primary, #ee4d2d);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
-}
-
-.flashSeeAllCard:hover .flashSeeAllCircle {
-  transform: scale(1.1) translateX(2px);
-  background: var(--primary, #ee4d2d);
-  color: #ffffff;
-}
-
-.flashSeeAllText {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--primary, #ee4d2d);
-  line-height: 1.2;
-}
-
-.flashSeeAllSubText {
-  font-size: 10px;
-  color: var(--text-muted, #64748b);
-  line-height: 1.2;
-}
-
-.flashImgWrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  background: var(--bg-main, #f8fafc);
-}
-
-.flashImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.flashCard:hover .flashImg {
-  transform: scale(1.05);
-}
-
-.shopeeDiscountFlag {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: #ffd839;
-  color: #ee4d2d;
-  font-size: 10px;
-  font-weight: 900;
-  padding: 2px 5px;
-  border-bottom-left-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.flashInfo {
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  flex: 1;
-  justify-content: space-between;
-}
-
-.flashPrice {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--primary, #ee4d2d);
-}
-
-.flashOldPrice {
-  font-size: 10.5px;
-  color: var(--text-dim, #94a3b8);
-  text-decoration: line-through;
-}
-
-.fireProgressBar {
-  position: relative;
-  width: 100%;
-  height: 14px;
-  background: rgba(238, 77, 45, 0.15);
-  border-radius: 9999px;
-  overflow: hidden;
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fireFill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: linear-gradient(90deg, #ff5722 0%, var(--primary, #ee4d2d) 100%);
-  border-radius: 9999px;
-}
-
-.fireText {
-  position: relative;
-  font-size: 8.5px;
-  font-weight: 800;
-  color: #ffffff;
-  z-index: 2;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-/* ==========================================================================
-   5.5 SHOPEE HOME CATEGORIES SHOWCASE
-   ========================================================================== */
-.homeCategorySection {
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-lg, 16px);
-  padding: 14px 12px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
-}
-
-.homeCategoryHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  padding: 0 4px;
-}
-
-.homeCategoryTitleGroup {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.homeCategoryIcon {
-  color: var(--primary, #ee4d2d);
-  font-size: 16px;
-}
-
-.homeCategoryTitle {
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--text-main, #0f172a);
-  text-transform: uppercase;
-  letter-spacing: -0.2px;
-  margin: 0;
-}
-
-.homeCategorySeeAll {
-  background: none;
-  border: none;
-  color: var(--primary, #ee4d2d);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 0;
-  transition: transform 0.15s ease;
-}
-
-.homeCategorySeeAll:hover {
-  transform: translateX(2px);
-}
-
-.homeCategoryGrid {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.homeCategoryGrid::-webkit-scrollbar {
-  display: none;
-}
-
-.homeCategoryCard {
-  flex-shrink: 0;
-  width: 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  cursor: pointer;
-  padding: 6px 4px;
-  border-radius: 12px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.homeCategoryCard:hover {
-  transform: translateY(-3px);
-  background: rgba(238, 77, 45, 0.04);
-}
-
-.homeCategoryImgWrap {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 6px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-main, #f8fafc);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.homeCategoryCard:hover .homeCategoryImgWrap {
-  transform: scale(1.06);
-  box-shadow: 0 6px 16px rgba(238, 77, 45, 0.2);
-}
-
-.homeCategoryImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.homeCategoryFallbackIcon {
-  font-size: 22px;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.homeCategoryName {
-  font-size: 11.5px;
   font-weight: 600;
-  color: var(--text-main, #0f172a);
-  line-height: 1.25;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  max-width: 80px;
-  text-align: center;
-}
-
-.homeCategoryCount {
-  font-size: 9.5px;
-  color: var(--text-muted, #94a3b8);
-  margin-top: 2px;
-}
-
-@media (min-width: 768px) {
-  .homeCategorySection {
-    padding: 16px 18px;
-  }
-  .homeCategoryGrid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 12px;
-    overflow: visible;
-  }
-  .homeCategoryCard {
-    width: 100%;
-  }
-  .homeCategoryImgWrap {
-    width: 58px;
-    height: 58px;
-    border-radius: 18px;
-  }
-  .homeCategoryName {
-    font-size: 12px;
-    max-width: 100%;
-  }
-}
-
-@media (min-width: 1100px) {
-  .homeCategoryGrid {
-    grid-template-columns: repeat(8, 1fr);
-  }
-}
-
-/* ==========================================================================
-   6. SHOPEE TRUST COMMITMENTS BAR
-   ========================================================================== */
-.trustBar {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  padding: 10px 8px;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-lg, 14px);
-  margin-bottom: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-}
-
-.trustItem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-main, #0f172a);
-  text-align: center;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-.trustItem span {
+  color: #ffffff;
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
-.trustIcon {
-  color: #10b981;
-  font-size: 14px;
-  flex-shrink: 0;
+/* ======================================================== */
+/* 5. RECOMMENDED FOR YOU (GỢI Ý CHO BẠN - 6 COLUMNS)       */
+/* ======================================================== */
+
+.shopeeHomeSections {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-@media (min-width: 480px) {
-  .trustBar {
-    gap: 8px;
-    padding: 11px 12px;
-  }
-  .trustItem {
-    font-size: 12px;
-    gap: 6px;
-  }
-  .trustIcon {
-    font-size: 15px;
-  }
+.shopeeRecommendedSection {
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 18px 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-@media (min-width: 768px) {
-  .trustBar {
-    gap: 12px;
-    padding: 12px 16px;
-  }
-  .trustItem {
-    font-size: 13px;
-    gap: 7px;
-  }
-  .trustIcon {
-    font-size: 16px;
-  }
-}
-
-/* ==========================================================================
-   7. SHOP PROFILE CARD
-   ========================================================================== */
-.shopCard {
+.shopeeSectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-lg, 16px);
-  margin-bottom: 16px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
-  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.shopLeft {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.shopAvatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--primary, #ee4d2d) 0%, #ff6b4a 100%);
-  color: var(--primary-text, #ffffff);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 900;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  flex-shrink: 0;
-  border: 1px solid var(--border-color, #e2e8f0);
-}
-
-.shopAvatarWithImage {
-  background: var(--bg-card, #ffffff) !important;
-  padding: 4px;
-}
-
-.shopAvatarImg {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 10px;
-}
-
-.shopInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.shopNameRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.mallBadge {
-  background: #d0011b;
-  color: #ffffff;
-  font-size: 8.5px;
+.shopeeSectionTitle {
+  font-size: 15px;
   font-weight: 800;
-  padding: 2px 5px;
-  border-radius: 4px;
-  text-transform: uppercase;
-}
-
-.shopName {
-  font-size: 14.5px;
-  font-weight: 800;
-  color: var(--text-main, #0f172a);
-}
-
-.shopMeta {
-  font-size: 11.5px;
-  color: var(--text-muted, #64748b);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.shopRight {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.socialBtn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--bg-main, #f8fafc);
-  border: 1px solid var(--border-color, #e2e8f0);
-  color: var(--text-main, #0f172a);
-  padding: 6px 11px;
-  border-radius: var(--radius-md, 9999px);
-  font-size: 11.5px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.socialBtn:hover {
-  border-color: var(--primary, #ee4d2d);
-  color: var(--primary, #ee4d2d);
-  transform: translateY(-1px);
-}
-
-/* ==========================================================================
-   8. SHOPEE "GỢI Ý HÔM NAY" (DAILY DISCOVER FEED)
-   ========================================================================== */
-.dailyDiscoverSection {
-  margin-bottom: 24px;
-}
-
-.stickyDiscoverHeader {
-  position: sticky;
-  top: 60px;
-  background: var(--bg-main, #f8fafc);
-  padding: 10px 0 8px;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: background-color 0.25s ease;
-}
-
-.discoverTitleRow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.discoverTitle {
-  font-size: 15.5px;
-  font-weight: 900;
-  color: var(--primary, #ee4d2d);
+  color: #333333;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0;
-  border-bottom: 2.5px solid var(--primary, #ee4d2d);
-  padding-bottom: 3px;
 }
 
-.filterPills {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-}
-
-.filterPills::-webkit-scrollbar {
-  display: none;
-}
-
-.filterPill {
-  flex-shrink: 0;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  color: var(--text-main, #0f172a);
-  padding: 6px 12px;
-  border-radius: var(--radius-md, 9999px);
-  font-size: 11.5px;
+.shopeeSeeAllBtn {
+  background: transparent;
+  border: none;
+  color: #ee4d2d;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
-.filterPill:hover {
-  border-color: var(--primary, #ee4d2d);
-  color: var(--primary, #ee4d2d);
+.shopeeSeeAllBtn:hover {
+  text-decoration: underline;
 }
 
-.filterActive {
-  background: var(--primary, #ee4d2d) !important;
-  color: var(--primary-text, #ffffff) !important;
-  border-color: var(--primary, #ee4d2d) !important;
-  font-weight: 700;
-  box-shadow: 0 4px 12px rgba(238, 77, 45, 0.25);
-}
-
-/* Product Grid (Multi-column responsive) */
-.productGrid {
+/* 6-Column Desktop Grid */
+.shopee6ColGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
 }
 
-@media (min-width: 540px) {
-  .productGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+/* Shopee Load More "Xem Thêm" Button */
+.shopeeLoadMoreContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 8px;
 }
 
-@media (min-width: 800px) {
-  .productGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+.shopeeLoadMoreBtn {
+  min-width: 390px;
+  max-width: 100%;
+  height: 42px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  color: #555555;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-@media (min-width: 1100px) {
-  .productGrid {
-    grid-template-columns: repeat(5, 1fr);
-  }
+.shopeeLoadMoreBtn:hover {
+  background: #fff8f6;
+  border-color: #ee4d2d;
+  color: #ee4d2d;
+  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.12);
 }
 
-/* Shopee Product Card */
+.shopeeLoadMoreBtn:active {
+  transform: scale(0.99);
+}
+
+.shopeeAllLoadedText {
+  text-align: center;
+  color: #888888;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 10px 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Shopee Modern Pagination (Fallback) */
+.shopeePagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.pageNavBtn,
+.pageNumberBtn {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.pageNavBtn:hover:not(:disabled),
+.pageNumberBtn:hover:not(:disabled) {
+  border-color: #ee4d2d;
+  color: #ee4d2d;
+  background: #fff7ed;
+}
+
+.pageBtnActive {
+  background: #ee4d2d !important;
+  border-color: #ee4d2d !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(238, 77, 45, 0.25);
+}
+
+.pageNavBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+  background: #f8fafc;
+}
+
+/* Shop Intro Card */
+.shopeeShopIntroCard {
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 20px 24px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-size: 13.5px;
+  color: #444444;
+  line-height: 1.6;
+}
+
+.shopeeShopIntroCard p {
+  margin: 0 0 8px 0;
+}
+
+.shopeeShopIntroCard p:last-child {
+  margin-bottom: 0;
+}
+
+/* Floating Chat Button */
+.shopeeFloatingChatBtn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, #ee4d2d 0%, #ff5722 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(238, 77, 45, 0.45);
+  z-index: 999;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.shopeeFloatingChatBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(238, 77, 45, 0.6);
+}
+
+/* ======================================================== */
+/* 6. SHOPEE PRODUCT CARD (PREMIUM HOVER & LABELS)          */
+/* ======================================================== */
+
 .shopeeCard {
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-md, 12px);
+  background: #ffffff;
+  border-radius: 3px;
+  border: 1px solid #eaeaea;
   overflow: hidden;
   text-decoration: none;
   display: flex;
   flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   position: relative;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .shopeeCard:hover {
-  transform: translateY(-3px);
-  border-color: var(--primary, #ee4d2d);
-  box-shadow: 0 10px 24px -2px rgba(238, 77, 45, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border-color: #ee4d2d;
 }
 
 .cardImgWrap {
-  position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
+  position: relative;
+  background: #f8fafc;
   overflow: hidden;
-  background: var(--bg-main, #f8fafc);
 }
 
 .cardImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.3s ease;
 }
 
 .shopeeCard:hover .cardImg {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 /* Badges */
 .favoriteBadge {
   position: absolute;
-  top: 0;
-  left: 0;
-  background: var(--primary, #ee4d2d);
-  color: var(--primary-text, #ffffff);
-  font-size: 8.5px;
+  top: 6px;
+  left: -2px;
+  background: #ee4d2d;
+  color: #ffffff;
+  font-size: 9.5px;
   font-weight: 800;
-  padding: 2px 5px;
-  border-bottom-right-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  padding: 2px 6px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  box-shadow: 0 2px 4px rgba(238, 77, 45, 0.3);
 }
 
 .discountBadge {
   position: absolute;
   top: 0;
   right: 0;
-  background: #ffd839;
+  background: rgba(255, 212, 36, 0.95);
   color: #ee4d2d;
-  font-size: 9.5px;
-  font-weight: 900;
-  padding: 2px 5px;
-  border-bottom-left-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.discountBadgePercent {
   font-size: 10px;
-}
-
-.discountBadgeLabel {
-  font-size: 7.5px;
   font-weight: 800;
-}
-
-/* Flash Sale Special Badge on Card */
-.cardFlashBadge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
-  color: #ffffff;
-  font-size: 9.5px;
-  font-weight: 900;
-  padding: 3px 6px;
-  border-bottom-left-radius: 7px;
+  padding: 3px 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
   line-height: 1.1;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
-  z-index: 2;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
+  width: 36px;
+  height: 38px;
 }
 
-.cardFlashPercent {
-  font-size: 10.5px;
-  font-weight: 900;
+.discountBadgePercent {
+  font-size: 11px;
 }
 
-.cardFlashLabel {
-  font-size: 7px;
-  font-weight: 800;
-  letter-spacing: -0.2px;
-  white-space: nowrap;
-}
-
-.cardFlashPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  background: linear-gradient(135deg, rgba(238, 77, 45, 0.12) 0%, rgba(249, 115, 22, 0.15) 100%);
-  color: var(--primary, #ee4d2d);
-  border: 1px solid rgba(238, 77, 45, 0.3);
-  font-size: 9.5px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-bottom: 2px;
-  width: fit-content;
+.discountBadgeLabel {
+  font-size: 8px;
+  color: #ffffff;
+  background: #ee4d2d;
+  padding: 1px 3px;
+  border-radius: 1px;
+  margin-top: 1px;
 }
 
 .freeshipBanner {
@@ -1772,19 +1201,19 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(16, 185, 129, 0.92);
+  background: rgba(0, 185, 156, 0.92);
   color: #ffffff;
-  font-size: 8.5px;
-  font-weight: 800;
-  padding: 2px 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 3px;
 }
 
-/* Card Body */
 .cardBody {
-  padding: 8px 10px 10px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1793,11 +1222,11 @@
 }
 
 .cardName {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 500;
-  color: var(--text-main, #0f172a);
-  line-height: 1.4;
+  color: #333333;
   margin: 0;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1808,19 +1237,19 @@
 .cardPriceRow {
   display: flex;
   align-items: baseline;
-  gap: 5px;
-  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
 }
 
 .cardCurrentPrice {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--primary, #ee4d2d);
+  color: #ee4d2d;
+  font-size: 14.5px;
+  font-weight: 700;
 }
 
 .cardOldPrice {
-  font-size: 10.5px;
-  color: var(--text-dim, #94a3b8);
+  color: #94a3b8;
+  font-size: 11px;
   text-decoration: line-through;
 }
 
@@ -1828,111 +1257,126 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 3px;
-  margin-top: auto;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 6px;
+  margin-top: 4px;
 }
 
 .cardRatingWrap {
   display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 10px;
-  color: var(--text-muted, #64748b);
-  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .stars {
-  display: flex;
+  display: inline-flex;
   gap: 1px;
 }
 
 .starFilled {
-  color: #fbbf24;
+  color: #ffbe00;
 }
 
 .starEmpty {
-  color: var(--border-color, #e2e8f0);
+  color: #cbd5e1;
 }
 
 .cardSold {
-  font-size: 9.5px;
-  color: var(--text-muted, #64748b);
+  font-size: 10px;
+  color: #777777;
 }
 
 .cardAddBtn {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--bg-main, #f8fafc);
-  border: 1px solid var(--border-color, #e2e8f0);
-  color: var(--primary, #ee4d2d);
+  background: #ee4d2d;
+  color: #ffffff;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  flex-shrink: 0;
 }
 
-.cardAddBtn:hover {
-  background: var(--primary, #ee4d2d);
-  color: var(--primary-text, #ffffff);
-  border-color: var(--primary, #ee4d2d);
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(238, 77, 45, 0.3);
+/* ======================================================== */
+/* 7. ALL PRODUCTS TAB & FILTER BAR                         */
+/* ======================================================== */
+
+.shopeeProductsTabContainer {
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
 }
 
-/* Skeleton Loading */
-.skeleton {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, var(--bg-card, #ffffff) 25%, var(--bg-main, #f1f5f9) 50%, var(--bg-card, #ffffff) 75%);
-  background-size: 200% 100%;
-  animation: skeletonLoading 1.5s infinite;
-}
-
-@keyframes skeletonLoading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* ==========================================================================
-   9. TAB 1: PRODUCT CATALOG & FILTER BAR
-   ========================================================================== */
-.filterBar {
+.shopeeFilterBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 8px 0;
-  margin-bottom: 10px;
-  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.filterPills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.filterPill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 6px 14px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filterActive {
+  background: #ee4d2d !important;
+  color: #ffffff !important;
+  border-color: #ee4d2d !important;
+  font-weight: 700;
 }
 
 .viewToggle {
   display: flex;
-  gap: 5px;
+  gap: 4px;
 }
 
 .viewBtn {
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  color: var(--text-muted, #64748b);
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.viewBtn:hover,
 .viewActive {
-  color: var(--primary, #ee4d2d);
-  border-color: var(--primary, #ee4d2d);
-  background: rgba(238, 77, 45, 0.08);
+  background: #ee4d2d;
+  color: #ffffff;
+  border-color: #ee4d2d;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888888;
+  font-size: 14px;
+  grid-column: 1 / -1;
 }
 
 /* List Card View */
@@ -1943,347 +1387,604 @@
 }
 
 .listCard {
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+  padding: 10px 14px;
   display: flex;
-  gap: 12px;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-md, 12px);
-  padding: 10px;
-  text-decoration: none;
   align-items: center;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  gap: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
 }
 
 .listCard:hover {
-  border-color: var(--primary, #ee4d2d);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-color: #ee4d2d;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .listImgWrap {
+  width: 72px;
+  height: 72px;
   position: relative;
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
   flex-shrink: 0;
-  background: var(--bg-main, #f8fafc);
 }
 
 .listImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.listDiscountBadge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: #ffd839;
-  color: #ee4d2d;
-  font-size: 8.5px;
-  font-weight: 800;
-  padding: 2px 4px;
-  border-bottom-left-radius: 4px;
+  border-radius: 3px;
 }
 
 .listInfo {
   flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
 }
 
 .listName {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--text-main, #0f172a);
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: #333333;
+  margin: 0 0 4px 0;
 }
 
 .listPriceRow {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .listPrice {
-  font-size: 14.5px;
-  font-weight: 800;
-  color: var(--primary, #ee4d2d);
+  color: #ee4d2d;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .listOldPrice {
-  font-size: 11px;
-  color: var(--text-dim, #94a3b8);
+  color: #94a3b8;
+  font-size: 12px;
   text-decoration: line-through;
 }
 
 .buyBtn {
-  background: var(--primary, #ee4d2d);
-  color: var(--primary-text, #ffffff);
+  background: #ee4d2d;
+  color: #ffffff;
   border: none;
-  border-radius: var(--radius-md, 8px);
-  padding: 6px 12px;
-  font-size: 11.5px;
-  font-weight: 700;
-  display: flex;
+  padding: 8px 16px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   cursor: pointer;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.25);
-  transition: all 0.2s ease;
 }
 
-.buyBtn:hover {
-  background: var(--primary-hover, #d73211);
-  transform: scale(1.03);
+/* ======================================================== */
+/* 8. BANNER CAROUSEL & FLASH SALE & QUICK HUB STYLING      */
+/* ======================================================== */
+
+.heroBannerSection {
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-/* ==========================================================================
-   10. TAB 2: CATEGORIES
-   ========================================================================= */
-.categoryContainer {
-  padding: 14px 0;
+.bannerCarousel {
+  position: relative;
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.categoryHeader {
+.carouselTrack {
+  display: flex;
+  transition: transform 0.4s ease-in-out;
+  width: 100%;
+}
+
+.carouselSlide {
+  min-width: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.carouselImg {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  display: block;
+}
+
+.carouselNavBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  border: none;
+  width: 36px;
+  height: 48px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 10;
+}
+
+.carouselNavBtn:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.carouselPrevBtn {
+  left: 0;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.carouselNextBtn {
+  right: 0;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+/* QuickHub */
+.quickHubGrid {
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 14px 10px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.quickHubItem {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.quickHubItem:hover {
+  transform: translateY(-2px);
+}
+
+.quickIconWrap {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quickHubLabel {
+  font-size: 11.5px;
+  color: #333333;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Home Category Showcase */
+.homeCategorySection {
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.homeCategoryHeader {
+  display: flex;
   justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.homeCategoryTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.homeCategoryIcon {
+  color: #ee4d2d;
+}
+
+.homeCategoryTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #555555;
+  margin: 0;
+}
+
+.homeCategorySeeAll {
+  background: transparent;
+  border: none;
+  color: #ee4d2d;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.homeCategoryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.homeCategoryCard {
+  border: 1px solid #eaeaea;
+  border-radius: 3px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+
+.homeCategoryCard:hover {
+  border-color: #ee4d2d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.homeCategoryImgWrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.homeCategoryImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.homeCategoryName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333333;
+  text-align: center;
+}
+
+.homeCategoryCount {
+  font-size: 11px;
+  color: #888888;
+}
+
+/* Flash Sale Section */
+.flashSaleSection {
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.flashHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 14px;
 }
 
-.categoryTitle {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--text-main, #0f172a);
-  margin: 0 0 3px;
+.flashHeaderTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.categorySubtitle {
-  font-size: 12px;
-  color: var(--text-muted, #64748b);
-  margin: 0;
+.flashTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.categoryTotalBadge {
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  padding: 3px 9px;
-  border-radius: 9999px;
-  font-size: 11.5px;
-  color: var(--primary, #ee4d2d);
+.flashLogo {
+  color: #ee4d2d;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  font-style: italic;
+}
+
+.seeAllBtn {
+  background: transparent;
+  border: none;
+  color: #ee4d2d;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.flashCountdownBox {
+  display: flex;
+  align-items: center;
+}
+
+.countdownTimer {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.countdownDigit {
+  background: #000000;
+  color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  font-size: 12px;
+  padding: 2px 5px;
+  border-radius: 2px;
 }
 
-.categoryGrid {
+.countdownColon {
+  font-weight: 800;
+  color: #000000;
+}
+
+.flashSlotTabs {
+  display: flex;
+  border-bottom: 2px solid #f1f5f9;
+  margin-bottom: 14px;
+  overflow-x: auto;
+}
+
+.flashSlotTab {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.flashSlotTabActive {
+  border-bottom-color: #ee4d2d;
+  color: #ee4d2d;
+}
+
+.slotTime {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.slotStatus {
+  font-size: 11px;
+  color: #888888;
+}
+
+.flashSlotTabActive .slotStatus {
+  color: #ee4d2d;
+  font-weight: 600;
+}
+
+.flashCarousel {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
 }
 
-@media (min-width: 768px) {
-  .categoryGrid {
+.flashCard {
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 3px;
+  overflow: hidden;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+}
+
+.flashCard:hover {
+  transform: translateY(-2px);
+  border-color: #ee4d2d;
+}
+
+.flashImgWrap {
+  width: 100%;
+  aspect-ratio: 1/1;
+  position: relative;
+}
+
+.flashImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shopeeDiscountFlag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(255, 212, 36, 0.95);
+  color: #ee4d2d;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 4px;
+}
+
+.flashInfo {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flashPrice {
+  color: #ee4d2d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.flashOldPrice {
+  font-size: 11px;
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.fireProgressBar {
+  width: 100%;
+  height: 14px;
+  background: #ffbda6;
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.fireFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #ff5722 0%, #ee4d2d 100%);
+  border-radius: 999px;
+}
+
+.fireText {
+  position: relative;
+  z-index: 1;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+/* Trust Bar */
+.trustBar {
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+}
+
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #555555;
+  font-weight: 500;
+}
+
+.trustIcon {
+  color: #ee4d2d;
+}
+
+/* ======================================================== */
+/* 9. RESPONSIVE BREAKPOINTS                                */
+/* ======================================================== */
+
+@media (max-width: 1199px) and (min-width: 860px) {
+  .shopee6ColGrid,
+  .flashCarousel {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-.categoryCard {
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-md, 12px);
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+@media (max-width: 859px) and (min-width: 600px) {
+  .shopee6ColGrid,
+  .flashCarousel {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .shopeeShopCardWrapper {
+    flex-direction: column;
+  }
+  .shopeeShopIdentityCard {
+    width: 100%;
+  }
+  .quickHubGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .heroBannerSection {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .bannerCarousel {
+    height: 200px;
+  }
+  .sideBannersColumn {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    height: 110px;
+    gap: 8px;
+  }
+  .sideBannerItem {
+    height: 110px;
+  }
 }
 
-.categoryCard:hover {
-  border-color: var(--primary, #ee4d2d);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-.categoryTitleRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.categoryIconWrap {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: rgba(238, 77, 45, 0.1);
-  color: var(--primary, #ee4d2d);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.categoryName {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-main, #0f172a);
-  margin: 0;
-}
-
-.categoryEmpty {
-  text-align: center;
-  padding: 36px 14px;
-}
-
-.categoryEmptyTitle {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-main, #0f172a);
-}
-
-.categoryEmptyText {
-  font-size: 12.5px;
-  color: var(--text-muted, #64748b);
-  margin: 4px 0 14px;
-}
-
-.categoryEmptyBtn {
-  background: var(--primary, #ee4d2d);
-  color: var(--primary-text, #ffffff);
-  border: none;
-  padding: 8px 18px;
-  border-radius: var(--radius-md, 9999px);
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(238, 77, 45, 0.25);
-  transition: all 0.2s ease;
-}
-
-.categoryEmptyBtn:hover {
-  background: var(--primary-hover, #d73211);
-  transform: scale(1.02);
-}
-
-/* ==========================================================================
-   11. SHOPEE DESKTOP FOOTER
-   ========================================================================= */
-.footer {
-  width: 100%;
-  margin-top: 32px;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-lg, 16px);
-  padding: 32px 20px 20px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
-  transition: background-color 0.25s ease, border-color 0.25s ease;
-}
-
-.footerInner {
-  width: 100%;
-  padding: 0;
-}
-
-.footerGrid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-@media (min-width: 640px) {
-  .footerGrid {
+@media (max-width: 599px) {
+  .shopee6ColGrid,
+  .flashCarousel {
     grid-template-columns: repeat(2, 1fr);
   }
-}
-
-@media (min-width: 1024px) {
-  .footerGrid {
+  .shopeeTopBar {
+    display: none;
+  }
+  .shopeeShopCardWrapper {
+    flex-direction: column;
+  }
+  .shopeeShopIdentityCard {
+    width: 100%;
+    min-width: 0;
+  }
+  .shopeeMetricsGrid {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+  .shopeeScopeDropdown {
+    display: none;
+  }
+  .shopeeKeywordRow {
+    display: none;
+  }
+  .shopeeLogoText {
+    font-size: 20px;
+  }
+  .quickHubGrid {
     grid-template-columns: repeat(4, 1fr);
   }
-}
-
-.footerCol {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.footerHeading {
-  font-size: 12.5px;
-  font-weight: 800;
-  color: var(--text-main, #0f172a);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 0;
-}
-
-.footerLinks {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.footerLinkItem {
-  color: var(--text-muted, #64748b);
-  text-decoration: none;
-  font-size: 12px;
-  transition: color 0.2s ease, transform 0.15s ease;
-  display: inline-block;
-}
-
-.footerLinkItem:hover {
-  color: var(--primary, #ee4d2d);
-  transform: translateX(2px);
-}
-
-.paymentIconsRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.paymentBadge {
-  background: var(--bg-main, #f8fafc);
-  border: 1px solid var(--border-color, #e2e8f0);
-  padding: 3px 7px;
-  border-radius: 5px;
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--text-main, #0f172a);
-}
-
-.footerBottom {
-  border-top: 1px solid var(--border-color, #e2e8f0);
-  padding-top: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  text-align: center;
-}
-
-.copyrightText {
-  font-size: 11.5px;
-  color: var(--text-muted, #64748b);
-  margin: 0;
-}
-
-.footerCommitments {
-  font-size: 11px;
-  color: var(--text-dim, #94a3b8);
+  .homeCategoryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .heroBannerSection {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .bannerCarousel {
+    height: 160px;
+    border-radius: 0;
+  }
+  .sideBannersColumn {
+    display: none;
+  }
 }

@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
+import { getTenantConfig } from './tenant-config';
 
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
   embeddedInstance: any | null;
+  activeUri: string | null;
 }
 
 declare global {
@@ -16,10 +18,33 @@ let cached: MongooseCache = global.mongooseCache || {
   conn: null,
   promise: null,
   embeddedInstance: null,
+  activeUri: null,
 };
 
 if (!global.mongooseCache) {
   global.mongooseCache = cached;
+}
+
+/**
+ * Reset / Switch active MongoDB connection to a new target URI
+ */
+export async function switchDatabaseConnection(newUri: string): Promise<typeof mongoose> {
+  if (cached.conn) {
+    try {
+      await mongoose.disconnect();
+    } catch (e) {}
+  }
+  cached.conn = null;
+  cached.promise = null;
+  cached.activeUri = newUri;
+
+  console.log('🔄 [DB Switch] Đang kết nối tới CSDL khách hàng mới:', newUri.replace(/:([^:@]+)@/, ':****@'));
+  const conn = await mongoose.connect(newUri, {
+    bufferCommands: false,
+    serverSelectionTimeoutMS: 8000,
+  });
+  cached.conn = conn;
+  return conn;
 }
 
 /**
@@ -59,20 +84,23 @@ async function connectToDatabase(): Promise<typeof mongoose> {
 
   if (!cached.promise) {
     cached.promise = (async () => {
-      let targetUri = process.env.MONGODB_URI?.trim();
+      // 1. Check if client has a dedicated tenant database configured
+      const tenant = getTenantConfig();
+      let targetUri = tenant?.mongoUri || process.env.MONGODB_URI?.trim();
 
-      // If user provided a custom URI (e.g. Atlas or local service)
+      // If user provided a custom/tenant URI
       if (targetUri && targetUri !== 'auto' && targetUri !== 'local' && targetUri !== 'embedded') {
         try {
-          console.log('🌐 [DB Connect] Đang kết nối tới MONGODB_URI cấu hình...');
+          console.log('🌐 [DB Connect] Đang kết nối CSDL:', targetUri.replace(/:([^:@]+)@/, ':****@'));
           const conn = await mongoose.connect(targetUri, {
             bufferCommands: false,
-            serverSelectionTimeoutMS: 5000,
+            serverSelectionTimeoutMS: 6000,
           });
-          console.log('✅ [DB Connect] Đã kết nối thành công tới Database từ thiện/cấu hình!');
+          cached.activeUri = targetUri;
+          console.log('✅ [DB Connect] Đã kết nối thành công tới Database!');
           return conn;
         } catch (err: any) {
-          console.warn('⚠️ [DB Fallback] Không thể kết nối tới MONGODB_URI cấu hình:', err.message);
+          console.warn('⚠️ [DB Fallback] Không thể kết nối tới CSDL cấu hình:', err.message);
           console.log('🔄 [DB Fallback] Tự động chuyển sang Cơ Sở Dữ Liệu Nhúng Cục Bộ (Embedded DB)...');
         }
       }
@@ -82,6 +110,7 @@ async function connectToDatabase(): Promise<typeof mongoose> {
       const conn = await mongoose.connect(embeddedUri, {
         bufferCommands: false,
       });
+      cached.activeUri = embeddedUri;
       return conn;
     })();
   }
@@ -96,4 +125,5 @@ async function connectToDatabase(): Promise<typeof mongoose> {
   return cached.conn;
 }
 
-export default connectToDatabase;
+export default connectToDatabase;
+
