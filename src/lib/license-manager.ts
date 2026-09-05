@@ -163,7 +163,7 @@ export async function checkLicenseStatus(rawKey?: string, forceFresh = false): P
       return res;
     }
 
-    if (record.status === 'revoked') {
+    if ((record.status as string) === 'revoked') {
       const res: LicenseCheckResult = {
         valid: false,
         status: 'revoked',
@@ -177,7 +177,7 @@ export async function checkLicenseStatus(rawKey?: string, forceFresh = false): P
       return res;
     }
 
-    const isActive = record.status === 'activated' || record.status === 'active';
+    const isActive = (record.status as string) === 'activated' || (record.status as string) === 'active';
     const res: LicenseCheckResult = {
       valid: isActive,
       status: record.status,
@@ -265,7 +265,7 @@ export async function validateAndConsumeLicense(
       };
     }
 
-    if (existing.status === 'revoked') {
+    if ((existing.status as string) === 'revoked') {
       return {
         success: false,
         message: 'Mã bản quyền này đã bị thu hồi hoặc vô hiệu hóa do vi phạm chính sách sử dụng!',
@@ -273,7 +273,7 @@ export async function validateAndConsumeLicense(
     }
 
     // If key is ALREADY activated, allow seamless re-syncing/restoring for the active shop!
-    if (existing.status === 'activated' || existing.status === 'active') {
+    if ((existing.status as string) === 'activated' || (existing.status as string) === 'active') {
       const dbName = existing.assignedDb || generateDbName(shopName);
       const tenantUri = buildMongoUriForDb(dbName);
       const activeShopName = existing.shopName || shopName;
