@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/mongodb';
-import { getTenantConfig, MASTER_CLUSTER_BASE } from '@/lib/tenant-config';
-import { checkLicenseStatus, LicenseCheckResult } from '@/lib/license-manager';
+import { getTenantConfig, saveTenantConfig, buildMongoUriForDb, MASTER_CLUSTER_BASE } from '@/lib/tenant-config';
+import { checkLicenseStatus, findLicenseByHostOrKey, LicenseCheckResult } from '@/lib/license-manager';
 import User from '@/models/User';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
@@ -12,9 +12,33 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const forceFresh = searchParams.get('fresh') === '1';
+  const keyParam = searchParams.get('key') || searchParams.get('licenseKey') || '';
+  const host = request.headers.get('host') || request.headers.get('x-forwarded-host') || '';
 
   const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
-  const tenant = getTenantConfig();
+  let tenant = getTenantConfig();
+
+  // Auto-resolve tenant from Cloud Master DB if local config is absent (Vercel Serverless cold start)
+  if (!tenant?.dbName) {
+    try {
+      const activeLicense = await findLicenseByHostOrKey(host, keyParam);
+      if (activeLicense && activeLicense.assignedDb) {
+        const dbName = activeLicense.assignedDb;
+        saveTenantConfig({
+          shopName: activeLicense.shopName || 'Shop Của Tôi',
+          dbName: dbName,
+          mongoUri: buildMongoUriForDb(dbName),
+          createdAt: activeLicense.createdAt ? new Date(activeLicense.createdAt).toISOString() : new Date().toISOString(),
+          licenseKey: activeLicense.licenseKey,
+        });
+        tenant = getTenantConfig();
+        console.log(`☁️ [Cloud Rehydrate] Đã tự động khôi phục cấu hình CSDL "${dbName}" cho host "${host}"`);
+      }
+    } catch (resolveErr) {
+      console.warn('Auto-resolve tenant from cloud master DB skipped:', resolveErr);
+    }
+  }
+
   const hasUriConfigured = Boolean(
     tenant?.mongoUri || (process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== '')
   );

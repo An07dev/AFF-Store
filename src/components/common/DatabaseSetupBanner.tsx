@@ -75,10 +75,28 @@ export default function DatabaseSetupBanner() {
 
   const checkDb = async (forceFresh = false) => {
     try {
-      const res = await apiFetch(`/api/system/db-status${forceFresh ? '?fresh=1' : ''}`);
+      let localKeyParam = '';
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('shop_tenant_config');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed?.licenseKey) {
+              localKeyParam = `&key=${encodeURIComponent(parsed.licenseKey)}`;
+            }
+          }
+        } catch (e) {}
+      }
+
+      const res = await apiFetch(`/api/system/db-status?${forceFresh ? 'fresh=1' : ''}${localKeyParam}`);
       const data = await res.json();
       if (data.success && data.data) {
         setStatus(data.data);
+        if (data.data.tenant?.licenseKey && typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('shop_tenant_config', JSON.stringify(data.data.tenant));
+          } catch (e) {}
+        }
       }
     } catch (err) {
       setStatus({
@@ -149,6 +167,20 @@ export default function DatabaseSetupBanner() {
       setProgressText(`🎉 Kích hoạt bản quyền và cấp CSDL (${data.data?.dbName || ''}) thành công 100%!`);
       setSetupDone(true);
       toast.success(`🎉 Kích hoạt bản quyền cho "${name}" thành công!`);
+
+      // Save persistent backup to localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(
+            'shop_tenant_config',
+            JSON.stringify({
+              shopName: name,
+              dbName: data.data?.dbName,
+              licenseKey: key,
+            })
+          );
+        } catch (e) {}
+      }
 
       // Refresh database status
       checkDb(true);

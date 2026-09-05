@@ -201,11 +201,46 @@ export async function checkLicenseStatus(rawKey?: string, forceFresh = false): P
 }
 
 /**
+ * Find active license for a host / domain or license key from Cloud Master DB
+ */
+export async function findLicenseByHostOrKey(host?: string, key?: string): Promise<LicenseRecord | null> {
+  try {
+    const conn = await getMasterConnection();
+    const collection = conn.collection<LicenseRecord>(COLLECTION_NAME);
+
+    if (key) {
+      const rec = await collection.findOne({
+        licenseKey: key.trim().toUpperCase(),
+        status: { $in: ['activated', 'active'] },
+      });
+      if (rec) return rec;
+    }
+
+    if (host && host !== 'localhost' && !host.startsWith('localhost:')) {
+      const cleanHost = host.split(':')[0].toLowerCase();
+      const rec = await collection.findOne({
+        $or: [
+          { domain: cleanHost },
+          { host: cleanHost },
+          { machineFingerprint: cleanHost },
+        ],
+        status: { $in: ['activated', 'active'] },
+      });
+      if (rec) return rec;
+    }
+  } catch (e) {
+    console.warn('Error querying master license for host:', e);
+  }
+  return null;
+}
+
+/**
  * Validate and atomically consume a 1-time License Key
  */
 export async function validateAndConsumeLicense(
   rawKey: string,
   shopName: string,
+  host?: string,
   machineFingerprint?: string
 ): Promise<{ success: boolean; message: string; dbName?: string; license?: LicenseRecord }> {
   const key = rawKey.trim().toUpperCase();
@@ -237,19 +272,40 @@ export async function validateAndConsumeLicense(
       };
     }
 
-    if (existing.status === 'activated') {
-      const dateStr = existing.activatedAt
-        ? new Date(existing.activatedAt).toLocaleString('vi-VN')
-        : 'trước đó';
+    // If key is ALREADY activated, allow seamless re-syncing/restoring for the active shop!
+    if (existing.status === 'activated' || existing.status === 'active') {
+      const dbName = existing.assignedDb || generateDbName(shopName);
+      const tenantUri = buildMongoUriForDb(dbName);
+      const activeShopName = existing.shopName || shopName;
+
+      const cleanHost = host ? host.split(':')[0].toLowerCase() : '';
+      if (cleanHost) {
+        await collection.updateOne(
+          { licenseKey: key },
+          { $set: { host: cleanHost, domain: cleanHost, updatedAt: new Date() } }
+        );
+      }
+
+      saveTenantConfig({
+        shopName: activeShopName,
+        dbName,
+        mongoUri: tenantUri,
+        createdAt: existing.createdAt ? new Date(existing.createdAt).toISOString() : new Date().toISOString(),
+        licenseKey: key,
+      });
+
       return {
-        success: false,
-        message: `Mã bản quyền này ĐÃ ĐƯỢC KÍCH HOẠT cho cửa hàng "${existing.shopName || 'khác'}" vào lúc ${dateStr}. Mỗi key chỉ dùng được 1 lần và không thể tái sử dụng!`,
+        success: true,
+        message: 'Khôi phục kết nối bản quyền thành công!',
+        dbName,
+        license: existing,
       };
     }
 
     // 2. Generate isolated Tenant DB for this shop
     const generatedDb = generateDbName(shopName);
     const tenantUri = buildMongoUriForDb(generatedDb);
+    const cleanHost = host ? host.split(':')[0].toLowerCase() : (machineFingerprint || 'web-client');
 
     // 3. Atomically consume the license key (Atomic CAS update)
     const result = await collection.findOneAndUpdate(
@@ -259,7 +315,9 @@ export async function validateAndConsumeLicense(
           status: 'activated',
           shopName: shopName.trim(),
           assignedDb: generatedDb,
-          machineFingerprint: machineFingerprint || 'web-client',
+          host: cleanHost,
+          domain: cleanHost,
+          machineFingerprint: machineFingerprint || cleanHost,
           activatedAt: new Date(),
           updatedAt: new Date(),
         },

@@ -31,10 +31,12 @@ export async function POST(req: Request) {
       );
     }
 
-    console.log(`🔒 [License Check] Đang xác thực key "${rawLicenseKey}" cho shop: "${shopName}"...`);
+    const host = req.headers.get('host') || req.headers.get('x-forwarded-host') || '';
+
+    console.log(`🔒 [License Check] Đang xác thực key "${rawLicenseKey}" cho shop: "${shopName}" (Host: ${host})...`);
 
     // 1. Atomically Validate and Consume the 1-Time License Key on Master Cluster
-    const verifyResult = await validateAndConsumeLicense(rawLicenseKey, shopName);
+    const verifyResult = await validateAndConsumeLicense(rawLicenseKey, shopName, host);
 
     if (!verifyResult.success || !verifyResult.dbName) {
       return NextResponse.json(
