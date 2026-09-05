@@ -3,10 +3,10 @@
 /* ======================================================== */
 
 .flashSaleSection {
-  background: #ffffff;
+  background: var(--bg-card, #ffffff);
   border-radius: 4px;
   padding: 16px 18px 20px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color, #e5e7eb);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
   padding-bottom: 12px;
 }
 
@@ -40,7 +40,7 @@
 .flashLogo {
   font-size: 19px;
   font-weight: 900;
-  color: #ee4d2d;
+  color: var(--primary, #ee4d2d);
   letter-spacing: 0.5px;
   text-transform: uppercase;
   font-style: italic;
@@ -62,8 +62,8 @@
 }
 
 .countdownDigit {
-  background: #000000;
-  color: #ffffff;
+  background: var(--text-main, #000000);
+  color: var(--bg-main, #ffffff);
   font-size: 12.5px;
   font-weight: 700;
   padding: 3px 6px;
@@ -75,7 +75,7 @@
 }
 
 .countdownColon {
-  color: #000000;
+  color: var(--text-main, #000000);
   font-weight: 800;
   font-size: 13px;
 }
@@ -84,7 +84,7 @@
 .seeAllBtn {
   background: transparent;
   border: none;
-  color: #ee4d2d;
+  color: var(--primary, #ee4d2d);
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
@@ -97,18 +97,18 @@
 }
 
 .seeAllBtn:hover {
-  background: rgba(238, 77, 45, 0.08);
+  background: var(--bg-card-hover, rgba(238, 77, 45, 0.08));
   text-decoration: underline;
 }
 
 /* Campaign Tagline Banner */
 .flashCampaignBanner {
-  background: #fff7ed;
-  border-left: 3px solid #ee4d2d;
+  background: var(--bg-card-hover, #fff7ed);
+  border-left: 3px solid var(--primary, #ee4d2d);
   padding: 7px 14px;
   border-radius: 0 4px 4px 0;
   font-size: 13px;
-  color: #c2410c;
+  color: var(--text-main, #c2410c);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -121,7 +121,7 @@
 
 .flashCampaignSubtitle {
   font-weight: 500;
-  color: #ea580c;
+  color: var(--primary, #ea580c);
 }
 
 /* 2. Slot Selector Tabs */
@@ -143,8 +143,8 @@
   min-width: 140px;
   padding: 10px 14px;
   border-radius: 4px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-main, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -156,35 +156,35 @@
 }
 
 .flashSlotTab:hover {
-  border-color: #ee4d2d;
-  background: #fff7ed;
+  border-color: var(--primary, #ee4d2d);
+  background: var(--bg-card-hover, #fff7ed);
 }
 
 .flashSlotTabActive {
-  background: #ee4d2d !important;
-  border-color: #ee4d2d !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.28);
+  background: var(--primary, #ee4d2d) !important;
+  border-color: var(--primary, #ee4d2d) !important;
+  color: var(--primary-text, #ffffff) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .slotTime {
   font-size: 14px;
   font-weight: 800;
-  color: #1e293b;
+  color: var(--text-main, #1e293b);
 }
 
 .flashSlotTabActive .slotTime {
-  color: #ffffff;
+  color: var(--primary-text, #ffffff);
 }
 
 .slotStatus {
   font-size: 11.5px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted, #64748b);
 }
 
 .flashSlotTabActive .slotStatus {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--primary-text, rgba(255, 255, 255, 0.95));
 }
 
 /* 3. Product Carousel Grid */
@@ -202,8 +202,8 @@
 
 /* Individual Flash Card */
 .flashCard {
-  background: #ffffff;
-  border: 1px solid #f1f5f9;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #f1f5f9);
   border-radius: 4px;
   overflow: hidden;
   display: flex;
@@ -215,8 +215,8 @@
 
 .flashCard:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  border-color: #ffd8d0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary, #ffd8d0);
 }
 
 /* Image Container */
@@ -225,7 +225,7 @@
   width: 100%;
   padding-top: 100%; /* 1:1 Aspect Ratio */
   overflow: hidden;
-  background: #f8fafc;
+  background: var(--bg-main, #f8fafc);
 }
 
 .flashImg {
@@ -247,7 +247,7 @@
   top: 0;
   right: 0;
   background: #ffd839;
-  color: #ee4d2d;
+  color: var(--primary, #ee4d2d);
   font-size: 11px;
   font-weight: 800;
   padding: 3px 5px;
@@ -269,13 +269,13 @@
 .flashPrice {
   font-size: 16px;
   font-weight: 800;
-  color: #ee4d2d;
+  color: var(--primary, #ee4d2d);
   line-height: 1.2;
 }
 
 .flashOldPrice {
   font-size: 11.5px;
-  color: #94a3b8;
+  color: var(--text-muted, #94a3b8);
   text-decoration: line-through;
   line-height: 1;
 }
@@ -284,7 +284,7 @@
 .fireProgressBar {
   width: 100%;
   height: 18px;
-  background: #ffbda6;
+  background: rgba(238, 77, 45, 0.25);
   border-radius: 9px;
   position: relative;
   overflow: hidden;
@@ -299,7 +299,7 @@
   left: 0;
   top: 0;
   bottom: 0;
-  background: linear-gradient(90deg, #ff5722 0%, #ee4d2d 100%);
+  background: linear-gradient(90deg, var(--accent, #ff5722) 0%, var(--primary, #ee4d2d) 100%);
   border-radius: 9px;
   transition: width 0.4s ease;
 }
@@ -320,8 +320,8 @@
 .upcomingPill {
   width: 100%;
   height: 18px;
-  background: #ffedd5;
-  border: 1px solid #fed7aa;
+  background: var(--bg-main, #ffedd5);
+  border: 1px solid var(--border-color, #fed7aa);
   border-radius: 9px;
   display: flex;
   align-items: center;
@@ -329,7 +329,7 @@
   margin-top: 4px;
   font-size: 10px;
   font-weight: 800;
-  color: #ea580c;
+  color: var(--primary, #ea580c);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -337,8 +337,8 @@
 .passedPill {
   width: 100%;
   height: 18px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-main, #f1f5f9);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 9px;
   display: flex;
   align-items: center;
@@ -346,14 +346,14 @@
   margin-top: 4px;
   font-size: 10px;
   font-weight: 700;
-  color: #64748b;
+  color: var(--text-muted, #64748b);
   text-transform: uppercase;
 }
 
 /* 4. See All Card (Shopee Style at end of list) */
 .flashSeeAllCard {
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
+  background: var(--bg-main, #f8fafc);
+  border: 1px dashed var(--border-color, #cbd5e1);
   border-radius: 4px;
   display: flex;
   flex-direction: column;
@@ -368,21 +368,21 @@
 }
 
 .flashSeeAllCard:hover {
-  border-color: #ee4d2d;
-  background: #fff7ed;
+  border-color: var(--primary, #ee4d2d);
+  background: var(--bg-card-hover, #fff7ed);
 }
 
 .flashSeeAllCircle {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #ee4d2d;
-  color: #ffffff;
+  background: var(--primary, #ee4d2d);
+  color: var(--primary-text, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.2s ease;
-  box-shadow: 0 2px 6px rgba(238, 77, 45, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .flashSeeAllCard:hover .flashSeeAllCircle {
@@ -392,12 +392,12 @@
 .flashSeeAllText {
   font-size: 13.5px;
   font-weight: 700;
-  color: #ee4d2d;
+  color: var(--primary, #ee4d2d);
 }
 
 .flashSeeAllSubText {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted, #64748b);
 }
 
 /* ======================================================== */

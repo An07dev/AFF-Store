@@ -229,24 +229,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // 1. Initial Mount: Load cached theme from localStorage synchronously to eliminate flash / delay
+  // 1. Mount & Live Synchronization
   useEffect(() => {
+    // A. Apply cached theme first to prevent flash
     try {
       const cached = localStorage.getItem(THEME_CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed && typeof parsed === 'object') {
-          const merged: ThemeConfig = {
-            ...defaultTheme,
-            ...parsed,
-            pageTitles: { ...defaultTheme.pageTitles, ...(parsed.pageTitles || {}) },
-            banners: Array.isArray(parsed.banners) && parsed.banners.length > 0 ? parsed.banners : defaultTheme.banners,
-            subBanners: Array.isArray(parsed.subBanners) && parsed.subBanners.length > 0 ? parsed.subBanners : defaultTheme.subBanners,
-            socialLinks: { ...defaultTheme.socialLinks, ...(parsed.socialLinks || {}) },
-            buttonColors: { ...defaultTheme.buttonColors, ...(parsed.buttonColors || {}) },
-            textColors: { ...defaultTheme.textColors, ...(parsed.textColors || {}) },
-            componentColors: { ...defaultTheme.componentColors, ...(parsed.componentColors || {}) },
-          };
+          const merged = { ...defaultTheme, ...parsed };
           setTheme(merged);
           applyCSSVariables(merged);
         }
@@ -256,16 +247,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       applyCSSVariables(defaultTheme);
     }
-  }, [applyCSSVariables]);
 
-  // 2. Background Revalidation (Stale-While-Revalidate): Fetch fresh theme from API
-  useEffect(() => {
-    let isMounted = true;
-    async function loadTheme() {
+    // B. Immediately fetch fresh theme from API (ensuring new preset from Admin applies instantly)
+    async function loadFreshTheme() {
       try {
         const res = await apiFetch('/api/settings/theme');
         const data = await res.json();
-        if (data?.success && data?.data && isMounted) {
+        if (data?.success && data?.data) {
           const merged: ThemeConfig = {
             ...defaultTheme,
             ...data.data,
@@ -281,17 +269,39 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           applyCSSVariables(merged);
           try {
             localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(merged));
-          } catch (storageErr) {
-            // Ignore localStorage quota errors
-          }
+          } catch (storageErr) {}
         }
       } catch (e) {
-        console.warn('Background theme refresh failed, using cached/default theme.');
+        console.warn('Fresh theme refresh failed, keeping current theme.');
       }
     }
-    loadTheme();
+    loadFreshTheme();
+
+    // C. Cross-Tab and In-App Live Theme Event Listener
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === THEME_CACHE_KEY && e.newValue) {
+        try {
+          const fresh = JSON.parse(e.newValue);
+          const merged = { ...defaultTheme, ...fresh };
+          setTheme(merged);
+          applyCSSVariables(merged);
+        } catch (err) {}
+      }
+    };
+
+    const handleCustom = (e: any) => {
+      if (e.detail) {
+        const merged = { ...defaultTheme, ...e.detail };
+        setTheme(merged);
+        applyCSSVariables(merged);
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('shopbig_theme_updated', handleCustom);
     return () => {
-      isMounted = false;
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('shopbig_theme_updated', handleCustom);
     };
   }, [applyCSSVariables]);
 
@@ -373,6 +383,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setTheme(data.data);
         try {
           localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(data.data));
+          window.dispatchEvent(new CustomEvent('shopbig_theme_updated', { detail: data.data }));
         } catch (err) {}
         toast.success('Đã lưu cấu hình giao diện thành công!');
         return true;

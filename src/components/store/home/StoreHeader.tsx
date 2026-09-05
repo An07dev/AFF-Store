@@ -237,7 +237,7 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
                         onClick={() => handleKeywordClick(kw)}
                       >
                         <div className={styles.historyItemText}>
-                          <FiSearch size={13} color="#ee4d2d" />
+                          <FiSearch size={13} color="var(--primary, #ee4d2d)" />
                           <span>{kw}</span>
                         </div>
                       </div>

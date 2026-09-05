@@ -184,7 +184,7 @@ const FlashSaleSectionComponent: React.FC<FlashSaleSectionProps> = ({
         <div className={styles.flashHeaderTop}>
           <div className={styles.flashTitleGroup}>
             <span className={styles.flashLogo}>
-              <FiZap size={20} color="#ee4d2d" /> FLASH SALE
+              <FiZap size={20} color="var(--primary, #ee4d2d)" /> FLASH SALE
             </span>
             <FlashSaleCountdown
               slots={flashSaleConfig.slots}
