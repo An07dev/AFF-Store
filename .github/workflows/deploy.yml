@@ -1,0 +1,40 @@
+name: Tự Động Deploy Lên Hostinger
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    name: Deploy to Hostinger Node.js
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Lấy code mới từ GitHub
+        uses: actions/checkout@v4
+
+      - name: 2. Đồng bộ file sang Hostinger qua SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          source: "."
+          target: "domains/cavionvn.com/public_html"
+          strip_components: 0
+          rm: false
+
+      - name: 3. Cài đặt phụ thuộc & Build ứng dụng Next.js
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd domains/cavionvn.com/public_html
+            npm install
+            npm run build
+            touch tmp/restart.txt 2>/dev/null || true
