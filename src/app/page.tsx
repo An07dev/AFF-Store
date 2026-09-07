@@ -666,6 +666,25 @@ export default function LandingPage() {
               </div>
 
               <div className={styles.rareHeaderRight}>
+                <Link
+                  href="/demo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.rareBtnSecondary}
+                  style={{
+                    padding: '7px 15px',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    borderRadius: 9999,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    textDecoration: 'none',
+                  }}
+                >
+                  <FiShoppingBag size={14} /> Xem Demo ↗
+                </Link>
+
                 <CoolMode options={{ particle: "⚡" }}>
                   <button
                     type="button"
@@ -921,7 +940,11 @@ export default function LandingPage() {
       {/* AI Image Generator Carousel Hero Showcase */}
       <ImageCarouselHeroDemo
         onCardClick={(index) => openPreview(index, 'admin')}
-        onCtaClick={() => openOrderModal('399k')}
+        onCtaClick={() => {
+          if (typeof window !== 'undefined') {
+            window.open('/demo', '_blank');
+          }
+        }}
       />
 
       {/* ==========================================================================
@@ -1096,7 +1119,7 @@ export default function LandingPage() {
                   </div>
 
                   <Link
-                    href={`/?theme=${activeThemeDemo}`}
+                    href="/demo"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.themeLiveLinkBtn}

@@ -116,7 +116,7 @@ function OrderSuccessContent() {
     return (
       <div className={styles.page}>
         <nav className={styles.topNav}>
-          <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Trang chủ">
+          <button className={styles.backBtn} onClick={() => router.push('/demo')} aria-label="Trang chủ">
             <FiChevronLeft size={22} />
           </button>
           <div className={styles.navTitle}>Tra Cứu Đơn Hàng</div>

@@ -86,7 +86,7 @@ export function ImageCarouselHeroDemo({
       ctaText="Trải Nghiệm Toàn Bộ Hệ Thống Demo Ngay"
       onCtaClick={onCtaClick || (() => {
         if (typeof window !== "undefined") {
-          window.open("/admin/dashboard", "_blank");
+          window.open("/demo", "_blank");
         }
       })}
       images={heroAdminImages}
