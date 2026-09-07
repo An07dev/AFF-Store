@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { SystemConfig } from '@/models/SystemConfig';
 
 export const revalidate = 60; // Cache 60 seconds
 
 export async function GET() {
   try {
-    await connectToDatabase();
+    await connectToMasterDatabase();
     const config = await SystemConfig.findOne({ key: 'master_payment_config' }).lean();
 
     const bankInfo = {

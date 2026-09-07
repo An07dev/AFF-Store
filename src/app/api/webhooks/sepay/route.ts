@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import connectToDatabase from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { Lead } from '@/models/Lead';
 import { License } from '@/models/License';
 import { Customer } from '@/models/Customer';
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       });
     }
 
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     // 1. Trích xuất mã đơn hàng thông minh từ nội dung chuyển khoản
     // Format hỗ trợ: ST399K_123456, ST399K123456, ST399K 123456, ST799K_123456, GOI399K 123456, ORD123456, số 6 chữ số
@@ -222,7 +222,7 @@ export async function POST(request: Request) {
     console.error('Lỗi khi xử lý SePay Webhook:', error);
 
     try {
-      await connectToDatabase();
+      await connectToMasterDatabase();
       await WebhookLog.create({
         gateway: 'sepay',
         transactionId: Date.now(),
@@ -249,7 +249,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '30', 10)));
 
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     const logs = await WebhookLog.find({}).sort({ createdAt: -1 }).limit(limit).lean();
     const total = await WebhookLog.countDocuments({});

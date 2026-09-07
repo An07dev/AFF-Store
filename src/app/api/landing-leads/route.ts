@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { Lead } from '@/models/Lead';
 import { Customer } from '@/models/Customer';
 import fs from 'fs';
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     // 1. Lưu vào MongoDB qua Mongoose
     let savedLead = null;
     try {
-      await connectToDatabase();
+      await connectToMasterDatabase();
 
       // Tạo Lead mới
       savedLead = await Lead.create({
@@ -115,7 +115,7 @@ export async function GET(request: Request) {
     const paymentStatus = searchParams.get('paymentStatus');
     const query = searchParams.get('q');
 
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     const filter: Record<string, any> = {};
 

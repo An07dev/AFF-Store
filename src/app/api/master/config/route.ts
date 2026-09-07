@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { SystemConfig } from '@/models/SystemConfig';
 
 const DEFAULT_CONFIG = {
@@ -30,7 +30,7 @@ const DEFAULT_CONFIG = {
 // GET: Lấy toàn bộ cấu hình thanh toán & ngân hàng & email
 export async function GET() {
   try {
-    await connectToDatabase();
+    await connectToMasterDatabase();
     let config = await SystemConfig.findOne({ key: 'master_payment_config' }).lean();
 
     if (!config) {
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       docsUrl,
     } = body;
 
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     const updateData: Record<string, any> = {};
     if (bankCode !== undefined) updateData.bankCode = String(bankCode).trim().toUpperCase();

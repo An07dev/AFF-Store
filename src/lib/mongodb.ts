@@ -25,6 +25,34 @@ if (!global.mongooseCache) {
   global.mongooseCache = cached;
 }
 
+export const MASTER_MONGODB_URI =
+  process.env.MONGODB_MASTER_URI ||
+  process.env.MONGODB_URI ||
+  'mongodb+srv://bigmansale2_db_user:LQBnps6DkzVpKe84@cluster0.o9kuvob.mongodb.net/webstore?retryWrites=true&w=majority&appName=Cluster0';
+
+/**
+ * Explicit connection to Master Database (webstore on Cluster0)
+ * Used by Master Licenses, System Config, SePay Webhook and Master APIs
+ */
+export async function connectToMasterDatabase(): Promise<typeof mongoose> {
+  const masterUri = MASTER_MONGODB_URI.includes('{DB_NAME}')
+    ? MASTER_MONGODB_URI.replace('{DB_NAME}', 'webstore')
+    : MASTER_MONGODB_URI;
+
+  if (cached.conn && cached.activeUri === masterUri && cached.conn.connection.readyState === 1) {
+    return cached.conn;
+  }
+
+  console.log('🔒 [Master DB Connect] Đang kết nối tới Master Cluster webstore...');
+  const conn = await mongoose.connect(masterUri, {
+    bufferCommands: false,
+    serverSelectionTimeoutMS: 8000,
+  });
+  cached.conn = conn;
+  cached.activeUri = masterUri;
+  return conn;
+}
+
 /**
  * Reset / Switch active MongoDB connection to a new target URI
  */

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { License } from '@/models/License';
 
 export async function POST(request: Request) {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       );
     }
 
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     const license = await License.findOne({ licenseKey: String(licenseKey).trim().toUpperCase() });
     if (!license) {
