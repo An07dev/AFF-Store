@@ -142,7 +142,7 @@ export default function CartPage() {
             <p className={styles.emptyDesc}>
               Hãy khám phá các sản phẩm hot và thêm vào giỏ để nhận nhiều ưu đãi nhé!
             </p>
-            <Link href="/" className={styles.exploreBtn}>
+            <Link href="/demo" className={styles.exploreBtn}>
               Khám phá sản phẩm ngay
             </Link>
           </div>
@@ -330,14 +330,14 @@ export default function CartPage() {
         {/* Top Breadcrumb / Header */}
         <div className={styles.pcHeader}>
           <div className={styles.pcBreadcrumb}>
-            <Link href="/" className={styles.pcBreadcrumbLink}>
+            <Link href="/demo" className={styles.pcBreadcrumbLink}>
               <FiHome size={14} /> Trang Chủ
             </Link>
             <span className={styles.pcBreadcrumbDivider}>/</span>
             <span className={styles.pcBreadcrumbActive}>Giỏ Hàng ({cartCount})</span>
           </div>
 
-          <Link href="/" className={styles.pcContinueShoppingLink}>
+          <Link href="/demo" className={styles.pcContinueShoppingLink}>
             <FiChevronLeft size={16} /> Tiếp tục mua sắm
           </Link>
         </div>
@@ -352,7 +352,7 @@ export default function CartPage() {
             <p className={styles.pcEmptyDesc}>
               Chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá hàng ngàn ưu đãi hấp dẫn ngay hôm nay!
             </p>
-            <Link href="/" className={styles.pcExploreBtn}>
+            <Link href="/demo" className={styles.pcExploreBtn}>
               <span>Khám Phá Sản Phẩm Ngay</span>
               <FiArrowRight size={16} />
             </Link>

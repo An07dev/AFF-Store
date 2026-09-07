@@ -218,7 +218,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <div className={styles.headerRight}>
             <Link
-              href="/"
+              href="/demo"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.viewStoreBtn}

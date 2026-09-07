@@ -416,7 +416,7 @@ export default function CheckoutPage() {
           <FiShoppingBag className={styles.emptyIcon} />
           <h3 className={styles.emptyTitle}>Chưa có sản phẩm thanh toán</h3>
           <p className={styles.emptyDesc}>Hãy chọn mua các sản phẩm chất lượng tại cửa hàng nhé!</p>
-          <Link href="/" className={styles.emptyBtn}>
+          <Link href="/demo" className={styles.emptyBtn}>
             Khám Phá Sản Phẩm Ngay
           </Link>
         </div>

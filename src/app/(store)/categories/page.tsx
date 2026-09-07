@@ -7,7 +7,7 @@ export default function CategoriesPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/?tab=categories');
+    router.replace('/demo?tab=categories');
   }, [router]);
 
   return null;

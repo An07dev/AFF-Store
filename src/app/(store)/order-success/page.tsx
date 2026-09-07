@@ -150,7 +150,7 @@ function OrderSuccessContent() {
           </div>
 
           <div className={styles.actionGroup}>
-            <Link href="/" className={styles.primaryBtn}>
+            <Link href="/demo" className={styles.primaryBtn}>
               <FiShoppingBag size={18} />
               <span>Khám Phá Sản Phẩm</span>
             </Link>
@@ -181,7 +181,7 @@ function OrderSuccessContent() {
     <div className={styles.page}>
       {/* Top Header (Visible on Mobile) */}
       <nav className={styles.topNav}>
-        <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Trang chủ">
+        <button className={styles.backBtn} onClick={() => router.push('/demo')} aria-label="Trang chủ">
           <FiChevronLeft size={22} />
         </button>
         <div className={styles.navTitle}>Chi Tiết Đơn Hàng</div>
@@ -191,7 +191,7 @@ function OrderSuccessContent() {
       {/* PC Breadcrumb (Visible on PC/Tablet) */}
       <div className={styles.pcBreadcrumbWrap}>
         <div className={styles.pcBreadcrumb}>
-          <Link href="/" className={styles.pcBreadcrumbLink}>
+          <Link href="/demo" className={styles.pcBreadcrumbLink}>
             <FiHome size={14} /> Trang Chủ
           </Link>
           <span className={styles.pcBreadcrumbDivider}>/</span>
@@ -410,7 +410,7 @@ function OrderSuccessContent() {
 
               {/* Action Controls */}
               <div className={styles.actionGroup}>
-                <Link href="/" className={styles.primaryBtn}>
+                <Link href="/demo" className={styles.primaryBtn}>
                   <FiShoppingBag size={18} />
                   <span>Tiếp Tục Mua Sắm</span>
                 </Link>

@@ -213,7 +213,7 @@ export default function PaymentPage() {
       {/* PC Breadcrumb */}
       <div className={styles.pcBreadcrumbWrap}>
         <div className={styles.pcBreadcrumb}>
-          <Link href="/" className={styles.pcBreadcrumbLink}>
+          <Link href="/demo" className={styles.pcBreadcrumbLink}>
             <FiHome size={14} /> Trang Chủ
           </Link>
           <span className={styles.pcBreadcrumbDivider}>/</span>
@@ -350,7 +350,7 @@ export default function PaymentPage() {
 
 
 
-              <Link href="/" className={styles.homeLink}>
+              <Link href="/demo" className={styles.homeLink}>
                 Quay về Trang Chủ
               </Link>
             </div>

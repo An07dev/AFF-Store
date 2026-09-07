@@ -420,7 +420,7 @@ export default function AdminFlashSalePage() {
         </div>
 
         <div className={styles.headerActions}>
-          <Link href="/?tab=products&filter=flash-sale" target="_blank" className={styles.btnPreviewWeb}>
+          <Link href="/demo?tab=products&filter=flash-sale" target="_blank" className={styles.btnPreviewWeb}>
             <FiEye /> Xem ngoài Web <FiExternalLink size={12} />
           </Link>
           <button

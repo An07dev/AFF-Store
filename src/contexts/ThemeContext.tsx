@@ -61,13 +61,13 @@ export const defaultSubBanners: BannerSlide[] = [
     tag: '9.9 Siêu Sale',
     title: 'Ăn Sáng Ngon Rẻ - Chỉ từ 10.000đ',
     image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80',
-    link: '/?tab=products',
+    link: '/demo?tab=products',
   },
   {
     tag: 'Hàng Việt Tôi Yêu',
     title: 'Chất Lượng Chính Hãng - Freeship 0Đ',
     image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&auto=format&fit=crop&q=80',
-    link: '/?tab=products&filter=flash-sale',
+    link: '/demo?tab=products&filter=flash-sale',
   },
 ];
 
@@ -76,25 +76,25 @@ export const defaultBanners: BannerSlide[] = [
     tag: 'Siêu Sale Shopee',
     title: '🔥 Giảm Đến 50% & Freeship 0Đ Toàn Quốc',
     image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=900&auto=format&fit=crop&q=80',
-    link: '/?tab=products&filter=flash-sale',
+    link: '/demo?tab=products&filter=flash-sale',
   },
   {
     tag: 'Hàng Hiệu Mall',
     title: '⭐ Bộ Sưu Tập Thể Thao Mùa Giải Mới 2026',
     image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=900&auto=format&fit=crop&q=80',
-    link: '/?tab=products',
+    link: '/demo?tab=products',
   },
   {
     tag: 'Flash Sale Giờ Vàng',
     title: '⚡ Săn Deal Chớp Nhoáng - Số Lượng Có Hạn',
     image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=900&auto=format&fit=crop&q=80',
-    link: '/?tab=products&filter=flash-sale',
+    link: '/demo?tab=products&filter=flash-sale',
   },
   {
     tag: 'Quà Tặng Độc Quyền',
     title: '🎁 Mua 1 Tặng 1 - Tặng Kèm Phụ Kiện Thể Thao',
     image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&auto=format&fit=crop&q=80',
-    link: '/?tab=products',
+    link: '/demo?tab=products',
   },
 ];
 

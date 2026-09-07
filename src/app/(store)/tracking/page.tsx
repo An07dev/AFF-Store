@@ -216,11 +216,11 @@ function TrackingContent() {
       {/* Top Header */}
       <nav className={styles.topNav}>
         <div className={styles.topNavInner}>
-          <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Trang chủ">
+          <button className={styles.backBtn} onClick={() => router.push('/demo')} aria-label="Trang chủ">
             <FiChevronLeft size={22} />
           </button>
           <div className={styles.navTitle}>Theo Dõi Đơn Hàng</div>
-          <Link href="/" className={styles.navHomeIcon} title="Về trang chủ">
+          <Link href="/demo" className={styles.navHomeIcon} title="Về trang chủ">
             <FiHome size={18} />
           </Link>
         </div>
@@ -579,7 +579,7 @@ function TrackingContent() {
 
               {/* Quick Actions */}
               <div className={styles.actionGroup}>
-                <Link href="/" className={styles.homeBtn}>
+                <Link href="/demo" className={styles.homeBtn}>
                   <FiShoppingBag size={17} />
                   <span>Tiếp Tục Mua Sắm</span>
                 </Link>

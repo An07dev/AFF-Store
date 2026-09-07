@@ -338,21 +338,21 @@ function HomePageContent() {
       if (catSlug === 'home') {
         setActiveNavTab('home');
         setSelectedCategory('all');
-        router.push('/');
+        router.push('/demo');
         fetchProductsByParams(0, false, searchQuery, 'all');
       } else if (catSlug === 'all') {
         setActiveNavTab('products');
         setSelectedCategory('all');
-        router.push('/?tab=products');
+        router.push('/demo?tab=products');
         fetchProductsByParams(activeFilter, priceSortAsc, searchQuery, 'all');
       } else if (catSlug === 'categories') {
         setActiveNavTab('categories');
         setSelectedCategory('all');
-        router.push('/?tab=categories');
+        router.push('/demo?tab=categories');
       } else {
         setActiveNavTab(catSlug);
         setSelectedCategory(catSlug);
-        router.push(`/?tab=products&category=${encodeURIComponent(catSlug)}`);
+        router.push(`/demo?tab=products&category=${encodeURIComponent(catSlug)}`);
         fetchProductsByParams(activeFilter, priceSortAsc, searchQuery, catSlug);
       }
     },
@@ -392,10 +392,10 @@ function HomePageContent() {
       if (filterIndex === 4) setPriceSortAsc(isAsc);
       router.push(
         filterIndex === 1
-          ? '/?tab=products&filter=flash-sale'
+          ? '/demo?tab=products&filter=flash-sale'
           : filterIndex === 4
-            ? '/?tab=products&filter=price-asc'
-            : '/?tab=products'
+            ? '/demo?tab=products&filter=price-asc'
+            : '/demo?tab=products'
       );
       fetchProductsByParams(filterIndex, isAsc, '', 'all');
     },
