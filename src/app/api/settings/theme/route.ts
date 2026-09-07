@@ -87,13 +87,13 @@ export const defaultThemeConfig: IThemeConfig = {
   themeName: 'modern-blue',
   mode: 'dark',
   pageTitles: {
-    siteTitle: 'ShopBig - Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp',
-    homeTitle: 'Trang Chủ | ShopBig',
-    adminTitle: 'ShopBig Quản Trị Hệ Thống',
-    logoText: 'ShopBig',
-    logoUrl: '/images/logo.png',
-    faviconUrl: '/favicon.ico',
-    metaDescription: 'Trải nghiệm mua sắm thời trang trực tuyến thời thượng, giao hàng nhanh chóng toàn quốc.',
+    siteTitle: '',
+    homeTitle: '',
+    adminTitle: '',
+    logoText: '',
+    logoUrl: '',
+    faviconUrl: '',
+    metaDescription: '',
     bannerNotice: '🔥 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 500.000đ',
     showBannerNotice: true,
   },
@@ -185,7 +185,7 @@ export async function GET() {
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         },
       }
     );

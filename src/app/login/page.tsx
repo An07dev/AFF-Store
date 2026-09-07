@@ -6,7 +6,7 @@ export default function LoginPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h2 className={styles.title}>ShopBig Admin</h2>
+        <h2 className={styles.title}>Quản Trị Hệ Thống</h2>
         <form className={styles.form}>
           <div className={styles.inputGroup}>
             <label>Email</label>

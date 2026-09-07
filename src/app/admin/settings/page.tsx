@@ -454,20 +454,16 @@ export default function AdminSettingsPage() {
           pageTitles: {
             ...theme.pageTitles,
             logoUrl: data.data.url,
-            faviconUrl:
-              !theme.pageTitles?.faviconUrl || theme.pageTitles.faviconUrl === '/favicon.ico'
-                ? data.data.url
-                : theme.pageTitles.faviconUrl,
           },
         };
         setTheme(updated);
         applyCSSVariables(updated);
-        toast.success('Upload Logo thành công!');
+        toast.success('Upload Logo thành công! Hãy bấm "Lưu Cấu Hình" để lưu lại.');
       } else {
-        toast.error(data.message || 'Lỗi upload ảnh');
+        toast.error(data.message || 'Lỗi upload ảnh logo');
       }
     } catch (err) {
-      toast.error('Lỗi khi tải ảnh lên');
+      toast.error('Lỗi khi tải ảnh logo lên');
     } finally {
       setIsUploading(false);
     }
@@ -491,11 +487,14 @@ export default function AdminSettingsPage() {
       if (data.success && data.data?.url) {
         const updated: ThemeConfig = {
           ...theme,
-          pageTitles: { ...theme.pageTitles, faviconUrl: data.data.url },
+          pageTitles: {
+            ...theme.pageTitles,
+            faviconUrl: data.data.url,
+          },
         };
         setTheme(updated);
         applyCSSVariables(updated);
-        toast.success('Upload Favicon thành công!');
+        toast.success('Upload Favicon thành công! Hãy bấm "Lưu Cấu Hình" để lưu lại.');
       } else {
         toast.error(data.message || 'Lỗi upload favicon');
       }
@@ -726,14 +725,20 @@ export default function AdminSettingsPage() {
                     <input
                       type="text"
                       className={styles.input}
+                      placeholder="Ví dụ: Cửa Hàng Thời Trang & Phụ Kiện Cao Cấp"
                       value={theme.pageTitles?.siteTitle || ''}
-                      onChange={(e) =>
-                        setTheme({
+                      onChange={(e) => {
+                        const updated: ThemeConfig = {
                           ...theme,
                           pageTitles: { ...theme.pageTitles, siteTitle: e.target.value },
-                        })
-                      }
+                        };
+                        setTheme(updated);
+                        applyCSSVariables(updated);
+                      }}
                     />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 4 }}>
+                      Hiển thị trên thanh tiêu đề tab trình duyệt và công cụ tìm kiếm Google
+                    </span>
                   </div>
 
                   <div className={styles.formGroup}>
@@ -741,13 +746,16 @@ export default function AdminSettingsPage() {
                     <input
                       type="text"
                       className={styles.input}
+                      placeholder="Ví dụ: MyStore"
                       value={theme.pageTitles?.logoText || ''}
-                      onChange={(e) =>
-                        setTheme({
+                      onChange={(e) => {
+                        const updated: ThemeConfig = {
                           ...theme,
                           pageTitles: { ...theme.pageTitles, logoText: e.target.value },
-                        })
-                      }
+                        };
+                        setTheme(updated);
+                        applyCSSVariables(updated);
+                      }}
                     />
                   </div>
                 </div>
@@ -760,12 +768,14 @@ export default function AdminSettingsPage() {
                       className={styles.input}
                       placeholder="https://... hoặc /uploads/logo.png"
                       value={theme.pageTitles?.logoUrl || ''}
-                      onChange={(e) =>
-                        setTheme({
+                      onChange={(e) => {
+                        const updated: ThemeConfig = {
                           ...theme,
                           pageTitles: { ...theme.pageTitles, logoUrl: e.target.value },
-                        })
-                      }
+                        };
+                        setTheme(updated);
+                        applyCSSVariables(updated);
+                      }}
                       style={{ flex: 1 }}
                     />
                     <button
@@ -783,6 +793,16 @@ export default function AdminSettingsPage() {
                       onChange={handleLogoUpload}
                     />
                   </div>
+                  {theme.pageTitles?.logoUrl && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>Logo xem trước:</span>
+                      <img
+                        src={theme.pageTitles.logoUrl}
+                        alt="Logo Preview"
+                        style={{ height: 32, maxWidth: 160, objectFit: 'contain', background: '#090a0f', border: '1px solid var(--border-color, #232838)', padding: '2px 6px', borderRadius: 6 }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.formGroup}>
@@ -791,14 +811,16 @@ export default function AdminSettingsPage() {
                     <input
                       type="text"
                       className={styles.input}
-                      placeholder="/favicon.ico hoặc URL icon"
+                      placeholder="URL favicon icon (PNG, ICO, SVG) hoặc bấm Upload icon"
                       value={theme.pageTitles?.faviconUrl || ''}
-                      onChange={(e) =>
-                        setTheme({
+                      onChange={(e) => {
+                        const updated: ThemeConfig = {
                           ...theme,
                           pageTitles: { ...theme.pageTitles, faviconUrl: e.target.value },
-                        })
-                      }
+                        };
+                        setTheme(updated);
+                        applyCSSVariables(updated);
+                      }}
                       style={{ flex: 1 }}
                     />
                     <button
@@ -812,10 +834,20 @@ export default function AdminSettingsPage() {
                       type="file"
                       ref={faviconInputRef}
                       style={{ display: 'none' }}
-                      accept="image/*"
+                      accept="image/*,.ico"
                       onChange={handleFaviconUpload}
                     />
                   </div>
+                  {theme.pageTitles?.faviconUrl && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>Icon tab xem trước:</span>
+                      <img
+                        src={theme.pageTitles.faviconUrl}
+                        alt="Favicon Preview"
+                        style={{ width: 28, height: 28, objectFit: 'contain', background: '#1e293b', border: '1px solid var(--border-color, #232838)', padding: 3, borderRadius: 6 }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.formGroup}>
@@ -824,12 +856,14 @@ export default function AdminSettingsPage() {
                     type="text"
                     className={styles.input}
                     value={theme.pageTitles?.bannerNotice || ''}
-                    onChange={(e) =>
-                      setTheme({
+                    onChange={(e) => {
+                      const updated: ThemeConfig = {
                         ...theme,
                         pageTitles: { ...theme.pageTitles, bannerNotice: e.target.value },
-                      })
-                    }
+                      };
+                      setTheme(updated);
+                      applyCSSVariables(updated);
+                    }}
                   />
                 </div>
 
@@ -1872,7 +1906,7 @@ export default function AdminSettingsPage() {
                     />
                   ) : (
                     <span>
-                      {theme.pageTitles.logoText || 'ShopBig'}
+                      {theme.pageTitles.logoText || 'Cửa Hàng'}
                       <span style={{ color: theme.buttonColors.primaryBg }}>.vn</span>
                     </span>
                   )}

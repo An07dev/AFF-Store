@@ -24,7 +24,7 @@ export async function autoSeedIfNeeded(options?: SeedOptions) {
     // 1. Create essential Admin account
     const adminEmail = options?.adminEmail?.trim() || 'admin@shopbig.vn';
     const adminPassword = options?.adminPassword || 'admin123';
-    const shopName = options?.shopName?.trim() || 'ShopBig';
+    const shopName = options?.shopName?.trim() || '';
 
     let admin = await User.findOne({ email: adminEmail });
     if (!admin) {

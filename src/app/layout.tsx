@@ -6,6 +6,8 @@ import { CustomerAuthProvider } from '@/contexts/CustomerAuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import DatabaseSetupBanner from '@/components/common/DatabaseSetupBanner';
+import connectToDatabase from '@/lib/mongodb';
+import Setting from '@/models/Setting';
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin', 'vietnamese'],
@@ -14,19 +16,31 @@ const jakarta = Plus_Jakarta_Sans({
   variable: '--font-jakarta',
 });
 
-export const metadata: Metadata = {
-  title: 'ShopBig - Cửa Hàng Thời Trang & Công Nghệ',
-  description: 'Trải nghiệm mua sắm trực tuyến cao cấp, giao hàng nhanh chóng toàn quốc.',
-  icons: {
-    icon: [
-      { url: '/images/logo.png' },
-      { url: '/icon.png', sizes: '256x256', type: 'image/png' },
-      { url: '/favicon.ico' },
-    ],
-    shortcut: '/images/logo.png',
-    apple: '/apple-touch-icon.png',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    await connectToDatabase();
+    const setting = await Setting.findOne({ key: 'theme_settings' });
+    const siteTitle = setting?.value?.pageTitles?.siteTitle?.trim() || setting?.value?.pageTitles?.logoText?.trim() || '';
+    const metaDescription = setting?.value?.pageTitles?.metaDescription?.trim() || '';
+    const faviconUrl = setting?.value?.pageTitles?.faviconUrl?.trim() || setting?.value?.pageTitles?.logoUrl?.trim() || '';
+
+    return {
+      title: siteTitle || undefined,
+      description: metaDescription || undefined,
+      ...(faviconUrl
+        ? {
+            icons: {
+              icon: faviconUrl,
+              shortcut: faviconUrl,
+              apple: faviconUrl,
+            },
+          }
+        : {}),
+    };
+  } catch {
+    return {};
+  }
+}
 
 export default function RootLayout({
   children,

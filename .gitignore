@@ -48,3 +48,9 @@ scripts/test*
 /data/db/
 data/
 
+node_modules
+.next
+out
+.env.local
+.env
+deploy.zip

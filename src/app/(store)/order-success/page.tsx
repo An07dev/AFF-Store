@@ -162,7 +162,7 @@ function OrderSuccessContent() {
 
   const orderCode = order?.orderCode || code;
   const isPaid = isPaidQuery || order?.paymentStatus === 'paid';
-  const shopName = theme?.pageTitles?.logoText || 'ShopBig Store';
+  const shopName = theme?.pageTitles?.logoText || 'Cửa Hàng';
   const subtotal =
     order?.subtotal ||
     order?.items?.reduce((acc: number, i: any) => acc + (i.price * i.quantity), 0) ||

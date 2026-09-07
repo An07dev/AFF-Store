@@ -267,7 +267,7 @@ export default function AdminLoginPage() {
             />
           )}
           <div className={styles.logoText}>
-            {theme.pageTitles?.logoText || 'ShopBig'}
+            {theme.pageTitles?.logoText || 'Cửa Hàng'}
             <span className={styles.logoBadge}>Admin</span>
           </div>
         </div>
@@ -373,7 +373,7 @@ export default function AdminLoginPage() {
         </div>
 
         <div className={styles.footerNote}>
-          © 2026 {theme.pageTitles?.logoText || 'ShopBig'} E-Commerce Portal. All rights reserved.
+          © 2026 {theme.pageTitles?.logoText || 'Cửa Hàng'} E-Commerce Portal. All rights reserved.
         </div>
       </div>
     </div>

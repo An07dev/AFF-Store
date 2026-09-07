@@ -399,7 +399,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const shopName = theme?.pageTitles?.logoText || 'ShopBig Store';
+  const shopName = theme?.pageTitles?.logoText || 'Cửa Hàng';
 
   if (isInitialized && activeItems.length === 0) {
     return (

@@ -159,7 +159,7 @@ export default function OrderPackingSlipModal({
       <html lang="vi">
       <head>
         <meta charset="UTF-8">
-        <title>In Phiếu Đóng Hàng ShopBig</title>
+        <title>In Phiếu Đóng Hàng</title>
         <style>
           * {
             box-sizing: border-box;
@@ -370,7 +370,7 @@ export default function OrderPackingSlipModal({
       // Create an invisible iframe to isolate print stylesheet from Next.js CSS
       const existingIframe = document.getElementById('print-slip-iframe');
       if (existingIframe) {
-        document.body.removeChild(existingIframe);
+        existingIframe.remove();
       }
 
       const printIframe = document.createElement('iframe');
@@ -394,9 +394,8 @@ export default function OrderPackingSlipModal({
         setTimeout(() => {
           printIframe.contentWindow?.print();
           setTimeout(() => {
-            if (document.getElementById('print-slip-iframe')) {
-              document.body.removeChild(printIframe);
-            }
+            const el = document.getElementById('print-slip-iframe');
+            if (el) el.remove();
           }, 3000);
         }, 400);
       }

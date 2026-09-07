@@ -31,7 +31,7 @@ export function getTenantConfig(): TenantConfig | null {
   if (process.env.TENANT_DB_NAME || process.env.LICENSE_KEY) {
     const dbName = process.env.TENANT_DB_NAME || 'shop_primary';
     const config: TenantConfig = {
-      shopName: process.env.SHOP_NAME || 'ShopBig',
+      shopName: process.env.SHOP_NAME || 'Cửa Hàng',
       dbName: dbName,
       mongoUri: buildMongoUriForDb(dbName),
       createdAt: new Date().toISOString(),
