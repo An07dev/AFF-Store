@@ -75,14 +75,14 @@ export default function ProductDetailPage() {
         !document.referrer.includes(window.location.host);
 
       if (isExternalReferrer || window.history.length <= 1) {
-        router.push('/');
+        router.push('/demo');
         return;
       }
 
       router.back();
       return;
     }
-    router.push('/');
+    router.push('/demo');
   };
 
   // Dynamic Selected Attributes state: { [optionName: string]: string }
@@ -653,7 +653,7 @@ export default function ProductDetailPage() {
           <h3>Không tìm thấy sản phẩm</h3>
           <p style={{ color: 'var(--text-muted)' }}>Sản phẩm có thể đã bị xóa hoặc ngưng kinh doanh.</p>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/demo')}
             style={{
               marginTop: 16,
               padding: '10px 20px',
@@ -938,7 +938,7 @@ export default function ProductDetailPage() {
                 <div className={styles.shopMeta}>⭐ 4.8 | 12.5K đã bán</div>
               </div>
             </div>
-            <Link href="/" className={styles.viewShopBtn}>
+            <Link href="/demo" className={styles.viewShopBtn}>
               Xem Shop
             </Link>
           </div>
@@ -1078,7 +1078,7 @@ export default function ProductDetailPage() {
                   <span className={styles.relatedSparkleIcon}>✨</span>
                   <h3 className={styles.relatedTitle}>CÓ THỂ BẠN CŨNG THÍCH</h3>
                 </div>
-                <Link href="/?tab=products" className={styles.relatedSeeAllBtn}>
+                <Link href="/demo?tab=products" className={styles.relatedSeeAllBtn}>
                   <span>Xem thêm</span>
                   <FiChevronRight size={13} />
                 </Link>
@@ -1146,7 +1146,7 @@ export default function ProductDetailPage() {
               <FiChevronLeft size={22} />
             </button>
             <div className={styles.breadcrumbGroup}>
-              <Link href="/" className={styles.breadcrumbLink}>
+              <Link href="/demo" className={styles.breadcrumbLink}>
                 <FiHome size={13} /> Trang Chủ
               </Link>
               <span className={styles.breadcrumbDivider}>/</span>
@@ -1270,7 +1270,7 @@ export default function ProductDetailPage() {
                   <div className={styles.shopMeta}>⭐ 4.9 • 15.2K đã bán • Phản hồi 99%</div>
                 </div>
               </div>
-              <Link href="/" className={styles.viewShopBtn}>
+              <Link href="/demo" className={styles.viewShopBtn}>
                 Xem Shop
               </Link>
             </div>
@@ -1606,7 +1606,7 @@ export default function ProductDetailPage() {
                 <span className={styles.relatedSparkleIcon}>✨</span>
                 <h3 className={styles.relatedTitle}>CÓ THỂ BẠN CŨNG THÍCH</h3>
               </div>
-              <Link href="/?tab=products" className={styles.relatedSeeAllBtn}>
+              <Link href="/demo?tab=products" className={styles.relatedSeeAllBtn}>
                 <span>Xem tất cả</span>
                 <FiChevronRight size={14} />
               </Link>

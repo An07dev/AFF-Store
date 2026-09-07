@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { License } from '@/models/License';
 import { Customer } from '@/models/Customer';
 
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     const keyPrice = price ? Number(price) : cleanPlan === '799k' ? 799000 : 399000;
     const numKeys = Math.min(20, Math.max(1, Number(count) || 1));
 
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     const createdKeys = [];
 

@@ -24,13 +24,13 @@ const DEFAULT_SUB_BANNERS: BannerItem[] = [
     tag: '9.9 Siêu Sale',
     title: 'Ăn Sáng Ngon Rẻ - Chỉ từ 10.000đ',
     image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80',
-    link: '/?tab=products',
+    link: '/demo?tab=products',
   },
   {
     tag: 'Hàng Việt Tôi Yêu',
     title: 'Chất Lượng Chính Hãng - Freeship 0Đ',
     image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&auto=format&fit=crop&q=80',
-    link: '/?tab=products&filter=flash-sale',
+    link: '/demo?tab=products&filter=flash-sale',
   },
 ];
 
@@ -76,7 +76,7 @@ const HeroBannerCarouselComponent: React.FC<HeroBannerCarouselProps> = ({
                 } else if (onNavigateToProducts) {
                   onNavigateToProducts();
                 } else {
-                  router.push('/?tab=products');
+                  router.push('/demo?tab=products');
                 }
               }}
             >
@@ -151,7 +151,7 @@ const HeroBannerCarouselComponent: React.FC<HeroBannerCarouselProps> = ({
                 } else if (onNavigateToProducts) {
                   onNavigateToProducts();
                 } else {
-                  router.push('/?tab=products');
+                  router.push('/demo?tab=products');
                 }
               }}
             >

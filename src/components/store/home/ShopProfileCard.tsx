@@ -15,7 +15,7 @@ import {
   FiMapPin,
   FiBriefcase,
 } from 'react-icons/fi';
-import styles from '@/app/(store)/page.module.css';
+import styles from '@/app/(store)/demo/page.module.css';
 
 interface ShopProfileCardProps {
   shopDisplayName: string;

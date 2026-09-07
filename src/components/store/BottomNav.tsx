@@ -26,9 +26,9 @@ function BottomNavContent() {
     return null;
   }
 
-  const isHome = pathname === '/' && (!currentTab || currentTab === 'home');
-  const isProducts = pathname === '/' && currentTab === 'products';
-  const isCategories = pathname === '/' && currentTab === 'categories';
+  const isHome = (pathname === '/demo' || pathname === '/') && (!currentTab || currentTab === 'home');
+  const isProducts = (pathname === '/demo' || pathname === '/') && currentTab === 'products';
+  const isCategories = (pathname === '/demo' || pathname === '/') && currentTab === 'categories';
   const isTracking = pathname === '/tracking';
 
   const handleProductsClick = () => {
@@ -46,7 +46,7 @@ function BottomNavContent() {
   return (
     <nav className={styles.bottomNav}>
       <Link
-        href="/"
+        href="/demo"
         className={`${styles.navItem} ${isHome ? styles.active : ''}`}
         onClick={handleHomeClick}
       >
@@ -55,7 +55,7 @@ function BottomNavContent() {
       </Link>
 
       <Link
-        href="/?tab=products"
+        href="/demo?tab=products"
         className={`${styles.navItem} ${isProducts ? styles.active : ''}`}
         onClick={handleProductsClick}
       >
@@ -64,7 +64,7 @@ function BottomNavContent() {
       </Link>
 
       <Link
-        href="/?tab=categories"
+        href="/demo?tab=categories"
         className={`${styles.navItem} ${isCategories ? styles.active : ''}`}
       >
         <FiLayers className={styles.icon} />

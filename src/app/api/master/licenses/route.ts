@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { License } from '@/models/License';
 
 export async function GET(request: Request) {
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const plan = searchParams.get('plan');
     const query = searchParams.get('q');
 
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     // 1. Thống kê tổng quan (Metrics)
     const [

@@ -519,7 +519,7 @@ export default function AdminSettingsPage() {
       tag: 'Khuyến Mãi Mới',
       title: '🔥 Siêu Ưu Đãi Đặc Biệt Hôm Nay',
       image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=900&auto=format&fit=crop&q=80',
-      link: '/?tab=products',
+      link: '/demo?tab=products',
     };
     setTheme({ ...theme, banners: [...currentBanners, newBanner] });
     toast.success('Đã thêm 1 banner mới!');
@@ -578,7 +578,7 @@ export default function AdminSettingsPage() {
     const currentSubBanners = theme.subBanners && theme.subBanners.length > 0 ? theme.subBanners : defaultSubBanners;
     const updated = [...currentSubBanners];
     while (updated.length < 2) {
-      const fallback = defaultSubBanners[updated.length] || { tag: '', title: '', image: '', link: '/?tab=products' };
+      const fallback = defaultSubBanners[updated.length] || { tag: '', title: '', image: '', link: '/demo?tab=products' };
       updated.push({ ...fallback });
     }
     updated[index] = { ...updated[index], [field]: value };
@@ -972,7 +972,7 @@ export default function AdminSettingsPage() {
                             <input
                               type="text"
                               className={styles.input}
-                              placeholder="/?tab=products&filter=flash-sale"
+                              placeholder="/demo?tab=products&filter=flash-sale"
                               value={banner.link || ''}
                               onChange={(e) => handleBannerChange(index, 'link', e.target.value)}
                             />
@@ -1058,7 +1058,7 @@ export default function AdminSettingsPage() {
                   <div className={styles.bannerList}>
                     {[0, 1].map((subIdx) => {
                       const currentSubBanners = theme.subBanners && theme.subBanners.length > 0 ? theme.subBanners : defaultSubBanners;
-                      const subBanner = currentSubBanners[subIdx] || defaultSubBanners[subIdx] || { tag: '', title: '', image: '', link: '/?tab=products' };
+                      const subBanner = currentSubBanners[subIdx] || defaultSubBanners[subIdx] || { tag: '', title: '', image: '', link: '/demo?tab=products' };
                       const labelText = subIdx === 0 ? 'Banner Phụ Phía Trên (Top Sub-Banner)' : 'Banner Phụ Phía Dưới (Bottom Sub-Banner)';
 
                       return (
@@ -1098,7 +1098,7 @@ export default function AdminSettingsPage() {
                                 <input
                                   type="text"
                                   className={styles.input}
-                                  placeholder="/?tab=products"
+                                  placeholder="/demo?tab=products"
                                   value={subBanner.link || ''}
                                   onChange={(e) => handleSubBannerChange(subIdx, 'link', e.target.value)}
                                 />

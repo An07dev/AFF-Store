@@ -9,7 +9,7 @@ import {
   FiClock,
   FiX,
 } from 'react-icons/fi';
-import styles from '@/app/(store)/page.module.css';
+import styles from '@/app/(store)/demo/page.module.css';
 
 interface StoreHeaderProps {
   logoUrl?: string;
@@ -153,7 +153,7 @@ const StoreHeaderComponent: React.FC<StoreHeaderProps> = ({
       <div className={styles.shopeeMainHeader}>
         <div className={styles.shopeeMainHeaderInner}>
           {/* Shopee Logo Brand */}
-          <Link href="/" className={styles.shopeeLogoBrand}>
+          <Link href="/demo" className={styles.shopeeLogoBrand}>
             {logoUrl && !logoError ? (
               <img
                 src={logoUrl}

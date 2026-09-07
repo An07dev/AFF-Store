@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { FiCheckCircle } from 'react-icons/fi';
-import styles from '@/app/(store)/page.module.css';
+import styles from '@/app/(store)/demo/page.module.css';
 
 const TrustCommitmentBarComponent: React.FC = () => {
   return (

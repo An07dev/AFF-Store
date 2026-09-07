@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { License } from '@/models/License';
 import mongoose from 'mongoose';
 
@@ -11,7 +11,7 @@ interface RouteContext {
 export async function GET(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     const isObjectId = mongoose.Types.ObjectId.isValid(id);
     const license = await License.findOne({
@@ -41,7 +41,7 @@ export async function DELETE(request: Request, context: RouteContext) {
     const { searchParams } = new URL(request.url);
     const force = searchParams.get('force') === 'true';
 
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     const isObjectId = mongoose.Types.ObjectId.isValid(id);
     const query = {

@@ -321,7 +321,7 @@ export default function SetupPage() {
               <FiRefreshCw className={loadingStatus ? styles.spin : ''} />
               <span>Làm mới trạng thái</span>
             </button>
-            <Link href="/" className={styles.headerLink}>
+            <Link href="/demo" className={styles.headerLink}>
               Trang Bán Hàng
             </Link>
           </div>
@@ -711,7 +711,7 @@ export default function SetupPage() {
                         <span>Đăng Nhập Trang Quản Trị (Admin)</span>
                         <FiArrowRight size={16} />
                       </Link>
-                      <Link href="/" className={styles.btnNavStore}>
+                      <Link href="/demo" className={styles.btnNavStore}>
                         <FiShoppingBag size={18} />
                         <span>Xem Cửa Hàng (Storefront)</span>
                       </Link>

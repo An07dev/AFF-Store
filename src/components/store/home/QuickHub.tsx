@@ -12,7 +12,7 @@ import {
   QuickIconTracking,
   QuickIconConsult,
 } from '@/components/store/QuickHubIcons';
-import styles from '@/app/(store)/page.module.css';
+import styles from '@/app/(store)/demo/page.module.css';
 
 interface QuickHubProps {
   onScrollToFlashSale: () => void;

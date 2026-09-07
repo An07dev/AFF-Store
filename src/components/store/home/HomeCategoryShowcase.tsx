@@ -3,7 +3,7 @@
 import React, { memo } from 'react';
 import Image from 'next/image';
 import { FiLayers, FiChevronRight } from 'react-icons/fi';
-import styles from '@/app/(store)/page.module.css';
+import styles from '@/app/(store)/demo/page.module.css';
 
 interface CategoryItem {
   _id: string;
