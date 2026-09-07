@@ -363,14 +363,65 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.title = dynamicTitle;
     }
 
-    // Dynamic Favicon & Browser Tab Icon Synchronization
-    const faviconToUse =
-      config.pageTitles?.faviconUrl?.trim() ||
-      config.pageTitles?.logoUrl?.trim() ||
-      '';
+    // Dynamic Favicon & Browser Tab Icon Synchronization (Forces browser to repaint tab icon)
+    const rawFavicon = config.pageTitles?.faviconUrl?.trim();
+    const rawLogo = config.pageTitles?.logoUrl?.trim();
+    const faviconToUse = rawFavicon || rawLogo;
 
     if (faviconToUse) {
-      updateDocumentFavicon(faviconToUse);
+      try {
+        const existingIcons = document.querySelectorAll<HTMLLinkElement>(
+          "link[rel~='icon'], link[rel='shortcut icon'], link[rel='apple-touch-icon']"
+        );
+
+        let alreadyMatched = false;
+        if (existingIcons.length > 0) {
+          existingIcons.forEach((el) => {
+            const href = el.getAttribute('href');
+            if (href === faviconToUse) {
+              alreadyMatched = true;
+            }
+          });
+        }
+
+        if (!alreadyMatched) {
+          existingIcons.forEach((el) => el.remove());
+
+          let mimeType = 'image/x-icon';
+          if (faviconToUse.endsWith('.png') || faviconToUse.includes('.png')) {
+            mimeType = 'image/png';
+          } else if (faviconToUse.endsWith('.svg') || faviconToUse.includes('.svg')) {
+            mimeType = 'image/svg+xml';
+          } else if (
+            faviconToUse.endsWith('.jpg') ||
+            faviconToUse.endsWith('.jpeg') ||
+            faviconToUse.includes('.jpg') ||
+            faviconToUse.includes('.jpeg')
+          ) {
+            mimeType = 'image/jpeg';
+          } else if (faviconToUse.endsWith('.webp') || faviconToUse.includes('.webp')) {
+            mimeType = 'image/webp';
+          }
+
+          const link = document.createElement('link');
+          link.rel = 'icon';
+          link.type = mimeType;
+          link.href = faviconToUse;
+          document.head.appendChild(link);
+
+          const shortcutLink = document.createElement('link');
+          shortcutLink.rel = 'shortcut icon';
+          shortcutLink.href = faviconToUse;
+          document.head.appendChild(shortcutLink);
+
+          const appleLink = document.createElement('link');
+          appleLink.rel = 'apple-touch-icon';
+          appleLink.href = faviconToUse;
+          document.head.appendChild(appleLink);
+        }
+      } catch (iconErr) {
+        console.warn('Failed to update browser favicon:', iconErr);
+      }
     }
 
     // Meta Description
@@ -412,7 +463,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // B. Immediately fetch fresh theme from API (ensuring new preset from Admin applies instantly)
     async function loadFreshTheme() {
       try {
-        const res = await apiFetch('/api/settings/theme');
+        const res = await apiFetch(`/api/settings/theme?_t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' },
+        });
         const data = await res.json();
         if (data?.success && data?.data) {
           const merged: ThemeConfig = {

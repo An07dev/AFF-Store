@@ -15,6 +15,7 @@ import { clientCache } from '@/lib/clientCache';
 import StoreHeader from '@/components/store/home/StoreHeader';
 import HeroBannerCarousel from '@/components/store/home/HeroBannerCarousel';
 import FlashSaleSection from '@/components/store/home/FlashSaleSection';
+import TopBestSellersSection from '@/components/store/home/TopBestSellersSection';
 import HomeCategoryShowcase from '@/components/store/home/HomeCategoryShowcase';
 import TrustCommitmentBar from '@/components/store/home/TrustCommitmentBar';
 import ShopProfileCard from '@/components/store/home/ShopProfileCard';
@@ -77,6 +78,14 @@ function HomePageContent() {
   const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
   const recommendedSectionRef = useRef<HTMLElement>(null);
   const productsTabRef = useRef<HTMLDivElement>(null);
+
+  // Top 3 Best-Selling Products for Home Section Podium
+  const topBestSellers = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    return [...products]
+      .sort((a, b) => ((b.soldCount ?? b.sold ?? 0) - (a.soldCount ?? a.sold ?? 0)))
+      .slice(0, 3);
+  }, [products]);
 
   const displayedProducts = useMemo(() => {
     return products.slice(0, displayCount);
@@ -567,7 +576,14 @@ function HomePageContent() {
               sectionRef={flashSaleRef}
             />
 
-            {/* 4. SHOPEE CATEGORIES SHOWCASE */}
+            {/* 4. TOP 3 BEST SELLERS PODIUM SECTION */}
+            <TopBestSellersSection
+              products={topBestSellers}
+              onQuickAdd={handleQuickAdd}
+              onSeeAll={() => handleQuickFilter(2, false)}
+            />
+
+            {/* 5. SHOPEE CATEGORIES SHOWCASE */}
             <HomeCategoryShowcase
               categories={categories}
               categoryImageMap={categoryImageMap}

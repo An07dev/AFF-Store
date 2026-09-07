@@ -6,8 +6,6 @@ import { CustomerAuthProvider } from '@/contexts/CustomerAuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import DatabaseSetupBanner from '@/components/common/DatabaseSetupBanner';
-import connectToDatabase from '@/lib/mongodb';
-import Setting from '@/models/Setting';
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin', 'vietnamese'],
@@ -16,29 +14,46 @@ const jakarta = Plus_Jakarta_Sans({
   variable: '--font-jakarta',
 });
 
+import connectToDatabase from '@/lib/mongodb';
+import Setting from '@/models/Setting';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function generateMetadata(): Promise<Metadata> {
   try {
     await connectToDatabase();
-    const setting = await Setting.findOne({ key: 'theme_settings' });
-    const siteTitle = setting?.value?.pageTitles?.siteTitle?.trim() || setting?.value?.pageTitles?.logoText?.trim() || '';
-    const metaDescription = setting?.value?.pageTitles?.metaDescription?.trim() || '';
-    const faviconUrl = setting?.value?.pageTitles?.faviconUrl?.trim() || setting?.value?.pageTitles?.logoUrl?.trim() || '';
+    const setting = await Setting.findOne({ key: 'theme_settings' }).lean();
+    const themeConfig = (setting as any)?.value || {};
+    const pageTitles = themeConfig?.pageTitles || {};
+
+    const title = pageTitles.siteTitle || 'Trải nghiệm mua sắm thời trang trực tuyến thời thượng,Miễn phí giao hàng nhanh chóng toàn quốc.';
+    const description = pageTitles.metaDescription || 'Trải nghiệm mua sắm trực tuyến cao cấp, giao hàng nhanh chóng toàn quốc.';
+    const rawFavicon = pageTitles.faviconUrl?.trim();
+    const rawLogo = pageTitles.logoUrl?.trim();
+    const faviconUrl = rawFavicon || rawLogo || '/favicon.ico';
 
     return {
-      title: siteTitle || undefined,
-      description: metaDescription || undefined,
-      ...(faviconUrl
-        ? {
-            icons: {
-              icon: faviconUrl,
-              shortcut: faviconUrl,
-              apple: faviconUrl,
-            },
-          }
-        : {}),
+      title,
+      description,
+      icons: {
+        icon: [
+          { url: faviconUrl },
+        ],
+        shortcut: [faviconUrl],
+        apple: [faviconUrl],
+      },
     };
-  } catch {
-    return {};
+  } catch (error) {
+    return {
+      title: 'Trải nghiệm mua sắm thời trang trực tuyến thời thượng,Miễn phí giao hàng nhanh chóng toàn quốc.',
+      description: 'Trải nghiệm mua sắm trực tuyến cao cấp, giao hàng nhanh chóng toàn quốc.',
+      icons: {
+        icon: [{ url: '/favicon.ico' }],
+        shortcut: ['/favicon.ico'],
+        apple: ['/favicon.ico'],
+      },
+    };
   }
 }
 

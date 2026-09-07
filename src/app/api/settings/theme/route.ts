@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import connectToDatabase from '@/lib/mongodb';
 import Setting from '@/models/Setting';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export interface IBannerSlide {
   tag: string;
@@ -185,7 +189,9 @@ export async function GET() {
       },
       {
         headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
         },
       }
     );
@@ -238,6 +244,13 @@ export async function POST(request: Request) {
       { value: updatedConfig },
       { upsert: true, new: true }
     );
+
+    // Revalidate Next.js Server-Side Layouts & Metadata cache immediately
+    try {
+      revalidatePath('/', 'layout');
+    } catch (revalErr) {
+      console.warn('Revalidate layout path failed:', revalErr);
+    }
 
     return NextResponse.json({
       success: true,
