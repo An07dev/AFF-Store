@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { Lead } from '@/models/Lead';
 import { WebhookLog } from '@/models/WebhookLog';
 import { License } from '@/models/License';
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
     const orderCode = rawOrderCode.toUpperCase();
 
-    await connectToDatabase();
+    await connectToMasterDatabase();
 
     // 1. Tìm Lead theo orderCode
     let lead = null;

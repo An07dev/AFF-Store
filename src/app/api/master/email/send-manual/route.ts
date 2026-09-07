@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToMasterDatabase } from '@/lib/mongodb';
 import { sendLicenseEmail } from '@/lib/email';
 import { License } from '@/models/License';
 import { Lead } from '@/models/Lead';

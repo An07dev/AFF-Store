@@ -69,11 +69,14 @@ export default function DatabaseSetupBanner() {
   const [copiedKey, setCopiedKey] = useState(false);
   const [isModalClosed, setIsModalClosed] = useState(false);
 
-  // Do not show modal when on /setup page
+  // Do not show modal when on Landing (/ or /landing), /setup, or /master pages
+  const isLandingPage = pathname === '/' || pathname === '/landing';
   const isSetupPage = pathname === '/setup';
   const isAdminPage = pathname?.startsWith('/admin');
+  const isMasterPage = pathname?.startsWith('/master');
 
   const checkDb = async (forceFresh = false) => {
+    if (isLandingPage || isSetupPage || isMasterPage) return;
     try {
       let localKeyParam = '';
       if (typeof window !== 'undefined') {
@@ -114,9 +117,12 @@ export default function DatabaseSetupBanner() {
   };
 
   useEffect(() => {
-    if (isSetupPage) return;
+    if (isLandingPage || isSetupPage || isMasterPage) {
+      setLoading(false);
+      return;
+    }
     checkDb();
-  }, [pathname, isSetupPage]);
+  }, [pathname, isLandingPage, isSetupPage, isMasterPage]);
 
   // Handle License Validation & 1-Click Provisioning
   const handleActivateAndProvision = async (e?: React.FormEvent) => {
@@ -250,6 +256,11 @@ export default function DatabaseSetupBanner() {
     router.refresh();
   };
 
+  // Landing page, Master page and Setup page never show this modal
+  if (isLandingPage || isMasterPage || isSetupPage) {
+    return null;
+  }
+
   // 1. CRITICAL: If the store's license is REVOKED or LOCKED, block 100% access everywhere!
   if (status?.isRevoked || status?.isLocked || status?.licenseStatus === 'revoked') {
     return (
@@ -356,7 +367,7 @@ export default function DatabaseSetupBanner() {
   }
 
   // 2. Normal Setup Checks
-  if (isSetupPage || isAdminPage || loading || !status || isModalClosed) {
+  if (isLandingPage || isMasterPage || isSetupPage || isAdminPage || loading || !status || isModalClosed) {
     return null;
   }
 

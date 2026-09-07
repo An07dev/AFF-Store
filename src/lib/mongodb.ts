@@ -39,8 +39,17 @@ export async function connectToMasterDatabase(): Promise<typeof mongoose> {
     ? MASTER_MONGODB_URI.replace('{DB_NAME}', 'webstore')
     : MASTER_MONGODB_URI;
 
-  if (cached.conn && cached.activeUri === masterUri && cached.conn.connection.readyState === 1) {
+  if (cached.conn && cached.activeUri === masterUri && mongoose.connection.readyState === 1) {
     return cached.conn;
+  }
+
+  // If already connected to another URI, safely disconnect before connecting to master
+  if (mongoose.connection.readyState !== 0 && cached.activeUri !== masterUri) {
+    try {
+      await mongoose.disconnect();
+    } catch (e) {}
+    cached.conn = null;
+    cached.promise = null;
   }
 
   console.log('🔒 [Master DB Connect] Đang kết nối tới Master Cluster webstore...');
