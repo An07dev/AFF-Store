@@ -235,6 +235,64 @@ export async function findLicenseByHostOrKey(host?: string, key?: string): Promi
 }
 
 /**
+ * Auto-resolve the active tenant config from Cloud Master DB
+ * Matches by host/domain or falls back to latest activated license
+ */
+export async function findActiveTenantFromCloud(host?: string, key?: string): Promise<{ shopName: string; dbName: string; mongoUri: string; licenseKey: string; } | null> {
+  try {
+    const conn = await getMasterConnection();
+    const collection = conn.collection<LicenseRecord>(COLLECTION_NAME);
+
+    let rec: LicenseRecord | null = null;
+
+    if (key) {
+      rec = await collection.findOne({
+        licenseKey: key.trim().toUpperCase(),
+        status: { $in: ['activated', 'active'] },
+      });
+    }
+
+    if (!rec && host && host !== 'localhost' && !host.startsWith('localhost:')) {
+      const cleanHost = host.split(':')[0].toLowerCase();
+      rec = await collection.findOne({
+        $or: [
+          { domain: cleanHost },
+          { host: cleanHost },
+          { machineFingerprint: cleanHost },
+        ],
+        status: { $in: ['activated', 'active'] },
+      });
+    }
+
+    // Fallback to latest activated license on Master DB
+    if (!rec) {
+      rec = await (collection as any).findOne(
+        { status: { $in: ['activated', 'active'] }, assignedDb: { $exists: true, $ne: null } },
+        { sort: { updatedAt: -1, createdAt: -1 } }
+      );
+    }
+
+    if (rec && rec.assignedDb) {
+      const dbName = rec.assignedDb;
+      const config = {
+        shopName: rec.shopName || 'Shop Của Tôi',
+        dbName,
+        mongoUri: buildMongoUriForDb(dbName),
+        licenseKey: rec.licenseKey,
+      };
+      saveTenantConfig({
+        ...config,
+        createdAt: rec.createdAt ? new Date(rec.createdAt).toISOString() : new Date().toISOString(),
+      });
+      return config;
+    }
+  } catch (e) {
+    console.warn('Error auto-resolving active tenant from cloud:', e);
+  }
+  return null;
+}
+
+/**
  * Validate and atomically consume a 1-time License Key
  */
 export async function validateAndConsumeLicense(

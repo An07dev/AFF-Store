@@ -134,10 +134,22 @@ async function connectToDatabase(): Promise<typeof mongoose> {
   if (!cached.promise) {
     cached.promise = (async () => {
       // 1. Check if client has a dedicated tenant database configured
-      const tenant = getTenantConfig();
+      let tenant = getTenantConfig();
       let targetUri = tenant?.mongoUri || process.env.MONGODB_URI?.trim();
 
-      // If user provided a custom/tenant URI
+      // If no local tenant config, auto-resolve active tenant from Cloud Master DB
+      if (!targetUri || targetUri === 'auto' || !tenant?.dbName) {
+        try {
+          const { findActiveTenantFromCloud } = await import('./license-manager');
+          const cloudTenant = await findActiveTenantFromCloud();
+          if (cloudTenant && cloudTenant.mongoUri) {
+            targetUri = cloudTenant.mongoUri;
+            tenant = getTenantConfig();
+          }
+        } catch (e) {}
+      }
+
+      // If user provided or resolved a custom/tenant URI
       if (targetUri && targetUri !== 'auto' && targetUri !== 'local' && targetUri !== 'embedded') {
         try {
           console.log('🌐 [DB Connect] Đang kết nối CSDL:', targetUri.replace(/:([^:@]+)@/, ':****@'));
@@ -156,7 +168,7 @@ async function connectToDatabase(): Promise<typeof mongoose> {
       // 2. If running on Vercel / Cloud or Master Cluster is available: use Cloud Atlas cluster
       const isServerless = Boolean(process.env.VERCEL || process.env.VERCEL_ENV || process.env.AWS_LAMBDA_FUNCTION_NAME);
       if (isServerless || (MASTER_CLUSTER_BASE && MASTER_CLUSTER_BASE.includes('mongodb+srv://'))) {
-        const fallbackDb = tenant?.dbName || 'webstore';
+        const fallbackDb = tenant?.dbName || 'shop_shop_test_qvfr9';
         const cloudUri = buildMongoUriForDb(fallbackDb);
         console.log('☁️ [Cloud Atlas Connect] Đang kết nối CSDL Cloud:', cloudUri.replace(/:([^:@]+)@/, ':****@'));
         const conn = await mongoose.connect(cloudUri, {
