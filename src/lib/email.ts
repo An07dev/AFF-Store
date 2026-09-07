@@ -351,3 +351,223 @@ export async function sendTestEmail(targetEmail: string, customConfig?: IEmailSe
 
   return info;
 }
+
+// 7. License Key Delivery Email for Master Landing Orders
+export interface SendLicenseEmailParams {
+  toEmail: string;
+  buyerName: string;
+  buyerPhone?: string;
+  orderCode: string;
+  licenseKey: string;
+  plan: string;
+  amount: number;
+}
+
+export interface EmailResult {
+  success: boolean;
+  simulated?: boolean;
+  messageId?: string;
+  error?: string;
+}
+
+export function generateLicenseEmailHtml(params: {
+  buyerName: string;
+  orderCode: string;
+  licenseKey: string;
+  plan: string;
+  amount: number;
+  downloadUrl: string;
+  hotline: string;
+  docsUrl: string;
+  bannerTitle?: string;
+  introText?: string;
+}): string {
+  const planName =
+    params.plan === '799k'
+      ? 'Gói Setup & Cài Đặt Trọn Gói A-Z (799K)'
+      : 'Gói Bán Hàng Ngoại Sàn Tự Cài Đặt (399K)';
+  const bannerTitle = params.bannerTitle || 'XÁC NHẬN BÀN GIAO MÃ NGUỒN & BẢN QUYỀN';
+  const introText =
+    params.introText ||
+    `Hệ thống đã ghi nhận giao dịch thanh toán thành công cho đơn hàng <strong>#${params.orderCode}</strong>. Chúng tôi xin trân trọng gửi tới bạn thông tin bản quyền và đường link tải trọn bộ mã nguồn:`;
+
+  const formattedAmount = params.amount
+    ? `${params.amount.toLocaleString('vi-VN')}đ`
+    : (params.plan === '799k' ? '799.000đ' : '399.000đ');
+
+  return `
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${bannerTitle}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc;">
+  <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #0b0f19; padding: 30px 15px;">
+    <tr>
+      <td align="center">
+        <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #131826; border: 1px solid #1f293d; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 32px 24px; text-align: center;">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: 0.05em; text-transform: uppercase;">
+                ${bannerTitle}
+              </h1>
+              <p style="margin: 8px 0 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.9);">
+                Cảm ơn bạn <strong>${params.buyerName}</strong> đã tin tưởng lựa chọn giải pháp bán hàng!
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 28px 24px;">
+              <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.6; color: #cbd5e1;">
+                ${introText}
+              </p>
+              <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;">
+                <div style="font-size: 12px; font-weight: 700; color: #93c5fd; text-transform: uppercase; margin-bottom: 8px;">
+                  MÃ BẢN QUYỀN (LICENSE KEY) CỦA BẠN:
+                </div>
+                <div style="font-family: monospace; font-size: 22px; font-weight: 800; color: #60a5fa; letter-spacing: 0.1em; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 8px; user-select: all;">
+                  ${params.licenseKey}
+                </div>
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;">
+                  Mã này dùng để kích hoạt không giới hạn cho hệ thống của bạn
+                </div>
+              </div>
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+                <tr>
+                  <td align="center">
+                    <a href="${params.downloadUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+                      🚀 TẢI TRỌN BỘ MÃ NGUỒN (GOOGLE DRIVE)
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #1a2234; border: 1px solid #28334e; border-radius: 10px; overflow: hidden; margin: 24px 0;">
+                <tr>
+                  <td style="padding: 10px 16px; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #232d44; width: 40%;">Mã đơn hàng:</td>
+                  <td style="padding: 10px 16px; font-size: 13px; font-weight: 700; color: #f8fafc; border-bottom: 1px solid #232d44;">#${params.orderCode}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 16px; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #232d44;">Gói bản quyền:</td>
+                  <td style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #a5b4fc; border-bottom: 1px solid #232d44;">${planName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 16px; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #232d44;">Số tiền:</td>
+                  <td style="padding: 10px 16px; font-size: 14px; font-weight: 800; color: #34d399; border-bottom: 1px solid #232d44;">${formattedAmount}</td>
+                </tr>
+              </table>
+              <div style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+                📞 <strong>Hotline / Zalo:</strong> <span style="color: #38bdf8; font-weight: 700;">${params.hotline}</span><br>
+                📖 <strong>Tài liệu hướng dẫn:</strong> <a href="${params.docsUrl}" target="_blank" style="color: #38bdf8; text-decoration: none;">${params.docsUrl}</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #0b0f19; border-top: 1px solid #1f293d; padding: 20px; text-align: center; font-size: 12px; color: #64748b;">
+              © 2026 E-Commerce Platform. All rights reserved.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+export async function sendLicenseEmail(params: SendLicenseEmailParams): Promise<EmailResult> {
+  const { toEmail, buyerName, orderCode, licenseKey, plan, amount } = params;
+
+  if (!toEmail || !toEmail.includes('@')) {
+    return {
+      success: false,
+      error: 'Địa chỉ email không hợp lệ',
+    };
+  }
+
+  let dbConfig = null;
+  try {
+    await connectToDatabase();
+    const SystemConfig = (await import('@/models/SystemConfig')).SystemConfig;
+    dbConfig = await SystemConfig.findOne({ key: 'master_payment_config' }).lean();
+  } catch (err) {
+    console.warn('Could not query SystemConfig for email:', err);
+  }
+
+  const smtpHost = dbConfig?.smtpHost || process.env.SMTP_HOST || 'smtp.gmail.com';
+  const smtpPort = Number(dbConfig?.smtpPort || process.env.SMTP_PORT || 465);
+  const smtpSecure = dbConfig?.smtpSecure ?? (process.env.SMTP_SECURE !== 'false' && smtpPort === 465);
+  const smtpUser = dbConfig?.smtpUser || process.env.SMTP_USER || '';
+  const smtpPass = dbConfig?.smtpPass || process.env.SMTP_PASS || '';
+  const smtpFrom = dbConfig?.smtpFrom || process.env.SMTP_FROM || `"Master Admin" <${smtpUser || 'noreply@shop.vn'}>`;
+  const adminNotifyEmail = dbConfig?.adminNotifyEmail || '';
+  const downloadUrl =
+    dbConfig?.sourceCodeDownloadUrl ||
+    process.env.SOURCE_CODE_DOWNLOAD_URL ||
+    'https://drive.google.com/drive/folders/source-code-full-package';
+  const hotline = dbConfig?.hotlineSupport || process.env.HOTLINE_SUPPORT || '0988.888.888';
+  const docsUrl = dbConfig?.docsUrl || process.env.DOCS_URL || 'https://shop.vn/docs/setup-guide';
+
+  const htmlContent = generateLicenseEmailHtml({
+    buyerName,
+    orderCode,
+    licenseKey,
+    plan,
+    amount,
+    downloadUrl,
+    hotline,
+    docsUrl,
+    bannerTitle: dbConfig?.emailBannerTitle,
+    introText: dbConfig?.emailIntroText,
+  });
+
+  if (!smtpUser || !smtpPass) {
+    console.log(`[SIMULATED EMAIL] To: ${toEmail} | Key: ${licenseKey} | Order: ${orderCode}`);
+    return {
+      success: true,
+      simulated: true,
+      messageId: `simulated-${Date.now()}`,
+    };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpSecure,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+      connectionTimeout: 10000,
+    });
+
+    const subjectTemplate = dbConfig?.emailSubjectTemplate || '[Bàn Giao] Mã Bản Quyền & Mã Nguồn Đơn Hàng #{orderCode}';
+    const finalSubject = subjectTemplate
+      .replace('{orderCode}', orderCode)
+      .replace('{buyerName}', buyerName)
+      .replace('{licenseKey}', licenseKey)
+      .replace('{plan}', plan === '799k' ? 'Gói 799K' : 'Gói 399K');
+
+    const info = await transporter.sendMail({
+      from: smtpFrom,
+      to: toEmail,
+      ...(adminNotifyEmail ? { bcc: adminNotifyEmail } : {}),
+      subject: finalSubject,
+      html: htmlContent,
+    });
+
+    return {
+      success: true,
+      messageId: info.messageId,
+    };
+  } catch (error: any) {
+    console.error('Lỗi khi gửi email bản quyền qua SMTP:', error);
+    return {
+      success: false,
+      error: error.message || 'Lỗi gửi mail qua SMTP',
+    };
+  }
+}

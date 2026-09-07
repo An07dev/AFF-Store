@@ -160,5 +160,6 @@ async function connectToDatabase(): Promise<typeof mongoose> {
   return cached.conn;
 }
 
+export { connectToDatabase };
 export default connectToDatabase;
 

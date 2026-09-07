@@ -54,7 +54,7 @@ export async function GET(request: Request) {
       }
     }
 
-    const validPaymentFilter = {
+    const validPaymentFilter: any = {
       $or: [
         { paymentMethod: { $nin: ['bank_transfer', 'online'] } },
         { paymentStatus: { $in: ['paid', 'refunded'] } },
