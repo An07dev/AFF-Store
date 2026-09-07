@@ -3,7 +3,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import StoreProductCard, { ProductItem } from './StoreProductCard';
-import styles from '@/app/(store)/page.module.css';
+import styles from '@/app/(store)/demo/page.module.css';
 
 const FILTER_PILLS = ['Tất cả', 'Flash Sale 🔥', 'Bán chạy', 'Hàng mới', 'Giá ↕'];
 

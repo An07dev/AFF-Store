@@ -4,7 +4,7 @@ import React, { memo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FiTruck, FiPlus, FiShoppingCart } from 'react-icons/fi';
-import styles from '@/app/(store)/page.module.css';
+import styles from '@/app/(store)/demo/page.module.css';
 
 export interface ProductItem {
   _id: string;
