@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/mongodb';
 import { getTenantConfig, saveTenantConfig, buildMongoUriForDb, MASTER_CLUSTER_BASE } from '@/lib/tenant-config';
 import { checkLicenseStatus, findLicenseByHostOrKey, LicenseCheckResult } from '@/lib/license-manager';
+import { autoSeedIfNeeded } from '@/lib/auto-seed';
 import User from '@/models/User';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
@@ -84,11 +85,19 @@ export async function GET(request: Request) {
         isConnected = true;
         try {
           stats.users = await User.countDocuments();
+          
+          // Auto-seed admin user & theme if tenant is configured but DB is not seeded yet
+          if (stats.users === 0 && tenant) {
+            await autoSeedIfNeeded({ shopName: tenant.shopName });
+            stats.users = await User.countDocuments();
+          }
+
           stats.products = await Product.countDocuments();
           stats.categories = await Category.countDocuments();
-          isSeeded = stats.users > 0;
+          isSeeded = stats.users > 0 || Boolean(tenant?.licenseKey);
         } catch (err: any) {
           console.warn('Error reading stats:', err.message);
+          isSeeded = Boolean(tenant?.licenseKey);
         }
       }
     } catch (error: any) {

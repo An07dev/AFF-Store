@@ -36,6 +36,15 @@ interface DbStatus {
   isLocked?: boolean;
   isRevoked?: boolean;
   licenseStatus?: string;
+  licenseCheck?: {
+    valid: boolean;
+    status: string;
+    licenseKey?: string;
+    buyerName?: string;
+    shopName?: string;
+    assignedDb?: string;
+    message?: string;
+  };
   errorMessage: string | null;
   stats: {
     users: number;
@@ -371,8 +380,8 @@ export default function DatabaseSetupBanner() {
     return null;
   }
 
-  // If connected and seeded, no modal needed
-  if (status.isConnected && status.isSeeded && !setupDone) {
+  // If connected and seeded or already has a valid active license, no modal needed
+  if (status.isConnected && (status.isSeeded || Boolean(status.tenant?.licenseKey) || status.licenseCheck?.valid) && !setupDone) {
     return null;
   }
 
