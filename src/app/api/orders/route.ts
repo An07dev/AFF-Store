@@ -253,8 +253,8 @@ export async function POST(request: Request) {
           lastOrderAt: new Date(),
         });
       } else {
-        customerDoc.orderCount += 1;
-        customerDoc.totalSpent += totalAmount;
+        customerDoc.orderCount = ((customerDoc.orderCount ?? customerDoc.totalOrders ?? 0) + 1);
+        customerDoc.totalSpent = ((customerDoc.totalSpent || 0) + totalAmount);
         customerDoc.lastOrderAt = new Date();
         await customerDoc.save();
       }
