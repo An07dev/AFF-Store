@@ -670,17 +670,7 @@ export default function LandingPage() {
                   href="/demo"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={styles.rareBtnSecondary}
-                  style={{
-                    padding: '7px 15px',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    borderRadius: 9999,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    textDecoration: 'none',
-                  }}
+                  className={styles.rareHeaderDemoBtn}
                 >
                   <FiShoppingBag size={14} /> Xem Demo ↗
                 </Link>
@@ -688,21 +678,7 @@ export default function LandingPage() {
                 <CoolMode options={{ particle: "⚡" }}>
                   <button
                     type="button"
-                    className={styles.rareBtnPrimary}
-                    style={{
-                      padding: '8px 18px',
-                      fontSize: 13.5,
-                      fontWeight: 800,
-                      borderRadius: 9999,
-                      background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                      color: '#ffffff',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      border: 'none',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)',
-                    }}
+                    className={styles.rareHeaderBuyBtn}
                     onClick={() => openOrderModal('399k')}
                   >
                     <FiZap size={14} /> Mua Gói 399K
